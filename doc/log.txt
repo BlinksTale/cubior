@@ -1,0 +1,11 @@
+Cubior Development, by Brian Handy
+---
+1/16/12
+Got windows version of cpp file working today
+
+setup: git on Windows: http://help.github.com/win-set-up-git/
+setup: git repo from github: git clone git://github.com/BlinksTale/cubior.git
+
+remember: windows change drive cmd: cd /D E: for E drive
+
+compile: windows Visual Studio 2005 Command Prompt: cl /EHsc cubior.cpp
