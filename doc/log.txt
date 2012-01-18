@@ -9,3 +9,10 @@ setup: git repo from github: git clone git://github.com/BlinksTale/cubior.git
 remember: windows change drive cmd: cd /D E: for E drive
 
 compile: windows Visual Studio 2005 Command Prompt: cl /EHsc cubior.cpp
+
+---
+1/17/12
+Setup on a fesh linux box
+
+Linux setup: git on Linux: sudo apt-get install git-core
+Linux setup: c++ on Linux: sudo apt-get install g++
