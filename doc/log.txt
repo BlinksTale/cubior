@@ -30,3 +30,5 @@ setup: get OpenGL displaying something: http://www.cs.lmu.edu/~ray/notes/opengle
 accomplishment: got header files working! Now using multiple files for visuals
 setup: must now compile with: g++ textRender.cpp visuals.cpp cubior.cpp
 
+build: must currently use command: gcc flatRender.cpp textRender.cpp visuals.cpp -I/usr/X11R6/include -L/usr/X11R6/bin -o cubior cubior.cpp -lglut -lGL
+build: ^that is because I am using Dr. Toal's code atm for testing out the visuals system

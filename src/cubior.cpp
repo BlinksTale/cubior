@@ -8,7 +8,7 @@
 #include "visuals.h"
 using namespace std;
 
-int main() {
-  render();
+int main(int argc, char** argv) {
+  render(argc, argv);
   return 0;
 }

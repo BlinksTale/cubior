@@ -7,10 +7,11 @@
 #include <iostream>
 #include "visuals.h"
 #include "textRender.h"
+#include "flatRender.h"
 
-int renderMode = 0;
+int renderMode = 2;
 
-void render() {
+void render(int argc, char** argv) {
   switch(renderMode){
     case 0:
       renderText();
@@ -19,7 +20,7 @@ void render() {
       renderASCII();
       break;
     case 2:
-      renderFlat();
+      renderFlat(argc, argv);
       break;
     case 3:
       renderDepth();
@@ -36,9 +37,7 @@ void renderASCII() {
   std::cout << "[^_^]\n";
 }
 
-void renderFlat() {
-  std::cout << "Coming Soon.\n";
-}
+// RenderFlat can be found in flatRender.cpp
 
 void renderDepth() {
   std::cout << "Coming a bit later.\n";
