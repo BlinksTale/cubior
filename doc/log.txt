@@ -16,3 +16,17 @@ Setup on a fesh linux box
 
 Linux setup: git on Linux: sudo apt-get install git-core
 Linux setup: c++ on Linux: sudo apt-get install g++
+
+---
+1/19/12
+
+setup: linux GL and GLUT installation
+setup: get OpenGL ready: http://www.cs.lmu.edu/~ray/notes/opengl/
+setup: get OpenGL displaying something: http://www.cs.lmu.edu/~ray/notes/openglexamples/
+
+---
+1/20/12
+
+accomplishment: got header files working! Now using multiple files for visuals
+setup: must now compile with: g++ textRender.cpp visuals.cpp cubior.cpp
+
