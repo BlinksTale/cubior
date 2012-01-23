@@ -7,6 +7,7 @@
 #ifndef FLATRENDER
 #define FLATRENDER
 
-    void renderFlat(int, char**);
+    void display();
+    int renderFlat(int, char**);
 
 #endif 

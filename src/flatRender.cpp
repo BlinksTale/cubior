@@ -3,8 +3,7 @@
  * by Brian Handy
  * 1/20/12
  * 2d Visuals for cubior
- *
-#include <iostream>
+ */
 #include "flatRender.h"
 
 #ifdef __APPLE_CC__
@@ -13,59 +12,38 @@
 #include <GL/glut.h>
 #endif
 
-void renderFlat() {
-  std::cout << "2d visuals for Cubior\n";
-}*/
-
-// A simple introductory program; its main window contains a static picture
-// of a triangle, whose three vertices are red, green and blue.  The program
-// illustrates viewing with default viewing parameters only.
-
-#ifdef __APPLE_CC__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
-// Clears the current window and draws a triangle.
+// Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-
-  // Set every pixel in the frame buffer to the current clear color.
+  // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // Drawing is done by specifying a sequence of vertices.  The way these
-  // vertices are connected (or not connected) depends on the argument to
-  // glBegin.  GL_POLYGON constructs a filled polygon.
+  // Draw Cubior, the cube!
   glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0); glVertex3f(-0.6, -0.75, 0.5);
-    glColor3f(0, 1, 0); glVertex3f(0.6, -0.75, 0);
-    glColor3f(0, 0, 1); glVertex3f(0, 0.75, 0);
+    glColor3f(0.6,0.4,0.0); glVertex3f( 0.5,-0.5,0);
+    glColor3f(0.6,0.4,0.0); glVertex3f(-0.5,-0.5,0);
+    glColor3f(1.0,0.8,0.3); glVertex3f(-0.5, 0.5,0);
+    glColor3f(1.0,0.8,0.3); glVertex3f( 0.5, 0.5,0);
   glEnd();
 
-  // Flush drawing command buffer to make drawing happen as soon as possible.
+  // End with a quick flush, to draw faster
   glFlush();
 }
 
-// Initializes GLUT, the display mode, and main window; registers callbacks;
-// enters the main event loop.
-int renderFlat(int argc, char** argv) {
+int renderFlat(int argc, char** argv) { 
+// was renderFlat but is now main
 
-  // Use a single buffered window in RGB mode (as opposed to a double-buffered
-  // window or color-index mode).
+  // standard initialization
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-
-  // Position window at (80,80)-(480,380) and give it a title.
-  glutInitWindowPosition(80, 80);
-  glutInitWindowSize(400, 300);
-  glutCreateWindow("A Simple Triangle");
-
-  // Tell GLUT that whenever the main window needs to be repainted that it
-  // should call the function display().
+  
+  // setup & create window
+  glutInitWindowPosition(0,0);
+  glutInitWindowSize(640,480);
+  glutCreateWindow("Cubior");
+  
+  // Use display for refreshing visuals
   glutDisplayFunc(display);
 
-  // Tell GLUT to start reading and processing events.  This function
-  // never returns; the program only exits when the user closes the main
-  // window or kills the process.
+  // Take input and start processing!
   glutMainLoop();
 }
