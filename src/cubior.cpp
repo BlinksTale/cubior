@@ -8,7 +8,15 @@
 #include "visuals.h"
 using namespace std;
 
+// Gets called as often as possible
+void tick() {
+  //gameplayLoop();
+  //updateGraphics(x);
+  //render();
+}
+
 int main(int argc, char** argv) {
-  render(argc, argv);
+  initRender(argc, argv); // nothing gets called after this
+  tick();
   return 0;
 }

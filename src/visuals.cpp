@@ -11,7 +11,27 @@
 
 int renderMode = 2;
 
-void render(int argc, char** argv) {
+void initRender(int argc, char** argv) {
+  switch(renderMode){
+    case 2:
+      initFlat(argc, argv); // nothing gets called after this
+      break;
+    default:
+      break;
+  }  
+}
+
+void updateGraphics(int x) {
+  switch(renderMode){
+    case 2:
+      updateFlat();
+      break;
+    default:
+      break;
+  }  
+}
+
+void render() {
   switch(renderMode){
     case 0:
       renderText();
@@ -20,7 +40,7 @@ void render(int argc, char** argv) {
       renderASCII();
       break;
     case 2:
-      renderFlat(argc, argv);
+      renderFlat();
       break;
     case 3:
       renderDepth();

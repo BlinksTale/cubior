@@ -8,6 +8,10 @@
 #define FLATRENDER
 
     void display();
-    int renderFlat(int, char**);
+    void initFlat(int, char**);
+    void updatePlayerGraphic();
+    void setPlayerGraphic(int,int);
+    void updateFlat();
+    void renderFlat();
 
 #endif 

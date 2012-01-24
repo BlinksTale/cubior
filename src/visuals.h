@@ -7,7 +7,9 @@
 #ifndef VISUALS
 #define VISUALS
 
-    void render(int, char**);
+    void initRender(int, char**);
+    void updateGraphics();
+    void render();
     void renderText();
     void renderASCII();
     void renderFlat();

@@ -61,3 +61,8 @@ note: though gcc on Windows and Unix point to very different locations and use d
 
 build: windows FINAL all-in-one: g++ flatRender.cpp textRender.cpp visuals.cpp -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -o cubior cubior.cpp -lfreeglut -lopengl32 -Wl,--subsystem,windows && ./cubior.exe
 warning: don't forget that gcc doesn't use g++ by default, and using g++ can be much friendlier, actually.
+
+problem: it appears nothing runs after initFlat gets called from outside of initFlat
+solution: gameplay gets called from initFlat, sadly
+
+question: should I use SDL? http://www.libsdl.org/
