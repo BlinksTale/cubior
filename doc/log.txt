@@ -16,3 +16,53 @@ Setup on a fesh linux box
 
 Linux setup: git on Linux: sudo apt-get install git-core
 Linux setup: c++ on Linux: sudo apt-get install g++
+
+---
+1/19/12
+
+setup: linux GL and GLUT installation
+setup: get OpenGL ready: http://www.cs.lmu.edu/~ray/notes/opengl/
+setup: get OpenGL displaying something: http://www.cs.lmu.edu/~ray/notes/openglexamples/
+
+---
+1/20/12
+
+accomplishment: got header files working! Now using multiple files for visuals
+setup: must now compile with: g++ textRender.cpp visuals.cpp cubior.cpp
+
+build: must currently use command: gcc flatRender.cpp textRender.cpp visuals.cpp -I/usr/X11R6/include -L/usr/X11R6/bin -o cubior cubior.cpp -lglut -lGL
+build: ^that is because I am using Dr. Toal's code atm for testing out the visuals system
+
+---
+1/21/12
+
+build: windows version is: gcc flatRender.cpp textRender.cpp visuals.cpp -D_STDCALL_SUPPORTED -o cubior cubior.cpp glut32.lib -lglu32 -lopengl32
+
+setup: windows needs freeglut, which needs to be unpacked and configured (use ./configure in MinGW)
+
+build: windows WORKING v.Triangle, line 1: gcc -c -o triangle.o triangle.cpp -I"C:\MinGW\freeglut\include"
+build: windows WORKING v.Triangle, line 2: gcc -o triangle.exe triangle.o -L"C:\MinGW\freeglut\lib" -lfreeglut -lopengl32 -Wl, --subsystem,windows
+build: windows WORKING v.Triangle, line 3: ./triangle.exe
+
+build: note, windows WORKING comes from http://www.transmissionzero.co.uk/computing/using-glut-with-mingw/
+build: note, windows WORKING requires lib and include folders in MinGW, and a freeglut.dll in PATH somewhere (from SysWOW64 or System32)
+
+---
+1/22/12
+
+build: windows WORKING v.Triangle all-in-one: gcc -c -o triangle.o triangle.cpp -I"C:\MinGW\freeglut\include" && gcc -o triangle.exe triangle.o -L"C:\MinGW\freeglut\lib" -lfreeglut -lopengl32 -Wl, --subsystem,windows && ./triangle.exe
+
+---
+1/23/12
+
+build: windows PERFECT v.flatRender all-in-one: gcc -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -o flatRender flatRender.cpp -lfreeglut -lopengl32 -Wl,--subsystem,windows && ./flatRender.exe
+
+note: though gcc on Windows and Unix point to very different locations and use different libraries, the framework for the command is very similar
+
+build: windows FINAL all-in-one: g++ flatRender.cpp textRender.cpp visuals.cpp -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -o cubior cubior.cpp -lfreeglut -lopengl32 -Wl,--subsystem,windows && ./cubior.exe
+warning: don't forget that gcc doesn't use g++ by default, and using g++ can be much friendlier, actually.
+
+problem: it appears nothing runs after initFlat gets called from outside of initFlat
+solution: gameplay gets called from initFlat, sadly
+
+question: should I use SDL? http://www.libsdl.org/
