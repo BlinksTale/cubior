@@ -15,9 +15,11 @@
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
+// Whether to wait for idle to refresh, or force w/ timer
+static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
 // angle of cubior while he rotates
-static GLfloat angle = 45.0;
+static GLfloat playerAngle = 45.0;
 
 // pos of cubior while he moves
 static GLfloat playerX = 0.0;
@@ -31,12 +33,14 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
+  // Zoom camera out
+  glScalef(0.1,0.1,0.1);
   // Then move player
   glTranslatef(playerX, playerY, 0.0);
   // Then animate player
-  glRotatef(angle, 0.0, 0.0, 1.0);
+  glRotatef(playerAngle, 0.0, 0.0, 1.0);
   // And make player bigger
-  glScalef(20.0,20.0,20.0);
+  glScalef(100.0,100.0,100.0);
 
   glPushMatrix();
   // Draw Cubior, the cube!
@@ -74,6 +78,7 @@ void display() {
   glutSwapBuffers(); // because using double buffer, must swap buffers
 }
 
+// Leftover Toal Code:
 // Handles the window reshape event by first ensuring that the viewport fills
 // the entire drawing surface.  Then we use a simple orthographic projection
 // with a logical coordinate system ranging from -50..50 in the smaller of
@@ -93,15 +98,16 @@ void reshape(GLint w, GLint h) {
   }
 }
 
-// Handles the timer by incrementing the angle of rotation and requesting the
-// window to display again, provided the program is in the spinning state.
-// Since the timer function is only called once, it sets the same function to
-// be called again.
-void timer(int v) {
+// main loop for rendering. Also calls gameplay loop,
+// updates graphisc, and calls itself again
+void renderLoop() {
   gameplayLoop();
   updatePlayerGraphic();
   glutPostRedisplay();
-  glutTimerFunc(1000/FPS, timer, v);
+}
+void timerRenderLoop(int v) {
+  renderLoop();
+  glutTimerFunc(1000/FPS, timerRenderLoop, v);
 }
 
 void initFlat(int argc, char** argv) { 
@@ -115,24 +121,29 @@ void initFlat(int argc, char** argv) {
   
   // setup & create window
   glutInitWindowPosition(0,0);
-  glutInitWindowSize(640,480);
+  glutInitWindowSize(160,120);
   glutCreateWindow("Cubior");
   
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
-  glutTimerFunc(100, timer, 0);
+  if (idleNotTimer) {
+    glutIdleFunc(renderLoop);
+  } else {
+    glutTimerFunc(100, timerRenderLoop, 0);
+  }
   // Take input and start processing!
   glutMainLoop();
 }
 
 void updatePlayerGraphic() {
-  setPlayerGraphic(getPlayerX(),getPlayerY());
+  setPlayerGraphic(getPlayerX(),getPlayerY(),getPlayerAngleZ());
 }
 
-void setPlayerGraphic(int x, int y) {
+void setPlayerGraphic(int x, int y, int angle) {
   playerX = x;
   playerY = y;
+  playerAngle = angle;
 }
 
 void updateFlat() {

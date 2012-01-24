@@ -6,20 +6,24 @@
  */
 #include "gameplay.h"
 
-float x = -9;
-float y = -9;
-static float movementSpeed = 0.25;
+int x = -9;
+int y = -9;
+int angleZ = 0;
+static int movementSpeed = 1;
 
 void gameplayLoop() {
   // increase player position
   x += movementSpeed;
-  y += movementSpeed;
+  //y += movementSpeed;
 }
 
 // Returns gameplay state
-float getPlayerX() {
+int getPlayerX() {
   return x;
 }
-float getPlayerY() {
+int getPlayerY() {
   return y;
+}
+int getPlayerAngleZ() {
+  return angleZ;
 }

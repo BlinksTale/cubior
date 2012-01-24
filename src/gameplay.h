@@ -8,7 +8,8 @@
 #define GAMEPLAY
 
     void gameplayLoop();
-    float getPlayerX();
-    float getPlayerY();
+    int getPlayerX();
+    int getPlayerY();
+    int getPlayerAngleZ();
 
 #endif 
