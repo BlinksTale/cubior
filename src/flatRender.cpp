@@ -17,7 +17,7 @@
 static const int FPS = 60;
 
 // angle of cubior while he rotates
-static GLfloat angle = 90.0;
+static GLfloat angle = 45.0;
 
 // pos of cubior while he moves
 static GLfloat playerX = 0.0;
@@ -31,16 +31,41 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
+  // Then move player
   glTranslatef(playerX, playerY, 0.0);
-  glRotatef(angle*2, 0.0, 0.0, 1.0);
+  // Then animate player
+  glRotatef(angle, 0.0, 0.0, 1.0);
+  // And make player bigger
+  glScalef(20.0,20.0,20.0);
 
   glPushMatrix();
   // Draw Cubior, the cube!
   glBegin(GL_POLYGON);
-    glColor3f(0.6,0.4,0.0); glVertex3f( 05,-05,0);
-    glColor3f(0.6,0.4,0.0); glVertex3f(-05,-05,0);
-    glColor3f(1.0,0.8,0.3); glVertex3f(-05, 05,0);
-    glColor3f(1.0,0.8,0.3); glVertex3f( 05, 05,0);
+    glColor3f(0.6,0.4,0.0); glVertex3f( 0.5,-0.5,0);
+    glColor3f(0.6,0.4,0.0); glVertex3f(-0.5,-0.5,0);
+    glColor3f(1.0,0.8,0.3); glVertex3f(-0.5, 0.5,0);
+    glColor3f(1.0,0.8,0.3); glVertex3f( 0.5, 0.5,0);
+  glEnd();
+  // Mouth
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f( 0.3,-0.25,0);
+    glColor3f(0,0,0); glVertex3f(-0.3,-0.25,0);
+    glColor3f(0,0,0); glVertex3f(-0.3,-0.15,0);
+    glColor3f(0,0,0); glVertex3f( 0.3,-0.15,0);
+  glEnd();
+  // Eye L
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0);
+    glColor3f(0,0,0); glVertex3f( 0.15, 0.3,0);
+    glColor3f(0,0,0); glVertex3f( 0.15, 0.0,0);
+    glColor3f(0,0,0); glVertex3f( 0.25, 0.0,0);
+  glEnd();
+  // Eye R
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f(-0.25, 0.3,0);
+    glColor3f(0,0,0); glVertex3f(-0.15, 0.3,0);
+    glColor3f(0,0,0); glVertex3f(-0.15, 0.0,0);
+    glColor3f(0,0,0); glVertex3f(-0.25, 0.0,0);
   glEnd();
   glPopMatrix();
 
