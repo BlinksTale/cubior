@@ -121,7 +121,7 @@ void initFlat(int argc, char** argv) {
   
   // setup & create window
   glutInitWindowPosition(0,0);
-  glutInitWindowSize(160,120);
+  glutInitWindowSize(640,480);
   glutCreateWindow("Cubior");
   
   // Use display for refreshing visuals
