@@ -71,3 +71,5 @@ question: should I use SDL? http://www.libsdl.org/
 1/24/12
 
 note: using a makefile now btw, so type "make" while in src/ in terminal and project will compile & run
+
+note: arrow keys are special in glut, so pass a function to glutSpecialFunc for them, and to glutKeyboardFunc for all ASCII keys
