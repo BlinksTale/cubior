@@ -6,6 +6,7 @@
  */
 #include "flatRender.h"
 #include "gameplay.h"
+#include "keyboard.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -123,6 +124,10 @@ void initFlat(int argc, char** argv) {
   glutInitWindowPosition(0,0);
   glutInitWindowSize(640,480);
   glutCreateWindow("Cubior");
+
+  // input
+  glutKeyboardFunc(handleInput);
+  glutSpecialFunc(handleSpecialInput);
   
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);

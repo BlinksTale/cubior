@@ -10,4 +10,4 @@ else
 endif
 
 all:
-	g++ gameplay.cpp flatRender.cpp textRender.cpp visuals.cpp $(One) -o cubior cubior.cpp && $(Exe)
+	g++ keyboard.cpp gameplay.cpp flatRender.cpp textRender.cpp visuals.cpp $(One) -o cubior cubior.cpp && $(Exe)
