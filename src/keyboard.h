@@ -7,7 +7,12 @@
 #ifndef KEYBOARD
 #define KEYBOARD
 
-    void handleInput(unsigned char, int, int);
-    void handleSpecialInput(int, int, int);
+    void inputDown(unsigned char, int, int);
+    void inputUp(unsigned char, int, int);
+    void handleInput(unsigned char, bool);
+    void sendCommands();
+    void specialInputDown(int, int, int);
+    void specialInputUp(int, int, int);
+    void handleSpecialInput(int, bool);
 
 #endif 

@@ -8,6 +8,15 @@
 #define GAMEPLAY
 
     void gameplayLoop();
+    void setPlayerX(int);
+    void setPlayerY(int);
+    void setPlayerAngleZ(int);
+    void changePlayerX(int);
+    void changePlayerY(int);
+    void changePlayerAngleZ(int);
+    void movePlayerX(int);
+    void movePlayerY(int);
+    void movePlayerAngleZ(int);
     int getPlayerX();
     int getPlayerY();
     int getPlayerAngleZ();

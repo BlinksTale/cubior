@@ -102,6 +102,7 @@ void reshape(GLint w, GLint h) {
 // main loop for rendering. Also calls gameplay loop,
 // updates graphisc, and calls itself again
 void renderLoop() {
+  sendCommands();
   gameplayLoop();
   updatePlayerGraphic();
   glutPostRedisplay();
@@ -126,8 +127,10 @@ void initFlat(int argc, char** argv) {
   glutCreateWindow("Cubior");
 
   // input
-  glutKeyboardFunc(handleInput);
-  glutSpecialFunc(handleSpecialInput);
+  glutKeyboardFunc(inputDown);
+  glutKeyboardUpFunc(inputUp);
+  glutSpecialFunc(specialInputDown);
+  glutSpecialUpFunc(specialInputUp);
   
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);

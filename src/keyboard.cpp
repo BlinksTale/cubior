@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include "gameplay.h"
 
 using namespace std;
 
@@ -15,11 +16,26 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
+bool upKey = false;
+bool downKey = false;
+bool leftKey = false;
+bool rightKey = false;
+bool spaceKey = false;
+
+// Once per loop, send off the commands from these inputs
+void sendCommands() {
+  if (upKey)    { movePlayerY( 1); }
+  if (downKey)  { movePlayerY(-1); }
+  if (leftKey)  { movePlayerX(-1); }
+  if (rightKey) { movePlayerX( 1); }
+  if (spaceKey) { movePlayerY( 2); }
+}
+
 // Handle keyboard input.
-void handleInput(unsigned char key, int x, int y) {
+void handleInput(unsigned char key, bool newBool) {
   switch(key) {
     case 32: // spacebar
-      cout << "hit space!\n";
+      spaceKey = newBool;
       break;
     case 27:
       exit(0);
@@ -29,22 +45,28 @@ void handleInput(unsigned char key, int x, int y) {
   }
 }
 
+void inputDown(unsigned char key, int x, int y) { handleInput(key, true); }
+void inputUp(unsigned char key, int x, int y) { handleInput(key, false); }
+
 // nonASCII keys go here
-void handleSpecialInput(int key, int x, int y) {
+void handleSpecialInput(int key, bool newBool) {
   switch(key) {
     case GLUT_KEY_UP:
-      cout << "hit up!\n";
+      upKey = newBool;
       break;
     case GLUT_KEY_DOWN:
-      cout << "hit down!\n";
+      downKey = newBool;
       break;
     case GLUT_KEY_LEFT:
-      cout << "hit left!\n";
+      leftKey = newBool;
       break;
     case GLUT_KEY_RIGHT:
-      cout << "hit right!\n";
+      rightKey = newBool;
       break;
     default:
       break;
   }
 }
+
+void specialInputDown(int key, int x, int y) { handleSpecialInput(key, true); }
+void specialInputUp(int key, int x, int y)   { handleSpecialInput(key, false); }
