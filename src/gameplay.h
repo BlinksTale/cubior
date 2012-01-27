@@ -20,5 +20,6 @@
     int getPlayerX();
     int getPlayerY();
     int getPlayerAngleZ();
+    float getHappiness();
 
 #endif 

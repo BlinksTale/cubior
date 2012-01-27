@@ -11,11 +11,12 @@ int y = -9;
 int angleZ = 0;
 static int movementSpeed = 10;
 static int rotationSpeed = 10;
+float happiness = 0.0;
 
 void gameplayLoop() {
   // increase player position
   angleZ += rotationSpeed / 10;
-  //y += movementSpeed;
+  happiness = (angleZ % 360 - 120) / 360.0 * 2.0;
 }
 
 // Sets gameplay state
@@ -33,3 +34,4 @@ void movePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ * rotationSpeed; }
 int getPlayerX() { return x; }
 int getPlayerY() { return y; }
 int getPlayerAngleZ() { return angleZ; }
+float getHappiness() { return happiness; }

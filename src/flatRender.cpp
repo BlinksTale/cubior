@@ -19,6 +19,14 @@ static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
+// Face smile height
+static float faceSmileValue = 0.1;
+static float faceSmileHeight = -0.2;
+static float faceLineWidth = 0.1;
+static float faceSmileWidth = 0.8;
+static float faceSmileCurveWidth = 0.2;
+static float faceSmileCurveHeight = 0.2;
+
 // angle of cubior while he rotates
 static GLfloat playerAngle = 45.0;
 
@@ -53,10 +61,22 @@ void display() {
   glEnd();
   // Mouth
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( 0.3,-0.25,0);
-    glColor3f(0,0,0); glVertex3f(-0.3,-0.25,0);
-    glColor3f(0,0,0); glVertex3f(-0.3,-0.15,0);
-    glColor3f(0,0,0); glVertex3f( 0.3,-0.15,0);
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
+  glEnd();
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
+  glEnd();
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
   glEnd();
   // Eye L
   glBegin(GL_POLYGON);
@@ -106,6 +126,7 @@ void renderLoop() {
   gameplayLoop();
   updatePlayerGraphic();
   glutPostRedisplay();
+  faceSmileValue = (getHappiness()-0.5)/10;
 }
 void timerRenderLoop(int v) {
   renderLoop();
