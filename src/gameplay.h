@@ -17,9 +17,13 @@
     void movePlayerX(int);
     void movePlayerY(int);
     void movePlayerAngleZ(int);
+    void jump(bool);
+
     int getPlayerX();
     int getPlayerY();
     int getPlayerAngleZ();
+    bool getLocking();
+    void setLocking(bool);
     float getHappiness();
 
 #endif 

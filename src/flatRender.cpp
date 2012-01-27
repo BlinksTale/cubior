@@ -54,30 +54,41 @@ void display() {
   glPushMatrix();
   // Draw Cubior, the cube!
   glBegin(GL_POLYGON);
+    if (!getLocking()) {
     glColor3f(0.6,0.4,0.0); glVertex3f( 0.5,-0.5,0);
     glColor3f(0.6,0.4,0.0); glVertex3f(-0.5,-0.5,0);
     glColor3f(1.0,0.8,0.3); glVertex3f(-0.5, 0.5,0);
     glColor3f(1.0,0.8,0.3); glVertex3f( 0.5, 0.5,0);
+    } else {
+    glColor3f(0.4,0.4,0.4); glVertex3f( 0.5,-0.5,0);
+    glColor3f(0.4,0.4,0.4); glVertex3f(-0.5,-0.5,0);
+    glColor3f(0.8,0.8,0.8); glVertex3f(-0.5, 0.5,0);
+    glColor3f(0.8,0.8,0.8); glVertex3f( 0.5, 0.5,0);
+    }
   glEnd();
   // Mouth
+  if (!getLocking()) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
   glEnd();
+  }
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
   glEnd();
+  if (!getLocking()) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
   glEnd();
+  }
   // Eye L
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0);
