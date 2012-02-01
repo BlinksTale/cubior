@@ -28,6 +28,8 @@
     int getPlayerAngleZ();
     bool getLocking();
     void setLocking(bool);
+    bool getInvincibility();
+    void setInvincibility(bool);
     float getHappiness();
 
 #endif 

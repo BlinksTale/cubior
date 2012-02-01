@@ -22,6 +22,7 @@ bool leftKey = false;
 bool rightKey = false;
 bool jumpKey = false;
 bool lockKey = false;
+bool superKey = false;
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
@@ -31,12 +32,16 @@ void sendCommands() {
   if (rightKey) { movePlayerX( 1); }
   jump(jumpKey);
   setLocking(lockKey);
+  setInvincibility(superKey);
 }
 
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
   switch(key) {
     case 32: // spacebar
+      break;
+    case 'c': case 'C':
+      superKey = newBool;
       break;
     case 'x': case 'X':
       if (jumpKey && !lockKey && newBool) { jumpKey = false; }

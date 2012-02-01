@@ -14,8 +14,8 @@
 #include <GL/glut.h>
 #endif
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <cmath>
+#include <algorithm>
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
@@ -35,6 +35,9 @@ static float colorDefaultA = 0.4;
 static float colorDefaultR = 0.2;
 static float colorDefaultG = 0.0;
 static float colorDefaultB =-0.4;
+float colorCurrentR = colorDefaultR;
+float colorCurrentG = colorDefaultG;
+float colorCurrentB = colorDefaultB;
 
 // angle of cubior while he rotates
 static GLfloat playerAngle = 45.0;
@@ -43,21 +46,33 @@ static GLfloat playerAngle = 45.0;
 static GLfloat playerX = 0.0;
 static GLfloat playerY = 0.0;
 static GLfloat playerZ = 0.0;
+static GLfloat changeX = 0.0;
+static GLfloat changeY = 0.0;
+static GLfloat changeZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  float red = colorDefaultA;
-  float grn = colorDefaultA;
-  float blu = colorDefaultA;
   
-  if (!getLocking()) { red += colorDefaultR; grn += colorDefaultG; blu += colorDefaultB; }
+  if (getInvincibility()) {
+    colorCurrentR += (rand() % 4 - 2) / 4.0;
+    colorCurrentG += (rand() % 4 - 2) / 4.0;
+    colorCurrentB += (rand() % 4 - 2) / 4.0;
+    if (colorCurrentR > 1.0) { colorCurrentR = 1.0; }
+    if (colorCurrentG > 1.0) { colorCurrentG = 1.0; }
+    if (colorCurrentB > 1.0) { colorCurrentB = 1.0; }
+    if (colorCurrentR < colorDefaultA) { colorCurrentR = colorDefaultA; }
+    if (colorCurrentG < colorDefaultA) { colorCurrentG = colorDefaultA; }
+    if (colorCurrentB < colorDefaultA) { colorCurrentB = colorDefaultA; }
+  } else { colorCurrentR = colorDefaultA; colorCurrentG = colorDefaultA; colorCurrentB = colorDefaultA; }
+
+  if (!getLocking()) { colorCurrentR += colorDefaultR; colorCurrentG += colorDefaultG; colorCurrentB += colorDefaultB; }
   
-  float r1 = red + colorDarkness;
-  float g1 = grn + colorDarkness;
-  float b1 = blu + colorDarkness;
-  float r2 = red;
-  float g2 = grn;
-  float b2 = blu;
+  float r1 = colorCurrentR + colorDarkness;
+  float g1 = colorCurrentG + colorDarkness;
+  float b1 = colorCurrentB + colorDarkness;
+  float r2 = colorCurrentR;
+  float g2 = colorCurrentG;
+  float b2 = colorCurrentB;
   
   // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT);
@@ -69,8 +84,11 @@ void display() {
   glScalef(0.001,0.001,0.001);
   // Then move player
   glTranslatef(playerX, playerY, playerZ);
+  // Something broken here, will fix it later
   // Then animate player
-  glRotatef(playerAngle, 0.0, 0.0, 1.0);
+  //if (changeX != 0.0) {
+  //glRotatef(tan(changeZ*1.0/changeX)*1,0.0,0.0,1.0);
+  //}
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
@@ -200,6 +218,8 @@ void timerRenderLoop(int v) {
 }
 
 void initFlat(int argc, char** argv) { 
+  srand(1);
+
 // was renderFlat but is now main
   // start with player position
   updatePlayerGraphic();
@@ -242,6 +262,9 @@ void updatePlayerGraphic() {
 }
 
 void setPlayerGraphic(int x, int y, int z, int angle) {
+  changeX = x - playerX;
+  changeY = y - playerY;
+  changeZ = z - playerZ;
   playerX = x;
   playerY = y;
   playerZ = z;

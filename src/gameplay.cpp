@@ -21,6 +21,7 @@ bool locked = false;
 bool lockable = false;
 bool jumpable = false;
 bool grounded = false;
+bool invincible = false;
 int maxJump = 20;
 int maxSpeed = 20;
 int friction = 1;
@@ -93,4 +94,6 @@ void setLocking(bool newLock) {
   if ((lockable && newLock) || !newLock) { locked = newLock; }
   if (locked) { lockable = false; jumpable = true; }
 }
+bool getInvincibility() { return invincible; }
+void setInvincibility(bool newState) { invincible = newState; }
 float getHappiness() { return happiness; }
