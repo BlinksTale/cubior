@@ -30,6 +30,12 @@ static float faceSmileWidth = 0.8;
 static float faceSmileCurveWidth = 0.2;
 static float faceSmileCurveHeight = 0.2;
 
+static float colorDarkness = 0.4;
+static float colorDefaultA = 0.4;
+static float colorDefaultR = 0.2;
+static float colorDefaultG = 0.0;
+static float colorDefaultB =-0.4;
+
 // angle of cubior while he rotates
 static GLfloat playerAngle = 45.0;
 
@@ -40,11 +46,21 @@ static GLfloat playerZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
+  float red = colorDefaultA;
+  float grn = colorDefaultA;
+  float blu = colorDefaultA;
+  
+  if (!getLocking()) { red += colorDefaultR; grn += colorDefaultG; blu += colorDefaultB; }
+  
+  float r1 = red + colorDarkness;
+  float g1 = grn + colorDarkness;
+  float b1 = blu + colorDarkness;
+  float r2 = red;
+  float g2 = grn;
+  float b2 = blu;
+  
   // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT);
-  // Make sure back faces are behind front faces
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
@@ -60,55 +76,85 @@ void display() {
 
   glPushMatrix();
   // Draw Cubior, the cube!
-  glBegin(GL_POLYGON);
-    if (!getLocking()) {
-    glColor3f(0.6,0.4,0.0); glVertex3f( 0.5,-0.5,0);
-    glColor3f(0.6,0.4,0.0); glVertex3f(-0.5,-0.5,0);
-    glColor3f(1.0,0.8,0.3); glVertex3f(-0.5, 0.5,0);
-    glColor3f(1.0,0.8,0.3); glVertex3f( 0.5, 0.5,0);
-    } else {
-    glColor3f(0.4,0.4,0.4); glVertex3f( 0.5,-0.5,0);
-    glColor3f(0.4,0.4,0.4); glVertex3f(-0.5,-0.5,0);
-    glColor3f(0.8,0.8,0.8); glVertex3f(-0.5, 0.5,0);
-    glColor3f(0.8,0.8,0.8); glVertex3f( 0.5, 0.5,0);
-    }
-  glEnd();
+    // Back
+    glBegin(GL_POLYGON);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
+    glEnd();
+    // Left
+    glBegin(GL_POLYGON);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
+    glEnd();
+    // Right
+    glBegin(GL_POLYGON);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
+    glEnd();
+    // Bottom
+    glBegin(GL_POLYGON);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
+    glEnd();
+    // Top
+    glBegin(GL_POLYGON);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
+    glEnd();
+    // Front
+    glBegin(GL_POLYGON);
+    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,0.5);
+    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,0.5);
+    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,0.5);
+    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,0.5);
+    glEnd();
+
   // Mouth
   if (!getLocking()) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
   glEnd();
   }
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
   glEnd();
   if (!getLocking()) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0); // top left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0); // bot left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0); // top right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot left
   glEnd();
   }
   // Eye L
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.3,0);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.0,0);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.0,0);
+    glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0.5);
+    glColor3f(0,0,0); glVertex3f( 0.25, 0.0,0.5);
+    glColor3f(0,0,0); glVertex3f( 0.15, 0.0,0.5);
+    glColor3f(0,0,0); glVertex3f( 0.15, 0.3,0.5);
   glEnd();
   // Eye R
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.3,0);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.3,0);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.0,0);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.0,0);
+    glColor3f(0,0,0); glVertex3f(-0.25, 0.3,0.5);
+    glColor3f(0,0,0); glVertex3f(-0.15, 0.3,0.5);
+    glColor3f(0,0,0); glVertex3f(-0.15, 0.0,0.5);
+    glColor3f(0,0,0); glVertex3f(-0.25, 0.0,0.5);
   glEnd();
   glPopMatrix();
 
@@ -131,11 +177,11 @@ void reshape(GLint w, GLint h) {
   if (w <= h) {
     // width is smaller, go from -50 .. 50 in width
     //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(90.0, aspect, 0.0, 10.0);
+    gluPerspective(45.0, aspect, 0.0, 10.0);
   } else {
     // height is smaller, go from -50 .. 50 in height
     //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(90.0, aspect, 0.0, 10.0);
+    gluPerspective(45.0, aspect, 0.0, 10.0);
   }
 }
 
@@ -166,6 +212,11 @@ void initFlat(int argc, char** argv) {
   glutInitWindowPosition(0,0);
   glutInitWindowSize(640,480);
   glutCreateWindow("Cubior");
+  /* Not working, don't know why. Kind of important long term
+  */
+  // Make sure back faces are behind front faces
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
 
   // input
   glutKeyboardFunc(inputDown);
