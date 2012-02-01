@@ -25,8 +25,8 @@ bool lockKey = false;
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
-  if (upKey)    { movePlayerY( 1); }
-  if (downKey)  { movePlayerY(-1); }
+  if (upKey)    { movePlayerZ(-1); }
+  if (downKey)  { movePlayerZ( 1); }
   if (leftKey)  { movePlayerX(-1); }
   if (rightKey) { movePlayerX( 1); }
   jump(jumpKey);

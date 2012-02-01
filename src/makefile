@@ -1,5 +1,5 @@
 ifeq ($(shell uname), Linux)
-  One = -I/usr/X11R6/include -L/usr/X11R6/bin -lglut -lGL
+  One = -I/usr/X11R6/include -L/usr/X11R6/bin -lglut -lGL -lGLU
   Exe = ./cubior
 else ifeq ($(shell uname), Darwin) # Darwin = Mac
   One = -framework OpenGL -framework GLUT

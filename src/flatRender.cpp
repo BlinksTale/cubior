@@ -14,6 +14,9 @@
 #include <GL/glut.h>
 #endif
 
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
@@ -33,19 +36,23 @@ static GLfloat playerAngle = 45.0;
 // pos of cubior while he moves
 static GLfloat playerX = 0.0;
 static GLfloat playerY = 0.0;
+static GLfloat playerZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT);
+  // Make sure back faces are behind front faces
+  //glEnable(GL_CULL_FACE);
+  //glCullFace(GL_BACK);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
   // Zoom camera out
-  glScalef(0.1,0.1,0.1);
+  glScalef(0.001,0.001,0.001);
   // Then move player
-  glTranslatef(playerX, playerY, 0.0);
+  glTranslatef(playerX, playerY, playerZ);
   // Then animate player
   glRotatef(playerAngle, 0.0, 0.0, 1.0);
   // And make player bigger
@@ -123,10 +130,12 @@ void reshape(GLint w, GLint h) {
   glLoadIdentity();
   if (w <= h) {
     // width is smaller, go from -50 .. 50 in width
-    glOrtho(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
+    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
+    gluPerspective(90.0, aspect, 0.0, 10.0);
   } else {
     // height is smaller, go from -50 .. 50 in height
-    glOrtho(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
+    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
+    gluPerspective(90.0, aspect, 0.0, 10.0);
   }
 }
 
@@ -172,17 +181,19 @@ void initFlat(int argc, char** argv) {
   } else {
     glutTimerFunc(100, timerRenderLoop, 0);
   }
+
   // Take input and start processing!
   glutMainLoop();
 }
 
 void updatePlayerGraphic() {
-  setPlayerGraphic(getPlayerX(),getPlayerY(),getPlayerAngleZ());
+  setPlayerGraphic(getPlayerX(),getPlayerY(),getPlayerZ(),getPlayerAngleZ());
 }
 
-void setPlayerGraphic(int x, int y, int angle) {
+void setPlayerGraphic(int x, int y, int z, int angle) {
   playerX = x;
   playerY = y;
+  playerZ = z;
   playerAngle = angle;
 }
 
