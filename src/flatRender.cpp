@@ -41,6 +41,8 @@ float colorCurrentB = colorDefaultB;
 
 // angle of cubior while he rotates
 static GLfloat playerAngle = 45.0;
+static float playerAngleNumerator = 1.0;
+static float playerAngleDivisor = 1.0;
 
 // pos of cubior while he moves
 static GLfloat playerX = 0.0;
@@ -49,6 +51,7 @@ static GLfloat playerZ = 0.0;
 static GLfloat changeX = 0.0;
 static GLfloat changeY = 0.0;
 static GLfloat changeZ = 0.0;
+static GLfloat lastChangeZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
@@ -86,12 +89,15 @@ void display() {
   glTranslatef(playerX, playerY, playerZ);
   // Something broken here, will fix it later
   // Then animate player
-  float atanDivisor = ((changeZ != 0.0) ? changeZ : 1.0);
-  float atanNumerator = changeX;
-  if (changeZ < 0.0) {
-    glRotatef(atan(atanNumerator/atanDivisor)*60.0 + 180,0.0,1.0,0.0);
+  if (changeX > 2.0 || changeX < -2.0 || changeZ > 2.0 || changeZ < -2.0) {
+    playerAngleDivisor = ((changeZ != 0.0) ? changeZ : 1.0);
+    playerAngleNumerator = changeX;
+    lastChangeZ = changeZ;
+  }
+  if (lastChangeZ < 0.0) {
+    glRotatef(atan(playerAngleNumerator/playerAngleDivisor)*60.0 + 180,0.0,1.0,0.0);
   } else {
-    glRotatef(atan(atanNumerator/atanDivisor)*60.0,0.0,1.0,0.0);
+    glRotatef(atan(playerAngleNumerator/playerAngleDivisor)*60.0,0.0,1.0,0.0);
   }
   // And make player bigger
   glScalef(100.0,100.0,100.0);
