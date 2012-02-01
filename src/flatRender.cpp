@@ -86,9 +86,13 @@ void display() {
   glTranslatef(playerX, playerY, playerZ);
   // Something broken here, will fix it later
   // Then animate player
-  //if (changeX != 0.0) {
-  //glRotatef(tan(changeZ*1.0/changeX)*1,0.0,0.0,1.0);
-  //}
+  float atanDivisor = ((changeZ != 0.0) ? changeZ : 1.0);
+  float atanNumerator = changeX;
+  if (changeZ < 0.0) {
+    glRotatef(atan(atanNumerator/atanDivisor)*60.0 + 180,0.0,1.0,0.0);
+  } else {
+    glRotatef(atan(atanNumerator/atanDivisor)*60.0,0.0,1.0,0.0);
+  }
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
@@ -96,10 +100,10 @@ void display() {
   // Draw Cubior, the cube!
     // Back
     glBegin(GL_POLYGON);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
+    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f( 0.5, 0.5,-0.5);
+    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f(-0.5, 0.5,-0.5);
+    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f(-0.5,-0.5,-0.5);
+    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f( 0.5,-0.5,-0.5);
     glEnd();
     // Left
     glBegin(GL_POLYGON);
