@@ -10,6 +10,6 @@ else
 endif
 
 all: 
-	g++ cubior.cpp visuals.cpp flatRender.cpp gameplay.cpp keyboard.cpp textRender.cpp $(Include) -o cubior && $(Exe)
+	g++ cubior.cpp cubeShape.cpp visuals.cpp flatRender.cpp gameplay.cpp keyboard.cpp textRender.cpp $(Include) -o cubior && $(Exe)
 	
 

@@ -14,7 +14,7 @@ int momentumY = 0;
 int momentumZ = 0;
 int angleZ = 0;
 static int movementSpeed = 1;
-static int jumpSpeedRatio = 10;
+static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
 float happiness = 1.0;
 bool locked = false;
@@ -22,11 +22,11 @@ bool lockable = false;
 bool jumpable = false;
 bool grounded = false;
 bool invincible = false;
-int maxJump = 20;
+int maxJump = 25;
 int maxSpeed = 20;
 int friction = 1;
 
-int gravity = 1;
+int gravity = 2;
 int floor = -100;
 
 void gameplayLoop() {

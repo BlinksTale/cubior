@@ -7,6 +7,7 @@
 #include "flatRender.h"
 #include "gameplay.h"
 #include "keyboard.h"
+#include "cubeShape.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -55,7 +56,7 @@ static GLfloat lastChangeZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  
+
   if (getInvincibility()) {
     colorCurrentR += (rand() % 4 - 2) / 4.0;
     colorCurrentG += (rand() % 4 - 2) / 4.0;
@@ -85,6 +86,7 @@ void display() {
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
+
   // Then move player
   glTranslatef(playerX, playerY, playerZ);
   // Something broken here, will fix it later
@@ -103,49 +105,8 @@ void display() {
   glScalef(100.0,100.0,100.0);
 
   glPushMatrix();
-  // Draw Cubior, the cube!
-    // Back
-    glBegin(GL_POLYGON);
-    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f(-0.5,-0.5,-0.5);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f( 0.5,-0.5,-0.5);
-    glEnd();
-    // Left
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
-    glEnd();
-    // Right
-    glBegin(GL_POLYGON);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
-    // Bottom
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
-    // Top
-    glBegin(GL_POLYGON);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
-    glEnd();
-    // Front
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,0.5);
-    glEnd();
+  // call on cubeShape's function, drawCube, to make a cube visual
+  drawCube(r1,g1,b1,colorDarkness);
 
   // Mouth
   if (!getLocking()) {
