@@ -85,3 +85,9 @@ todo: hashtables and key value pair, implement these somehow
 1/31/12
 
 note: makefiles are weird. This tutorial almost helped, but it didn't work for cubior as it is already. http://mrbook.org/tutorials/make/
+
+---
+2/10/12
+
+note: finally got makefile working, had to link when making EXE, not .o files
+note: this still looks ugly, but it speeds up compiling times

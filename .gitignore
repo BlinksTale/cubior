@@ -2,3 +2,11 @@ a.out
 cubior.exe
 cubior.obj
 cubior
+
+bin/cubeShape.o
+bin/cubior.o
+bin/flatRender.o
+bin/gameplay.o
+bin/keyboard.o
+bin/textRender.o
+bin/visuals.o
