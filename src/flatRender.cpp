@@ -79,13 +79,32 @@ void display() {
   float b2 = colorCurrentB;
   
   // Clear screen w/ black
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
+
+glPushMatrix();
+
+
+  glPushMatrix();
+  glScalef(100.0,100.0,100.0);
+  glTranslatef(1.5, -1.0, -10.0);
+  drawCube(r1,b1,b1,colorDarkness);
+  glPopMatrix();
+
+  glPushMatrix();
+  glScalef(100.0,100.0,100.0);
+  glTranslatef(1.0, -1.0, -15.0);
+  drawCube(r1,b1,b1,colorDarkness);
+  glPopMatrix();
+
+
+glPopMatrix();
+  
 
   // Then move player
   glTranslatef(playerX, playerY, playerZ);
@@ -104,10 +123,15 @@ void display() {
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
+  // Cubior Matrix
   glPushMatrix();
   // call on cubeShape's function, drawCube, to make a cube visual
   drawCube(r1,g1,b1,colorDarkness);
+  
 
+  // Cubior Face Matrix
+  glPushMatrix();
+  glTranslatef(0.0,0.0,0.01);
   // Mouth
   if (!getLocking()) {
   glBegin(GL_POLYGON);
@@ -147,6 +171,8 @@ void display() {
   glEnd();
   glPopMatrix();
 
+  glPopMatrix();
+
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
@@ -166,11 +192,11 @@ void reshape(GLint w, GLint h) {
   if (w <= h) {
     // width is smaller, go from -50 .. 50 in width
     //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.0, 10.0);
+    gluPerspective(30.0, aspect, 0.50, 10.0);
   } else {
     // height is smaller, go from -50 .. 50 in height
     //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.0, 10.0);
+    gluPerspective(30.0, aspect, 0.50, 10.0);
   }
 }
 
@@ -191,21 +217,21 @@ void timerRenderLoop(int v) {
 void initFlat(int argc, char** argv) { 
   srand(1);
 
-// was renderFlat but is now main
+  // was renderFlat but is now main
   // start with player position
   updatePlayerGraphic();
 
   // standard initialization
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+  glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
   
   // setup & create window
   glutInitWindowPosition(0,0);
   glutInitWindowSize(640,480);
   glutCreateWindow("Cubior");
-  /* Not working, don't know why. Kind of important long term
-  */
+  
   // Make sure back faces are behind front faces
+  glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
 

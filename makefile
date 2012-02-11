@@ -12,7 +12,7 @@ endif
 all: bin/cubior.o
 	g++ bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/cubior.o $(Graphics) -o bin/cubior && bin/$(Exe)
 
-bin/cubior.o: bin/visuals.o
+bin/cubior.o: bin/visuals.o bin/gameplay.o
 	g++ $(Graphics) -c src/cubior.cpp -o bin/cubior.o
 
 bin/cubeShape.o: src/cubeShape.cpp

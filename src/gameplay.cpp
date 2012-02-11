@@ -8,7 +8,7 @@
 
 int x = -0; // was -9
 int y = -0;
-int z = -250;
+int z = -0;
 int momentumX = 0;
 int momentumY = 0;
 int momentumZ = 0;
@@ -28,6 +28,12 @@ int friction = 1;
 
 int gravity = 2;
 int floor = -100;
+
+void gameplayStart() {
+  x = 0;
+  y = 0;//floor;
+  z = -1000;
+}
 
 void gameplayLoop() {
   // demo animation: angleZ += rotationSpeed / 10;

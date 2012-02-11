@@ -7,6 +7,7 @@
 #ifndef GAMEPLAY
 #define GAMEPLAY
 
+    void gameplayStart();
     void gameplayLoop();
     void setPlayerX(int);
     void setPlayerY(int);

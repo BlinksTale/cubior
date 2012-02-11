@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include "visuals.h"
+#include "gameplay.h"
 using namespace std;
 
 // Gets called as often as possible
@@ -16,6 +17,7 @@ void tick() {
 }
 
 int main(int argc, char** argv) {
+  gameplayStart();
   initRender(argc, argv); // nothing gets called after this
   tick();
   return 0;
