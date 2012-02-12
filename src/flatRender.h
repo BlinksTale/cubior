@@ -10,7 +10,7 @@
     void display();
     void initFlat(int, char**);
     void updatePlayerGraphic();
-    void setPlayerGraphic(int,int,int,int);
+    void setPlayerGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
 

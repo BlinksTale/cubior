@@ -104,3 +104,4 @@ solution: put ifdefs around the header, so it doesn't get made twice
 
 remember: ifdef at the beginning of header files to make sure not declared twice
 
+question: I'm worried about getPlayer()->methodHere() being inefficient, but segfaults otherwise

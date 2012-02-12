@@ -41,7 +41,6 @@ float colorCurrentG = colorDefaultG;
 float colorCurrentB = colorDefaultB;
 
 // angle of cubior while he rotates
-static GLfloat playerAngle = 45.0;
 static float playerAngleNumerator = 1.0;
 static float playerAngleDivisor = 1.0;
 
@@ -69,7 +68,7 @@ void display() {
     if (colorCurrentB < colorDefaultA) { colorCurrentB = colorDefaultA; }
   } else { colorCurrentR = colorDefaultA; colorCurrentG = colorDefaultA; colorCurrentB = colorDefaultA; }
 
-  if (!getLocking()) { colorCurrentR += colorDefaultR; colorCurrentG += colorDefaultG; colorCurrentB += colorDefaultB; }
+  if (!getPlayer()->getLock()) { colorCurrentR += colorDefaultR; colorCurrentG += colorDefaultG; colorCurrentB += colorDefaultB; }
   
   float r1 = colorCurrentR + colorDarkness;
   float g1 = colorCurrentG + colorDarkness;
@@ -120,12 +119,13 @@ glPopMatrix();
   } else {
     glRotatef(atan(playerAngleNumerator/playerAngleDivisor)*60.0,0.0,1.0,0.0);
   }
+
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
   // Cubior Matrix
   glPushMatrix();
-  if (getLocking()) { glScalef(2.0,0.5,2.0); }
+  if (getPlayer()->getLock()) { glScalef(2.0,0.5,2.0); }
 
   // call on cubeShape's function, drawCube, to make a cube visual
   drawCube(r1,g1,b1,colorDarkness);
@@ -135,7 +135,7 @@ glPopMatrix();
   glPushMatrix();
   glTranslatef(0.0,0.0,0.01);
   // Mouth
-  if (!getLocking()) {
+  if (!getPlayer()->getLock()) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
@@ -149,7 +149,7 @@ glPopMatrix();
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
   glEnd();
-  if (!getLocking()) {
+  if (!getPlayer()->getLock()) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
@@ -257,18 +257,17 @@ void initFlat(int argc, char** argv) {
 }
 
 void updatePlayerGraphic() {
-  setPlayerGraphic(getPlayer()->getX(),getPlayer()->getY(),getPlayer()->getZ(),getPlayerAngleZ());
+  setPlayerGraphic(getPlayer()->getX(),getPlayer()->getY(),getPlayer()->getZ());
   //setPlayerGraphic(2000,0,-1000,0);
 }
 
-void setPlayerGraphic(int x, int y, int z, int angle) {
+void setPlayerGraphic(int x, int y, int z) {
   changeX = x - playerX;
   changeY = y - playerY;
   changeZ = z - playerZ;
   playerX = x;
   playerY = y;
   playerZ = z;
-  playerAngle = angle;
 }
 
 void updateFlat() {
