@@ -32,7 +32,7 @@ void sendCommands() {
   if (rightKey) { getPlayer()->moveX( 1); }
   getPlayer()->jump(jumpKey);
   getPlayer()->setLock(lockKey);
-  setInvincibility(superKey);
+  getPlayer()->setInvincibility(superKey);
 }
 
 // Handle keyboard input.

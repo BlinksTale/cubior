@@ -8,6 +8,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
+#include "cubiorShape.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -22,23 +23,6 @@
 static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
-
-// Face smile height
-static float faceSmileValue = 0.1;
-static float faceSmileHeight = -0.2;
-static float faceLineWidth = 0.1;
-static float faceSmileWidth = 0.8;
-static float faceSmileCurveWidth = 0.2;
-static float faceSmileCurveHeight = 0.2;
-
-static float colorDarkness = 0.4;
-static float colorDefaultA = 0.4;
-static float colorDefaultR = 0.2;
-static float colorDefaultG = 0.0;
-static float colorDefaultB =-0.4;
-float colorCurrentR = colorDefaultR;
-float colorCurrentG = colorDefaultG;
-float colorCurrentB = colorDefaultB;
 
 // angle of cubior while he rotates
 static float playerAngleNumerator = 1.0;
@@ -55,27 +39,6 @@ static GLfloat lastChangeZ = 0.0;
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-
-  if (getInvincibility()) {
-    colorCurrentR += (rand() % 4 - 2) / 4.0;
-    colorCurrentG += (rand() % 4 - 2) / 4.0;
-    colorCurrentB += (rand() % 4 - 2) / 4.0;
-    if (colorCurrentR > 1.0) { colorCurrentR = 1.0; }
-    if (colorCurrentG > 1.0) { colorCurrentG = 1.0; }
-    if (colorCurrentB > 1.0) { colorCurrentB = 1.0; }
-    if (colorCurrentR < colorDefaultA) { colorCurrentR = colorDefaultA; }
-    if (colorCurrentG < colorDefaultA) { colorCurrentG = colorDefaultA; }
-    if (colorCurrentB < colorDefaultA) { colorCurrentB = colorDefaultA; }
-  } else { colorCurrentR = colorDefaultA; colorCurrentG = colorDefaultA; colorCurrentB = colorDefaultA; }
-
-  if (!getPlayer()->getLock()) { colorCurrentR += colorDefaultR; colorCurrentG += colorDefaultG; colorCurrentB += colorDefaultB; }
-  
-  float r1 = colorCurrentR + colorDarkness;
-  float g1 = colorCurrentG + colorDarkness;
-  float b1 = colorCurrentB + colorDarkness;
-  float r2 = colorCurrentR;
-  float g2 = colorCurrentG;
-  float b2 = colorCurrentB;
   
   // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,22 +55,26 @@ glPushMatrix();
   glPushMatrix();
   glScalef(100.0,100.0,100.0);
   glTranslatef(1.5, -1.0, -10.0);
-  drawCube(1,1,1,colorDarkness);
+  drawCube(1,1,1,0.4);
   glPopMatrix();
 
   glPushMatrix();
   glScalef(100.0,100.0,100.0);
   glTranslatef(1.0, -1.0, -15.0);
-  drawCube(1,1,1,colorDarkness);
+  drawCube(1,1,1,0.4);
   glPopMatrix();
 
+  glPushMatrix();
+  glScalef(100.0,100.0,100.0);
+  glTranslatef(-1.0, -1.0, -15.0);
+  drawCubior(1);
+  glPopMatrix();
 
 glPopMatrix();
   
 
   // Then move player
   glTranslatef(playerX, playerY, playerZ);
-  // Something broken here, will fix it later
   // Then animate player
   if (changeX > 2.0 || changeX < -2.0 || changeZ > 2.0 || changeZ < -2.0) {
     playerAngleDivisor = ((changeZ != 0.0) ? changeZ : 1.0);
@@ -123,57 +90,7 @@ glPopMatrix();
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
-  // Cubior Matrix
-  glPushMatrix();
-  if (getPlayer()->getLock()) { glScalef(2.0,0.5,2.0); }
-
-  // call on cubeShape's function, drawCube, to make a cube visual
-  drawCube(r1,g1,b1,colorDarkness);
-  
-
-  // Cubior Face Matrix
-  glPushMatrix();
-  glTranslatef(0.0,0.0,0.01);
-  // Mouth
-  if (!getPlayer()->getLock()) {
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
-  glEnd();
-  }
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
-  glEnd();
-  if (!getPlayer()->getLock()) {
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot left
-  glEnd();
-  }
-  // Eye L
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.3,0.5);
-  glEnd();
-  // Eye R
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.0,0.5);
-  glEnd();
-  glPopMatrix();
-
-  glPopMatrix();
+  drawCubior(0);
 
   // End with a quick flush, to draw faster
   glFlush();
@@ -194,11 +111,11 @@ void reshape(GLint w, GLint h) {
   if (w <= h) {
     // width is smaller, go from -50 .. 50 in width
     //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(30.0, aspect, 0.50, 10.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
   } else {
     // height is smaller, go from -50 .. 50 in height
     //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(30.0, aspect, 0.50, 10.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
   }
 }
 
@@ -209,8 +126,8 @@ void renderLoop() {
   gameplayLoop();
   updatePlayerGraphic();
   glutPostRedisplay();
-  faceSmileValue = (getHappiness()-0.5)/10;
 }
+
 void timerRenderLoop(int v) {
   renderLoop();
   glutTimerFunc(1000/FPS, timerRenderLoop, v);

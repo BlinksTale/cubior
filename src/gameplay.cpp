@@ -6,24 +6,12 @@
  */
 #include "gameplay.h"
 #include "cubeObj.h"
+#include "cubiorObj.h"
 
-CubeObj cubior;
-int x = -0; // was -9
-int y = -0;
-int z = -0;
-int momentumX = 0;
-int momentumY = 0;
-int momentumZ = 0;
+CubiorObj cubior[4];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
-float happiness = 1.0;
-bool locked = false;
-bool lockable = false;
-bool lockingLosesMomentum = false;
-bool jumpable = false;
-bool grounded = false;
-bool invincible = false;
 int maxJump = 25;
 int maxSpeed = 20;
 int friction = 1;
@@ -32,22 +20,22 @@ int gravity = 2;
 int floor = -100;
 
 void gameplayStart() {
-  cubior.setPos(0,0,-1000);
-  x = cubior.getX();
-  y = cubior.getY();
-  z = cubior.getZ();
+  cubior[0].setPos(0,0,-1000);
+  cubior[0].setHappiness(1.0);
+  cubior[1].setHappiness(0.5);
 }
 
 void gameplayLoop() {
-  cubior.tick();
+  cubior[0].tick();
+  cubior[1].tick();
 }
 
 // Returns gameplay state
-CubeObj* getPlayer() { return &cubior; }
+CubiorObj* getPlayer() { return &cubior[0]; }
+CubiorObj* getPlayer(int i) { return &cubior[i]; }
 
-bool getInvincibility() { return invincible; }
-void setInvincibility(bool newState) { invincible = newState; }
-float getHappiness() { return happiness; }
+bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
+void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }
 
 int getFloor() { return floor; }
 int getGravity() { return gravity; }

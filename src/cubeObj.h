@@ -9,6 +9,7 @@
 #define CUBEOBJ
 
 class CubeObj {
+  protected:
     int x, y, z, momentumX, momentumY, momentumZ;
     int movementSpeed;
     bool locked, lockable, jumpable, grounded, loseMomentumOnLock;

@@ -9,15 +9,16 @@
 #define GAMEPLAY
 
 #include "cubeObj.h"
+#include "cubiorObj.h"
 
     void gameplayStart();
     void gameplayLoop();
 
-    CubeObj* getPlayer();
+    CubiorObj* getPlayer();
+    CubiorObj* getPlayer(int);
 
-    bool getInvincibility();
-    void setInvincibility(bool);
-    float getHappiness();
+    bool getInvincibility(int);
+    void setInvincibility(int, bool);
 
     int getFloor();
     int getGravity();
