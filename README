@@ -2,6 +2,8 @@ Cubior is a 3d platformer with 3d visuals for 2d screens. It uses C++, OpenGL an
 
 By Brian Handy, Spring 2012, under LMU Computer Science 402 with Mike Megally.
 
-Build instructions: build & run in command line by typing "make" (Linux/Mac). Windows will require MinGW in C and freeglut in a MinGW folder in the C drive.
+Build Instructions: build & run in command line by typing "make" (Linux/Mac). Windows will also require MinGW in C and freeglut in a MinGW folder in the C drive.
 
-Playing instructions: Z to jump, X to freeze, C to rainbow. Arrow keys to move, and you can freeze once per jump from the ground, and jump once from your freeze.
+Play Instructions: Z to jump, X to freeze, C to rainbow, and Arrow Keys to move.
+
+Test Instructions: in a terminal/bash window, cd to "test" and type "make".
