@@ -13,26 +13,26 @@ all: bin/cubior.o
 	g++ bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/cubior.o $(Graphics) -o bin/cubior && bin/$(Exe)
 
 bin/cubior.o: bin/visuals.o bin/gameplay.o
-	g++ $(Graphics) -c src/cubior.cpp -o bin/cubior.o
+	g++ -c src/cubior.cpp -o bin/cubior.o
 
 bin/cubeShape.o: src/cubeShape.cpp
-	g++ $(Graphics) -c src/cubeShape.cpp -o bin/cubeShape.o
+	g++ -c src/cubeShape.cpp -o bin/cubeShape.o
 
 bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o
-	g++ $(Graphics) -c src/visuals.cpp -o bin/visuals.o
+	g++ -c src/visuals.cpp -o bin/visuals.o
 
 bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o
-	g++ $(Graphics) -c src/flatRender.cpp -o bin/flatRender.o
+	g++ -c src/flatRender.cpp -o bin/flatRender.o
 
 bin/gameplay.o: src/gameplay.cpp bin/cubeObj.o
 	g++ -c src/gameplay.cpp -o bin/gameplay.o
 
 bin/keyboard.o: src/keyboard.cpp
-	g++ $(Graphics) -c src/keyboard.cpp -o bin/keyboard.o
+	g++ -c src/keyboard.cpp -o bin/keyboard.o
 
 bin/textRender.o: src/textRender.cpp
-	g++ $(Graphics) -c src/textRender.cpp -o bin/textRender.o
+	g++ -c src/textRender.cpp -o bin/textRender.o
 
 bin/cubeObj.o: src/cubeObj.cpp
-	g++ $(Graphics) -c src/cubeObj.cpp -o bin/cubeObj.o
+	g++ -c src/cubeObj.cpp -o bin/cubeObj.o
 
