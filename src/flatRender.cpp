@@ -93,13 +93,13 @@ glPushMatrix();
   glPushMatrix();
   glScalef(100.0,100.0,100.0);
   glTranslatef(1.5, -1.0, -10.0);
-  drawCube(r1,b1,b1,colorDarkness);
+  drawCube(1,1,1,colorDarkness);
   glPopMatrix();
 
   glPushMatrix();
   glScalef(100.0,100.0,100.0);
   glTranslatef(1.0, -1.0, -15.0);
-  drawCube(r1,b1,b1,colorDarkness);
+  drawCube(1,1,1,colorDarkness);
   glPopMatrix();
 
 
@@ -125,6 +125,8 @@ glPopMatrix();
 
   // Cubior Matrix
   glPushMatrix();
+  if (getLocking()) { glScalef(2.0,0.5,2.0); }
+
   // call on cubeShape's function, drawCube, to make a cube visual
   drawCube(r1,g1,b1,colorDarkness);
   
@@ -255,7 +257,8 @@ void initFlat(int argc, char** argv) {
 }
 
 void updatePlayerGraphic() {
-  setPlayerGraphic(getPlayerX(),getPlayerY(),getPlayerZ(),getPlayerAngleZ());
+  setPlayerGraphic(getPlayer()->getX(),getPlayer()->getY(),getPlayer()->getZ(),getPlayerAngleZ());
+  //setPlayerGraphic(2000,0,-1000,0);
 }
 
 void setPlayerGraphic(int x, int y, int z, int angle) {

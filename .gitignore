@@ -4,6 +4,7 @@ cubior.obj
 cubior
 
 bin/cubeShape.o
+bin/cubeObj.o
 bin/cubior.o
 bin/flatRender.o
 bin/gameplay.o

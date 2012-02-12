@@ -5,7 +5,9 @@
  * Gameplay class for 3d platformer
  */
 #include "gameplay.h"
+#include "cubeObj.h"
 
+CubeObj cubior;
 int x = -0; // was -9
 int y = -0;
 int z = -0;
@@ -19,6 +21,7 @@ static int rotationSpeed = 10;
 float happiness = 1.0;
 bool locked = false;
 bool lockable = false;
+bool lockingLosesMomentum = false;
 bool jumpable = false;
 bool grounded = false;
 bool invincible = false;
@@ -30,12 +33,15 @@ int gravity = 2;
 int floor = -100;
 
 void gameplayStart() {
-  x = 0;
-  y = 0;//floor;
-  z = -1000;
+  cubior.setPos(0,0,-1000);
+  x = cubior.getX();
+  y = cubior.getY();//floor;
+  z = cubior.getZ();
 }
 
 void gameplayLoop() {
+  cubior.tick();
+/*
   // demo animation: angleZ += rotationSpeed / 10;
   // base smile on rotation
   //happiness = (angleZ % 360 - 120) / 360.0 * 2.0;
@@ -60,46 +66,59 @@ void gameplayLoop() {
       else if (momentumZ < 0) { momentumZ += friction; }
       else { momentumZ = 0; }
     }    
-  } else if (momentumX != 0 || momentumZ != 0 || momentumY != 0) {
-    momentumX = 0;
-    momentumY = 0;
-    momentumZ = 0;
-  }
-  if (y < floor) {
-    y = floor; momentumY = 0; lockable = true; jumpable = true; grounded = true;
-  } else { momentumY -= gravity; grounded = false; } 
+  } else if (playerMoving() && lockingLosesMomentum) { freezePlayer(); }
+  if (!locked || lockingLosesMomentum) { fall(); }
+*/
 }
 
-// Sets gameplay state
-void setPlayerX(int newX) { x = newX; }
-void setPlayerY(int newY) { y = newY; }
-void setPlayerZ(int newZ) { z = newZ; }
-void setPlayerAngleZ(int newAngleZ) { angleZ = newAngleZ; }
-void changePlayerX(int newX) { x += newX; }
-void changePlayerY(int newY) { y += newY; }
-void changePlayerZ(int newZ) { z += newZ; }
-void changePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ; }
-void movePlayerX(int newX) { momentumX += newX * movementSpeed; }
-void movePlayerY(int newY) { momentumY += newY * movementSpeed; }
-void movePlayerZ(int newZ) { momentumZ += newZ * movementSpeed; }
-void movePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ * rotationSpeed; }
-void jump(bool newJump) { 
-  if (jumpable) {
-    if (newJump && momentumY < maxJump) { movePlayerY(jumpSpeedRatio); } else { jumpable = false; }
-  }
+// Apply gravity! Stop if you hit the floor
+void fall() {
+  //if (y < floor) {
+  //  y = floor; momentumY = 0; lockable = true; jumpable = true; grounded = true;
+  //} else { momentumY -= gravity; grounded = false; } 
 }
+
+bool playerMoving() {
+ //return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
+}
+// Stop all movement for player!
+void freezePlayer() {
+   // momentumX = 0;
+   // momentumY = 0;
+   // momentumZ = 0;
+}
+// Sets gameplay state
+void setPlayerX(int n) { cubior.setX(n); } //x = newX; }
+void setPlayerY(int n) { cubior.setY(n); } //y = newY; }
+void setPlayerZ(int n) { cubior.setZ(n); } //z = newZ; }
+void setPlayerAngleZ(int newAngleZ) { angleZ = newAngleZ; }
+void changePlayerX(int n) { cubior.changeX(n); } //x += n; }
+void changePlayerY(int n) { cubior.changeY(n); } //y += n; }
+void changePlayerZ(int n) { cubior.changeZ(n); } //z += n; }
+void changePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ; }
+void movePlayerX(int n) { cubior.moveX(n); } //momentumX += n * movementSpeed; }
+void movePlayerY(int n) { cubior.moveY(n); } //momentumY += n * movementSpeed; }
+void movePlayerZ(int n) { cubior.moveZ(n); } //momentumZ += n * movementSpeed; }
+void movePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ * rotationSpeed; }
+void jump(bool newJump) { cubior.jump(newJump); }
 
 // Returns gameplay state
-int getPlayerX() { return x; }
-int getPlayerY() { return y; }
-int getPlayerZ() { return z; }
+CubeObj* getPlayer() { return &cubior; }
+int getPlayerX() { return cubior.getX(); }
+int getPlayerY() { return cubior.getY(); }
+int getPlayerZ() { return cubior.getZ(); }
 int getPlayerAngleZ() { return angleZ; }
 
-bool getLocking() { return locked; }
-void setLocking(bool newLock) {
-  if ((lockable && newLock) || !newLock) { locked = newLock; }
-  if (locked) { lockable = false; jumpable = true; }
+bool getLocking() { return cubior.getLock(); }
+void setLocking(bool n) {
+  cubior.setLock(n);
+//  if ((lockable && newLock) || !newLock) { locked = newLock; }
+  // Disabling this right now, cannot jump from a lock
+  //if (locked) { lockable = false; jumpable = true; }
 }
 bool getInvincibility() { return invincible; }
 void setInvincibility(bool newState) { invincible = newState; }
 float getHappiness() { return happiness; }
+
+int getFloor() { return floor; }
+int getGravity() { return gravity; }

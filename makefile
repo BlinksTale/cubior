@@ -10,7 +10,7 @@ else
 endif
 
 all: bin/cubior.o
-	g++ bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/cubior.o $(Graphics) -o bin/cubior && bin/$(Exe)
+	g++ bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/cubior.o $(Graphics) -o bin/cubior && bin/$(Exe)
 
 bin/cubior.o: bin/visuals.o bin/gameplay.o
 	g++ $(Graphics) -c src/cubior.cpp -o bin/cubior.o
@@ -24,7 +24,7 @@ bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o
 bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o
 	g++ $(Graphics) -c src/flatRender.cpp -o bin/flatRender.o
 
-bin/gameplay.o: src/gameplay.cpp
+bin/gameplay.o: src/gameplay.cpp bin/cubeObj.o
 	g++ -c src/gameplay.cpp -o bin/gameplay.o
 
 bin/keyboard.o: src/keyboard.cpp
@@ -33,4 +33,6 @@ bin/keyboard.o: src/keyboard.cpp
 bin/textRender.o: src/textRender.cpp
 	g++ $(Graphics) -c src/textRender.cpp -o bin/textRender.o
 
+bin/cubeObj.o: src/cubeObj.cpp
+	g++ $(Graphics) -c src/cubeObj.cpp -o bin/cubeObj.o
 

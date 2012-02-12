@@ -98,3 +98,9 @@ note: this still looks ugly, but it speeds up compiling times
 note: openGL z buffering doesn't work if gluPerspective nearZ is less than 0.5
 note: "Specifying a zNear clipping plane value of 0.0 to gluPerspective() won't generate an OpenGL error, but it might cause depth buffering to act as if it's disabled. A negative zNear or zFar clipping plane value would produce undesirable results." -opengl.org
 note: when calling glClear, also need to pass GL_DEPTH_BUFFER_BIT
+
+error: "redefinition of" or "previous definition of"
+solution: put ifdefs around the header, so it doesn't get made twice
+
+remember: ifdef at the beginning of header files to make sure not declared twice
+
