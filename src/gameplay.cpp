@@ -35,70 +35,26 @@ int floor = -100;
 void gameplayStart() {
   cubior.setPos(0,0,-1000);
   x = cubior.getX();
-  y = cubior.getY();//floor;
+  y = cubior.getY();
   z = cubior.getZ();
 }
 
 void gameplayLoop() {
   cubior.tick();
-/*
-  // demo animation: angleZ += rotationSpeed / 10;
-  // base smile on rotation
-  //happiness = (angleZ % 360 - 120) / 360.0 * 2.0;
-  // don't move if frozen
-  if (!locked) {
-    // cap momentum on ground
-    if (momentumX > maxSpeed) { momentumX = maxSpeed; }
-    if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
-    if (momentumZ > maxSpeed) { momentumZ = maxSpeed; }
-    if (momentumZ < -maxSpeed) { momentumZ = -maxSpeed; }
-    // Then move by that momentum
-    x += momentumX; 
-    y += momentumY;
-    z += momentumZ; 
-
-    // apply friction if on the ground
-    if (grounded) {
-      if (momentumX > 0) { momentumX -= friction; }
-      else if (momentumX < 0) { momentumX += friction; }
-      else { momentumX = 0; }
-      if (momentumZ > 0) { momentumZ -= friction; }
-      else if (momentumZ < 0) { momentumZ += friction; }
-      else { momentumZ = 0; }
-    }    
-  } else if (playerMoving() && lockingLosesMomentum) { freezePlayer(); }
-  if (!locked || lockingLosesMomentum) { fall(); }
-*/
 }
 
-// Apply gravity! Stop if you hit the floor
-void fall() {
-  //if (y < floor) {
-  //  y = floor; momentumY = 0; lockable = true; jumpable = true; grounded = true;
-  //} else { momentumY -= gravity; grounded = false; } 
-}
-
-bool playerMoving() {
- //return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
-}
-// Stop all movement for player!
-void freezePlayer() {
-   // momentumX = 0;
-   // momentumY = 0;
-   // momentumZ = 0;
-}
 // Sets gameplay state
-void setPlayerX(int n) { cubior.setX(n); } //x = newX; }
-void setPlayerY(int n) { cubior.setY(n); } //y = newY; }
-void setPlayerZ(int n) { cubior.setZ(n); } //z = newZ; }
+void setPlayerX(int n) { cubior.setX(n); } 
+void setPlayerY(int n) { cubior.setY(n); } 
+void setPlayerZ(int n) { cubior.setZ(n); } 
 void setPlayerAngleZ(int newAngleZ) { angleZ = newAngleZ; }
-void changePlayerX(int n) { cubior.changeX(n); } //x += n; }
-void changePlayerY(int n) { cubior.changeY(n); } //y += n; }
-void changePlayerZ(int n) { cubior.changeZ(n); } //z += n; }
+void changePlayerX(int n) { cubior.changeX(n); } 
+void changePlayerY(int n) { cubior.changeY(n); } 
+void changePlayerZ(int n) { cubior.changeZ(n); } 
 void changePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ; }
-void movePlayerX(int n) { cubior.moveX(n); } //momentumX += n * movementSpeed; }
-void movePlayerY(int n) { cubior.moveY(n); } //momentumY += n * movementSpeed; }
-void movePlayerZ(int n) { cubior.moveZ(n); } //momentumZ += n * movementSpeed; }
+void movePlayerX(int n) { cubior.moveX(n); }
+void movePlayerY(int n) { cubior.moveY(n); }
+void movePlayerZ(int n) { cubior.moveZ(n); }
 void movePlayerAngleZ(int newAngleZ) { angleZ += newAngleZ * rotationSpeed; }
 void jump(bool newJump) { cubior.jump(newJump); }
 
@@ -112,9 +68,6 @@ int getPlayerAngleZ() { return angleZ; }
 bool getLocking() { return cubior.getLock(); }
 void setLocking(bool n) {
   cubior.setLock(n);
-//  if ((lockable && newLock) || !newLock) { locked = newLock; }
-  // Disabling this right now, cannot jump from a lock
-  //if (locked) { lockable = false; jumpable = true; }
 }
 bool getInvincibility() { return invincible; }
 void setInvincibility(bool newState) { invincible = newState; }

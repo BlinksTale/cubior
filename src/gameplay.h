@@ -12,9 +12,6 @@
 
     void gameplayStart();
     void gameplayLoop();
-    void fall();
-    bool playerMoving();
-    void freezePlayer();
     void setPlayerX(int);
     void setPlayerY(int);
     void setPlayerZ(int);

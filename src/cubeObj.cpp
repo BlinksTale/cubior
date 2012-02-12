@@ -9,28 +9,33 @@
 #include "gameplay.h"
 
 CubeObj::CubeObj() {
+  // Pos vars
   x = 0;
   y = -200;
   z = 1000;
 
+  // Movement vars
   movementSpeed = 1;
+  maxSpeed = 20;
+  friction = 1;
+
+  // Jumping vars
+  jumpable = false;
+  grounded = false;
+  maxJump = 25;
+  jumpSpeedRatio = 5;
+
+  // Locking vars
   locked = false;
   lockable = false;
   loseMomentumOnLock = false;
-  jumpable = false;
-  grounded = false;
-  maxSpeed = 20;
-  maxJump = 25;
-  jumpSpeedRatio = 5;
-  friction = 1;
+
+  // World vars
   floor = getFloor();
   gravity = getGravity();
 }
 
 void CubeObj::tick() {
-  // demo animation: angleZ += rotationSpeed / 10;
-  // base smile on rotation
-  //happiness = (angleZ % 360 - 120) / 360.0 * 2.0;
   // don't move if frozen
   if (!locked) {
     // cap momentum on ground
@@ -51,8 +56,11 @@ void CubeObj::tick() {
       if (momentumZ > 0) { momentumZ -= friction; }
       else if (momentumZ < 0) { momentumZ += friction; }
       else { momentumZ = 0; }
-    }    
+    }
+  // Can lose all momentum on locking if bool is set
   } else if (moving() && loseMomentumOnLock) { freeze(); }
+
+  // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
   if (!locked || loseMomentumOnLock) { fall(); }
 }
 
@@ -63,31 +71,37 @@ void CubeObj::fall() {
   } else { momentumY -= gravity; grounded = false; } 
 }
 
+// Moving is any movement bool
 bool CubeObj::moving() {
  return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
 }
 
+// Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
   if (jumpable) {
     if (n && momentumY < maxJump) { moveY(jumpSpeedRatio); } else { jumpable = false; }
   }
 }
 
+// Lock to stop midair
 void CubeObj::setLock(bool n) {
   if ((lockable && n) || !n) { locked = n; }
 }
 bool CubeObj::getLock() { return locked; }
 
+// Set is absolute positioning
 void CubeObj::setX(int n) { x = n; }
 void CubeObj::setY(int n) { y = n; }
 void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 
+// Change is relative positioning
 void CubeObj::changeX(int n) { x += n; }
 void CubeObj::changeY(int n) { y += n; }
 void CubeObj::changeZ(int n) { z += n; }
 void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 
+// Move is relative momentum
 void CubeObj::moveX(int n) { momentumX += n * movementSpeed; }
 void CubeObj::moveY(int n) { momentumY += n * movementSpeed; }
 void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed; }
@@ -97,8 +111,10 @@ void CubeObj::movePos(int n, int o, int p) {
   momentumZ += p * movementSpeed;
 }
 
+// Freeze stops momentum
 void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 
+// Getters
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
