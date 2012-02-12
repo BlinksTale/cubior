@@ -33,6 +33,6 @@ bin/keyboard.o: src/keyboard.cpp
 bin/textRender.o: src/textRender.cpp
 	g++ -c src/textRender.cpp -o bin/textRender.o
 
-bin/cubeObj.o: src/cubeObj.cpp
+bin/cubeObj.o: src/cubeObj.cpp bin/gameplay.o
 	g++ -c src/cubeObj.cpp -o bin/cubeObj.o
 
