@@ -5,7 +5,7 @@ else ifeq ($(shell uname), Darwin) # Darwin = Mac
   Graphics = -framework OpenGL -framework GLUT
   Exe = cubior
 else 
-  Graphics = -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -lfreeglut -lopengl32 -Wl,--subsystem,windows
+  Graphics = -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -lfreeglut -lglu32 -lopengl32 -Wl,--subsystem,windows
   Exe = cubior.exe
 endif
 
@@ -21,16 +21,16 @@ bin/cubior.o: bin/visuals.o bin/gameplay.o
 ###########
 
 bin/cubeShape.o: src/cubeShape.cpp
-	g++ -c src/cubeShape.cpp -o bin/cubeShape.o
+	g++ $(Graphics) -c src/cubeShape.cpp -o bin/cubeShape.o
 
 bin/cubiorShape.o: src/cubiorShape.cpp bin/cubeShape.o bin/gameplay.o
-	g++ -c src/cubiorShape.cpp -o bin/cubiorShape.o
+	g++ $(Graphics) -c src/cubiorShape.cpp -o bin/cubiorShape.o
 
 bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o
 	g++ -c src/visuals.cpp -o bin/visuals.o
 
 bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o bin/cubiorShape.o
-	g++ -c src/flatRender.cpp -o bin/flatRender.o
+	g++ $(Graphics) -c src/flatRender.cpp -o bin/flatRender.o
 
 bin/textRender.o: src/textRender.cpp
 	g++ -c src/textRender.cpp -o bin/textRender.o
@@ -55,5 +55,5 @@ bin/cubiorObj.o: src/cubiorObj.cpp bin/cubeObj.o bin/gameplay.o
 #########
 
 bin/keyboard.o: src/keyboard.cpp
-	g++ -c src/keyboard.cpp -o bin/keyboard.o
+	g++ $(Graphics) -c src/keyboard.cpp -o bin/keyboard.o
 
