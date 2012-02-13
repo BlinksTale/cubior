@@ -23,6 +23,8 @@ void gameplayStart() {
   cubior[0].setPos(0,0,-1000);
   cubior[0].moveZ(3);
   cubior[1].setPos(-400,0,-1000);
+  cubior[1].moveX(2);
+  cubior[1].moveZ(3);
   cubior[0].setHappiness(1.0);
   cubior[1].setHappiness(0.5);
 }

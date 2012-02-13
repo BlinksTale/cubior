@@ -108,3 +108,11 @@ question: I'm worried about getPlayer()->methodHere() being inefficient, but seg
 
 problem: no bin folder means Macs won't compile
 solution: .gitignore that ignores everything but itself in /bin/
+
+---
+2/12/12
+
+note: abstracted cubiorShape today, gave it independence and transfered invincibility to cubiorObj from gameplay, then made multiplayer
+
+problem: Windows was not compiling GLU functions
+solution: added -lglu32 to graphics libraries list in makefile
