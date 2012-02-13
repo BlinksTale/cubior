@@ -7,6 +7,7 @@
 #ifndef CUBIORSHAPE
 #define CUBIORSHAPE
 
+    void initCubiorVisuals();
     void updateCubiorVisuals(int);
     void updateCubiorColors(int);
     void drawCubior(int);

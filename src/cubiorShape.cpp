@@ -14,6 +14,8 @@
 #include <GL/glut.h>
 #endif
 
+#include <cstdlib>
+
 // Face smile height
 static float faceSmileValue = 0.1;
 static float faceSmileHeight = -0.2;
@@ -32,6 +34,10 @@ static float colorDefaultB =-0.4;
 float colorCurrentR = colorDefaultR;
 float colorCurrentG = colorDefaultG;
 float colorCurrentB = colorDefaultB;
+
+void initCubiorVisuals() {
+  srand(1);
+}
 
 void updateCubiorVisuals(int n) {
 

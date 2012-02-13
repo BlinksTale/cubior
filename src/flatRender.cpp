@@ -134,7 +134,8 @@ void timerRenderLoop(int v) {
 }
 
 void initFlat(int argc, char** argv) { 
-  srand(1);
+
+  initCubiorVisuals();
 
   // was renderFlat but is now main
   // start with player position
