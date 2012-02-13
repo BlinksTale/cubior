@@ -6,4 +6,6 @@ Build Instructions: build & run in command line by typing "make" (Linux/Mac). Wi
 
 Play Instructions: Z to jump, X to freeze, C to rainbow, and Arrow Keys to move.
 
+Multiplayer Keys: Arrows and "M/,/." for P1, WASD and "F/G/H" for P2.
+
 Test Instructions: in a terminal/bash window, cd to "test" and type "make".
