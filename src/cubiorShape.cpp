@@ -24,22 +24,25 @@ static float faceSmileWidth = 0.8;
 static float faceSmileCurveWidth = 0.2;
 static float faceSmileCurveHeight = 0.2;
 
-float r1,g1,b1,r2,g2,b2;
-
-static float colorDarkness = 0.4;
-static float colorDefaultA = 0.4;
-static float colorDefaultR = 0.2;
-static float colorDefaultG = 0.0;
-static float colorDefaultB =-0.4;
-float colorCurrentR = colorDefaultR;
-float colorCurrentG = colorDefaultG;
-float colorCurrentB = colorDefaultB;
-
-void initCubiorVisuals() {
+void CubiorShape::initCubiorVisuals(int n) {
   srand(1);
+  colorDarkness = 0.4;
+  colorDefaultA = 0.4;
+if (n == 0) {
+  colorDefaultR = 0.2;
+  colorDefaultG = 0.0;
+  colorDefaultB =-0.4;
+} else {
+  colorDefaultR =-0.4;
+  colorDefaultG = 0.0;
+  colorDefaultB = 0.2;
+}
+  colorCurrentR = colorDefaultR;
+  colorCurrentG = colorDefaultG;
+  colorCurrentB = colorDefaultB;
 }
 
-void updateCubiorVisuals(int n) {
+void CubiorShape::updateCubiorVisuals(int n) {
 
   // Get colors in order
   updateCubiorColors(n);
@@ -49,7 +52,7 @@ void updateCubiorVisuals(int n) {
 
 }
 
-void updateCubiorColors(int n) {
+void CubiorShape::updateCubiorColors(int n) {
 
   // Invincible Colors
   if (getPlayer(n)->getInvincibility()) {
@@ -79,7 +82,7 @@ void updateCubiorColors(int n) {
   b2 = colorCurrentB;
 }
 
-void drawCubior(int n){//float r1, float g1, float b1, float colorDarkness) {
+void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorDarkness) {
 
   // make sure emotions are on the same page
   updateCubiorVisuals(n);

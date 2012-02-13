@@ -25,17 +25,18 @@ static const int FPS = 60;
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
 // angle of cubior while he rotates
-static float playerAngleNumerator = 1.0;
-static float playerAngleDivisor = 1.0;
+static float playerAngleNumerator[4] = {1.0,1.0,1.0,1.0};
+static float playerAngleDivisor[4] = {1.0,1.0,1.0,1.0};
 
-// pos of cubior while he moves
-static GLfloat playerX = 0.0;
-static GLfloat playerY = 0.0;
-static GLfloat playerZ = 0.0;
-static GLfloat changeX = 0.0;
-static GLfloat changeY = 0.0;
-static GLfloat changeZ = 0.0;
-static GLfloat lastChangeZ = 0.0;
+// pos of cubiors while they move
+CubiorShape cubiorShape[2];
+static GLfloat playerX[4] = {0.0,0.0,0.0,0.0};
+static GLfloat playerY[4] = {0.0,0.0,0.0,0.0};
+static GLfloat playerZ[4] = {0.0,0.0,0.0,0.0};
+static GLfloat changeX[4] = {0.0,0.0,0.0,0.0};
+static GLfloat changeY[4] = {0.0,0.0,0.0,0.0};
+static GLfloat changeZ[4] = {0.0,0.0,0.0,0.0};
+static GLfloat lastChangeZ[4] = {0.0,0.0,0.0,0.0};
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
@@ -64,37 +65,35 @@ glPushMatrix();
   drawCube(1,1,1,0.4);
   glPopMatrix();
 
-  glPushMatrix();
-  glScalef(100.0,100.0,100.0);
-  glTranslatef(-1.0, -1.0, -15.0);
-  drawCubior(1);
-  glPopMatrix();
-
 glPopMatrix();
   
-
-  // Then move player
-  glTranslatef(playerX, playerY, playerZ);
-  // Then animate player
-  if (changeX > 2.0 || changeX < -2.0 || changeZ > 2.0 || changeZ < -2.0) {
-    playerAngleDivisor = ((changeZ != 0.0) ? changeZ : 1.0);
-    playerAngleNumerator = changeX;
-    lastChangeZ = changeZ;
-  }
-  if (lastChangeZ < 0.0) {
-    glRotatef(atan(playerAngleNumerator/playerAngleDivisor)*60.0 + 180,0.0,1.0,0.0);
-  } else {
-    glRotatef(atan(playerAngleNumerator/playerAngleDivisor)*60.0,0.0,1.0,0.0);
-  }
-
-  // And make player bigger
-  glScalef(100.0,100.0,100.0);
-
-  drawCubior(0);
+  drawPlayer(0);
+  drawPlayer(1);
 
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
+}
+
+void drawPlayer(int n) {
+  glPushMatrix();
+  // Move player
+  glTranslatef(playerX[n], playerY[n], playerZ[n]);
+  // Then animate player rotation
+  if (changeX[n] > 2.0 || changeX[n] < -2.0 || changeZ[n] > 2.0 || changeZ[n] < -2.0) {
+    playerAngleDivisor[n] = ((changeZ[n] != 0.0) ? changeZ[n] : 1.0);
+    playerAngleNumerator[n] = changeX[n];
+    lastChangeZ[n] = changeZ[n];
+  }
+  if (lastChangeZ[n] < 0.0) {
+    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
+  } else {
+    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
+  }
+  // And make player bigger
+  glScalef(100.0,100.0,100.0);
+  cubiorShape[n].drawCubior(n);
+  glPopMatrix();
 }
 
 // Leftover Toal Code:
@@ -124,7 +123,8 @@ void reshape(GLint w, GLint h) {
 void renderLoop() {
   sendCommands();
   gameplayLoop();
-  updatePlayerGraphic();
+  updatePlayerGraphic(0);
+  updatePlayerGraphic(1);
   glutPostRedisplay();
 }
 
@@ -135,11 +135,13 @@ void timerRenderLoop(int v) {
 
 void initFlat(int argc, char** argv) { 
 
-  initCubiorVisuals();
+  cubiorShape[0].initCubiorVisuals(0);
+  cubiorShape[1].initCubiorVisuals(1);
 
   // was renderFlat but is now main
   // start with player position
-  updatePlayerGraphic();
+  updatePlayerGraphic(0);
+  updatePlayerGraphic(1);
 
   // standard initialization
   glutInit(&argc, argv);
@@ -174,18 +176,18 @@ void initFlat(int argc, char** argv) {
   glutMainLoop();
 }
 
-void updatePlayerGraphic() {
-  setPlayerGraphic(getPlayer()->getX(),getPlayer()->getY(),getPlayer()->getZ());
+void updatePlayerGraphic(int n) {
+  setPlayerGraphic(n,getPlayer(n)->getX(),getPlayer(n)->getY(),getPlayer(n)->getZ());
   //setPlayerGraphic(2000,0,-1000,0);
 }
 
-void setPlayerGraphic(int x, int y, int z) {
-  changeX = x - playerX;
-  changeY = y - playerY;
-  changeZ = z - playerZ;
-  playerX = x;
-  playerY = y;
-  playerZ = z;
+void setPlayerGraphic(int n, int x, int y, int z) {
+  changeX[n] = x - playerX[n];
+  changeY[n] = y - playerY[n];
+  changeZ[n] = z - playerZ[n];
+  playerX[n] = x;
+  playerY[n] = y;
+  playerZ[n] = z;
 }
 
 void updateFlat() {

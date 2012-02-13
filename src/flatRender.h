@@ -9,8 +9,9 @@
 
     void display();
     void initFlat(int, char**);
-    void updatePlayerGraphic();
-    void setPlayerGraphic(int,int,int);
+    void drawPlayer(int);
+    void updatePlayerGraphic(int);
+    void setPlayerGraphic(int,int,int,int);
     void updateFlat();
     void renderFlat();
 
