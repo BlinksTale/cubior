@@ -47,6 +47,7 @@ class CubeObj {
     int getY();
     int getZ();
 
+    int getWidth();
 };
 
 #endif 

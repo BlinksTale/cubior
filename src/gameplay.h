@@ -10,6 +10,7 @@
 
 #include "cubeObj.h"
 #include "cubiorObj.h"
+#include "cubiorObj.h"
 
     void gameplayStart();
     void gameplayLoop();
@@ -22,5 +23,8 @@
 
     int getFloor();
     int getGravity();
+
+    bool collision(CubiorObj*,CubiorObj*);
+    void bounce(CubiorObj*,CubiorObj*);
 
 #endif 

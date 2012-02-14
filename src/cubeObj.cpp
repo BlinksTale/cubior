@@ -118,3 +118,5 @@ void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
+
+int CubeObj::getWidth() { return 100; }
