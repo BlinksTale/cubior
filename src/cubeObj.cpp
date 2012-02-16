@@ -128,4 +128,5 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision / movementSpee
 int CubeObj::getMomentumY() { return momentumY * movementDivision / movementSpeed; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision / movementSpeed; }
 
-int CubeObj::getWidth() { return 100; }
+int CubeObj::getWidth() { return 100*(1+locked*1); }
+int CubeObj::getHeight() { return 100*(1-locked*1); }

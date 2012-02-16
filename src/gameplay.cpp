@@ -75,12 +75,14 @@ void bounce(CubiorObj* c1, CubiorObj* c2) {
   // Width/2, the radius essentially
   int c1rad = c1->getWidth()/2;
   int c2rad = c2->getWidth()/2;
+  int c1hgt = c1->getHeight()/2;
+  int c2hgt = c2->getHeight()/2;
 
   // Collision points: where exactly the boxes are colliding
   int collisionX1 = c1x < c2x ? c1x + c1rad : c1x - c1rad;
   int collisionX2 = c2x < c1x ? c2x + c2rad : c2x - c2rad;
-  int collisionY1 = c1y < c2y ? c1y + c1rad : c1y - c1rad;
-  int collisionY2 = c2y < c1y ? c2y + c2rad : c2y - c2rad;
+  int collisionY1 = c1y < c2y ? c1y + c1hgt : c1y - c1hgt;
+  int collisionY2 = c2y < c1y ? c2y + c2hgt : c2y - c2hgt;
   int collisionZ1 = c1z < c2z ? c1z + c1rad : c1z - c1rad;
   int collisionZ2 = c2z < c1z ? c2z + c2rad : c2z - c2rad;
 
@@ -91,14 +93,16 @@ void bounce(CubiorObj* c1, CubiorObj* c2) {
 
   // Only change one dimension at a time, the lowest that isn't zero
   if (diffY != 0 && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
-    c1->changeY(-diffY/2);
-    c2->changeY( diffY/2);
+    // getLock used so that locked objects don't bounce
+    // and if other object is locked, you bounce double
+    c1->changeY(-diffY*(1-c1->getLock()*1+c2->getLock()*1)/2);
+    c2->changeY( diffY*(1-c2->getLock()*1+c1->getLock()*1)/2);
   } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
-    c1->changeZ(-diffZ/2);
-    c2->changeZ( diffZ/2);
+    c1->changeZ(-diffZ*(1-c1->getLock()*1+c2->getLock()*1)/2);
+    c2->changeZ( diffZ*(1-c2->getLock()*1+c1->getLock()*1)/2);
   } else if (diffX != 0) {
-    c1->changeX(-diffX/2);
-    c2->changeX( diffX/2);
+    c1->changeX(-diffX*(1-c1->getLock()*1+c2->getLock()*1)/2);
+    c2->changeX( diffX*(1-c2->getLock()*1+c1->getLock()*1)/2);
   }
 }
 
