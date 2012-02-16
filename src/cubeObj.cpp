@@ -101,6 +101,11 @@ void CubeObj::changeY(int n) { y += n; }
 void CubeObj::changeZ(int n) { z += n; }
 void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 
+// SetMomentum is absolute momentum
+void CubeObj::setMomentumX(int n) { momentumX = n; }
+void CubeObj::setMomentumY(int n) { momentumY = n; }
+void CubeObj::setMomentumZ(int n) { momentumZ = n; }
+
 // Move is relative momentum
 void CubeObj::moveX(int n) { momentumX += n * movementSpeed; }
 void CubeObj::moveY(int n) { momentumY += n * movementSpeed; }
@@ -118,5 +123,8 @@ void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
+int CubeObj::getMomentumX() { return momentumX; }
+int CubeObj::getMomentumY() { return momentumY; }
+int CubeObj::getMomentumZ() { return momentumZ; }
 
 int CubeObj::getWidth() { return 100; }

@@ -37,7 +37,8 @@ void gameplayLoop() {
   cubior[0].tick();
   cubior[1].tick();
   if (collision(&cubior[0],&cubior[1])) {
-    bounce(&cubior[0],&cubior[1]);
+    //bounce(&cubior[0],&cubior[1]);
+    balanceMomentum(&cubior[0],&cubior[1]);
   }
 }
 
@@ -67,6 +68,18 @@ void bounce(CubiorObj* c1, CubiorObj* c2) {
   c2->changeX((c2->getX()-c1->getX())/5);
   c2->changeY((c2->getY()-c1->getY())/5);
   c2->changeZ((c2->getZ()-c1->getZ())/5);
+}
+
+void balanceMomentum(CubiorObj* c1, CubiorObj* c2) {
+  int newX = (c1->getMomentumX() + c2->getMomentumX())/2;
+  int newY = (c1->getMomentumY() + c2->getMomentumX())/2;
+  int newZ = (c1->getMomentumZ() + c2->getMomentumX())/2;
+  c1->setMomentumX(newX);
+  c1->setMomentumY(newY);
+  c1->setMomentumZ(newZ);
+  c2->setMomentumX(newX);
+  c2->setMomentumY(newY);
+  c2->setMomentumZ(newZ);
 }
 
 // Returns gameplay state

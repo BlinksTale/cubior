@@ -38,6 +38,10 @@ class CubeObj {
     void changeY(int);
     void changeZ(int);
 
+    void setMomentumX(int);
+    void setMomentumY(int);
+    void setMomentumZ(int);
+    
     void movePos(int,int,int);
     void moveX(int);
     void moveY(int);
@@ -46,6 +50,9 @@ class CubeObj {
     int getX();
     int getY();
     int getZ();
+    int getMomentumX();
+    int getMomentumY();
+    int getMomentumZ();
 
     int getWidth();
 };
