@@ -11,7 +11,7 @@
 class CubeObj {
   protected:
     int x, y, z, momentumX, momentumY, momentumZ;
-    int movementSpeed;
+    int movementSpeed, movementDivision;
     bool locked, lockable, jumpable, grounded, loseMomentumOnLock;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, floor, gravity;

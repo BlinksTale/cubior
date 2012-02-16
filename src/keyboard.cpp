@@ -36,18 +36,18 @@ bool superKey2 = false;
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
-  if (upKey)    { getPlayer(0)->moveZ(-1); }
-  if (downKey)  { getPlayer(0)->moveZ( 1); }
-  if (leftKey)  { getPlayer(0)->moveX(-1); }
-  if (rightKey) { getPlayer(0)->moveX( 1); }
+  if (upKey)    { getPlayer(0)->moveZ(-10); }
+  if (downKey)  { getPlayer(0)->moveZ( 10); }
+  if (leftKey)  { getPlayer(0)->moveX(-10); }
+  if (rightKey) { getPlayer(0)->moveX( 10); }
   getPlayer(0)->jump(jumpKey);
   getPlayer(0)->setLock(lockKey);
   getPlayer(0)->setInvincibility(superKey);
 
-  if (upKey2)    { getPlayer(1)->moveZ(-1); }
-  if (downKey2)  { getPlayer(1)->moveZ( 1); }
-  if (leftKey2)  { getPlayer(1)->moveX(-1); }
-  if (rightKey2) { getPlayer(1)->moveX( 1); }
+  if (upKey2)    { getPlayer(1)->moveZ(-10); }
+  if (downKey2)  { getPlayer(1)->moveZ( 10); }
+  if (leftKey2)  { getPlayer(1)->moveX(-10); }
+  if (rightKey2) { getPlayer(1)->moveX( 10); }
   getPlayer(1)->jump(jumpKey2);
   getPlayer(1)->setLock(lockKey2);
   getPlayer(1)->setInvincibility(superKey2);

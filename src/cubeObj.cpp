@@ -16,6 +16,7 @@ CubeObj::CubeObj() {
 
   // Movement vars
   movementSpeed = 1;
+  movementDivision = 10;
   maxSpeed = 20;
   friction = 1;
 
@@ -79,7 +80,7 @@ bool CubeObj::moving() {
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
   if (jumpable) {
-    if (n && momentumY < maxJump) { moveY(jumpSpeedRatio); } else { jumpable = false; }
+    if (n && momentumY < maxJump) { moveY(jumpSpeedRatio*10); } else { jumpable = false; }
   }
 }
 
@@ -102,18 +103,18 @@ void CubeObj::changeZ(int n) { z += n; }
 void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 
 // SetMomentum is absolute momentum
-void CubeObj::setMomentumX(int n) { momentumX = n; }
-void CubeObj::setMomentumY(int n) { momentumY = n; }
-void CubeObj::setMomentumZ(int n) { momentumZ = n; }
+void CubeObj::setMomentumX(int n) { momentumX = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
-void CubeObj::moveX(int n) { momentumX += n * movementSpeed; }
-void CubeObj::moveY(int n) { momentumY += n * movementSpeed; }
-void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed; }
+void CubeObj::moveX(int n) { momentumX += n * movementSpeed / movementDivision; }
+void CubeObj::moveY(int n) { momentumY += n * movementSpeed / movementDivision; }
+void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed / movementDivision; }
 void CubeObj::movePos(int n, int o, int p) {
-  momentumX += n * movementSpeed;
-  momentumY += o * movementSpeed;
-  momentumZ += p * movementSpeed;
+  momentumX += n * movementSpeed / movementDivision;
+  momentumY += o * movementSpeed / movementDivision;
+  momentumZ += p * movementSpeed / movementDivision;
 }
 
 // Freeze stops momentum
@@ -123,8 +124,8 @@ void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
-int CubeObj::getMomentumX() { return momentumX; }
-int CubeObj::getMomentumY() { return momentumY; }
-int CubeObj::getMomentumZ() { return momentumZ; }
+int CubeObj::getMomentumX() { return momentumX * movementDivision / movementSpeed; }
+int CubeObj::getMomentumY() { return momentumY * movementDivision / movementSpeed; }
+int CubeObj::getMomentumZ() { return momentumZ * movementDivision / movementSpeed; }
 
 int CubeObj::getWidth() { return 100; }

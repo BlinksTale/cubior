@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <cstdlib>
 #include "gameplay.h"
 #include "cubeObj.h"
 #include "cubiorObj.h"
@@ -37,8 +38,8 @@ void gameplayLoop() {
   cubior[0].tick();
   cubior[1].tick();
   if (collision(&cubior[0],&cubior[1])) {
-    //bounce(&cubior[0],&cubior[1]);
-    balanceMomentum(&cubior[0],&cubior[1]);
+    bounce(&cubior[0],&cubior[1]);
+    //balanceMomentum(&cubior[0],&cubior[1]);
   }
 }
 
@@ -62,18 +63,77 @@ bool collision(CubiorObj* c1, CubiorObj* c2) {
 }
 
 void bounce(CubiorObj* c1, CubiorObj* c2) {
-  c1->changeX((c1->getX()-c2->getX())/5);
-  c1->changeY((c1->getY()-c2->getY())/5);
-  c1->changeZ((c1->getZ()-c2->getZ())/5);
-  c2->changeX((c2->getX()-c1->getX())/5);
-  c2->changeY((c2->getY()-c1->getY())/5);
-  c2->changeZ((c2->getZ()-c1->getZ())/5);
+
+  // Grabbing these vars only once from cubes, used many times here  
+  int c1x = c1->getX();
+  int c2x = c2->getX();
+  int c1y = c1->getY();
+  int c2y = c2->getY();
+  int c1z = c1->getZ();
+  int c2z = c2->getZ();
+
+  // Width/2, the radius essentially
+  int c1rad = c1->getWidth()/2;
+  int c2rad = c2->getWidth()/2;
+
+  // Collision points: where exactly the boxes are colliding
+  int collisionX1 = c1x < c2x ? c1x + c1rad : c1x - c1rad;
+  int collisionX2 = c2x < c1x ? c2x + c2rad : c2x - c2rad;
+  int collisionY1 = c1y < c2y ? c1y + c1rad : c1y - c1rad;
+  int collisionY2 = c2y < c1y ? c2y + c2rad : c2y - c2rad;
+  int collisionZ1 = c1z < c2z ? c1z + c1rad : c1z - c1rad;
+  int collisionZ2 = c2z < c1z ? c2z + c2rad : c2z - c2rad;
+
+  // How much overlap there is total
+  int diffX = collisionX1 - collisionX2;
+  int diffY = collisionY1 - collisionY2;
+  int diffZ = collisionZ1 - collisionZ2;
+
+  // Only change one dimension at a time, the lowest that isn't zero
+  if (diffY != 0 && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
+    c1->changeY(-diffY/2);
+    c2->changeY( diffY/2);
+  } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
+    c1->changeZ(-diffZ/2);
+    c2->changeZ( diffZ/2);
+  } else if (diffX != 0) {
+    c1->changeX(-diffX/2);
+    c2->changeX( diffX/2);
+  }
+}
+
+void bouncePrecisely(CubiorObj* c1, CubiorObj* c2) {
+  int bounceDivisor = 1;
+  int diffX = (c1->getX()-c2->getX());
+  int diffY = (c1->getY()-c2->getY());
+  int diffZ = (c1->getZ()-c2->getZ());
+
+  if (diffX > 0) { diffX -= c1->getWidth()/2 + c2->getWidth()/2; }
+  else { diffX += c1->getWidth()/2 + c2->getWidth()/2; }
+  if (diffY > 0) { diffY -= c1->getWidth()/2 + c2->getWidth()/2; }
+  else { diffY += c1->getWidth()/2 + c2->getWidth()/2; }
+  if (diffZ > 0) { diffZ -= c1->getWidth()/2 + c2->getWidth()/2; }
+  else { diffZ += c1->getWidth()/2 + c2->getWidth()/2; }
+  
+  c1->changeX(-1);
+  c1->changeY(-1);
+  c1->changeZ(-1);
+  c2->changeX(1);
+  c2->changeY(1);
+  c2->changeZ(1);
 }
 
 void balanceMomentum(CubiorObj* c1, CubiorObj* c2) {
   int newX = (c1->getMomentumX() + c2->getMomentumX())/2;
   int newY = (c1->getMomentumY() + c2->getMomentumX())/2;
   int newZ = (c1->getMomentumZ() + c2->getMomentumX())/2;
+  cout << "newX = ";
+  cout << newX;
+  cout <<", newY = ";
+  cout << newY;
+  cout <<", newZ = ";
+  cout << newZ;
+  cout <<"\n";
   c1->setMomentumX(newX);
   c1->setMomentumY(newY);
   c1->setMomentumZ(newZ);

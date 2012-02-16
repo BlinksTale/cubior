@@ -26,6 +26,7 @@
 
     bool collision(CubiorObj*,CubiorObj*);
     void bounce(CubiorObj*,CubiorObj*);
+    void bouncePrecisely(CubiorObj*,CubiorObj*);
     void balanceMomentum(CubiorObj*,CubiorObj*);
 
 #endif 
