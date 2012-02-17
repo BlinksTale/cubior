@@ -68,8 +68,13 @@ void CubeObj::tick() {
 // Apply gravity! Stop if you hit the floor
 void CubeObj::fall() {
   if (y < floor) {
-    y = floor; momentumY = 0; lockable = true; jumpable = true; grounded = true;
+    y = floor; land();
   } else { momentumY -= gravity; grounded = false; } 
+}
+
+// Act as if you landed on ground
+void CubeObj::land() {
+  momentumY = 0; lockable = true; jumpable = true; grounded = true;
 }
 
 // Moving is any movement bool

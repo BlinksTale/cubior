@@ -21,6 +21,7 @@ class CubeObj {
     void tick();
 
     void fall();
+    void land();
     void freeze();
     bool moving();
     void jump(bool);

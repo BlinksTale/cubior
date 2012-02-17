@@ -39,7 +39,7 @@ void gameplayLoop() {
   cubior[1].tick();
   if (collision(&cubior[0],&cubior[1])) {
     bounce(&cubior[0],&cubior[1]);
-    //balanceMomentum(&cubior[0],&cubior[1]);
+    balanceMomentum(&cubior[0],&cubior[1]);
   }
 }
 
@@ -97,6 +97,9 @@ void bounce(CubiorObj* c1, CubiorObj* c2) {
     // and if other object is locked, you bounce double
     c1->changeY(-diffY*(1-c1->getLock()*1+c2->getLock()*1)/2);
     c2->changeY( diffY*(1-c2->getLock()*1+c1->getLock()*1)/2);
+    // then in case you land...
+    if (diffY < 0) { c1->land(); }
+    if (diffY > 0) { c2->land(); }
   } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
     c1->changeZ(-diffZ*(1-c1->getLock()*1+c2->getLock()*1)/2);
     c2->changeZ( diffZ*(1-c2->getLock()*1+c1->getLock()*1)/2);
