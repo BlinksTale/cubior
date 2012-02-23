@@ -28,15 +28,15 @@ void CubiorShape::initCubiorVisuals(int n) {
   srand(1);
   colorDarkness = 0.4;
   colorDefaultA = 0.4;
-if (n == 0) {
-  colorDefaultR = 0.2;
-  colorDefaultG = 0.0;
-  colorDefaultB =-0.4;
-} else {
-  colorDefaultR =-0.4;
-  colorDefaultG = 0.0;
-  colorDefaultB = 0.2;
-}
+  if (n == 0) {
+    colorDefaultR = 0.2;
+    colorDefaultG = 0.0;
+    colorDefaultB =-0.4;
+  } else {
+    colorDefaultR =-0.4;
+    colorDefaultG = 0.0;
+    colorDefaultB = 0.2;
+  }
   colorCurrentR = colorDefaultR;
   colorCurrentG = colorDefaultG;
   colorCurrentB = colorDefaultB;

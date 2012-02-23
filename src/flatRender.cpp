@@ -38,6 +38,13 @@ static GLfloat changeY[4] = {0.0,0.0,0.0,0.0};
 static GLfloat changeZ[4] = {0.0,0.0,0.0,0.0};
 static GLfloat lastChangeZ[4] = {0.0,0.0,0.0,0.0};
 
+// pos of cube obstacles
+//static int cubesTotal = 1;
+CubeShape cubeShape[1];
+static GLfloat cubeX[4] = {0.0,0.0,0.0,0.0};
+static GLfloat cubeY[4] = {0.0,0.0,0.0,0.0};
+static GLfloat cubeZ[4] = {0.0,0.0,0.0,0.0};
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
@@ -52,7 +59,7 @@ void display() {
 
 glPushMatrix();
 
-
+/*
   glPushMatrix();
   glScalef(100.0,100.0,100.0);
   glTranslatef(1.5, -1.0, -10.0);
@@ -64,11 +71,12 @@ glPushMatrix();
   glTranslatef(1.0, -1.0, -15.0);
   drawCube(1,1,1,0.4);
   glPopMatrix();
-
+*/
 glPopMatrix();
   
   drawPlayer(0);
   drawPlayer(1);
+  drawCube(0);
 
   // End with a quick flush, to draw faster
   glFlush();
@@ -93,6 +101,17 @@ void drawPlayer(int n) {
   // And make player bigger
   glScalef(100.0,100.0,100.0);
   cubiorShape[n].drawCubior(n);
+  glPopMatrix();
+}
+
+void drawCube(int n) {
+  glPushMatrix();
+  // Move player
+  glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
+  
+  // And make player bigger
+  glScalef(100.0,100.0,100.0);
+  cubeShape[n].drawCube(0.95,1.0,0.5,0.5);
   glPopMatrix();
 }
 
@@ -125,6 +144,7 @@ void renderLoop() {
   gameplayLoop();
   updatePlayerGraphic(0);
   updatePlayerGraphic(1);
+  updateCubeGraphic(0);
   glutPostRedisplay();
 }
 
@@ -137,6 +157,7 @@ void initFlat(int argc, char** argv) {
 
   cubiorShape[0].initCubiorVisuals(0);
   cubiorShape[1].initCubiorVisuals(1);
+  cubeShape[0].initCubeVisuals();
 
   // was renderFlat but is now main
   // start with player position
@@ -178,7 +199,12 @@ void initFlat(int argc, char** argv) {
 
 void updatePlayerGraphic(int n) {
   setPlayerGraphic(n,getPlayer(n)->getX(),getPlayer(n)->getY(),getPlayer(n)->getZ());
+  //setPlayerGraphic(n,getCube(0)->getX(),getCube(0)->getY(),getCube(0)->getZ());
   //setPlayerGraphic(2000,0,-1000,0);
+}
+
+void updateCubeGraphic(int n) {
+  setCubeGraphic(n,getCube(n)->getX(),getCube(n)->getY(),getCube(n)->getZ());
 }
 
 void setPlayerGraphic(int n, int x, int y, int z) {
@@ -188,6 +214,12 @@ void setPlayerGraphic(int n, int x, int y, int z) {
   playerX[n] = x;
   playerY[n] = y;
   playerZ[n] = z;
+}
+
+void setCubeGraphic(int n, int x, int y, int z) {
+  cubeX[n] = x;
+  cubeY[n] = y;
+  cubeZ[n] = z;
 }
 
 void updateFlat() {

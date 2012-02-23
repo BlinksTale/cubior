@@ -14,6 +14,7 @@
 using namespace std;
 
 CubiorObj cubior[4];
+CubeObj cube[4];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -30,6 +31,11 @@ void gameplayStart() {
   cubior[1].setPos(-400,0,-1000);
   cubior[1].moveX(2);
   cubior[1].moveZ(3);
+  cube[0].setPos(-200,0,-1300);
+  cube[0].moveX(2);
+  cube[0].moveZ(3);
+  cube[0].setLock(true);
+
   cubior[0].setHappiness(1.0);
   cubior[1].setHappiness(0.5);
 }
@@ -37,13 +43,20 @@ void gameplayStart() {
 void gameplayLoop() {
   cubior[0].tick();
   cubior[1].tick();
+  cube[0].tick();
   if (collision(&cubior[0],&cubior[1])) {
     bounce(&cubior[0],&cubior[1]);
     balanceMomentum(&cubior[0],&cubior[1]);
   }
+  for (int i = 0; i<4; i++) {
+    if (collision(&cubior[i],&cube[0])) {
+      bounce(&cubior[i],&cube[0]);
+      balanceMomentum(&cubior[i],&cube[0]);
+    }
+  }
 }
 
-bool collision(CubiorObj* c1, CubiorObj* c2) {
+bool collision(CubeObj* c1, CubeObj* c2) {
   int c1x = c1->getX();
   int c1y = c1->getY();
   int c1z = c1->getZ();
@@ -62,7 +75,7 @@ bool collision(CubiorObj* c1, CubiorObj* c2) {
      (c1z - c1Width < c2z + c2Width);
 }
 
-void bounce(CubiorObj* c1, CubiorObj* c2) {
+void bounce(CubeObj* c1, CubeObj* c2) {
 
   // Grabbing these vars only once from cubes, used many times here  
   int c1x = c1->getX();
@@ -109,7 +122,7 @@ void bounce(CubiorObj* c1, CubiorObj* c2) {
   }
 }
 
-void bouncePrecisely(CubiorObj* c1, CubiorObj* c2) {
+void bouncePrecisely(CubeObj* c1, CubeObj* c2) {
   int bounceDivisor = 1;
   int diffX = (c1->getX()-c2->getX());
   int diffY = (c1->getY()-c2->getY());
@@ -130,17 +143,10 @@ void bouncePrecisely(CubiorObj* c1, CubiorObj* c2) {
   c2->changeZ(1);
 }
 
-void balanceMomentum(CubiorObj* c1, CubiorObj* c2) {
+void balanceMomentum(CubeObj* c1, CubeObj* c2) {
   int newX = (c1->getMomentumX() + c2->getMomentumX())/2;
   int newY = (c1->getMomentumY() + c2->getMomentumX())/2;
   int newZ = (c1->getMomentumZ() + c2->getMomentumX())/2;
-  cout << "newX = ";
-  cout << newX;
-  cout <<", newY = ";
-  cout << newY;
-  cout <<", newZ = ";
-  cout << newZ;
-  cout <<"\n";
   c1->setMomentumX(newX);
   c1->setMomentumY(newY);
   c1->setMomentumZ(newZ);
@@ -152,6 +158,8 @@ void balanceMomentum(CubiorObj* c1, CubiorObj* c2) {
 // Returns gameplay state
 CubiorObj* getPlayer() { return &cubior[0]; }
 CubiorObj* getPlayer(int i) { return &cubior[i]; }
+CubeObj* getCube() { return &cube[0]; }
+CubeObj* getCube(int i) { return &cube[i]; }
 
 bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
 void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }

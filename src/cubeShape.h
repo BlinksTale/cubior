@@ -7,6 +7,12 @@
 #ifndef CUBESHAPE
 #define CUBESHAPE
 
+class CubeShape {
+  protected:
+  public:
+    void initCubeVisuals();
+    void updateCubeVisuals();
     void drawCube(float,float,float,float);
+};
 
 #endif

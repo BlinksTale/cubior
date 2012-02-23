@@ -18,6 +18,9 @@ class CubiorObj : public CubeObj {
     bool getInvincibility() { return invincible; }
     void setInvincibility(bool);
 
+    int getWidth();
+    int getHeight();
+
 };
 
 #endif 

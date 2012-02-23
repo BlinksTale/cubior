@@ -17,6 +17,8 @@
 
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
+    CubeObj* getCube();
+    CubeObj* getCube(int);
 
     bool getInvincibility(int);
     void setInvincibility(int, bool);
@@ -24,9 +26,9 @@
     int getFloor();
     int getGravity();
 
-    bool collision(CubiorObj*,CubiorObj*);
-    void bounce(CubiorObj*,CubiorObj*);
-    void bouncePrecisely(CubiorObj*,CubiorObj*);
-    void balanceMomentum(CubiorObj*,CubiorObj*);
+    bool collision(CubeObj*,CubeObj*);
+    void bounce(CubeObj*,CubeObj*);
+    void bouncePrecisely(CubeObj*,CubeObj*);
+    void balanceMomentum(CubeObj*,CubeObj*);
 
 #endif 

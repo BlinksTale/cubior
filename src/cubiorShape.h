@@ -4,10 +4,13 @@
  * 2/12/12
  * header for 3d model of cube
  */
+
+#include "cubeShape.h"
+
 #ifndef CUBIORSHAPE
 #define CUBIORSHAPE
 
-class CubiorShape {
+class CubiorShape : public CubeShape {
   protected:
     float r1,g1,b1,r2,g2,b2;
 

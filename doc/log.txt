@@ -116,3 +116,9 @@ note: abstracted cubiorShape today, gave it independence and transfered invincib
 
 problem: Windows was not compiling GLU functions
 solution: added -lglu32 to graphics libraries list in makefile
+
+---
+2/23/12
+
+note: override needs virtual in front of base functions in header
+note: midterms have slowed development! Spring break next week, so expect lotsa progress!

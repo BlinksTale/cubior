@@ -12,7 +12,18 @@
 #include <GL/glut.h>
 #endif
 
-void drawCube(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness) {
+void CubeShape::initCubeVisuals() {
+  // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
+}
+
+void CubeShape::updateCubeVisuals() {
+  // This handles colors and face smile for Cubiors, but nothing for Cubes yet
+}
+
+void CubeShape::drawCube(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness) {
+
+  // make sure visuals are on the same page
+  updateCubeVisuals();
 
   float r1 = colorCurrentR;
   float g1 = colorCurrentG;

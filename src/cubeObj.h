@@ -55,8 +55,8 @@ class CubeObj {
     int getMomentumY();
     int getMomentumZ();
 
-    int getWidth();
-    int getHeight();
+    virtual int getWidth();
+    virtual int getHeight();
 };
 
 #endif 

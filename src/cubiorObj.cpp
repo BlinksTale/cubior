@@ -22,3 +22,6 @@ void CubiorObj::setHappiness(float n) {
 void CubiorObj::setInvincibility(bool n) {
   invincible = n;
 }
+
+int CubiorObj::getWidth() { return 100*(1+locked*1); }
+int CubiorObj::getHeight() { return 100*(1-locked*1); }
