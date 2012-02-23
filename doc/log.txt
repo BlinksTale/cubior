@@ -122,3 +122,5 @@ solution: added -lglu32 to graphics libraries list in makefile
 
 note: override needs virtual in front of base functions in header
 note: midterms have slowed development! Spring break next week, so expect lotsa progress!
+
+doc: fill out Wiki architecture, design, implementation, testing

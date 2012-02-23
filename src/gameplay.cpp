@@ -13,8 +13,10 @@
 
 using namespace std;
 
-CubiorObj cubior[4];
-CubeObj cube[4];
+const int cubiorCount = 2;
+const int cubeCount = 1;
+CubiorObj cubior[cubiorCount];
+CubeObj cube[cubeCount];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -41,17 +43,27 @@ void gameplayStart() {
 }
 
 void gameplayLoop() {
-  cubior[0].tick();
-  cubior[1].tick();
-  cube[0].tick();
-  if (collision(&cubior[0],&cubior[1])) {
-    bounce(&cubior[0],&cubior[1]);
-    balanceMomentum(&cubior[0],&cubior[1]);
+  // Run main tick loop for all Cubiors and Cubes
+  for (int i = 0; i<cubiorCount; i++) {
+    cubior[i].tick();
   }
-  for (int i = 0; i<4; i++) {
-    if (collision(&cubior[i],&cube[0])) {
-      bounce(&cubior[i],&cube[0]);
-      balanceMomentum(&cubior[i],&cube[0]);
+  for (int i = 0; i<cubeCount; i++) {
+    cube[i].tick();
+  }
+  for (int i = 0; i<cubiorCount; i++) {
+    // Check collision with other Cubiors
+    for (int j = i+1; j<cubiorCount; j++) {
+      if (collision(&cubior[i],&cubior[j])) {
+        bounce(&cubior[i],&cubior[j]);
+        //balanceMomentum(&cubior[i],&cubior[j]);
+      }
+    }
+    // Check collision with Obstacles
+    for (int j = 0; j<cubeCount; j++) {
+      if (collision(&cubior[i],&cube[j])) {
+        bounce(&cubior[i],&cube[j]);
+        //balanceMomentum(&cubior[i],&cube[0]);
+      }
     }
   }
 }
