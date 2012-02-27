@@ -120,24 +120,29 @@ void bounce(CubeObj* c1, CubeObj* c2) {
 
   // getLock used so that locked objects don't bounce
   // and if other object is locked, you bounce double
-  bool c1Locked = (c1->getLock()||c1->getPermalock()||c1->getGrounded());
-  bool c2Locked = (c2->getLock()||c2->getPermalock()||c2->getGrounded());
-  bool c1Bounce = (1-c1Locked*1+c2Locked*1)/2;
-  bool c2Bounce = (1-c2Locked*1+c1Locked*1)/2;
+  bool c1Locked = (c1->getLock()||c1->getPermalock());
+  bool c2Locked = (c2->getLock()||c2->getPermalock());
+  bool c1Grounded = c1->getGrounded();
+  bool c2Grounded = c2->getGrounded();
+  int c1Bounce = (1-c1Locked*1+c2Locked*1);
+  int c2Bounce = (1-c2Locked*1+c1Locked*1);
+  int c1Land = (1-(c1Locked||c1Grounded)*1+(c2Locked||c2Grounded)*1);
+  int c2Land = (1-(c2Locked||c2Grounded)*1+(c1Locked||c1Grounded)*1);
 
   // Only change one dimension at a time, the lowest that isn't zero
-  if (diffY != 0 && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
-    c1->changeY(-diffY*c1Bounce);
-    c2->changeY( diffY*c2Bounce);
+  if (diffY != 0 && (!c1Grounded || !c2Grounded)
+  && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
+    if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
+    if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
     // then in case either one lands...
     if (diffY < 0) { c1->land(); }
     if (diffY > 0) { c2->land(); }
   } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
-    c1->changeZ(-diffZ*c1Bounce);
-    c2->changeZ( diffZ*c2Bounce);
+    if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
+    if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   } else if (diffX != 0) {
-    c1->changeX(-diffX*c1Bounce);
-    c2->changeX( diffX*c2Bounce);
+    if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
+    if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
   }
 }
 
