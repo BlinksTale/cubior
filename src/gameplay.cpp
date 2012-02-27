@@ -13,8 +13,9 @@
 
 using namespace std;
 
-const int cubiorCount = 2;
-const int cubeCount = 1;
+const int cubiorCount = 3;
+const int cubeCount = 5;
+
 CubiorObj cubior[cubiorCount];
 CubeObj cube[cubeCount];
 static int movementSpeed = 1;
@@ -28,18 +29,19 @@ int gravity = 2;
 int floor = -100;
 
 void gameplayStart() {
-  cubior[0].setPos(0,0,-1000);
-  cubior[0].moveZ(3);
-  cubior[1].setPos(-400,0,-1000);
-  cubior[1].moveX(2);
-  cubior[1].moveZ(3);
-  cube[0].setPos(-200,0,-1300);
-  cube[0].moveX(2);
-  cube[0].moveZ(3);
-  cube[0].setLock(true);
-
-  cubior[0].setHappiness(1.0);
-  cubior[1].setHappiness(0.5);
+  // Cubior Start States!
+  for (int i=0; i<cubiorCount; i++) {
+    cubior[i].setPos(-200*i+0,0,-1000);
+    cubior[i].moveX(3);
+    cubior[i].moveY(3);
+    cubior[i].moveZ(3);
+    cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
+  }
+  // and Cube Obstacle start states
+  for (int i=0; i<cubeCount; i++) {
+    cube[i].setPos(-200*i+0,-100,-1000);
+    cube[i].setPermalock(true);
+  }
 }
 
 void gameplayLoop() {
@@ -116,21 +118,26 @@ void bounce(CubeObj* c1, CubeObj* c2) {
   int diffY = collisionY1 - collisionY2;
   int diffZ = collisionZ1 - collisionZ2;
 
+  // getLock used so that locked objects don't bounce
+  // and if other object is locked, you bounce double
+  bool c1Locked = (c1->getLock()||c1->getPermalock()||c1->getGrounded());
+  bool c2Locked = (c2->getLock()||c2->getPermalock()||c2->getGrounded());
+  bool c1Bounce = (1-c1Locked*1+c2Locked*1)/2;
+  bool c2Bounce = (1-c2Locked*1+c1Locked*1)/2;
+
   // Only change one dimension at a time, the lowest that isn't zero
   if (diffY != 0 && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
-    // getLock used so that locked objects don't bounce
-    // and if other object is locked, you bounce double
-    c1->changeY(-diffY*(1-c1->getLock()*1+c2->getLock()*1)/2);
-    c2->changeY( diffY*(1-c2->getLock()*1+c1->getLock()*1)/2);
-    // then in case you land...
+    c1->changeY(-diffY*c1Bounce);
+    c2->changeY( diffY*c2Bounce);
+    // then in case either one lands...
     if (diffY < 0) { c1->land(); }
     if (diffY > 0) { c2->land(); }
   } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
-    c1->changeZ(-diffZ*(1-c1->getLock()*1+c2->getLock()*1)/2);
-    c2->changeZ( diffZ*(1-c2->getLock()*1+c1->getLock()*1)/2);
+    c1->changeZ(-diffZ*c1Bounce);
+    c2->changeZ( diffZ*c2Bounce);
   } else if (diffX != 0) {
-    c1->changeX(-diffX*(1-c1->getLock()*1+c2->getLock()*1)/2);
-    c2->changeX( diffX*(1-c2->getLock()*1+c1->getLock()*1)/2);
+    c1->changeX(-diffX*c1Bounce);
+    c2->changeX( diffX*c2Bounce);
   }
 }
 
@@ -172,6 +179,8 @@ CubiorObj* getPlayer() { return &cubior[0]; }
 CubiorObj* getPlayer(int i) { return &cubior[i]; }
 CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
+int getCubiorCount() { return cubiorCount; }
+int getCubeCount() { return cubeCount; }
 
 bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
 void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }

@@ -17,6 +17,10 @@ CubeObj::CubeObj() {
   // Movement vars
   movementSpeed = 1;
   movementDivision = 10;
+  momentumX = 0;
+  momentumY = 0;
+  momentumZ = 0;
+
   maxSpeed = 20;
   friction = 1;
 
@@ -29,6 +33,7 @@ CubeObj::CubeObj() {
   // Locking vars
   locked = false;
   lockable = true;
+  permalocked = false;
   loseMomentumOnLock = false;
 
   // World vars
@@ -38,7 +43,7 @@ CubeObj::CubeObj() {
 
 void CubeObj::tick() {
   // don't move if frozen
-  if (!locked) {
+  if (!locked && !permalocked) {
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
@@ -62,7 +67,7 @@ void CubeObj::tick() {
   } else if (moving() && loseMomentumOnLock) { freeze(); }
 
   // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
-  if (!locked || loseMomentumOnLock) { fall(); }
+  if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
 }
 
 // Apply gravity! Stop if you hit the floor
@@ -94,6 +99,13 @@ void CubeObj::setLock(bool n) {
   if ((lockable && n) || !n) { locked = n; }
 }
 bool CubeObj::getLock() { return locked; }
+
+// Permalock ensures complete lack of movement
+void CubeObj::setPermalock(bool n) { permalocked = n; }
+bool CubeObj::getPermalock() { return permalocked; }
+
+// and for Grounding
+bool CubeObj::getGrounded() { return grounded; }
 
 // Set is absolute positioning
 void CubeObj::setX(int n) { x = n; }

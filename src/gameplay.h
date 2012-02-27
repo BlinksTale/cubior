@@ -19,6 +19,8 @@
     CubiorObj* getPlayer(int);
     CubeObj* getCube();
     CubeObj* getCube(int);
+    int getCubiorCount();
+    int getCubeCount();
 
     bool getInvincibility(int);
     void setInvincibility(int, bool);

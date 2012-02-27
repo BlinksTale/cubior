@@ -19,31 +19,35 @@
 #include <cmath>
 #include <algorithm>
 
+// Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
+const int cubiorNum = 3;
+const int cubeNum = 5;
+
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
 // angle of cubior while he rotates
-static float playerAngleNumerator[4] = {1.0,1.0,1.0,1.0};
-static float playerAngleDivisor[4] = {1.0,1.0,1.0,1.0};
+static float playerAngleNumerator[cubiorNum];
+static float playerAngleDivisor[cubiorNum];
 
 // pos of cubiors while they move
-CubiorShape cubiorShape[2];
-static GLfloat playerX[4] = {0.0,0.0,0.0,0.0};
-static GLfloat playerY[4] = {0.0,0.0,0.0,0.0};
-static GLfloat playerZ[4] = {0.0,0.0,0.0,0.0};
-static GLfloat changeX[4] = {0.0,0.0,0.0,0.0};
-static GLfloat changeY[4] = {0.0,0.0,0.0,0.0};
-static GLfloat changeZ[4] = {0.0,0.0,0.0,0.0};
-static GLfloat lastChangeZ[4] = {0.0,0.0,0.0,0.0};
+CubiorShape cubiorShape[cubiorNum];
+static GLfloat playerX[cubiorNum];
+static GLfloat playerY[cubiorNum];
+static GLfloat playerZ[cubiorNum];
+static GLfloat changeX[cubiorNum];
+static GLfloat changeY[cubiorNum];
+static GLfloat changeZ[cubiorNum];
+static GLfloat lastChangeZ[cubiorNum];
 
 // pos of cube obstacles
 //static int cubesTotal = 1;
-CubeShape cubeShape[1];
-static GLfloat cubeX[4] = {0.0,0.0,0.0,0.0};
-static GLfloat cubeY[4] = {0.0,0.0,0.0,0.0};
-static GLfloat cubeZ[4] = {0.0,0.0,0.0,0.0};
+CubeShape cubeShape[cubeNum];
+static GLfloat cubeX[cubeNum];
+static GLfloat cubeY[cubeNum];
+static GLfloat cubeZ[cubeNum];
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
@@ -56,27 +60,13 @@ void display() {
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
-
-glPushMatrix();
-
-/*
-  glPushMatrix();
-  glScalef(100.0,100.0,100.0);
-  glTranslatef(1.5, -1.0, -10.0);
-  drawCube(1,1,1,0.4);
-  glPopMatrix();
-
-  glPushMatrix();
-  glScalef(100.0,100.0,100.0);
-  glTranslatef(1.0, -1.0, -15.0);
-  drawCube(1,1,1,0.4);
-  glPopMatrix();
-*/
-glPopMatrix();
   
-  drawPlayer(0);
-  drawPlayer(1);
-  drawCube(0);
+  for (int i=0; i<cubiorNum; i++) {
+    drawPlayer(i);
+  }
+  for (int i=0; i<cubeNum; i++) {
+    drawCube(i);
+  }
 
   // End with a quick flush, to draw faster
   glFlush();
@@ -142,9 +132,12 @@ void reshape(GLint w, GLint h) {
 void renderLoop() {
   sendCommands();
   gameplayLoop();
-  updatePlayerGraphic(0);
-  updatePlayerGraphic(1);
-  updateCubeGraphic(0);
+  for (int i=0; i<cubiorNum; i++) {
+    updatePlayerGraphic(i);
+  }
+  for (int i=0; i<cubeNum; i++) {
+    updateCubeGraphic(i);
+  }
   glutPostRedisplay();
 }
 
@@ -155,14 +148,29 @@ void timerRenderLoop(int v) {
 
 void initFlat(int argc, char** argv) { 
 
-  cubiorShape[0].initCubiorVisuals(0);
-  cubiorShape[1].initCubiorVisuals(1);
-  cubeShape[0].initCubeVisuals();
+  // Initialize Cubior Visual Vals
+  for (int i=0; i<cubiorNum; i++) {
+    playerAngleNumerator[i] = 1.0;
+    playerAngleDivisor[i] = 1.0;
+    playerX[i] = 0.0;
+    playerY[i] = 0.0;
+    playerZ[i] = 0.0;
+    changeX[i] = 0.0;
+    changeY[i] = 0.0;
+    changeZ[i] = 0.0;
+    lastChangeZ[i] = 0.0;
+    cubiorShape[i].initCubiorVisuals(i);
+    updatePlayerGraphic(i);
+  }
 
-  // was renderFlat but is now main
-  // start with player position
-  updatePlayerGraphic(0);
-  updatePlayerGraphic(1);
+  // Initialize Cube Visual Vals
+  for (int i=0; i<cubeNum; i++) {
+    cubeX[i] = 0.0;
+    cubeY[i] = 0.0;
+    cubeZ[i] = 0.0;
+    cubeShape[i].initCubeVisuals();
+    updateCubeGraphic(i);
+  }
 
   // standard initialization
   glutInit(&argc, argv);
