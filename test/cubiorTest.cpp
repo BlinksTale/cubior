@@ -8,9 +8,9 @@
 #include <iostream>
 #include <string>
 #include <string.h>
-#include "../src/gameplay.h"
-#include "../src/cubiorObj.h"
 #include "../src/cubeObj.h"
+#include "../src/cubiorObj.h"
+#include "../src/collision.h"
 using namespace std;
 
 string truth(bool n) { return n ? "true" : "false"; }
@@ -65,10 +65,10 @@ int main(int argc, char** argv) {
     prtPos(&cubior);
   
     for (int j=0; j<cubeCount; j++) {
-    bool collided = collision(&cubior, &cube[j]);
+    bool collided = Collision::between(&cubior, &cube[j]);
     cout << "They hit? " << truth(collided) << "\n";
     if (collided) {
-      bounce(&cubior, &cube[j]);
+      Collision::bounce(&cubior, &cube[j]);
       cout << "Bounce: ";
       prtPos(&cubior);
     }
