@@ -4,6 +4,7 @@
  * 2/11/12
  * Test class for 3d platformer
  */
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <string.h>
@@ -34,38 +35,45 @@ void prtPos(CubeObj* c1) {
 
 int main(int argc, char** argv) {
   CubiorObj cubior;
-  CubeObj cube;
+  int cubeCount = 6;
+  int cubeBreak = 3;
+  CubeObj cube[cubeCount];
   cout << "\n---Cubior Unit Test---\n\n";
 
-  cube.setLock(true);
-  cout << "cube locked = " << truth(cube.getLock()) << "\n";
-  cout << "cubior locked = " << truth(cubior.getLock()) << "\n";
+  setPos(&cubior,110,0,-100);
+  chkPos(&cubior,110,0,-100);
 
-  setPos(&cubior,0,100,0);
-  chkPos(&cubior,0,100,0);
+  for (int i = 0; i<cubeCount; i++){
+    cube[i].setLock(true);
+    cout << "cube locked = " << truth(cube[i].getLock()) << "\n";
 
-  setPos(&cube,0,0,0);
-  chkPos(&cube,0,0,0);
+    setPos(&cube[i],(i%cubeBreak)*100,0-100*(i/cubeBreak),0-100*(i/cubeBreak));
+    chkPos(&cube[i],(i%cubeBreak)*100,0-100*(i/cubeBreak),0-100*(i/cubeBreak));
+  }
 
   prtPos(&cubior);
   cout << "\n";  
 
-    cubior.tick();
-    cubior.tick();
+    //cubior.tick();
+    //cubior.tick();
   // Try falling and hitting the cube
-  for (int i=0; i<3; i++) {
-  
-    cout << "Tick:  ";
+  for (int i=0; i<7; i++) {
+    cubior.tick();
+    cubior.moveX(-10);
+    cubior.moveZ( 10);
+    cout << "Move:  ";
     prtPos(&cubior);
   
-    bool collided = collision(&cubior, &cube);
+    for (int j=0; j<cubeCount; j++) {
+    bool collided = collision(&cubior, &cube[j]);
     cout << "They hit? " << truth(collided) << "\n";
     if (collided) {
-      bounce(&cubior, &cube);
+      bounce(&cubior, &cube[j]);
       cout << "Bounce: ";
       prtPos(&cubior);
     }
     cout << "\n";
+    }
   }
 
   cout << "---All tests returned---\n\n";
