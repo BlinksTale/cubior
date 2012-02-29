@@ -39,7 +39,7 @@ void gameplayStart() {
   }
   // and Cube Obstacle start states
   for (int i=0; i<cubeCount; i++) {
-    cube[i].setPos(-200*i+0,-100,-1000);
+    cube[i].setPos(-100*i+0,-100,-1000);
     cube[i].setPermalock(true);
   }
 }
@@ -118,6 +118,10 @@ void bounce(CubeObj* c1, CubeObj* c2) {
   int diffY = collisionY1 - collisionY2;
   int diffZ = collisionZ1 - collisionZ2;
 
+  cout << "diffX = " << diffX;
+  cout << ", diffY = " << diffY;
+  cout << ", diffZ = " << diffZ << "\n";
+
   // getLock used so that locked objects don't bounce
   // and if other object is locked, you bounce double
   bool c1Locked = (c1->getLock()||c1->getPermalock());
@@ -131,19 +135,27 @@ void bounce(CubeObj* c1, CubeObj* c2) {
 
   // Only change one dimension at a time, the lowest that isn't zero
   if (diffY != 0 && (!c1Grounded || !c2Grounded)
-  && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
+  && ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)) {
+    cout << "Called changeY\n";
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
     // then in case either one lands...
     if (diffY < 0) { c1->land(); }
     if (diffY > 0) { c2->land(); }
-  } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
+  } else if (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
+    cout << "Called changeZ\n";
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   } else if (diffX != 0) {
+    cout << "Called changeX\n";
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
+  } else {
+    cout << "Called nothing\n";
   }
+
+  cout << "diffY = " << diffY << ", c1Bounce = " << c1Bounce << ", c2Bounce = " << c2Bounce << "\n";
+  cout << "c1.y = " << c1->getY() << ", c2.y = " << c2->getY() << "\n";
 }
 
 void bouncePrecisely(CubeObj* c1, CubeObj* c2) {

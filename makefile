@@ -9,8 +9,13 @@ else
   Exe = cubior.exe
 endif
 
-all: bin/cubior.o
-	g++ bin/cubiorShape.o bin/cubiorObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/cubior.o $(Graphics) -o bin/cubior && bin/$(Exe)
+AllFiles = bin/cubiorShape.o bin/cubiorObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o
+
+all: bin/cubior.o bin/cubiorTest.o
+	g++ $(AllFiles) bin/cubior.o $(Graphics) -o bin/cubior && g++ $(AllFiles) bin/cubiorTest.o $(Graphics) -o bin/cubiorTest && bin/$(Exe)
+
+bin/cubiorTest.o: bin/gameplay.o bin/visuals.o bin/cubior.o
+	g++ -c test/cubiorTest.cpp -o bin/cubiorTest.o
 
 bin/cubior.o: bin/visuals.o bin/gameplay.o
 	g++ -c src/cubior.cpp -o bin/cubior.o

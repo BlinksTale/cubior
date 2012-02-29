@@ -7,24 +7,68 @@
 #include <iostream>
 #include <string>
 #include <string.h>
+#include "../src/gameplay.h"
+#include "../src/cubiorObj.h"
 #include "../src/cubeObj.h"
 using namespace std;
 
 string truth(bool n) { return n ? "true" : "false"; }
 
-int main(int argc, char** argv) {
-  CubeObj cubior;
-  cout << "\nCubior Unit Test\n";
-  
-  cout << "Testing cubeObj getX\n";
-  cubior.setX(0);
-  cout << "\ngetX() == 0 returned " + truth(0 == cubior.getX());
-  cubior.setX(1);
-  cout << "\ngetX() == 1 returned " + truth(1 == cubior.getX());
-  cubior.setX(2);
-  cout << "\ngetX() == 2 returned " + truth(2 == cubior.getX());
+void setPos(CubeObj* c1, int a, int b, int c) {
+  cout << "Set CubeObj to " << a << "," << b << "," << c << "\n";
+  c1->setX(a);
+  c1->setY(b);
+  c1->setZ(c);
+}
 
-  cout << "\n\nAll tests returned\n";
+void chkPos(CubeObj* c1, int a, int b, int c) {
+  cout << "\ngetX() == " << a << " returned " + truth(a == c1->getX());
+  cout << "\ngetY() == " << b << " returned " + truth(b == c1->getY());
+  cout << "\ngetZ() == " << c << " returned " + truth(c == c1->getZ());
+  cout << "\n\n";
+}
+
+void prtPos(CubeObj* c1) {
+  cout << "x: " << c1->getX() << ", y: " << c1->getY() << ", z: " << c1->getZ() << "\n";
+}
+
+int main(int argc, char** argv) {
+  CubiorObj cubior;
+  CubeObj cube;
+  cout << "\n---Cubior Unit Test---\n\n";
+
+  cube.setLock(true);
+  cout << "cube locked = " << truth(cube.getLock()) << "\n";
+  cout << "cubior locked = " << truth(cubior.getLock()) << "\n";
+
+  setPos(&cubior,0,100,0);
+  chkPos(&cubior,0,100,0);
+
+  setPos(&cube,0,0,0);
+  chkPos(&cube,0,0,0);
+
+  prtPos(&cubior);
+  cout << "\n";  
+
+    cubior.tick();
+    cubior.tick();
+  // Try falling and hitting the cube
+  for (int i=0; i<3; i++) {
+  
+    cout << "Tick:  ";
+    prtPos(&cubior);
+  
+    bool collided = collision(&cubior, &cube);
+    cout << "They hit? " << truth(collided) << "\n";
+    if (collided) {
+      bounce(&cubior, &cube);
+      cout << "Bounce: ";
+      prtPos(&cubior);
+    }
+    cout << "\n";
+  }
+
+  cout << "---All tests returned---\n\n";
   return 0;
 }
 
