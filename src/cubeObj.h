@@ -12,6 +12,7 @@ class CubeObj {
   protected:
     int x, y, z, momentumX, momentumY, momentumZ;
     int movementSpeed, movementDivision;
+    bool collision;
     bool locked, lockable, permalocked, jumpable, grounded, loseMomentumOnLock;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, floor, gravity;
@@ -51,6 +52,7 @@ class CubeObj {
     void moveY(int);
     void moveZ(int);
 
+    int get(int);
     int getX();
     int getY();
     int getZ();
@@ -58,6 +60,9 @@ class CubeObj {
     int getMomentumY();
     int getMomentumZ();
 
+    void setCollision(bool);
+    bool getCollision();
+    virtual int getSize(int);
     virtual int getWidth();
     virtual int getHeight();
 };

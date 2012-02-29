@@ -48,6 +48,7 @@ CubeShape cubeShape[cubeNum];
 static GLfloat cubeX[cubeNum];
 static GLfloat cubeY[cubeNum];
 static GLfloat cubeZ[cubeNum];
+static GLfloat cubeCollision[cubeNum];
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
@@ -101,7 +102,7 @@ void drawCube(int n) {
   
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].drawCube(0.95,1.0,0.5,0.5);
+  cubeShape[n].drawCube(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
   glPopMatrix();
 }
 
@@ -168,6 +169,7 @@ void initFlat(int argc, char** argv) {
     cubeX[i] = 0.0;
     cubeY[i] = 0.0;
     cubeZ[i] = 0.0;
+    cubeCollision[i] = false;
     cubeShape[i].initCubeVisuals();
     updateCubeGraphic(i);
   }
@@ -212,7 +214,7 @@ void updatePlayerGraphic(int n) {
 }
 
 void updateCubeGraphic(int n) {
-  setCubeGraphic(n,getCube(n)->getX(),getCube(n)->getY(),getCube(n)->getZ());
+  setCubeGraphic(n,getCube(n)->getX(),getCube(n)->getY(),getCube(n)->getZ(),getCube(n)->getCollision());
 }
 
 void setPlayerGraphic(int n, int x, int y, int z) {
@@ -224,10 +226,11 @@ void setPlayerGraphic(int n, int x, int y, int z) {
   playerZ[n] = z;
 }
 
-void setCubeGraphic(int n, int x, int y, int z) {
+void setCubeGraphic(int n, int x, int y, int z, bool b) {
   cubeX[n] = x;
   cubeY[n] = y;
   cubeZ[n] = z;
+  cubeCollision[n] = b;
 }
 
 void updateFlat() {

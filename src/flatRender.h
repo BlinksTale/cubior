@@ -14,7 +14,7 @@
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void setPlayerGraphic(int,int,int,int);
-    void setCubeGraphic(int,int,int,int);
+    void setCubeGraphic(int,int,int,int,bool);
     void updateFlat();
     void renderFlat();
 
