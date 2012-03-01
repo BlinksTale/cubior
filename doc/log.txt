@@ -124,3 +124,10 @@ note: override needs virtual in front of base functions in header
 note: midterms have slowed development! Spring break next week, so expect lotsa progress!
 
 doc: fill out Wiki architecture, design, implementation, testing
+
+---
+2/29/12
+
+note: the great falling through blocks issue has been solved!
+fix: bounce applied in direction of least resistance. My code recognized that no resistance (zero) was wrong, disregarding it for movement, but accidentally used it for comparisons. This made perfectly aligned blocks fall through each other
+problem: there's still a snag on moving against the blocks' order, but nothing more

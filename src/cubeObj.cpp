@@ -141,7 +141,7 @@ void CubeObj::movePos(int n, int o, int p) {
 void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 
 // Getters
-int CubeObj::get(int a) { return a == 0 ? x : a == 1 ? y : z; }
+int CubeObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
@@ -152,6 +152,6 @@ int CubeObj::getMomentumZ() { return momentumZ * movementDivision / movementSpee
 void CubeObj::setCollision(bool b) { collision = b; }
 bool CubeObj::getCollision() { return collision; }
 
-int CubeObj::getSize(int a) { return a == 0 || 2 ? getWidth() : getHeight(); }
+int CubeObj::getSize(int s) { return s == 1 ? getHeight() : getWidth(); }
 int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }

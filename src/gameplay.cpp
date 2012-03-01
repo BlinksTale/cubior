@@ -5,16 +5,23 @@
  * Gameplay class for 3d platformer
  */
 
-#include <iostream>
-#include <cstdlib>
 #include "gameplay.h"
 #include "cubeObj.h"
 #include "cubiorObj.h"
+#include "collision.h"
+#include <iostream>
+#include <stdlib.h> // for NULL
 
 using namespace std;
 
 const int cubiorCount = 3;
-const int cubeCount = 5;
+const int cubeCount = 9;
+const int tileSize = 100;
+const int mapEdge = 3;
+const int mapWidth = 10 + mapEdge*2;
+const int mapHeight= 10 + mapEdge*2;
+const int mapDepth = 10 + mapEdge*2;
+CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[cubeCount];
@@ -31,7 +38,7 @@ int floor = -100;
 void gameplayStart() {
   // Cubior Start States!
   for (int i=0; i<cubiorCount; i++) {
-    cubior[i].setPos(-200*i+0,0,-1000);
+    cubior[i].setPos(-200*i+0,100,0);
     cubior[i].moveX(3);
     cubior[i].moveY(3);
     cubior[i].moveZ(3);
@@ -39,144 +46,90 @@ void gameplayStart() {
   }
   // and Cube Obstacle start states
   for (int i=0; i<cubeCount; i++) {
-    cube[i].setPos(-200*i+0,-100,-1000);
+    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
+  cube[cubeCount-4].setPos(-100*0,-000,000);
+  cube[cubeCount-3].setPos(-100*2,-100,100);
+  cube[cubeCount-2].setPos(-100*1,-100,100);
+  cube[cubeCount-1].setPos(-100*0,-100,100);
+}
+
+// FIXME: This causes lots of lag right now. Intended to keep player inside game though
+void keepInBounds(CubeObj* c1) {
+    // The bounds are one fewer than the size of the grid
+    // this makes checking collision in all directions from a cube never go out of bounds
+    if (c1->getX()< (-mapWidth/2+mapEdge)*tileSize){c1->setX((-mapWidth/2 +mapEdge)*tileSize);}
+    if (c1->getX()>=( mapWidth/2-mapEdge)*tileSize){c1->setX(( mapWidth/2 -mapEdge)*tileSize);}
+    if (c1->getY()<-(mapHeight/2+mapEdge)*tileSize){c1->setY((-mapHeight/2+mapEdge)*tileSize);}
+    if (c1->getY()>=(mapHeight/2-mapEdge)*tileSize){c1->setY(( mapHeight/2-mapEdge)*tileSize);}
+    if (c1->getZ()< (-mapDepth/2+mapEdge)*tileSize){c1->setZ((-mapDepth/2 +mapEdge)*tileSize);}
+    if (c1->getZ()>=( mapDepth/2-mapEdge)*tileSize){c1->setZ(( mapDepth/2 -mapEdge)*tileSize);}
 }
 
 void gameplayLoop() {
-  // Run main tick loop for all Cubiors and Cubes
+  // Wipe collision map, repopulate it
+  for (int a=0; a<mapWidth; a++) {
+  for (int b=0; b<mapHeight;b++) {
+  for (int c=0; c<mapDepth; c++) {
+     collisionMap[a][b][c]=0;
+  } } }
+
+  // Run main tick loop for all Cubiors...
   for (int i = 0; i<cubiorCount; i++) {
     cubior[i].tick();
+    keepInBounds(&cubior[i]);
+    addToCollisionMap(&cubior[i]);
   }
+  // ... and all Cubes
   for (int i = 0; i<cubeCount; i++) {
     cube[i].tick();
+    keepInBounds(&cube[i]);
+    addToCollisionMap(&cube[i]);
   }
+
+  // Then check collision against all other obstacles (cubes/cubiors)
   for (int i = 0; i<cubiorCount; i++) {
-    // Check collision with other Cubiors
-    for (int j = i+1; j<cubiorCount; j++) {
-      if (collision(&cubior[i],&cubior[j])) {
-        bounce(&cubior[i],&cubior[j]);
-        //balanceMomentum(&cubior[i],&cubior[j]);
-      }
+
+    int cX = getCollisionMapSlot(&cubior[i],0);
+    int cY = getCollisionMapSlot(&cubior[i],1);
+    int cZ = getCollisionMapSlot(&cubior[i],2);
+
+    // First, check collision on all immediate directions
+    // on X axis...
+    for (int a = -2; a<3; a++) {
+    Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY][cZ]);
     }
-    // Check collision with Obstacles
-    for (int j = 0; j<cubeCount; j++) {
-      if (collision(&cubior[i],&cube[j])) {
-        bounce(&cubior[i],&cube[j]);
-        //balanceMomentum(&cubior[i],&cube[0]);
-      }
+    // ...Y axis...
+    for (int b = -2; b<3; b++) {
+    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY+b][cZ]);
     }
+    // ...and Z axis
+    for (int c = -2; c<3; c++) {
+    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY][cZ+c]);
+    }
+    // Then check the diagonals too
+    // (this technique is a bit wasteful here, will clean up later if I have time)
+    for (int a = -2; a<3; a++) {
+    for (int b = -2; b<3; b++) {
+    for (int c = -2; c<3; c++) {
+    Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY+b][cZ+c]);
+    } } }
   }
 }
 
-bool collision(CubeObj* c1, CubeObj* c2) {
-  int c1x = c1->getX();
-  int c1y = c1->getY();
-  int c1z = c1->getZ();
-  int c2x = c2->getX();
-  int c2y = c2->getY();
-  int c2z = c2->getZ();
-  int c1Width = c1->getWidth()/2;
-  int c2Width = c2->getWidth()/2;
-
-  return
-     (c1x + c1Width > c2x - c2Width) &&
-     (c1x - c1Width < c2x + c2Width) &&
-     (c1y + c1Width > c2y - c2Width) &&
-     (c1y - c1Width < c2y + c2Width) &&
-     (c1z + c1Width > c2z - c2Width) &&
-     (c1z - c1Width < c2z + c2Width);
+// Put a cube in the collision map
+void addToCollisionMap(CubeObj* c1) {
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
+  collisionMap[cX][cY][cZ] = c1;
 }
 
-void bounce(CubeObj* c1, CubeObj* c2) {
-
-  // Grabbing these vars only once from cubes, used many times here  
-  int c1x = c1->getX();
-  int c2x = c2->getX();
-  int c1y = c1->getY();
-  int c2y = c2->getY();
-  int c1z = c1->getZ();
-  int c2z = c2->getZ();
-
-  // Width/2, the radius essentially
-  int c1rad = c1->getWidth()/2;
-  int c2rad = c2->getWidth()/2;
-  int c1hgt = c1->getHeight()/2;
-  int c2hgt = c2->getHeight()/2;
-
-  // Collision points: where exactly the boxes are colliding
-  int collisionX1 = c1x < c2x ? c1x + c1rad : c1x - c1rad;
-  int collisionX2 = c2x < c1x ? c2x + c2rad : c2x - c2rad;
-  int collisionY1 = c1y < c2y ? c1y + c1hgt : c1y - c1hgt;
-  int collisionY2 = c2y < c1y ? c2y + c2hgt : c2y - c2hgt;
-  int collisionZ1 = c1z < c2z ? c1z + c1rad : c1z - c1rad;
-  int collisionZ2 = c2z < c1z ? c2z + c2rad : c2z - c2rad;
-
-  // How much overlap there is total
-  int diffX = collisionX1 - collisionX2;
-  int diffY = collisionY1 - collisionY2;
-  int diffZ = collisionZ1 - collisionZ2;
-
-  // getLock used so that locked objects don't bounce
-  // and if other object is locked, you bounce double
-  bool c1Locked = (c1->getLock()||c1->getPermalock());
-  bool c2Locked = (c2->getLock()||c2->getPermalock());
-  bool c1Grounded = c1->getGrounded();
-  bool c2Grounded = c2->getGrounded();
-  int c1Bounce = (1-c1Locked*1+c2Locked*1);
-  int c2Bounce = (1-c2Locked*1+c1Locked*1);
-  int c1Land = (1-(c1Locked||c1Grounded)*1+(c2Locked||c2Grounded)*1);
-  int c2Land = (1-(c2Locked||c2Grounded)*1+(c1Locked||c1Grounded)*1);
-
-  // Only change one dimension at a time, the lowest that isn't zero
-  if (diffY != 0 && (!c1Grounded || !c2Grounded)
-  && (abs(diffY) < abs(diffX)) && (abs(diffY) < abs(diffZ))) {
-    if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
-    if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
-    // then in case either one lands...
-    if (diffY < 0) { c1->land(); }
-    if (diffY > 0) { c2->land(); }
-  } else if (diffZ != 0 && abs(diffZ) < abs(diffX)) {
-    if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
-    if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
-  } else if (diffX != 0) {
-    if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
-    if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
-  }
-}
-
-void bouncePrecisely(CubeObj* c1, CubeObj* c2) {
-  int bounceDivisor = 1;
-  int diffX = (c1->getX()-c2->getX());
-  int diffY = (c1->getY()-c2->getY());
-  int diffZ = (c1->getZ()-c2->getZ());
-
-  if (diffX > 0) { diffX -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffX += c1->getWidth()/2 + c2->getWidth()/2; }
-  if (diffY > 0) { diffY -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffY += c1->getWidth()/2 + c2->getWidth()/2; }
-  if (diffZ > 0) { diffZ -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffZ += c1->getWidth()/2 + c2->getWidth()/2; }
-  
-  c1->changeX(-1);
-  c1->changeY(-1);
-  c1->changeZ(-1);
-  c2->changeX(1);
-  c2->changeY(1);
-  c2->changeZ(1);
-}
-
-void balanceMomentum(CubeObj* c1, CubeObj* c2) {
-  int newX = (c1->getMomentumX() + c2->getMomentumX())/2;
-  int newY = (c1->getMomentumY() + c2->getMomentumX())/2;
-  int newZ = (c1->getMomentumZ() + c2->getMomentumX())/2;
-  c1->setMomentumX(newX);
-  c1->setMomentumY(newY);
-  c1->setMomentumZ(newZ);
-  c2->setMomentumX(newX);
-  c2->setMomentumY(newY);
-  c2->setMomentumZ(newZ);
+// pass cube and dimension to get map slot
+int getCollisionMapSlot(CubeObj* c, int d) {
+  int map = (d==0? mapWidth : d==1? mapHeight : mapDepth);
+  return (c->get(d) - c->getSize(d)/2 + map/2*tileSize)/tileSize;
 }
 
 // Returns gameplay state

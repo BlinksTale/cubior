@@ -21,7 +21,7 @@
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = 3;
-const int cubeNum = 5;
+const int cubeNum = 9;
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
@@ -61,6 +61,8 @@ void display() {
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
+  // then pull back and up to see cubes
+  glTranslatef(0,-100,-1100);
   
   for (int i=0; i<cubiorNum; i++) {
     drawPlayer(i);
