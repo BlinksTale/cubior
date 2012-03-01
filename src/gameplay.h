@@ -15,6 +15,8 @@
     void gameplayStart();
     void gameplayLoop();
 
+    void addToCollisionMap(CubeObj*);
+
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
     CubeObj* getCube();
@@ -27,10 +29,5 @@
 
     int getFloor();
     int getGravity();
-
-    bool collision(CubeObj*,CubeObj*);
-    void bounce(CubeObj*,CubeObj*);
-    void bouncePrecisely(CubeObj*,CubeObj*);
-    void balanceMomentum(CubeObj*,CubeObj*);
 
 #endif 

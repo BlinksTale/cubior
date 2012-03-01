@@ -59,9 +59,9 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
   int diffY = getDiff(c1,c2,1);
   int diffZ = getDiff(c1,c2,2);
 
-  cout << "diffX = " << diffX;
+  /*cout << "diffX = " << diffX;
   cout << ", diffY = " << diffY;
-  cout << ", diffZ = " << diffZ << "\n";
+  cout << ", diffZ = " << diffZ << "\n";*/
 
   bounceByDiff(c1,c2,diffX,diffY,diffZ);
 
@@ -82,26 +82,26 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   // Only change one dimension at a time, the lowest that isn't zero
   if (diffY != 0 && (!c1Grounded || !c2Grounded)
   && ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)) {
-    cout << "Called changeY\n";
+    //cout << "Called changeY\n";
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
     // then in case either one lands...
     if (diffY < 0) { c1->land(); }
     if (diffY > 0) { c2->land(); }
   } else if (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
-    cout << "Called changeZ\n";
+    //cout << "Called changeZ\n";
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   } else if (diffX != 0) {
-    cout << "Called changeX\n";
+    //cout << "Called changeX\n";
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
   } else {
-    cout << "Called nothing\n";
+    //cout << "Called nothing\n";
   }
 
-  cout << "diffY = " << diffY << ", c1Bounce = " << c1Bounce << ", c2Bounce = " << c2Bounce << "\n";
-  cout << "c1.y = " << c1->getY() << ", c2.y = " << c2->getY() << "\n";
+  //cout << "diffY = " << diffY << ", c1Bounce = " << c1Bounce << ", c2Bounce = " << c2Bounce << "\n";
+  //cout << "c1.y = " << c1->getY() << ", c2.y = " << c2->getY() << "\n";
 }
 
 void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
@@ -136,4 +136,12 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2) {
   c2->setMomentumX(newX);
   c2->setMomentumY(newY);
   c2->setMomentumZ(newZ);
+}
+
+void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
+
+  if (c1 != NULL && c2 != NULL && between(c1,c2)) {
+    bounce(c1,c2);
+    //balanceMomentum(&c1,&c2);
+  }
 }

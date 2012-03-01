@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
   setPos(&cubior,110,0,-100);
   chkPos(&cubior,110,0,-100);
-
+  
   for (int i = 0; i<cubeCount; i++){
     cube[i].setLock(true);
     cout << "cube locked = " << truth(cube[i].getLock()) << "\n";
@@ -65,13 +65,14 @@ int main(int argc, char** argv) {
     prtPos(&cubior);
   
     for (int j=0; j<cubeCount; j++) {
-    bool collided = Collision::between(&cubior, &cube[j]);
+    /*bool collided = Collision::between(&cubior, &cube[j]);
     cout << "They hit? " << truth(collided) << "\n";
     if (collided) {
       Collision::bounce(&cubior, &cube[j]);
       cout << "Bounce: ";
       prtPos(&cubior);
-    }
+    }*/
+    Collision::checkAndBounce(&cubior, &cube[j]);
     cout << "\n";
     }
   }
