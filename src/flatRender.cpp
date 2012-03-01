@@ -21,7 +21,7 @@
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = 3;
-const int cubeNum = 5;
+const int cubeNum = 9;
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;

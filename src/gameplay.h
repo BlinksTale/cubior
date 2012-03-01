@@ -16,7 +16,7 @@
     void gameplayLoop();
 
     void addToCollisionMap(CubeObj*);
-
+    int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
     CubeObj* getCube();

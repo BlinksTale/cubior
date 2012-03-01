@@ -15,7 +15,7 @@
 using namespace std;
 
 const int cubiorCount = 3;
-const int cubeCount = 5;
+const int cubeCount = 9;
 const int tileSize = 100;
 const int mapEdge = 3;
 const int mapWidth = 10 + mapEdge*2;
@@ -38,7 +38,7 @@ int floor = -100;
 void gameplayStart() {
   // Cubior Start States!
   for (int i=0; i<cubiorCount; i++) {
-    cubior[i].setPos(-200*i+0,0,0);
+    cubior[i].setPos(-200*i+0,100,0);
     cubior[i].moveX(3);
     cubior[i].moveY(3);
     cubior[i].moveZ(3);
@@ -46,14 +46,17 @@ void gameplayStart() {
   }
   // and Cube Obstacle start states
   for (int i=0; i<cubeCount; i++) {
-    cube[i].setPos(-200*i+500,-100,0);
+    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
+  cube[cubeCount-4].setPos(-100*0,-000,000);
+  cube[cubeCount-3].setPos(-100*2,-100,100);
+  cube[cubeCount-2].setPos(-100*1,-100,100);
+  cube[cubeCount-1].setPos(-100*0,-100,100);
 }
 
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
 void keepInBounds(CubeObj* c1) {
-
     // The bounds are one fewer than the size of the grid
     // this makes checking collision in all directions from a cube never go out of bounds
     if (c1->getX()< (-mapWidth/2+mapEdge)*tileSize){c1->setX((-mapWidth/2 +mapEdge)*tileSize);}
@@ -69,7 +72,6 @@ void gameplayLoop() {
   for (int a=0; a<mapWidth; a++) {
   for (int b=0; b<mapHeight;b++) {
   for (int c=0; c<mapDepth; c++) {
-     //cout << "a: " << a << ", b: " << b << ", c: " << c << "\n";
      collisionMap[a][b][c]=0;
   } } }
 
@@ -86,71 +88,48 @@ void gameplayLoop() {
     addToCollisionMap(&cube[i]);
   }
 
-  cout << "GameplayLoop for " << mapWidth << "\n\n\n";
-  for (int i=mapDepth-1; i>=0; i--) {
-  for (int j=0; j<1; j++) {
-  for (int k=0; k<mapWidth; k++) {
-  cout << (collisionMap[k][j][i]) << "\t";
-  }
-  }
-  cout << "\n";
-  }
-  cout << "EndGameplayLoop\n\n\n";
   // Then check collision against all other obstacles (cubes/cubiors)
   for (int i = 0; i<cubiorCount; i++) {
 
-    int cX = cubior[i].getX()/tileSize + mapWidth/2;
-    int cY = cubior[i].getY()/tileSize + mapHeight/2;
-    int cZ = cubior[i].getZ()/tileSize + mapDepth/2;
+    int cX = getCollisionMapSlot(&cubior[i],0);
+    int cY = getCollisionMapSlot(&cubior[i],1);
+    int cZ = getCollisionMapSlot(&cubior[i],2);
 
-    cout << "x: " << cubior[i].getX()/tileSize + mapWidth/2 << "\n";
-    cout << "y: " << cubior[i].getY()/tileSize + mapHeight/2 << "\n";
-    cout << "z: " << cubior[i].getZ()/tileSize + mapDepth/2 << "\n";
-/*
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX-1][cY][cZ]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+1][cY][cZ]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY-1][cZ]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY+1][cZ]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY][cZ-1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY][cZ+1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX-1][cY-1][cZ-1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX-1][cY-1][cZ+1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX-1][cY+1][cZ-1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX-1][cY+1][cZ+1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+1][cY-1][cZ-1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+1][cY-1][cZ+1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+1][cY+1][cZ-1]);
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+1][cY+1][cZ+1]);
-/*
-*/
-
+    // First, check collision on all immediate directions
+    // on X axis...
     for (int a = -2; a<3; a++) {
     Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY][cZ]);
     }
+    // ...Y axis...
     for (int b = -2; b<3; b++) {
     Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY+b][cZ]);
     }
+    // ...and Z axis
     for (int c = -2; c<3; c++) {
     Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY][cZ+c]);
     }
-    // Check collision with other Cubiors
-/*    for (int j = i+1; j<cubiorCount; j++) {
-      Collision::checkAndBounce(&cubior[i],&cubior[j]);
-    }
-    // Check collision with Obstacles
-    for (int j = 0; j<cubeCount; j++) {
-      Collision::checkAndBounce(&cubior[i],&cube[j]);
-    }
-*/
+    // Then check the diagonals too
+    // (this technique is a bit wasteful here, will clean up later if I have time)
+    for (int a = -2; a<3; a++) {
+    for (int b = -2; b<3; b++) {
+    for (int c = -2; c<3; c++) {
+    Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY+b][cZ+c]);
+    } } }
   }
 }
 
 // Put a cube in the collision map
 void addToCollisionMap(CubeObj* c1) {
-  int cX = c1->getX()/tileSize+mapWidth/2;
-  int cY = c1->getY()/tileSize+mapHeight/2;
-  int cZ = c1->getZ()/tileSize+mapDepth/2;
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
   collisionMap[cX][cY][cZ] = c1;
+}
+
+// pass cube and dimension to get map slot
+int getCollisionMapSlot(CubeObj* c, int d) {
+  int map = (d==0? mapWidth : d==1? mapHeight : mapDepth);
+  return (c->get(d) - c->getSize(d)/2 + map/2*tileSize)/tileSize;
 }
 
 // Returns gameplay state
