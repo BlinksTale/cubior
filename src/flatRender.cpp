@@ -60,6 +60,8 @@ void display() {
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
+  // then pull back and up to see cubes
+  glTranslatef(0,-100,-1100);
   
   for (int i=0; i<cubiorNum; i++) {
     drawPlayer(i);

@@ -51,6 +51,7 @@ class CubeObj {
     void moveY(int);
     void moveZ(int);
 
+    int get(int);
     int getX();
     int getY();
     int getZ();
@@ -58,6 +59,7 @@ class CubeObj {
     int getMomentumY();
     int getMomentumZ();
 
+    virtual int getSize(int);
     virtual int getWidth();
     virtual int getHeight();
 };

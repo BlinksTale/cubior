@@ -35,39 +35,39 @@ bool Collision::between(CubeObj* c1, CubeObj* c2) {
      (c1z - c1Width < c2z + c2Width);
 }
 
-void Collision::bounce(CubeObj* c1, CubeObj* c2) {
-
+int Collision::getDiff(CubeObj* c1, CubeObj* c2, int dimension) {
   // Grabbing these vars only once from cubes, used many times here  
-  int c1x = c1->getX();
-  int c2x = c2->getX();
-  int c1y = c1->getY();
-  int c2y = c2->getY();
-  int c1z = c1->getZ();
-  int c2z = c2->getZ();
+  int c1x = c1->get(dimension);
+  int c2x = c2->get(dimension);
 
   // Width/2, the radius essentially
-  int c1rad = c1->getWidth()/2;
-  int c2rad = c2->getWidth()/2;
-  int c1hgt = c1->getHeight()/2;
-  int c2hgt = c2->getHeight()/2;
+  int c1rad = c1->getSize(dimension)/2;
+  int c2rad = c2->getSize(dimension)/2;
 
   // Collision points: where exactly the boxes are colliding
   int collisionX1 = c1x < c2x ? c1x + c1rad : c1x - c1rad;
   int collisionX2 = c2x < c1x ? c2x + c2rad : c2x - c2rad;
-  int collisionY1 = c1y < c2y ? c1y + c1hgt : c1y - c1hgt;
-  int collisionY2 = c2y < c1y ? c2y + c2hgt : c2y - c2hgt;
-  int collisionZ1 = c1z < c2z ? c1z + c1rad : c1z - c1rad;
-  int collisionZ2 = c2z < c1z ? c2z + c2rad : c2z - c2rad;
 
   // How much overlap there is total
-  int diffX = collisionX1 - collisionX2;
-  int diffY = collisionY1 - collisionY2;
-  int diffZ = collisionZ1 - collisionZ2;
+  return collisionX1 - collisionX2;
+}
+
+void Collision::bounce(CubeObj* c1, CubeObj* c2) {
+
+  // How much overlap there is total
+  int diffX = getDiff(c1,c2,0);
+  int diffY = getDiff(c1,c2,1);
+  int diffZ = getDiff(c1,c2,2);
 
   cout << "diffX = " << diffX;
   cout << ", diffY = " << diffY;
   cout << ", diffZ = " << diffZ << "\n";
 
+  bounceByDiff(c1,c2,diffX,diffY,diffZ);
+
+}
+
+void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int diffZ) {
   // getLock used so that locked objects don't bounce
   // and if other object is locked, you bounce double
   bool c1Locked = (c1->getLock()||c1->getPermalock());
