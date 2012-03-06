@@ -21,6 +21,7 @@ const int mapEdge = 3;
 const int mapWidth = 10 + mapEdge*2;
 const int mapHeight= 10 + mapEdge*2;
 const int mapDepth = 10 + mapEdge*2;
+bool goodCollision = true;
 CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 
 CubiorObj cubior[cubiorCount];
@@ -95,27 +96,59 @@ void gameplayLoop() {
     int cY = getCollisionMapSlot(&cubior[i],1);
     int cZ = getCollisionMapSlot(&cubior[i],2);
 
+    if (goodCollision) {
+      explodingDiamondCollision(&cubior[i],cX,cY,cZ);
+    } else {
+      unintelligentCollision(&cubior[i],cX,cY,cZ);
+    }
+  }
+}
+
+// Takes cubior, and its slot, then checks collision
+// called exploding diamond because it checks on an expanding radius
+void explodingDiamondCollision(CubeObj* i, int cX, int cY, int cZ) {
+  // Then check slots in relation to cXYZ
+  for (int x = 0; x<mapEdge; x++) {
+    for (int y = 0; y<=x; y++) {
+      for (int z = 0; z<=x; z++) {
+        if (x >= y+z) {
+         Collision::checkAndBounce(i,collisionMap[cX+x-(y+z)][cY+y][cZ+z]);
+         Collision::checkAndBounce(i,collisionMap[cX-x+(y+z)][cY+y][cZ+z]);
+         Collision::checkAndBounce(i,collisionMap[cX+x-(y+z)][cY-y][cZ+z]);
+         Collision::checkAndBounce(i,collisionMap[cX-x+(y+z)][cY-y][cZ+z]);
+         Collision::checkAndBounce(i,collisionMap[cX+x-(y+z)][cY+y][cZ-z]);
+         Collision::checkAndBounce(i,collisionMap[cX-x+(y+z)][cY+y][cZ-z]);
+         Collision::checkAndBounce(i,collisionMap[cX+x-(y+z)][cY-y][cZ-z]);
+         Collision::checkAndBounce(i,collisionMap[cX-x+(y+z)][cY-y][cZ-z]);
+        }
+      }
+    }
+  }
+}
+
+// Takes cubior, and its slot, then checks collision
+// called unintelligent because it checks by array slot, not distance
+void unintelligentCollision(CubeObj* i, int cX, int cY, int cZ) {
     // First, check collision on all immediate directions
     // on X axis...
     for (int a = -2; a<3; a++) {
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY][cZ]);
+    Collision::checkAndBounce(i,collisionMap[cX+a][cY][cZ]);
     }
     // ...Y axis...
     for (int b = -2; b<3; b++) {
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY+b][cZ]);
+    Collision::checkAndBounce(i,collisionMap[cX][cY+b][cZ]);
     }
     // ...and Z axis
     for (int c = -2; c<3; c++) {
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX][cY][cZ+c]);
+    Collision::checkAndBounce(i,collisionMap[cX][cY][cZ+c]);
     }
     // Then check the diagonals too
     // (this technique is a bit wasteful here, will clean up later if I have time)
     for (int a = -2; a<3; a++) {
     for (int b = -2; b<3; b++) {
     for (int c = -2; c<3; c++) {
-    Collision::checkAndBounce(&cubior[i],collisionMap[cX+a][cY+b][cZ+c]);
+    Collision::checkAndBounce(i,collisionMap[cX+a][cY+b][cZ+c]);
     } } }
-  }
 }
 
 // Put a cube in the collision map
@@ -145,3 +178,6 @@ void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newStat
 
 int getFloor() { return floor; }
 int getGravity() { return gravity; }
+
+void  enableGoodCollision() { goodCollision = true; }
+void disableGoodCollision() { goodCollision = false; }

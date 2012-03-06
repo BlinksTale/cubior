@@ -15,6 +15,8 @@
     void gameplayStart();
     void gameplayLoop();
 
+    void explodingDiamondCollision(CubeObj*,int,int,int);
+    void unintelligentCollision(CubeObj*,int,int,int);
     void addToCollisionMap(CubeObj*);
     int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();
@@ -29,5 +31,7 @@
 
     int getFloor();
     int getGravity();
+    void enableGoodCollision();
+    void disableGoodCollision();
 
 #endif 

@@ -71,6 +71,10 @@ if (playerCount == 1) {
       if (lockKey && !jumpKey && newBool) { lockKey = false; }
       jumpKey = newBool;
       break;
+    case '0':
+      enableGoodCollision(); break;
+    case '9':
+      disableGoodCollision(); break;
 } else {
     // NEW PLAYER 1
       case 'm': case 'M':
