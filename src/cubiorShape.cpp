@@ -92,7 +92,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
   // call on cubeShape's function, drawCube, to make a cube visual
-  drawCube(r1,g1,b1,colorDarkness);
+  draw(r1,g1,b1,colorDarkness);
   
 
   // Cubior Face Matrix

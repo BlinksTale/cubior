@@ -9,7 +9,7 @@
 #define GAMEPLAY
 
 #include "cubeObj.h"
-#include "cubiorObj.h"
+#include "goalObj.h"
 #include "cubiorObj.h"
 
     void gameplayStart();
@@ -20,6 +20,7 @@
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
     CubeObj* getCube();
+    GoalObj* getGoal();
     CubeObj* getCube(int);
     int getCubiorCount();
     int getCubeCount();
