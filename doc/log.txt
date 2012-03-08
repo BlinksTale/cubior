@@ -131,3 +131,9 @@ doc: fill out Wiki architecture, design, implementation, testing
 note: the great falling through blocks issue has been solved!
 fix: bounce applied in direction of least resistance. My code recognized that no resistance (zero) was wrong, disregarding it for movement, but accidentally used it for comparisons. This made perfectly aligned blocks fall through each other
 problem: there's still a snag on moving against the blocks' order, but nothing more
+
+---
+3/7/12
+
+note: diamond explosion collision has been started and completed. It works!
+question: should there be a perma-collisionMap for non-moving objects? Only set at beginning?

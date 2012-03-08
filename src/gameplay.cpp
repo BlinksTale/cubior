@@ -7,6 +7,7 @@
 
 #include "gameplay.h"
 #include "cubeObj.h"
+#include "goalObj.h"
 #include "cubiorObj.h"
 #include "collision.h"
 #include <iostream>
@@ -26,6 +27,7 @@ CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[cubeCount];
+GoalObj goal;
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -54,6 +56,8 @@ void gameplayStart() {
   cube[cubeCount-3].setPos(-100*2,-100,100);
   cube[cubeCount-2].setPos(-100*1,-100,100);
   cube[cubeCount-1].setPos(-100*0,-100,100);
+  // Then the goal
+  goal.setPos(500,200,-500);
 }
 
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
@@ -88,6 +92,9 @@ void gameplayLoop() {
     keepInBounds(&cube[i]);
     addToCollisionMap(&cube[i]);
   }
+  // and the goal
+  goal.tick();
+  addToCollisionMap(&goal);
 
   // Then check collision against all other obstacles (cubes/cubiors)
   for (int i = 0; i<cubiorCount; i++) {
@@ -170,6 +177,7 @@ CubiorObj* getPlayer() { return &cubior[0]; }
 CubiorObj* getPlayer(int i) { return &cubior[i]; }
 CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
+GoalObj* getGoal() { return &goal; }
 int getCubiorCount() { return cubiorCount; }
 int getCubeCount() { return cubeCount; }
 

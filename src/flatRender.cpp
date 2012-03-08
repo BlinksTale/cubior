@@ -8,6 +8,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
+#include "goalShape.h"
 #include "cubiorShape.h"
 
 #ifdef __APPLE_CC__
@@ -49,6 +50,12 @@ static GLfloat cubeX[cubeNum];
 static GLfloat cubeY[cubeNum];
 static GLfloat cubeZ[cubeNum];
 
+// Goal object's visual
+GoalShape goalShape;
+static GLfloat goalX;
+static GLfloat goalY;
+static GLfloat goalZ;
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
@@ -69,6 +76,7 @@ void display() {
   for (int i=0; i<cubeNum; i++) {
     drawCube(i);
   }
+  drawGoal();
 
   // End with a quick flush, to draw faster
   glFlush();
@@ -103,10 +111,20 @@ void drawCube(int n) {
   
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].drawCube(0.95,1.0,0.5,0.5);
+  cubeShape[n].draw(0.95,1.0,0.5,0.5);
   glPopMatrix();
 }
 
+void drawGoal() {
+  glPushMatrix();
+  // Move player
+  glTranslatef(goalX, goalY, goalZ);
+  
+  // And make player bigger
+  glScalef(100.0,100.0,100.0);
+  goalShape.drawGoal();
+  glPopMatrix();
+}
 // Leftover Toal Code:
 // Handles the window reshape event by first ensuring that the viewport fills
 // the entire drawing surface.  Then we use a simple orthographic projection
@@ -140,6 +158,7 @@ void renderLoop() {
   for (int i=0; i<cubeNum; i++) {
     updateCubeGraphic(i);
   }
+  updateGoalGraphic();
   glutPostRedisplay();
 }
 
@@ -170,9 +189,16 @@ void initFlat(int argc, char** argv) {
     cubeX[i] = 0.0;
     cubeY[i] = 0.0;
     cubeZ[i] = 0.0;
-    cubeShape[i].initCubeVisuals();
+    cubeShape[i].initVisuals();
     updateCubeGraphic(i);
   }
+
+  // Initialize Goal Visual Vals
+  goalX = 0.0;
+  goalX = 0.0;
+  goalX = 0.0;
+  goalShape.initVisuals();
+  updateGoalGraphic();
 
   // standard initialization
   glutInit(&argc, argv);
@@ -217,6 +243,10 @@ void updateCubeGraphic(int n) {
   setCubeGraphic(n,getCube(n)->getX(),getCube(n)->getY(),getCube(n)->getZ());
 }
 
+void updateGoalGraphic() {
+  setGoalGraphic(getGoal()->getX(),getGoal()->getY(),getGoal()->getZ());
+}
+
 void setPlayerGraphic(int n, int x, int y, int z) {
   changeX[n] = x - playerX[n];
   changeY[n] = y - playerY[n];
@@ -230,6 +260,12 @@ void setCubeGraphic(int n, int x, int y, int z) {
   cubeX[n] = x;
   cubeY[n] = y;
   cubeZ[n] = z;
+}
+
+void setGoalGraphic(int x, int y, int z) {
+  goalX = x;
+  goalY = y;
+  goalZ = z;
 }
 
 void updateFlat() {
