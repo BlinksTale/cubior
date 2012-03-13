@@ -8,9 +8,12 @@
 #ifndef GOALOBJ
 #define GOALOBJ
 
+#include "cubeObj.h"
+
 class GoalObj : public CubeObj {
   public:
     GoalObj();
+    void collisionEffect(CubeObj*);
 };
 
 #endif 

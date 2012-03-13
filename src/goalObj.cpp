@@ -7,7 +7,15 @@
 
 #include "cubeObj.h"
 #include "goalObj.h"
+#include "gameplay.h"
+#include <iostream>
+
+using namespace std;
 
 GoalObj::GoalObj() {
   permalocked = true;
+}
+
+void GoalObj::collisionEffect(CubeObj*) {
+  stopGameplay();
 }

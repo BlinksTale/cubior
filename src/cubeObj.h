@@ -26,7 +26,7 @@ class CubeObj {
     bool moving();
     void jump(bool);
 
-    void collisionEffect(CubeObj*);
+    virtual void collisionEffect(CubeObj*);
 
     void setLock(bool);
     bool getLock();

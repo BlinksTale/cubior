@@ -24,8 +24,8 @@
     CubeObj* getCube();
     GoalObj* getGoal();
     CubeObj* getCube(int);
-    int getCubiorCount();
-    int getCubeCount();
+    const int getCubiorCount();
+    const int getCubeCount();
 
     bool getInvincibility(int);
     void setInvincibility(int, bool);
@@ -34,5 +34,9 @@
     int getGravity();
     void enableGoodCollision();
     void disableGoodCollision();
+
+    void stopGameplay();
+    void startGameplay();
+    bool getGameplayRunning();
 
 #endif 

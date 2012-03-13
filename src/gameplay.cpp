@@ -38,7 +38,11 @@ int friction = 1;
 int gravity = 2;
 int floor = -100;
 
+// Changing game state variables
+bool gameplayRunning = true;
+
 void gameplayStart() {
+if (gameplayRunning) {
   // Cubior Start States!
   for (int i=0; i<cubiorCount; i++) {
     cubior[i].setPos(-200*i+0,100,0);
@@ -57,7 +61,8 @@ void gameplayStart() {
   cube[cubeCount-2].setPos(-100*1,-100,100);
   cube[cubeCount-1].setPos(-100*0,-100,100);
   // Then the goal
-  goal.setPos(500,200,-500);
+  goal.setPos(400,000,-400);
+}
 }
 
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
@@ -73,6 +78,7 @@ void keepInBounds(CubeObj* c1) {
 }
 
 void gameplayLoop() {
+if (gameplayRunning) {
   // Wipe collision map, repopulate it
   for (int a=0; a<mapWidth; a++) {
   for (int b=0; b<mapHeight;b++) {
@@ -109,6 +115,7 @@ void gameplayLoop() {
       unintelligentCollision(&cubior[i],cX,cY,cZ);
     }
   }
+}
 }
 
 // Takes cubior, and its slot, then checks collision
@@ -178,8 +185,8 @@ CubiorObj* getPlayer(int i) { return &cubior[i]; }
 CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
-int getCubiorCount() { return cubiorCount; }
-int getCubeCount() { return cubeCount; }
+const int getCubiorCount() { return cubiorCount; }
+const int getCubeCount() { return cubeCount; }
 
 bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
 void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }
@@ -189,3 +196,6 @@ int getGravity() { return gravity; }
 
 void  enableGoodCollision() { goodCollision = true; }
 void disableGoodCollision() { goodCollision = false; }
+void  stopGameplay() { gameplayRunning = false; }
+void startGameplay() { gameplayRunning = true; }
+bool getGameplayRunning() { return gameplayRunning; }

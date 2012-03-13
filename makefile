@@ -60,7 +60,7 @@ bin/cubeObj.o: src/cubeObj.cpp bin/gameplay.o
 bin/cubiorObj.o: src/cubiorObj.cpp bin/cubeObj.o bin/gameplay.o
 	g++ -c src/cubiorObj.cpp -o bin/cubiorObj.o
 
-bin/goalObj.o: src/goalObj.cpp bin/cubeObj.o
+bin/goalObj.o: src/goalObj.cpp bin/cubeObj.o bin/gameplay.o
 	g++ -c src/goalObj.cpp -o bin/goalObj.o
 
 #########

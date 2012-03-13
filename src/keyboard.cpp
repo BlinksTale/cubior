@@ -36,6 +36,7 @@ bool superKey2 = false;
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
+  if (getGameplayRunning()) {
   if (upKey)    { getPlayer(0)->moveZ(-10); }
   if (downKey)  { getPlayer(0)->moveZ( 10); }
   if (leftKey)  { getPlayer(0)->moveX(-10); }
@@ -51,6 +52,7 @@ void sendCommands() {
   getPlayer(1)->jump(jumpKey2);
   getPlayer(1)->setLock(lockKey2);
   getPlayer(1)->setInvincibility(superKey2);
+}
 }
 
 // Handle keyboard input.
@@ -75,6 +77,10 @@ if (playerCount == 1) {
       enableGoodCollision(); break;
     case '9':
       disableGoodCollision(); break;
+    case '8':
+      stopGameplay(); break;
+    case '7':
+      startGameplay(); break;
 } else {
     // NEW PLAYER 1
       case 'm': case 'M':
@@ -156,3 +162,9 @@ void handleSpecialInput(int key, bool newBool) {
 
 void specialInputDown(int key, int x, int y) { handleSpecialInput(key, true); }
 void specialInputUp(int key, int x, int y)   { handleSpecialInput(key, false); }
+
+void handleJoystickInput(int button, bool b) {
+  cout << "It was called for " << button << "!\n";
+}
+
+void joystickDown(unsigned int button, int x, int y, int z) { handleJoystickInput(button, true); }

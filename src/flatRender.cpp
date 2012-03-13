@@ -20,14 +20,14 @@
 #include <cmath>
 #include <algorithm>
 
-// Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
-const int cubiorNum = 3;
-const int cubeNum = 9;
-
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
+
+// Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
+const int cubiorNum = 3;
+const int cubeNum = 9;
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
@@ -219,7 +219,9 @@ void initFlat(int argc, char** argv) {
   glutKeyboardUpFunc(inputUp);
   glutSpecialFunc(specialInputDown);
   glutSpecialUpFunc(specialInputUp);
-  
+  glutJoystickFunc(joystickDown, 300);
+  glutForceJoystickFunc(); // makes joystick button presses get recognized
+
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
