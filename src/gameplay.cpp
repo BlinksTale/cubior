@@ -15,13 +15,18 @@
 
 using namespace std;
 
-const int cubiorCount = 3;
-const int cubeCount = 9;
 const int tileSize = 100;
 const int mapEdge = 3;
-const int mapWidth = 10 + mapEdge*2;
-const int mapHeight= 10 + mapEdge*2;
-const int mapDepth = 10 + mapEdge*2;
+const int playableWidth = 10;
+const int playableHeight= 10;
+const int playableDepth = 10;
+const int mapWidth = playableWidth + mapEdge*2;
+const int mapHeight= playableHeight + mapEdge*2;
+const int mapDepth = playableDepth + mapEdge*2;
+
+const int cubiorCount = 3;
+const int cubeCount = 9 + playableWidth*playableDepth;
+
 bool goodCollision = true;
 CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 
@@ -36,7 +41,7 @@ int maxSpeed = 20;
 int friction = 1;
 
 int gravity = 2;
-int floor = -100;
+int floor = -200;
 
 // Changing game state variables
 bool gameplayRunning = true;
@@ -44,22 +49,30 @@ bool gameplayRunning = true;
 void gameplayStart() {
 if (gameplayRunning) {
   // Cubior Start States!
-  for (int i=0; i<cubiorCount; i++) {
-    cubior[i].setPos(-200*i+0,100,0);
+
+  for (int i=0; i<cubiorCount-playableWidth*playableDepth; i++) {
+    cubior[i].setPos(-200*(i-playableWidth*playableDepth)+0,100,0);
     cubior[i].moveX(3);
     cubior[i].moveY(3);
     cubior[i].moveZ(3);
     cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
   }
+
   // and Cube Obstacle start states
-  for (int i=0; i<cubeCount; i++) {
+  for (int x=0; x<playableWidth; x++) {
+    for (int z=0; z<playableDepth; z++) {
+      cube[x*playableWidth+z].setPos(100*(x-playableWidth/2),200,100*(z-playableDepth/2));
+    }
+  }
+/*  for (int i=0; i<cubeCount; i++) {
     cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
-  cube[cubeCount-4].setPos(-100*0,-000,000);
+*/  cube[cubeCount-4].setPos(-100*0,-000,000);
   cube[cubeCount-3].setPos(-100*2,-100,100);
   cube[cubeCount-2].setPos(-100*1,-100,100);
   cube[cubeCount-1].setPos(-100*0,-100,100);
+  
   // Then the goal
   goal.setPos(400,000,-400);
 }

@@ -20,6 +20,11 @@ bin/cubiorTest.o: bin/gameplay.o bin/visuals.o bin/cubior.o
 bin/cubior.o: bin/visuals.o bin/gameplay.o
 	g++ -c src/cubior.cpp -o bin/cubior.o
 
+.PHONY: clean
+clean:
+	rm ./bin/*
+
+
 
 ###########
 # VISUALS #
