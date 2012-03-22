@@ -15,9 +15,10 @@
     void gameplayStart();
     void gameplayLoop();
 
-    void explodingDiamondCollision(CubeObj*,int,int,int);
-    void unintelligentCollision(CubeObj*,int,int,int);
-    void addToCollisionMap(CubeObj*);
+    void explodingDiamondCollision(CubeObj*,CubeObj*[][16][16],int,int,int);
+    void unintelligentCollision(CubeObj*,CubeObj*[][16][16],int,int,int);
+    void addToCollisionMap(CubeObj*,CubeObj*[][16][16]);
+    void wipeMap(CubeObj*[][16][16]);
     int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);

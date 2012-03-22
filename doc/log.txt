@@ -137,3 +137,13 @@ problem: there's still a snag on moving against the blocks' order, but nothing m
 
 note: diamond explosion collision has been started and completed. It works!
 question: should there be a perma-collisionMap for non-moving objects? Only set at beginning?
+
+---
+3/15/12
+look up linear interpolation for collision detection, Megally's recommendation
+
+---
+3/22/12
+note: addToCollisionMap abstracted today, passing the whole map right now, pointer better?
+
+
