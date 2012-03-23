@@ -28,14 +28,32 @@ void CubiorShape::initCubiorVisuals(int n) {
   srand(1);
   colorDarkness = 0.4;
   colorDefaultA = 0.4;
-  if (n == 0) {
-    colorDefaultR = 0.2;
-    colorDefaultG = 0.0;
-    colorDefaultB =-0.4;
-  } else {
-    colorDefaultR =-0.4;
-    colorDefaultG = 0.0;
-    colorDefaultB = 0.2;
+  switch(n) {
+    case 0: // Yellow
+      colorDefaultR = 0.2;
+      colorDefaultG = 0.0;
+      colorDefaultB =-0.4;
+      break;
+    case 1: // Blue
+      colorDefaultR =-0.4;
+      colorDefaultG = 0.0;
+      colorDefaultB = 0.2;
+      break;
+    case 2: // Red
+      colorDefaultR = 0.4;
+      colorDefaultG =-0.2;
+      colorDefaultB =-0.4;
+      break;
+    case 3: // Green
+      colorDefaultR =-0.2;
+      colorDefaultG = 0.4;
+      colorDefaultB =-0.2;
+      break;
+    default:
+      colorDefaultR =-0.4;
+      colorDefaultG =-0.4;
+      colorDefaultB =-0.4;
+      break;
   }
   colorCurrentR = colorDefaultR;
   colorCurrentG = colorDefaultG;

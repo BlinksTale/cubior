@@ -12,13 +12,25 @@
 #include "goalObj.h"
 #include "cubiorObj.h"
 
+const int mapEdge = 3;
+const int playableWidth = 10;
+const int playableHeight= 10;
+const int playableDepth = 10;
+const int mapWidth = playableWidth + mapEdge*2;
+const int mapHeight= playableHeight + mapEdge*2;
+const int mapDepth = playableDepth + mapEdge*2;
+const int tileSize = 100;
+
+const int cubiorCount = 4;
+const int cubeCount = 9 + (playableWidth+1)*(playableDepth+1);
+
     void gameplayStart();
     void gameplayLoop();
 
-    void explodingDiamondCollision(CubeObj*,CubeObj*[][16][16],int,int,int);
-    void unintelligentCollision(CubeObj*,CubeObj*[][16][16],int,int,int);
-    void addToCollisionMap(CubeObj*,CubeObj*[][16][16]);
-    void wipeMap(CubeObj*[][16][16]);
+    void explodingDiamondCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
+    void unintelligentCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
+    void addToCollisionMap(CubeObj*,CubeObj*[][mapHeight][mapDepth]);
+    void wipeMap(CubeObj*[][mapHeight][mapDepth]);
     int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);

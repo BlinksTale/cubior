@@ -26,8 +26,8 @@ static const int FPS = 60;
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
-const int cubiorNum = 3;
-const int cubeNum = 9 + 100;
+const int cubiorNum = cubiorCount;
+const int cubeNum = cubeCount;// 9 + playableWidth*playableDepth;
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];

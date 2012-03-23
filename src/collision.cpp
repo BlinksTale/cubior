@@ -80,7 +80,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   int c2Land = (1-(c2Locked||c2Grounded)*1+(c1Locked||c1Grounded)*1);
 
   // Only change one dimension at a time, the lowest that isn't zero
-  if (diffY != 0 && (!c1Grounded || !c2Grounded)
+  if (diffY != 0 
   && ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)) {
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }

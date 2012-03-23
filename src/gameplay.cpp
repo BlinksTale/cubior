@@ -15,18 +15,6 @@
 
 using namespace std;
 
-const int tileSize = 100;
-const int mapEdge = 3;
-const int playableWidth = 10;
-const int playableHeight= 10;
-const int playableDepth = 10;
-const int mapWidth = playableWidth + mapEdge*2;
-const int mapHeight= playableHeight + mapEdge*2;
-const int mapDepth = playableDepth + mapEdge*2;
-
-const int cubiorCount = 3;
-const int cubeCount = 9 + playableWidth*playableDepth;
-
 bool goodCollision = true;
 CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 CubeObj* permanentMap[mapWidth][mapHeight][mapDepth];
@@ -59,7 +47,7 @@ void keepInBounds(CubeObj* c1) {
     if (c1->getZ()>=( mapDepth/2-mapEdge)*tileSize){c1->setZ(( mapDepth/2 -mapEdge)*tileSize);}
 }
 
-void wipeMap(CubeObj* map[][16][16]){
+void wipeMap(CubeObj* map[][mapHeight][mapWidth]){
   // Wipe collision map, repopulate it
   for (int a=0; a<mapWidth; a++) {
   for (int b=0; b<mapHeight;b++) {
@@ -72,8 +60,8 @@ void gameplayStart() {
 if (gameplayRunning) {
   // Cubior Start States!
 
-  for (int i=0; i<cubiorCount-playableWidth*playableDepth; i++) {
-    cubior[i].setPos(-200*(i-playableWidth*playableDepth)+0,100,0);
+  for (int i=0; i<cubiorCount; i++) {
+    cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
     cubior[i].moveX(3);
     cubior[i].moveY(3);
     cubior[i].moveZ(3);
@@ -85,8 +73,8 @@ if (gameplayRunning) {
 //    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
-  for (int x=0; x<playableWidth; x++) {
-    for (int z=0; z<playableDepth; z++) {
+  for (int x=0; x<=playableWidth; x++) {
+    for (int z=0; z<=playableDepth; z++) {
       cube[x*playableWidth+z].setPos(100*(x-playableWidth/2),-200,100*(z-playableDepth/2));
     }
   }
@@ -134,9 +122,18 @@ if (gameplayRunning) {
 
     if (goodCollision) {
       explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
-      explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
     } else {
       unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
+    }
+
+    // Update c's for non-permanent-item collision
+    cX = getCollisionMapSlot(&cubior[i],0);
+    cY = getCollisionMapSlot(&cubior[i],1);
+    cZ = getCollisionMapSlot(&cubior[i],2);
+
+    if (goodCollision) {
+      explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+    } else {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
     }
   }
@@ -145,7 +142,7 @@ if (gameplayRunning) {
 
 // Takes cubior, and its slot, then checks collision
 // called exploding diamond because it checks on an expanding radius
-void explodingDiamondCollision(CubeObj* i, CubeObj* m[][16][16], int cX, int cY, int cZ) {
+void explodingDiamondCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], int cX, int cY, int cZ) {
   // Then check slots in relation to cXYZ
   for (int x = 0; x<mapEdge; x++) {
     for (int y = 0; y<=x; y++) {
@@ -167,7 +164,7 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][16][16], int cX, int cY,
 
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
-void unintelligentCollision(CubeObj* i, CubeObj* m[][16][16], int cX, int cY, int cZ) {
+void unintelligentCollision(CubeObj* i, CubeObj* m[][mapHeight][mapWidth], int cX, int cY, int cZ) {
     // First, check collision on all immediate directions
     // on X axis...
     for (int a = -2; a<3; a++) {
@@ -191,7 +188,7 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][16][16], int cX, int cY, in
 }
 
 // Put a cube in the collision map
-void addToCollisionMap(CubeObj* c1, CubeObj* map[][16][16]) {
+void addToCollisionMap(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
   int cX = getCollisionMapSlot(c1,0);
   int cY = getCollisionMapSlot(c1,1);
   int cZ = getCollisionMapSlot(c1,2);
