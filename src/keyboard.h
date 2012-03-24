@@ -14,5 +14,7 @@
     void specialInputDown(int, int, int);
     void specialInputUp(int, int, int);
     void handleSpecialInput(int, bool);
+    void joystickDown(unsigned int, int, int, int);
+    void handleJoystickInput(unsigned int, bool);
 
 #endif 

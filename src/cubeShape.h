@@ -10,9 +10,9 @@
 class CubeShape {
   protected:
   public:
-    void initCubeVisuals();
-    void updateCubeVisuals();
-    void drawCube(float,float,float,float);
+    virtual void initVisuals();
+    virtual void updateVisuals();
+    virtual void draw(float,float,float,float);
 };
 
 #endif

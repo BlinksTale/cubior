@@ -97,6 +97,9 @@ void CubeObj::jump(bool n) {
   }
 }
 
+// Collision Effect defaults to nothing happening
+void CubeObj::collisionEffect(CubeObj* c) { }
+
 // Lock to stop midair
 void CubeObj::setLock(bool n) {
   if ((lockable && n) || !n) { locked = n; }

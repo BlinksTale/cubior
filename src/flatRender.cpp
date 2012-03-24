@@ -8,6 +8,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
+#include "goalShape.h"
 #include "cubiorShape.h"
 
 #ifdef __APPLE_CC__
@@ -19,14 +20,14 @@
 #include <cmath>
 #include <algorithm>
 
-// Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
-const int cubiorNum = 3;
-const int cubeNum = 9;
-
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
+
+// Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
+const int cubiorNum = cubiorCount;
+const int cubeNum = cubeCount;// 9 + playableWidth*playableDepth;
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
@@ -50,6 +51,12 @@ static GLfloat cubeY[cubeNum];
 static GLfloat cubeZ[cubeNum];
 static GLfloat cubeCollision[cubeNum];
 
+// Goal object's visual
+GoalShape goalShape;
+static GLfloat goalX;
+static GLfloat goalY;
+static GLfloat goalZ;
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
@@ -58,6 +65,9 @@ void display() {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
+
+  // Paint background blue
+  glClearColor(0.3f, 0.6f, 1.0f, 0.0f);
 
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
@@ -70,6 +80,7 @@ void display() {
   for (int i=0; i<cubeNum; i++) {
     drawCube(i);
   }
+  drawGoal();
 
   // End with a quick flush, to draw faster
   glFlush();
@@ -104,10 +115,20 @@ void drawCube(int n) {
   
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].drawCube(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
+  cubeShape[n].draw(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
   glPopMatrix();
 }
 
+void drawGoal() {
+  glPushMatrix();
+  // Move player
+  glTranslatef(goalX, goalY, goalZ);
+  
+  // And make player bigger
+  glScalef(100.0,100.0,100.0);
+  goalShape.drawGoal();
+  glPopMatrix();
+}
 // Leftover Toal Code:
 // Handles the window reshape event by first ensuring that the viewport fills
 // the entire drawing surface.  Then we use a simple orthographic projection
@@ -141,6 +162,7 @@ void renderLoop() {
   for (int i=0; i<cubeNum; i++) {
     updateCubeGraphic(i);
   }
+  updateGoalGraphic();
   glutPostRedisplay();
 }
 
@@ -172,9 +194,16 @@ void initFlat(int argc, char** argv) {
     cubeY[i] = 0.0;
     cubeZ[i] = 0.0;
     cubeCollision[i] = false;
-    cubeShape[i].initCubeVisuals();
+    cubeShape[i].initVisuals();
     updateCubeGraphic(i);
   }
+
+  // Initialize Goal Visual Vals
+  goalX = 0.0;
+  goalX = 0.0;
+  goalX = 0.0;
+  goalShape.initVisuals();
+  updateGoalGraphic();
 
   // standard initialization
   glutInit(&argc, argv);
@@ -195,7 +224,9 @@ void initFlat(int argc, char** argv) {
   glutKeyboardUpFunc(inputUp);
   glutSpecialFunc(specialInputDown);
   glutSpecialUpFunc(specialInputUp);
-  
+  glutJoystickFunc(joystickDown, 300);
+  glutForceJoystickFunc(); // makes joystick button presses get recognized
+
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
@@ -219,6 +250,10 @@ void updateCubeGraphic(int n) {
   setCubeGraphic(n,getCube(n)->getX(),getCube(n)->getY(),getCube(n)->getZ(),getCube(n)->getCollision());
 }
 
+void updateGoalGraphic() {
+  setGoalGraphic(getGoal()->getX(),getGoal()->getY(),getGoal()->getZ());
+}
+
 void setPlayerGraphic(int n, int x, int y, int z) {
   changeX[n] = x - playerX[n];
   changeY[n] = y - playerY[n];
@@ -233,6 +268,12 @@ void setCubeGraphic(int n, int x, int y, int z, bool b) {
   cubeY[n] = y;
   cubeZ[n] = z;
   cubeCollision[n] = b;
+}
+
+void setGoalGraphic(int x, int y, int z) {
+  goalX = x;
+  goalY = y;
+  goalZ = z;
 }
 
 void updateFlat() {

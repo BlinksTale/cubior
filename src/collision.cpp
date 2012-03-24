@@ -59,11 +59,11 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
   int diffY = getDiff(c1,c2,1);
   int diffZ = getDiff(c1,c2,2);
 
-  /*cout << "diffX = " << diffX;
-  cout << ", diffY = " << diffY;
-  cout << ", diffZ = " << diffZ << "\n";*/
-
   bounceByDiff(c1,c2,diffX,diffY,diffZ);
+
+  // Whatever special effects happen, call them post-bounce
+  c1->collisionEffect(c2);
+  c2->collisionEffect(c1);
 
 }
 
@@ -80,28 +80,23 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   int c2Land = (1-(c2Locked||c2Grounded)*1+(c1Locked||c1Grounded)*1);
 
   // Only change one dimension at a time, the lowest that isn't zero
-  if (diffY != 0 && (!c1Grounded || !c2Grounded)
+  if (diffY != 0 
   && ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)) {
-    //cout << "Called changeY\n";
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
+//    balanceMomentum(c1,c2,1);
     // then in case either one lands...
     if (diffY < 0) { c1->land(); }
     if (diffY > 0) { c2->land(); }
   } else if (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
-    //cout << "Called changeZ\n";
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
+//    balanceMomentum(c1,c2,2);
   } else if (diffX != 0) {
-    //cout << "Called changeX\n";
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
-  } else {
-    //cout << "Called nothing\n";
+//    balanceMomentum(c1,c2,0);
   }
-
-  //cout << "diffY = " << diffY << ", c1Bounce = " << c1Bounce << ", c2Bounce = " << c2Bounce << "\n";
-  //cout << "c1.y = " << c1->getY() << ", c2.y = " << c2->getY() << "\n";
 }
 
 void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
@@ -126,22 +121,29 @@ void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
 }
 
 
-void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2) {
-  int newX = (c1->getMomentumX() + c2->getMomentumX())/2;
-  int newY = (c1->getMomentumY() + c2->getMomentumX())/2;
-  int newZ = (c1->getMomentumZ() + c2->getMomentumX())/2;
-  c1->setMomentumX(newX);
-  c1->setMomentumY(newY);
-  c1->setMomentumZ(newZ);
-  c2->setMomentumX(newX);
-  c2->setMomentumY(newY);
-  c2->setMomentumZ(newZ);
+void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
+  if (deg == 0) {
+    int mX1 = c1->getMomentumX();
+    int mX2 = c2->getMomentumX();
+    c1->setMomentumX((mX2*1+mX1*1)/2);
+    c2->setMomentumX((mX1*1+mX2*1)/2);
+  } else if (deg == 1) {
+    int mY1 = c1->getMomentumY();
+    int mY2 = c2->getMomentumY();
+    c1->setMomentumY((mY2*1+mY1*1)/2);
+    c2->setMomentumY((mY1*1+mY2*1)/2);
+  } else {
+    int mZ1 = c1->getMomentumZ();
+    int mZ2 = c2->getMomentumZ();
+    c1->setMomentumZ((mZ2*1+mZ1*1)/2);
+    c2->setMomentumZ((mZ1*1+mZ2*1)/2);
+  }
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
 
   if (c1 != NULL && c2 != NULL && between(c1,c2)) {
     bounce(c1,c2);
-    //balanceMomentum(&c1,&c2);
+    //balanceMomentum(c1,c2);
   }
 }

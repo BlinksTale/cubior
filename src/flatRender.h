@@ -11,10 +11,13 @@
     void initFlat(int, char**);
     void drawPlayer(int);
     void drawCube(int);
+    void drawGoal();
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
+    void updateGoalGraphic();
     void setPlayerGraphic(int,int,int,int);
     void setCubeGraphic(int,int,int,int,bool);
+    void setGoalGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
 

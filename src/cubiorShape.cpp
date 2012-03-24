@@ -28,14 +28,32 @@ void CubiorShape::initCubiorVisuals(int n) {
   srand(1);
   colorDarkness = 0.4;
   colorDefaultA = 0.4;
-  if (n == 0) {
-    colorDefaultR = 0.2;
-    colorDefaultG = 0.0;
-    colorDefaultB =-0.4;
-  } else {
-    colorDefaultR =-0.4;
-    colorDefaultG = 0.0;
-    colorDefaultB = 0.2;
+  switch(n) {
+    case 0: // Yellow
+      colorDefaultR = 0.2;
+      colorDefaultG = 0.0;
+      colorDefaultB =-0.4;
+      break;
+    case 1: // Blue
+      colorDefaultR =-0.4;
+      colorDefaultG = 0.0;
+      colorDefaultB = 0.2;
+      break;
+    case 2: // Red
+      colorDefaultR = 0.4;
+      colorDefaultG =-0.2;
+      colorDefaultB =-0.4;
+      break;
+    case 3: // Green
+      colorDefaultR =-0.2;
+      colorDefaultG = 0.4;
+      colorDefaultB =-0.2;
+      break;
+    default:
+      colorDefaultR =-0.4;
+      colorDefaultG =-0.4;
+      colorDefaultB =-0.4;
+      break;
   }
   colorCurrentR = colorDefaultR;
   colorCurrentG = colorDefaultG;
@@ -92,7 +110,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
   // call on cubeShape's function, drawCube, to make a cube visual
-  drawCube(r1,g1,b1,colorDarkness);
+  draw(r1,g1,b1,colorDarkness);
   
 
   // Cubior Face Matrix

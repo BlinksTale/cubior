@@ -9,7 +9,7 @@ else
   Exe = cubior.exe
 endif
 
-AllFiles = bin/cubiorShape.o bin/cubiorObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o
+AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o
 
 all: bin/cubior.o bin/cubiorTest.o
 	g++ $(AllFiles) bin/cubior.o $(Graphics) -o bin/cubior && g++ $(AllFiles) bin/cubiorTest.o $(Graphics) -o bin/cubiorTest && bin/$(Exe)
@@ -19,6 +19,11 @@ bin/cubiorTest.o: bin/gameplay.o bin/visuals.o bin/cubior.o
 
 bin/cubior.o: bin/visuals.o bin/gameplay.o
 	g++ -c src/cubior.cpp -o bin/cubior.o
+
+.PHONY: clean
+clean:
+	rm ./bin/*
+
 
 
 ###########
@@ -31,10 +36,13 @@ bin/cubeShape.o: src/cubeShape.cpp
 bin/cubiorShape.o: src/cubiorShape.cpp bin/cubeShape.o bin/gameplay.o
 	g++ $(Graphics) -c src/cubiorShape.cpp -o bin/cubiorShape.o
 
+bin/goalShape.o: src/goalShape.cpp bin/cubeShape.o
+	g++ $(Graphics) -c src/goalShape.cpp -o bin/goalShape.o
+
 bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o
 	g++ -c src/visuals.cpp -o bin/visuals.o
 
-bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o bin/cubiorShape.o
+bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o bin/cubiorShape.o bin/goalShape.o
 	g++ $(Graphics) -c src/flatRender.cpp -o bin/flatRender.o
 
 bin/textRender.o: src/textRender.cpp
@@ -45,7 +53,7 @@ bin/textRender.o: src/textRender.cpp
 # GAMEPLAY #
 ############
 
-bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o
+bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o bin/goalObj.o
 	g++ -c src/gameplay.cpp -o bin/gameplay.o
 
 bin/collision.o: src/collision.cpp bin/cubeObj.o
@@ -57,6 +65,8 @@ bin/cubeObj.o: src/cubeObj.cpp bin/gameplay.o
 bin/cubiorObj.o: src/cubiorObj.cpp bin/cubeObj.o bin/gameplay.o
 	g++ -c src/cubiorObj.cpp -o bin/cubiorObj.o
 
+bin/goalObj.o: src/goalObj.cpp bin/cubeObj.o bin/gameplay.o
+	g++ -c src/goalObj.cpp -o bin/goalObj.o
 
 #########
 # INPUT #

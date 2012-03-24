@@ -21,7 +21,7 @@ class Collision {
     static void bounce(CubeObj*,CubeObj*);
     static void bounceByDiff(CubeObj*,CubeObj*,int,int,int);
     static void bouncePrecisely(CubeObj*,CubeObj*);
-    static void balanceMomentum(CubeObj*,CubeObj*);
+    static void balanceMomentum(CubeObj*,CubeObj*,int);
 
     static void checkAndBounce(CubeObj*,CubeObj*);
 };
