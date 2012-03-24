@@ -65,6 +65,9 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
+  // Paint background blue
+  glClearColor(0.3f, 0.6f, 1.0f, 0.0f);
+
   // Zoom camera out
   glScalef(0.001,0.001,0.001);
   // then pull back and up to see cubes
