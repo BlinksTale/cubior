@@ -16,124 +16,90 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
-int playerCount = 1;
+const int playerCount = 4;
+const bool jumpingEnabled = true;
+const bool lockingEnabled = false;
+const bool superEnabled = false;
 
-bool upKey = false;
-bool downKey = false;
-bool leftKey = false;
-bool rightKey = false;
-bool jumpKey = false;
-bool lockKey = false;
-bool superKey = false;
+bool upKey[playerCount];
+bool downKey[playerCount];
+bool leftKey[playerCount];
+bool rightKey[playerCount];
+bool pauseKey[playerCount];
+bool jumpKey[playerCount];
+bool lockKey[playerCount];
+bool superKey[playerCount];
 
-bool upKey2 = false;
-bool downKey2 = false;
-bool leftKey2 = false;
-bool rightKey2 = false;
-bool jumpKey2 = false;
-bool lockKey2 = false;
-bool superKey2 = false;
+void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
+void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
+void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
   if (getGameplayRunning()) {
-  if (upKey)    { getPlayer(0)->moveZ(-10); }
-  if (downKey)  { getPlayer(0)->moveZ( 10); }
-  if (leftKey)  { getPlayer(0)->moveX(-10); }
-  if (rightKey) { getPlayer(0)->moveX( 10); }
-  getPlayer(0)->jump(jumpKey);
-  getPlayer(0)->setLock(lockKey);
-  getPlayer(0)->setInvincibility(superKey);
-
-  if (upKey2)    { getPlayer(1)->moveZ(-10); }
-  if (downKey2)  { getPlayer(1)->moveZ( 10); }
-  if (leftKey2)  { getPlayer(1)->moveX(-10); }
-  if (rightKey2) { getPlayer(1)->moveX( 10); }
-  getPlayer(1)->jump(jumpKey2);
-  getPlayer(1)->setLock(lockKey2);
-  getPlayer(1)->setInvincibility(superKey2);
-}
+    for (int i = 0; i<playerCount; i++) {
+      if (    upKey[i]) { getPlayer(i)->moveZ(-10); }
+      if (downKey[i]) { getPlayer(i)->moveZ( 10); }
+      if (   leftKey[i]) { getPlayer(i)->moveX(-10); }
+      if (rightKey[i]) { getPlayer(i)->moveX( 10); }
+      getPlayer(i)->jump(jumpKey[i]);
+      getPlayer(i)->setLock(lockKey[i]);
+      getPlayer(i)->setInvincibility(superKey[i]);
+    }
+  }
 }
 
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
   switch(key) {
-    case 32: // spacebar
-      break;
-// OLD PLAYER 1 CONTROLS (although this If statement doesn't seem to work)
-if (playerCount == 1) {
-      case 'c': case 'C':
-      superKey = newBool;
-      break;
-    case 'x': case 'X':
-      if (jumpKey && !lockKey && newBool) { jumpKey = false; }
-      lockKey = newBool;
-      break;
-    case 'z': case 'Z':
-      if (lockKey && !jumpKey && newBool) { lockKey = false; }
-      jumpKey = newBool;
-      break;
-    case '0':
-      enableGoodCollision(); break;
-    case '9':
-      disableGoodCollision(); break;
-    case '8':
-      stopGameplay(); break;
-    case '7':
-      startGameplay(); break;
-} else {
+    // SYSTEM CONTROLS
+    case '0':  enableGoodCollision(); break;
+    case '9': disableGoodCollision(); break;
+    case '8':  stopGameplay(); break;
+    case '7': startGameplay(); break;
+    
+    // OLD PLAYER 1 CONTROLS 
+    case 'c': case 'C': setSuper(0,newBool); break;
+    case 'x': case 'X':  setLock(0,newBool); break;
+    case 'z': case 'Z':  setJump(0,newBool); break;
     // NEW PLAYER 1
-      case 'm': case 'M':
-      superKey = newBool;
-      break;
-    case ',': case '<':
-      if (jumpKey && !lockKey && newBool) { jumpKey = false; }
-      lockKey = newBool;
-      break;
-    case '.': case '>':
-      if (lockKey && !jumpKey && newBool) { lockKey = false; }
-      jumpKey = newBool;
-      break;
+    case 'm': case 'M': setSuper(0,newBool); break;
+    case ',': case '<': setLock(0,newBool); break;
+    case '.': case '>': setJump(0,newBool); break;
 
     // PLAYER 2
-    case 'w': case 'W':
-      upKey2 = newBool;
-      break;
-    case 'a': case 'A':
-      leftKey2 = newBool;
-      break;
-    case 's': case 'S':
-      downKey2 = newBool;
-      break;
-    case 'd': case 'D':
-      rightKey2 = newBool;
-      break;
-    case 'f': case 'F':
-      if (lockKey2 && !jumpKey2 && newBool) { lockKey2 = false; }
-      jumpKey2 = newBool;
-      break;
-    case 'g': case 'G':
-      if (jumpKey2 && !lockKey2 && newBool) { jumpKey2 = false; }
-      lockKey2 = newBool;
-      break;
-    case 'h': case 'H':
-      superKey2 = newBool;
-      break;
-}
+    case 'w': case 'W':   upKey[1] = newBool; break;
+    case 'a': case 'A':    leftKey[1] = newBool; break;
+    case 's': case 'S': downKey[1] = newBool; break;
+    case 'd': case 'D':  rightKey[1] = newBool; break;
+    case 'f':  case 'F':  setJump(1,newBool); break;
+    case 'g': case 'G':   setLock(1,newBool); break;
+    case 'h': case 'H': setSuper(1,newBool); break;
+    
+    // PLAYER 3
+    case 'i': case 'I':       upKey[2] = newBool; break;
+    case 'u': case 'U':    leftKey[2] = newBool; break;
+    case 'o': case 'O': downKey[2] = newBool; break;
+    case 'p': case 'P':  rightKey[2] = newBool; break;
+    case '[':  case '{':  setJump(2,newBool); break;
 
+    // PLAYER 4
+    case 'k': case 'K':    upKey[3] = newBool; break;
+    case 'j': case 'J':    leftKey[3] = newBool; break;
+    case 'l': case 'L': downKey[3] = newBool; break;
+    case ';': case ':':  rightKey[3] = newBool; break;
+    case '\'':  case '"':  setJump(3,newBool); break;
+/*
     case '1': case '!':
       playerCount = 1;
       break;
     case '2': case '@':
       playerCount = 2;
       break;
-
+*/
     // QUIT
-    case 27:
-      exit(0);
-      break;
-    default:
-      break;
+    case 27: exit(0); break;
+    default: break;
   }
 }
 
@@ -143,20 +109,11 @@ void inputUp(unsigned char key, int x, int y) { handleInput(key, false); }
 // nonASCII keys go here
 void handleSpecialInput(int key, bool newBool) {
   switch(key) {
-    case GLUT_KEY_UP:
-      upKey = newBool;
-      break;
-    case GLUT_KEY_DOWN:
-      downKey = newBool;
-      break;
-    case GLUT_KEY_LEFT:
-      leftKey = newBool;
-      break;
-    case GLUT_KEY_RIGHT:
-      rightKey = newBool;
-      break;
-    default:
-      break;
+    case GLUT_KEY_UP:          upKey[0] = newBool; break; 
+    case GLUT_KEY_DOWN: downKey[0] = newBool; break;
+    case GLUT_KEY_LEFT:       leftKey[0] = newBool; break;
+    case GLUT_KEY_RIGHT:   rightKey[0] = newBool; break;
+    default: break;
   }
 }
 

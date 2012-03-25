@@ -66,22 +66,22 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
 
-  // Paint background blue
-  glClearColor(0.3f, 0.6f, 1.0f, 0.0f);
+  // Paint background cyan to neon blue
+  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
 
-  // Zoom camera out
+  // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
-  // then pull back and up to see cubes
   glTranslatef(0,-100,-1100);
   
-  for (int i=0; i<cubiorNum; i++) {
-    drawPlayer(i);
-  }
-  for (int i=0; i<cubeNum; i++) {
-    drawCube(i);
-  }
+  for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
+  for (int i=0; i<cubeNum; i++) { drawCube(i); }
   drawGoal();
 
+  // Print pause menu
+  if (getGameplayRunning()) { printString("RUNNING",0,0); } else { printString("PAUSED",0,0); }
+  // And player stats (wip/temp)
+  //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
+  
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
@@ -282,4 +282,14 @@ void updateFlat() {
 
 void renderFlat() {
   // will refresh screen, right?
+}
+
+void printString(char *string, int x, int y) {
+  int len, i;
+  len = (int)strlen(string);
+  glColor3f( 0.0f, 0.0f, 0.0f );
+  glRasterPos3f(-4.5f*len+x,200.0f+y,590.0f);
+  for (i = 0; i < len; i++) {
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
+    }
 }

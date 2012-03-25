@@ -11,6 +11,7 @@
 #include "cubiorObj.h"
 #include "collision.h"
 #include <iostream>
+#include <cstdio>
 #include <stdlib.h> // for NULL
 
 using namespace std;
@@ -137,6 +138,7 @@ if (gameplayRunning) {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
     }
   }
+  cout << "Cubior is landed: " << cubior[0].getGrounded() << "\n";
 }
 }
 

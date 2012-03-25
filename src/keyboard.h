@@ -17,4 +17,6 @@
     void joystickDown(unsigned int, int, int, int);
     void handleJoystickInput(unsigned int, bool);
 
+    void setJump(int, bool);
+    void setLock(int, bool);
 #endif 

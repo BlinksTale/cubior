@@ -20,5 +20,6 @@
     void setGoalGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
+    void printString(char*,int,int);
 
 #endif 
