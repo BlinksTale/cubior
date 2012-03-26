@@ -18,6 +18,7 @@
 #endif
 
 #include <cmath>
+#include <cstring>
 #include <algorithm>
 
 // Intended Frames Per Second do not change
