@@ -79,13 +79,15 @@ if (gameplayRunning) {
       cube[x*(playableDepth+1)+z].setPos(100*(x-playableWidth/2),-200,100*(z-playableDepth/2));
     }
   }
-  cube[cubeCount-4].setPos(-100*0,-000,000);
-  cube[cubeCount-3].setPos(-100*2,-100,100);
+  cube[cubeCount-6].setPos(-100*0,-000,000);
+  cube[cubeCount-5].setPos(-100*2,-100,000);
+  cube[cubeCount-4].setPos(-100*1,-100,000);
+  cube[cubeCount-3].setPos(-100*0,-100,000);
   cube[cubeCount-2].setPos(-100*1,-100,100);
   cube[cubeCount-1].setPos(-100*0,-100,100);
   
   // Then the goal
-  goal.setPos(400,100,-400);
+  goal.setPos(000,700,-000);
 
   // Then populate permamap
   wipeMap(permanentMap);
