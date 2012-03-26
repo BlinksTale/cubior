@@ -4,4 +4,4 @@ By Brian Handy, Spring 2012, under LMU Computer Science 402 with Mike Megally.
 
 Build Instructions: build & run in command line by typing "make" (Linux/Mac). Windows will also require MinGW in C and freeglut in a MinGW folder in the C drive.
 
-Play Instructions: Player 1 can use the Arrow Keys to move and press Z or > to jump. Player 2 does the same with WASD to move and F to jump. Player 3 uses UIOP and [, and Player 4 uses JKL; and ".
+Play Instructions: Player 1 can use the Arrow Keys to move and press Z or > to jump. Player 2 does the same with WASD to move and F to jump. Player 3 uses UIOP and [, and Player 4 uses JKL; and ". Enjoy!
