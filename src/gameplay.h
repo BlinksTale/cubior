@@ -22,7 +22,7 @@ const int mapDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
 
 const int cubiorCount = 4;
-const int cubeCount = 9 + (playableWidth+1)*(playableDepth+1);
+const int cubeCount = 4 + (playableWidth+1)*(playableDepth+1);
 
     void gameplayStart();
     void gameplayLoop();

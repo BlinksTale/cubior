@@ -48,7 +48,7 @@ void keepInBounds(CubeObj* c1) {
     if (c1->getZ()>=( mapDepth/2-mapEdge)*tileSize){c1->setZ(( mapDepth/2 -mapEdge)*tileSize);}
 }
 
-void wipeMap(CubeObj* map[][mapHeight][mapWidth]){
+void wipeMap(CubeObj* map[][mapHeight][mapDepth]){
   // Wipe collision map, repopulate it
   for (int a=0; a<mapWidth; a++) {
   for (int b=0; b<mapHeight;b++) {
@@ -76,7 +76,7 @@ if (gameplayRunning) {
   }
   for (int x=0; x<=playableWidth; x++) {
     for (int z=0; z<=playableDepth; z++) {
-      cube[x*playableWidth+z].setPos(100*(x-playableWidth/2),-200,100*(z-playableDepth/2));
+      cube[x*(playableDepth+1)+z].setPos(100*(x-playableWidth/2),-200,100*(z-playableDepth/2));
     }
   }
   cube[cubeCount-4].setPos(-100*0,-000,000);
@@ -85,14 +85,14 @@ if (gameplayRunning) {
   cube[cubeCount-1].setPos(-100*0,-100,100);
   
   // Then the goal
-  goal.setPos(400,000,-400);
+  goal.setPos(400,100,-400);
 
   // Then populate permamap
   wipeMap(permanentMap);
   // ... with permanent Cubes
   for (int i = 0; i<cubeCount; i++) {
     cube[i].tick();
-    keepInBounds(&cube[i]);
+    //keepInBounds(&cube[i]);
     addToCollisionMap(&cube[i], permanentMap);
   }
 
@@ -166,7 +166,7 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], in
 
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
-void unintelligentCollision(CubeObj* i, CubeObj* m[][mapHeight][mapWidth], int cX, int cY, int cZ) {
+void unintelligentCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], int cX, int cY, int cZ) {
     // First, check collision on all immediate directions
     // on X axis...
     for (int a = -2; a<3; a++) {

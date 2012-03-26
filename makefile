@@ -5,7 +5,7 @@ else ifeq ($(shell uname), Darwin) # Darwin = Mac
   Graphics = -framework OpenGL -framework GLUT
   Exe = cubior
 else 
-  Graphics = -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -lfreeglut -lglu32 -lopengl32 -Wl,--subsystem,windows
+  Graphics = -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -lfreeglut -lglu32 -lopengl32 -Wl,--subsystem,windows -static
   Exe = cubior.exe
 endif
 

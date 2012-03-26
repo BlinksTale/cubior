@@ -284,7 +284,7 @@ void renderFlat() {
   // will refresh screen, right?
 }
 
-void printString(char *string, int x, int y) {
+void printString(const char *string, int x, int y) {
   int len, i;
   len = (int)strlen(string);
   glColor3f( 0.0f, 0.0f, 0.0f );
