@@ -7,6 +7,9 @@
 #ifndef KEYBOARD
 #define KEYBOARD
 
+    void playerPause(int, bool);
+    int getLastPause();
+
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);
     void handleInput(unsigned char, bool);

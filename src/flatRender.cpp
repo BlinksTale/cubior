@@ -79,7 +79,14 @@ void display() {
   drawGoal();
 
   // Print pause menu
-  if (getGameplayRunning()) { printString("RUNNING",0,0); } else { printString("PAUSED",0,0); }
+  if (getGameplayRunning()) {
+    printString("RUNNING",0,0);
+  } else {
+/*    char* tempString = "P_ PAUSED";
+    tempString[1] = getLastPause();
+    cout << tempString << "\n";*/
+    printString("PAUSED",0,0);
+  }
   // And player stats (wip/temp)
   //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
   
