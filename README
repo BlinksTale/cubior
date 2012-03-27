@@ -5,3 +5,7 @@ By Brian Handy, Spring 2012, under LMU Computer Science 402 with Mike Megally.
 Build Instructions: build & run in command line by typing "make" (Linux/Mac). Windows will also require MinGW in C and freeglut in a MinGW folder in the C drive.
 
 Play Instructions: Player 1 can use the Arrow Keys to move and press Z or > to jump. Player 2 does the same with WASD to move and F to jump. Player 3 uses UIOP and [, and Player 4 uses JKL; and ". Enjoy!
+
+Wiimote Mac Instructions (requires bluetooth): Download Darwiin, copy the application four times. Open one copy for every Wii remote. Under Darwiin > Preferences set the inputs to your liking (D-pad usually represents the movement directions, 1 and 2 represent the jump button) in four different profiles for the four different players. The profiles work between the different copies of the application, so (in this order) connect all four Wii remotes to their respective copies of the running application, then set the profiles appropriately (I also suggest changing the LED to reflect which player it is), then start playing Cubior!
+
+Wiimote Windows Instructions (requires bluetooth): Download GlovePie and make a script which translates Wiimote keypresses into the appropriate keyboard keys, similar to the Mac instructions but with a bit more programming.
