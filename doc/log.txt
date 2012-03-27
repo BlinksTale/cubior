@@ -146,4 +146,12 @@ look up linear interpolation for collision detection, Megally's recommendation
 3/22/12
 note: addToCollisionMap abstracted today, passing the whole map right now, pointer better?
 
-
+---
+3/26/12 (11pm)
+note: first playlets is epic success. Sam Verhassalt + roomies, Haley and Quinn all agree game is fun to play. Lots of excitement from collaborative platforming (red box straight up is a challenge, but not impossible or frustrating). The four cubes all at once make it hectic. Abandon camera movement and splitscreen in favor of simplicity of single screen gameplay?
+keynote: fun accomplished. Must ensure now that fun for multiple audiences as well as fun for multiple playthroughs
+note: wii remotes were used, 1 and 2 both jump (it's better this way). Initial confusion over orientation of controller
+note: Sam and Quinn returned to accomplish red cube touching goal again alone, tried to jump from far corner, succeeded
+note: loved simple colors, loved emotions on characters
+note: audience was making sex jokes moments prior - proof that game can work with simple colors and emotions regardless of audience's other activities
+note: everyone liked it? Really? #weSoExcite
