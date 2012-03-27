@@ -39,7 +39,7 @@ void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 void playerPause(int p, bool newBool) {
       if (!pauseKey[p] && newBool) { // newly pressing Enter
         if (!getGameplayRunning()) {
-          if (lastPause == p) {
+          if (lastPause == p || lastPause == -1) {
             startGameplay();
           }
         } else {
