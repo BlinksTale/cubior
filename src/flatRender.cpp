@@ -58,6 +58,9 @@ static GLfloat goalX;
 static GLfloat goalY;
 static GLfloat goalZ;
 
+// Pointers to oft referenced objects
+CameraObj* cameraPointer;
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
@@ -73,7 +76,9 @@ void display() {
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
   // old cam position glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
-  glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
+  // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
+  glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
+
 
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
   for (int i=0; i<cubeNum; i++) { drawCube(i); }
@@ -181,6 +186,9 @@ void timerRenderLoop(int v) {
 }
 
 void initFlat(int argc, char** argv) { 
+
+  // Pickup objects first
+  cameraPointer = getCamera();
 
   // Initialize Cubior Visual Vals
   for (int i=0; i<cubiorNum; i++) {

@@ -15,6 +15,12 @@ CameraObj::CameraObj() {
   z = 1000;
 }
 
+void CameraObj::follow(int a, int b, int c) {
+  x = a;
+  y = b + 200;
+  z = c + 1000;
+}
+
 // Getters
 int CameraObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CameraObj::getX() { return x; }

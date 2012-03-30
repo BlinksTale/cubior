@@ -11,6 +11,7 @@
 #include "cubeObj.h"
 #include "goalObj.h"
 #include "cubiorObj.h"
+#include "cameraObj.h"
 
 const int mapEdge = 3;
 const int playableWidth = 10;
@@ -39,6 +40,7 @@ const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
     CubeObj* getCube(int);
     const int getCubiorCount();
     const int getCubeCount();
+    CameraObj* getCamera();
 
     bool getInvincibility(int);
     void setInvincibility(int, bool);

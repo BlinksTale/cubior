@@ -9,7 +9,7 @@ else
   Exe = cubior.exe
 endif
 
-AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o
+AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o
 
 all: bin/cubior.o bin/cubiorTest.o
 	g++ $(AllFiles) bin/cubior.o $(Graphics) -o bin/cubior && g++ $(AllFiles) bin/cubiorTest.o $(Graphics) -o bin/cubiorTest && bin/$(Exe)
@@ -53,8 +53,7 @@ bin/textRender.o: src/textRender.cpp
 # GAMEPLAY #
 ############
 
-bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o bin/goalObj.o 
-#bin/cameraObj.o
+bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o bin/goalObj.o bin/cameraObj.o
 	g++ -c src/gameplay.cpp -o bin/gameplay.o
 
 bin/collision.o: src/collision.cpp bin/cubeObj.o
@@ -69,8 +68,8 @@ bin/cubiorObj.o: src/cubiorObj.cpp bin/cubeObj.o bin/gameplay.o
 bin/goalObj.o: src/goalObj.cpp bin/cubeObj.o bin/gameplay.o
 	g++ -c src/goalObj.cpp -o bin/goalObj.o
 
-#bin/cameraObj.o: src/cameraObj.cpp bin/gameplay.o
-#	g++ -c src/cameraObj.cpp -o bin/cameraObj.o
+bin/cameraObj.o: src/cameraObj.cpp bin/gameplay.o
+	g++ -c src/cameraObj.cpp -o bin/cameraObj.o
 
 #########
 # INPUT #
