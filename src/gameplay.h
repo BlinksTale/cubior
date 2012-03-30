@@ -14,9 +14,9 @@
 #include "cameraObj.h"
 
 const int mapEdge = 3;
-const int playableWidth = 10;
+const int playableWidth = 30;
 const int playableHeight= 20;
-const int playableDepth = 10;
+const int playableDepth = 30;
 const int mapWidth = playableWidth + mapEdge*2;
 const int mapHeight= playableHeight + mapEdge*2;
 const int mapDepth = playableDepth + mapEdge*2;

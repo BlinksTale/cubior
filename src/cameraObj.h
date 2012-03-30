@@ -8,12 +8,16 @@
 #ifndef CAMERAOBJ
 #define CAMERAOBJ
 
+#include "cubeObj.h"
+
 class CameraObj {
   protected:
     int x, y, z;
-    int player;
+    CubeObj* permanentTarget;
   public:
     CameraObj();
+    void tick();
+    void alwaysFollow(CubeObj*);
     void follow(int,int,int);
     int get(int);
     int getX();

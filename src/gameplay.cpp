@@ -63,6 +63,7 @@ void gameplayStart() {
 if (gameplayRunning) {
   // Start camera!
   camera.setPos(0,-165,-1550);
+  camera.alwaysFollow(&cubior[0]);
 
   // Cubior Start States!
   for (int i=0; i<cubiorCount; i++) {
@@ -146,7 +147,7 @@ if (gameplayRunning) {
   }
   
   // Finally, make camera catchup
-  camera.follow(cubior[0].getX(),cubior[0].getY(),cubior[0].getZ());
+  camera.tick();
 }
 }
 

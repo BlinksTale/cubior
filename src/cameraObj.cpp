@@ -15,6 +15,16 @@ CameraObj::CameraObj() {
   z = 1000;
 }
 
+void CameraObj::tick() {
+  if (permanentTarget) {
+    follow(permanentTarget->getX(),permanentTarget->getY(),permanentTarget->getZ());
+  }
+}
+
+void CameraObj::alwaysFollow(CubeObj* target) {
+  permanentTarget = target;
+}
+
 void CameraObj::follow(int a, int b, int c) {
   x = a;
   y = b + 200;
