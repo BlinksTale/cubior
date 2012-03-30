@@ -151,7 +151,10 @@ void drawGoal() {
 // the width or height, and scale the larger dimension to make the whole
 // window isotropic.
 void reshape(GLint w, GLint h) {
-  glViewport(0, 0, w, h);
+  // working on splitscreen here atm
+  // http://nehe.gamedev.net/tutorial/multiple_viewports/20002/
+  glViewport(w/2, h/2, w/2, h/2);
+  glViewport(w/2, 0, w/2, h/2);
   GLfloat aspect = (GLfloat)w / (GLfloat)h;
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
