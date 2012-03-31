@@ -61,41 +61,39 @@ static GLfloat goalY;
 static GLfloat goalZ;
 
 // Pointers to oft referenced objects
-CameraObj* cameraPointer;
+CameraObj* cameraPointer[cubiorNum];
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
-  // Clear screen w/ black
-  glScissor(0,0,windowWidth,windowHeight);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.3f, 1.0f, 0.0f, 0.0f);
   
-  //glScissor(windowWidth/2,0,windowWidth/2,windowHeight/2);
- // glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  //glScissor(0,0,windowWidth/2,windowHeight/2);
-  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity(); // blank canvas for transforms
-  if (windowWidth <= windowHeight) {
-    // width is smaller, go from -50 .. 50 in width
-    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  } else {
-    // height is smaller, go from -50 .. 50 in height
-    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  }
-
-  //glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
-  //glEnable(GL_SCISSOR_TEST);
-  // THIS ONE WORKS glScissor(windowWidth*1/2,windowHeight*1/2,windowWidth*1/2,windowHeight*1/2);
+  // Player 1
+  glScissor(windowWidth*0/2-1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
+  glViewport(windowWidth*0/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
   displayFor(0);
   
+  // Player 2
+  glScissor(windowWidth*1/2+1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
+  glViewport(windowWidth*1/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
+  displayFor(1);
+  
+  // Player 3
+  glScissor(windowWidth*0/2-1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
+  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
+  displayFor(2);
+  
+  // Player 4
+  glScissor(windowWidth*1/2+1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
+  glViewport(windowWidth*1/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
+  displayFor(3);
+  
+  // End with a quick flush, to draw faster
+  glFlush();
+  glutSwapBuffers(); // because using double buffer, must swap buffers
 }
 
-void displayFor(int character) {
+void displayFor(int player) {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   // Paint background cyan to neon blue
@@ -104,9 +102,9 @@ void displayFor(int character) {
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
   // old cam position
-  glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
+  //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
-  //	glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
+  glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());  
 
 
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
@@ -125,9 +123,6 @@ void displayFor(int character) {
   // And player stats (wip/temp)
   //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
   
-  // End with a quick flush, to draw faster
-  glFlush();
-  glutSwapBuffers(); // because using double buffer, must swap buffers
 }
 
 void drawPlayer(int n) {
@@ -183,6 +178,18 @@ void reshape(GLint w, GLint h) {
   windowHeight = h;
   // working on splitscreen here atm
   // http://nehe.gamedev.net/tutorial/multiple_viewports/20002/
+  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity(); // blank canvas for transforms
+  if (windowWidth <= windowHeight) {
+    // width is smaller, go from -50 .. 50 in width
+    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
+  } else {
+    // height is smaller, go from -50 .. 50 in height
+    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
+  }
 }
 
 // main loop for rendering. Also calls gameplay loop,
@@ -208,11 +215,9 @@ void timerRenderLoop(int v) {
 
 void initFlat(int argc, char** argv) { 
 
-  // Pickup objects first
-  cameraPointer = getCamera();
-
   // Initialize Cubior Visual Vals
   for (int i=0; i<cubiorNum; i++) {
+    cameraPointer[i] = getCamera(i); // camera for every player
     playerAngleNumerator[i] = 1.0;
     playerAngleDivisor[i] = 1.0;
     playerX[i] = 0.0;
@@ -248,7 +253,6 @@ void initFlat(int argc, char** argv) {
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
   
   // setup & create window
-  glEnable(GL_SCISSOR_TEST);
   glutInitWindowPosition(0,0);
   glutInitWindowSize(windowWidth,windowHeight);
   glutCreateWindow("Cubior");
@@ -257,6 +261,7 @@ void initFlat(int argc, char** argv) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
+  glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
 
   // input
   glutKeyboardFunc(inputDown);
