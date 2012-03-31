@@ -24,7 +24,7 @@ CubeObj* permanentMap[mapWidth][mapHeight][mapDepth];
 CubiorObj cubior[cubiorCount];
 CubeObj cube[cubeCount];
 GoalObj goal;
-CameraObj camera;
+CameraObj camera[cubiorCount];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -62,9 +62,10 @@ void wipeMap(CubeObj* map[][mapHeight][mapDepth]){
 void gameplayStart() {
 if (gameplayRunning) {
   // Start camera!
-  camera.setPos(0,-165,-1550);
-  camera.alwaysFollow(&cubior[0]);
-
+  for (int i=0; i<cubiorCount; i++) {
+    camera[i].setPos(0,-165,-1550);
+    camera[i].alwaysFollow(&cubior[i]);
+  }
   // Cubior Start States!
   for (int i=0; i<cubiorCount; i++) {
     cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
@@ -147,7 +148,9 @@ if (gameplayRunning) {
   }
   
   // Finally, make camera catchup
-  camera.tick();
+  for (int i=0; i<cubiorCount; i++) {
+    camera[i].tick();
+  }
 }
 }
 
@@ -220,7 +223,8 @@ CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
 const int getCubeCount() { return cubeCount; }
-CameraObj* getCamera() { return &camera; }
+CameraObj* getCamera() { return &camera[0]; }
+CameraObj* getCamera(int i) { return &camera[i]; }
 
 bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
 void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }

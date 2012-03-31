@@ -41,6 +41,7 @@ const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
     const int getCubiorCount();
     const int getCubeCount();
     CameraObj* getCamera();
+    CameraObj* getCamera(int);
 
     bool getInvincibility(int);
     void setInvincibility(int, bool);
