@@ -150,10 +150,18 @@ void drawCube(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
-  
+  int altSize = 400;
+  bool alternatingSpot =(
+        (cubeX[n]<0)^((int(abs(cubeX[n]+1))%(altSize*2)<altSize))
+    ) ^ (
+        (cubeY[n]<0)^((int(abs(cubeY[n]+1))%(altSize*2)<altSize))
+    )^ (
+        (cubeZ[n]<0)^((int(abs(cubeZ[n]+1))%(altSize*2)<altSize))
+    );
+  float altDark = alternatingSpot * 0.125;
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].draw(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
+  cubeShape[n].draw(0.95-0.5*cubeCollision[n]-altDark,1.0-0.5*cubeCollision[n]-altDark,0.5-0.5*cubeCollision[n]-altDark,0.5);
   glPopMatrix();
 }
 

@@ -168,3 +168,4 @@ test: enjoyed the game in general! Also found king of the hill mode since we can
 3/31/12
 bug: screen was allowing transparency with splitscreen so entire past was drawn
 fix: put the screen clear after the scissor cut was already made, so clears are limited to that area
+note: XOR is great for alternating tiles!
