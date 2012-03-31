@@ -67,16 +67,16 @@ CameraObj* cameraPointer;
 void display() {
   
   // Clear screen w/ black
+  glScissor(0,0,windowWidth,windowHeight);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearColor(0.3f, 1.0f, 0.0f, 0.0f);
   
   //glScissor(windowWidth/2,0,windowWidth/2,windowHeight/2);
-  //glViewport(windowWidth/2, 0, windowWidth/2, windowHeight/2);
-  //glScissor(windowWidth/2,windowHeight/2,160,240);
-  
+ // glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
+  //glScissor(0,0,windowWidth/2,windowHeight/2);
+  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
   GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
   glMatrixMode(GL_PROJECTION);
-  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*2/2, windowHeight*2/2);
   glLoadIdentity(); // blank canvas for transforms
   if (windowWidth <= windowHeight) {
     // width is smaller, go from -50 .. 50 in width
@@ -97,6 +97,7 @@ void display() {
 
 void displayFor(int character) {
   glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
   // Paint background cyan to neon blue
   glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
 
