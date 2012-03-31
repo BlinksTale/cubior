@@ -76,7 +76,7 @@ void display() {
   
   GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
   glMatrixMode(GL_PROJECTION);
-  glViewport(windowWidth/2, windowHeight/2, windowWidth/2, windowHeight/2);
+  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*2/2, windowHeight*2/2);
   glLoadIdentity(); // blank canvas for transforms
   if (windowWidth <= windowHeight) {
     // width is smaller, go from -50 .. 50 in width
@@ -103,7 +103,7 @@ void displayFor(int character) {
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
   // old cam position
-	glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
+  glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
   //	glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
 
