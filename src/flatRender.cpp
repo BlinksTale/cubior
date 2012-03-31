@@ -102,9 +102,10 @@ void displayFor(int character) {
 
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
-  // old cam position glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
+  // old cam position
+	glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
-  glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
+  //	glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
 
 
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
