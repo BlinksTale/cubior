@@ -23,6 +23,8 @@
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
+int windowWidth = 640;
+int windowHeight = 480;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
 
@@ -66,17 +68,42 @@ void display() {
   
   // Clear screen w/ black
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearColor(0.3f, 1.0f, 0.0f, 0.0f);
+  
+  //glScissor(windowWidth/2,0,windowWidth/2,windowHeight/2);
+  //glViewport(windowWidth/2, 0, windowWidth/2, windowHeight/2);
+  //glScissor(windowWidth/2,windowHeight/2,160,240);
+  
+  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  glMatrixMode(GL_PROJECTION);
+  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*2/2, windowHeight*2/2);
+  glLoadIdentity(); // blank canvas for transforms
+  if (windowWidth <= windowHeight) {
+    // width is smaller, go from -50 .. 50 in width
+    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
+  } else {
+    // height is smaller, go from -50 .. 50 in height
+    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
+    gluPerspective(45.0, aspect, 0.50, 10.0);
+  }
 
+  //glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
+  //glEnable(GL_SCISSOR_TEST);
+  // THIS ONE WORKS glScissor(windowWidth*1/2,windowHeight*1/2,windowWidth*1/2,windowHeight*1/2);
+  displayFor(0);
+  
+}
+
+void displayFor(int character) {
   glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity(); // HELP: need a refresher on how glLoadIdentity is used
-
   // Paint background cyan to neon blue
   glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
 
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
   // old cam position
-	glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
+  glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
   //	glTranslatef(-1*cameraPointer->getX(),-1*cameraPointer->getY(),-1*cameraPointer->getZ());  
 
@@ -151,23 +178,15 @@ void drawGoal() {
 // the width or height, and scale the larger dimension to make the whole
 // window isotropic.
 void reshape(GLint w, GLint h) {
-  glViewport(0, 0, w, h);
-  GLfloat aspect = (GLfloat)w / (GLfloat)h;
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  if (w <= h) {
-    // width is smaller, go from -50 .. 50 in width
-    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  } else {
-    // height is smaller, go from -50 .. 50 in height
-    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  }
+  windowWidth = w;
+  windowHeight = h;
+  // working on splitscreen here atm
+  // http://nehe.gamedev.net/tutorial/multiple_viewports/20002/
 }
 
 // main loop for rendering. Also calls gameplay loop,
-// updates graphisc, and calls itself again
+// updates graphics, and calls itself again
+// BASICALLY: main loop for everything
 void renderLoop() {
   sendCommands();
   gameplayLoop();
@@ -228,8 +247,9 @@ void initFlat(int argc, char** argv) {
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
   
   // setup & create window
+  glEnable(GL_SCISSOR_TEST);
   glutInitWindowPosition(0,0);
-  glutInitWindowSize(640,480);
+  glutInitWindowSize(windowWidth,windowHeight);
   glutCreateWindow("Cubior");
   
   // Make sure back faces are behind front faces
