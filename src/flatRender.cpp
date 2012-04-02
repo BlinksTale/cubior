@@ -66,6 +66,12 @@ CameraObj* cameraPointer[cubiorNum];
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
+  glScissor(0,0,windowWidth,windowHeight);
+  glViewport(0,0,windowWidth,windowHeight);
+
+  // Make sure background is black first, then draw on top of it
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
   // Player 1
   glScissor(windowWidth*0/2-1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
@@ -93,11 +99,13 @@ void display() {
 }
 
 void displayFor(int player) {
+  
+  // Paint background cyan to neon blue
+  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  // Paint background cyan to neon blue
-  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
 
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
