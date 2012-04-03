@@ -17,6 +17,7 @@
 
 using namespace std;
 
+int cubiorsPlaying = 1;
 bool goodCollision = true;
 CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 CubeObj* permanentMap[mapWidth][mapHeight][mapDepth];
@@ -113,7 +114,7 @@ if (gameplayRunning) {
   wipeMap(collisionMap);
 
   // Run main tick loop for all Cubiors...
-  for (int i = 0; i<cubiorCount; i++) {
+  for (int i = 0; i<cubiorsPlaying; i++) {
     cubior[i].tick();
     keepInBounds(&cubior[i]);
     addToCollisionMap(&cubior[i], collisionMap);
@@ -222,6 +223,8 @@ CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
+int getCubiorsPlaying() { return cubiorsPlaying; }
+void setCubiorsPlaying(int i) { cubiorsPlaying = i; }
 const int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }
 CameraObj* getCamera(int i) { return &camera[i]; }

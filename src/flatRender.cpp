@@ -134,6 +134,7 @@ void displayFor(int player) {
 }
 
 void drawPlayer(int n) {
+  if (getCubiorsPlaying() >= n+1) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
@@ -152,6 +153,7 @@ void drawPlayer(int n) {
   glScalef(100.0,100.0,100.0);
   cubiorShape[n].drawCubior(n);
   glPopMatrix();
+  }
 }
 
 void drawCube(int n) {
