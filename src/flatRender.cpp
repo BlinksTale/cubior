@@ -66,6 +66,12 @@ CameraObj* cameraPointer[cubiorNum];
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
   
+  glScissor(0,0,windowWidth,windowHeight);
+  glViewport(0,0,windowWidth,windowHeight);
+
+  // Make sure background is black first, then draw on top of it
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
   // Player 1
   glScissor(windowWidth*0/2-1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
@@ -93,11 +99,13 @@ void display() {
 }
 
 void displayFor(int player) {
+  
+  // Paint background cyan to neon blue
+  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  // Paint background cyan to neon blue
-  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
 
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
@@ -126,6 +134,7 @@ void displayFor(int player) {
 }
 
 void drawPlayer(int n) {
+  if (getCubiorsPlaying() >= n+1) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
@@ -144,16 +153,25 @@ void drawPlayer(int n) {
   glScalef(100.0,100.0,100.0);
   cubiorShape[n].drawCubior(n);
   glPopMatrix();
+  }
 }
 
 void drawCube(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
-  
+  int altSize = 400;
+  bool alternatingSpot =(
+        (cubeX[n]<0)^((int(abs(cubeX[n]+1))%(altSize*2)<altSize))
+    ) ^ (
+        (cubeY[n]<0)^((int(abs(cubeY[n]+1))%(altSize*2)<altSize))
+    )^ (
+        (cubeZ[n]<0)^((int(abs(cubeZ[n]+1))%(altSize*2)<altSize))
+    );
+  float altDark = alternatingSpot * 0.125;
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].draw(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
+  cubeShape[n].draw(0.95-0.5*cubeCollision[n]-altDark,1.0-0.5*cubeCollision[n]-altDark,0.5-0.5*cubeCollision[n]-altDark,0.5);
   glPopMatrix();
 }
 

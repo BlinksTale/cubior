@@ -78,6 +78,10 @@ void handleInput(unsigned char key, bool newBool) {
     case '6': playerPause(1,newBool); break;
     case '7': playerPause(2,newBool); break;
     case '8': playerPause(3,newBool); break;
+    case '1': setCubiorsPlaying(1); break;
+    case '2': setCubiorsPlaying(2); break;
+    case '3': setCubiorsPlaying(3); break;
+    case '4': setCubiorsPlaying(4); break;
     
     // OLD PLAYER 1 CONTROLS 
     case 'c': case 'C': setSuper(0,newBool); break;

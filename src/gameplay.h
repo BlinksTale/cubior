@@ -39,6 +39,8 @@ const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
     GoalObj* getGoal();
     CubeObj* getCube(int);
     const int getCubiorCount();
+    int getCubiorsPlaying();
+    void setCubiorsPlaying(int);
     const int getCubeCount();
     CameraObj* getCamera();
     CameraObj* getCamera(int);
