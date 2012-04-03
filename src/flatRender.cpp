@@ -73,26 +73,17 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
-  // Player 1
-  glScissor(windowWidth*0/2-1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*0/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(0);
-  
-  // Player 2
-  glScissor(windowWidth*1/2+1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*1/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(1);
-  
-  // Player 3
-  glScissor(windowWidth*0/2-1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(2);
-  
-  // Player 4
-  glScissor(windowWidth*1/2+1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*1/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(3);
-  
+  for (int i=0; i<getCubiorCount(); i++) {
+    if (getCubiorPlayable(i)) {
+      int w=i%2;
+      int h=i>1?0:1;
+      // Draw some player i
+      glScissor(windowWidth*w/2+(2*w-1),windowHeight*h/2+(2*h-1),windowWidth/2,windowHeight/2);
+      glViewport(windowWidth*w/2, windowHeight*h/2, windowWidth*1/2, windowHeight*1/2);
+      displayFor(i);
+    }
+  }
+
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
@@ -130,11 +121,11 @@ void displayFor(int player) {
   }
   // And player stats (wip/temp)
   //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
-  
+
 }
 
 void drawPlayer(int n) {
-  if (getCubiorsPlaying() >= n+1) {
+  if (getCubiorPlayable(n)) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
