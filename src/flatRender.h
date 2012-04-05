@@ -21,6 +21,6 @@
     void setGoalGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
-    void printString(const char*,int,int);
+    void printString(char*,int,int,int);
 
 #endif 

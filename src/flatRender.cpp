@@ -17,9 +17,10 @@
 #include <GL/glut.h>
 #endif
 
-#include <cmath>
+#include <cmath> // for rand
 #include <cstring>
 #include <algorithm>
+#include <stdio.h> // for pauseText
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
@@ -31,6 +32,7 @@ static const bool idleNotTimer = false; // works better, otherwise hangs when PC
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = cubiorCount;
 const int cubeNum = cubeCount;// 9 + playableWidth*playableDepth;
+char pausedText[50];
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
@@ -112,12 +114,15 @@ void displayFor(int player) {
 
   // Print pause menu
   if (getGameplayRunning()) {
-    printString("RUNNING",0,0);
+    //printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
   } else {
-/*    char* tempString = "P_ PAUSED";
-    tempString[1] = getLastPause();
-    cout << tempString << "\n";*/
-    printString("PAUSED",0,0);
+    int n, a=getLastPause() + 1;
+    if (a > 0) {
+      n=sprintf(pausedText, "P%d PAUSED", a);
+    } else {
+      n=sprintf(pausedText, "ALL PAUSED");
+    }
+    printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
   }
   // And player stats (wip/temp)
   //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
@@ -337,12 +342,13 @@ void renderFlat() {
   // will refresh screen, right?
 }
 
-void printString(const char *string, int x, int y) {
+void printString(char *string, int x, int y, int z) {
   int len, i;
   len = (int)strlen(string);
   glColor3f( 0.0f, 0.0f, 0.0f );
-  glRasterPos3f(-4.5f*len+x,200.0f+y,590.0f);
+  glRasterPos3f(-15.0f*len+x,0.0f+y,0.0f+z);
+  //glRasterPos3f(-4.5f*len+x,200.0f+y,590.0f);
   for (i = 0; i < len; i++) {
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
-    }
+  }
 }
