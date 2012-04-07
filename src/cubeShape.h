@@ -9,8 +9,10 @@
 
 class CubeShape {
   protected:
+    bool alternatingSpot;
+    float altDark;
   public:
-    virtual void initVisuals();
+    virtual void initVisuals(bool);
     virtual void updateVisuals();
     virtual void draw(float,float,float,float);
 };

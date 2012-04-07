@@ -12,7 +12,9 @@
 #include <GL/glut.h>
 #endif
 
-void CubeShape::initVisuals() {
+void CubeShape::initVisuals(bool alt) {
+  alternatingSpot = alt;
+  altDark = alternatingSpot * 0.125;
   // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
 }
 
@@ -25,12 +27,12 @@ void CubeShape::draw(float colorCurrentR, float colorCurrentG, float colorCurren
   // make sure visuals are on the same page
   updateVisuals();
 
-  float r1 = colorCurrentR;
-  float g1 = colorCurrentG;
-  float b1 = colorCurrentB;
-  float r2 = colorCurrentR - colorDarkness;
-  float g2 = colorCurrentG - colorDarkness;
-  float b2 = colorCurrentB - colorDarkness;
+  float r1 = colorCurrentR - altDark;
+  float g1 = colorCurrentG - altDark;
+  float b1 = colorCurrentB - altDark;
+  float r2 = colorCurrentR - colorDarkness - altDark;
+  float g2 = colorCurrentG - colorDarkness - altDark;
+  float b2 = colorCurrentB - colorDarkness - altDark;
 
 // Draw Cubior, the cube!
     // Back

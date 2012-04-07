@@ -79,33 +79,36 @@ void display() {
     if (getCubiorPlayable(i)) {
       int w=i%2;
       int h=i>1?1:0;
-      int altX = (h)*2+1-w;
-      int altY = (1-h)*2+w;
-      int altXY = getCubiorCount()-i-1;
-      int posX = windowWidth*w/2 +(2*w-1);
-      int posY = windowHeight*(1-h)/2+(2*(1-h)-1);
+      int altX = (h)*2+1-w; // side neighbor
+      int altY = (1-h)*2+w; // elevator neighbor
+      int altXY = getCubiorCount()-i-1; // diagonal neighbor
+      int posX = windowWidth*w/2 +(2*w-1); // screen position
+      int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
       int viewW = windowWidth*1/2;
       int viewH = windowHeight*1/2;
+      
+      // Now fill in empty space
       if (!getCubiorPlayable(altX)
       &&!getCubiorPlayable(altY)
       &&!getCubiorPlayable(altXY)) {
+        // All alone? Fill it all!
         viewW *= 2;
         viewH *= 2;
         posX = 0;
         posY = 0;
         setPerspective(2,2);
       } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
-        // Space Vertically?
+        // Space Vertically? Fill the height
         viewH *= 2;
         posY = 0;
         setPerspective(1,2);
       } else if (!getCubiorPlayable(altX)) {
-        // Space Horizontally?
+        // Space Horizontally? Fill the width
         viewW *= 2;
         posX = 0;
         setPerspective(2,1);
       } else {
-        // Nothing abnormal!
+        // Nothing abnormal! As you were
         setPerspective(1,1);
       }
       // Draw some player i
@@ -135,7 +138,6 @@ void displayFor(int player) {
   //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
   glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());  
-
 
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
   for (int i=0; i<cubeNum; i++) { drawCube(i); }
@@ -185,18 +187,10 @@ void drawCube(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
-  int altSize = 400;
-  bool alternatingSpot =(
-        (cubeX[n]<0)^((int(abs(cubeX[n]+1))%(altSize*2)<altSize))
-    ) ^ (
-        (cubeY[n]<0)^((int(abs(cubeY[n]+1))%(altSize*2)<altSize))
-    )^ (
-        (cubeZ[n]<0)^((int(abs(cubeZ[n]+1))%(altSize*2)<altSize))
-    );
-  float altDark = alternatingSpot * 0.125;
+  
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].draw(0.95-0.5*cubeCollision[n]-altDark,1.0-0.5*cubeCollision[n]-altDark,0.5-0.5*cubeCollision[n]-altDark,0.5);
+  cubeShape[n].draw(0.95-0.5*cubeCollision[n],1.0-0.5*cubeCollision[n],0.5-0.5*cubeCollision[n],0.5);
   glPopMatrix();
 }
 
@@ -270,12 +264,21 @@ void initFlat(int argc, char** argv) {
 
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
+    /* May not need this, updateCubeGraphic does the work
     cubeX[i] = 0.0;
     cubeY[i] = 0.0;
-    cubeZ[i] = 0.0;
+    cubeZ[i] = 0.0;*/
     cubeCollision[i] = false;
-    cubeShape[i].initVisuals();
     updateCubeGraphic(i);
+    int altSize = 400;
+    bool alternatingSpot =(
+        (cubeX[i]<0)^((int(abs(cubeX[i]+1))%(altSize*2)<altSize))
+      ) ^ (
+        (cubeY[i]<0)^((int(abs(cubeY[i]+1))%(altSize*2)<altSize))
+      )^ (
+        (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
+      );
+    cubeShape[i].initVisuals(alternatingSpot);
   }
 
   // Initialize Goal Visual Vals
