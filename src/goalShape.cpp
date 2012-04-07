@@ -26,7 +26,7 @@ void GoalShape::initGoalVisuals() {
   colorCurrentG = colorDefaultG;
   colorCurrentB = colorDefaultB;
   updateColors();
-  initVisuals(r1,g1,b1,colorDarkness,false);
+  initVisuals(r1,g1,b1,colorDarkness,false,false);
 }
 
 void GoalShape::updateVisuals() {

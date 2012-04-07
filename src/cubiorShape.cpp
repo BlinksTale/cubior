@@ -59,7 +59,7 @@ void CubiorShape::initCubiorVisuals(int n) {
   colorCurrentG = colorDefaultG;
   colorCurrentB = colorDefaultB;
   updateCubiorVisuals(n);
-  initVisuals(r1,g1,b1,colorDarkness,false);
+  initVisuals(r1,g1,b1,colorDarkness,false,false);
 
 }
 

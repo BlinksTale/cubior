@@ -31,6 +31,8 @@ const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
     void explodingDiamondCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
     void addToCollisionMap(CubeObj*,CubeObj*[][mapHeight][mapDepth]);
+    void findNeighbors(CubeObj*,CubeObj*[][mapHeight][mapDepth]);
+    bool* getNeighbors(CubeObj*);
     void wipeMap(CubeObj*[][mapHeight][mapDepth]);
     int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();

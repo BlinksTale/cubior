@@ -110,7 +110,11 @@ if (gameplayRunning) {
     //keepInBounds(&cube[i]);
     addToCollisionMap(&cube[i], permanentMap);
   }
-
+  // Then set their neighbors, for more efficient rendering
+  for (int i = 0; i<cubeCount; i++) {
+    findNeighbors(&cube[i], permanentMap);
+  }
+  
 }
 }
 
@@ -218,6 +222,22 @@ void addToCollisionMap(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
   int cY = getCollisionMapSlot(c1,1);
   int cZ = getCollisionMapSlot(c1,2);
   map[cX][cY][cZ] = c1;
+}
+
+void findNeighbors(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
+  // The top/bot order on these might be wrong, but it shouldn't really matter too much
+  // since used to check if surrounded on a plane anyways
+  c1->setNeighbors(
+    map[cX+1][cY][cZ] != NULL,
+    map[cX-1][cY][cZ] != NULL,
+    map[cX][cY+1][cZ] != NULL,
+    map[cX][cY-1][cZ] != NULL,
+    map[cX][cY][cZ+1] != NULL,
+    map[cX][cY][cZ-1] != NULL
+  );
 }
 
 // pass cube and dimension to get map slot

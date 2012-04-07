@@ -18,7 +18,8 @@
 #include <sys/time.h> // for linux time
 
 
-void CubeShape::initVisuals(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness, bool alt) {
+void CubeShape::initVisuals(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness, bool alt, bool mid) {
+  midFloor = mid;
   alternatingSpot = alt;
   altDark = alternatingSpot * 0.125;
   // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
@@ -49,7 +50,7 @@ struct timeval tim;
 
 
     if (getTiming()) { gettimeofday(&tim, NULL); c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
+    if (!neighbors[5]) { // 5 must be back since 4 is front
 // Draw Cubior, the cube!
     // Back
     glBegin(GL_TRIANGLES);
@@ -68,6 +69,8 @@ struct timeval tim;
 
     if (getTiming()) { gettimeofday(&tim, NULL); c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
+}
+    if (!neighbors[3]) { // 3 is bottom since 2 is top
     // Bottom
     glColor3f(r2,g2,b2);
     glBegin(GL_TRIANGLES);
@@ -83,9 +86,11 @@ struct timeval tim;
 
     if (getTiming()) { gettimeofday(&tim, NULL); c5 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
+}
+    if (!neighbors[4]) { // 4 is front side
     // Front
     glBegin(GL_TRIANGLES);
-    // extended from above glColor3f(r2,g2,b2);
+    glColor3f(r2,g2,b2); // can't guarantee it will exist above, since bottom may not be drawn
     glVertex3f( 0.5,-0.5,0.5);
     glVertex3f(-0.5,-0.5,0.5);
     glColor3f(r1,g1,b1);
@@ -100,9 +105,11 @@ struct timeval tim;
 
     if (getTiming()) { gettimeofday(&tim, NULL); c6 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
+}
+    if (!neighbors[0]) { // 0 is left
     // Left
     glBegin(GL_TRIANGLES);
-    //extended from above glColor3f(r2,g2,b2);
+    glColor3f(r2,g2,b2);
     glVertex3f( 0.5,-0.5,-0.5);
     glVertex3f( 0.5,-0.5, 0.5);
     glColor3f(r1,g1,b1);
@@ -117,6 +124,8 @@ struct timeval tim;
 
     if (getTiming()) { gettimeofday(&tim, NULL); c7 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
+}
+    if (!neighbors[1]) { // 1 is right
     // Right
     glBegin(GL_TRIANGLES);
     glColor3f(r2,g2,b2);
@@ -133,7 +142,8 @@ struct timeval tim;
     glEnd();
 
     if (getTiming()) { gettimeofday(&tim, NULL); c8 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
+}
+    if (!neighbors[2]) { // 2 is above
     // Top
     glColor3f(r1,g1,b1);
     glBegin(GL_TRIANGLES);
@@ -146,7 +156,7 @@ struct timeval tim;
     glVertex3f(-0.5, 0.5, 0.5);
     glVertex3f(-0.5, 0.5,-0.5);
     glEnd();
-
+}
     if (getTiming()) { gettimeofday(&tim, NULL); c9 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
@@ -162,4 +172,10 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
   printf("total: %d\n",c9-c1);
 }
 
+}
+
+void CubeShape::setNeighbors(bool newNeighbors[6]) { 
+  for (int i=0; i< 6; i++) {
+  neighbors[i] = newNeighbors[i];
+  }
 }

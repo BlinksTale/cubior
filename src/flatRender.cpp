@@ -112,9 +112,9 @@ void display() {
       
       int w=i%2;
       int h=i>1?1:0;
-      int altX = (h)*2+1-w; // side neighbor
-      int altY = (1-h)*2+w; // elevator neighbor
-      int altXY = getCubiorCount()-i-1; // diagonal neighbor
+      int altX = (h)*2+1-w; // side screen neighbor
+      int altY = (1-h)*2+w; // elevator screen neighbor
+      int altXY = getCubiorCount()-i-1; // diagonal screen neighbor
       int posX = windowWidth*w/2 +(2*w-1); // screen position
       int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
       int viewW = windowWidth*1/2;
@@ -484,7 +484,8 @@ void initFlat(int argc, char** argv) {
       )^ (
         (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
       );
-    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot);
+    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot,cubeY[i]<=getFloor()  && abs(cubeZ[i])!=mapWidth/2);
+    cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
   }
 
   // Initialize Goal Visual Vals

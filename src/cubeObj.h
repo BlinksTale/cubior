@@ -10,6 +10,7 @@
 
 class CubeObj {
   protected:
+    bool neighbors[6];
     int x, y, z, momentumX, momentumY, momentumZ;
     int movementSpeed, movementDivision;
     bool collision;
@@ -62,6 +63,8 @@ class CubeObj {
     int getMomentumY();
     int getMomentumZ();
 
+    void setNeighbors(bool,bool,bool,bool,bool,bool);
+    bool* getNeighbors();
     void setCollision(bool);
     bool getCollision();
     virtual int getSize(int);
