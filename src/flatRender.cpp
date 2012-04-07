@@ -78,10 +78,39 @@ void display() {
   for (int i=0; i<getCubiorCount(); i++) {
     if (getCubiorPlayable(i)) {
       int w=i%2;
-      int h=i>1?0:1;
+      int h=i>1?1:0;
+      int altX = (h)*2+1-w;
+      int altY = (1-h)*2+w;
+      int altXY = getCubiorCount()-i-1;
+      int posX = windowWidth*w/2 +(2*w-1);
+      int posY = windowHeight*(1-h)/2+(2*(1-h)-1);
+      int viewW = windowWidth*1/2;
+      int viewH = windowHeight*1/2;
+      if (!getCubiorPlayable(altX)
+      &&!getCubiorPlayable(altY)
+      &&!getCubiorPlayable(altXY)) {
+        viewW *= 2;
+        viewH *= 2;
+        posX = 0;
+        posY = 0;
+        setPerspective(2,2);
+      } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
+        // Space Vertically?
+        viewH *= 2;
+        posY = 0;
+        setPerspective(1,2);
+      } else if (!getCubiorPlayable(altX)) {
+        // Space Horizontally?
+        viewW *= 2;
+        posX = 0;
+        setPerspective(2,1);
+      } else {
+        // Nothing abnormal!
+        setPerspective(1,1);
+      }
       // Draw some player i
-      glScissor(windowWidth*w/2+(2*w-1),windowHeight*h/2+(2*h-1),windowWidth/2,windowHeight/2);
-      glViewport(windowWidth*w/2, windowHeight*h/2, windowWidth*1/2, windowHeight*1/2);
+      glScissor(posX,posY,viewW,viewH);
+      glViewport(posX, posY, viewW, viewH);
       displayFor(i);
     }
   }
@@ -190,20 +219,14 @@ void drawGoal() {
 void reshape(GLint w, GLint h) {
   windowWidth = w;
   windowHeight = h;
-  // working on splitscreen here atm
-  // http://nehe.gamedev.net/tutorial/multiple_viewports/20002/
-  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  setPerspective(1,1);
+}
+
+void setPerspective(int x, int y) {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); // blank canvas for transforms
-  if (windowWidth <= windowHeight) {
-    // width is smaller, go from -50 .. 50 in width
-    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  } else {
-    // height is smaller, go from -50 .. 50 in height
-    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  }
+  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  gluPerspective(45.0, aspect*x/y, 0.50, 10.0);
 }
 
 // main loop for rendering. Also calls gameplay loop,
