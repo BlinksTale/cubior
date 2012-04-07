@@ -23,5 +23,6 @@
     void updateFlat();
     void renderFlat();
     void printString(char*,int,int,int);
+    bool getTiming();
 
 #endif 

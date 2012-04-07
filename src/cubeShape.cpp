@@ -5,6 +5,7 @@
  * 3d cube model
  */
 #include "cubeShape.h"
+#include "flatRender.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -37,16 +38,17 @@ void CubeShape::draw() {
 
 struct timeval tim;
 
-  gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
+    int c1,c2,c3,c4,c5,c6,c7,c8,c9;
+    if (getTiming()) { gettimeofday(&tim, NULL); c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   // make sure visuals are on the same page
   updateVisuals();
 
-  gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 
 
-  gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 // Draw Cubior, the cube!
     // Back
@@ -64,7 +66,7 @@ struct timeval tim;
     glVertex3f( 0.5,-0.5,-0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
     // Bottom
     glColor3f(r2,g2,b2);
@@ -79,7 +81,7 @@ struct timeval tim;
     glVertex3f(-0.5,-0.5,-0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c5 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c5 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
     // Front
     glBegin(GL_TRIANGLES);
@@ -96,7 +98,7 @@ struct timeval tim;
     glVertex3f(-0.5,-0.5,0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c6 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
     // Left
     glBegin(GL_TRIANGLES);
@@ -113,7 +115,7 @@ struct timeval tim;
     glVertex3f( 0.5,-0.5, 0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c7 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c7 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
     // Right
     glBegin(GL_TRIANGLES);
@@ -130,7 +132,7 @@ struct timeval tim;
     glVertex3f(-0.5,-0.5,-0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c8 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c8 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
     // Top
     glColor3f(r1,g1,b1);
@@ -145,9 +147,9 @@ struct timeval tim;
     glVertex3f(-0.5, 0.5,-0.5);
     glEnd();
 
-  gettimeofday(&tim, NULL); int c9 = (tim.tv_sec+(tim.tv_usec/1.0));
+    if (getTiming()) { gettimeofday(&tim, NULL); c9 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
-if (100<(c9-c1)) {//(c9 - c1 > 100) {
+if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
   printf("INSIDE...\n");
   printf("update Visuals: %d\n",c2-c1);
   printf("set colors: %d\n",c3-c2);
