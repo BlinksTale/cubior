@@ -12,69 +12,152 @@
 #include <GL/glut.h>
 #endif
 
-void CubeShape::initVisuals(bool alt) {
+#include <stdio.h> // for pauseText
+#include <time.h> // for printing timestamps
+#include <sys/time.h> // for linux time
+
+
+void CubeShape::initVisuals(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness, bool alt) {
   alternatingSpot = alt;
   altDark = alternatingSpot * 0.125;
   // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
+  r1 = colorCurrentR - altDark;
+  g1 = colorCurrentG - altDark;
+  b1 = colorCurrentB - altDark;
+  r2 = colorCurrentR - colorDarkness - altDark;
+  g2 = colorCurrentG - colorDarkness - altDark;
+  b2 = colorCurrentB - colorDarkness - altDark;
 }
 
 void CubeShape::updateVisuals() {
   // This handles colors and face smile for Cubiors, but nothing for Cubes yet
 }
 
-void CubeShape::draw(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness) {
+void CubeShape::draw() {
+
+struct timeval tim;
+
+  gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
 
   // make sure visuals are on the same page
   updateVisuals();
 
-  float r1 = colorCurrentR - altDark;
-  float g1 = colorCurrentG - altDark;
-  float b1 = colorCurrentB - altDark;
-  float r2 = colorCurrentR - colorDarkness - altDark;
-  float g2 = colorCurrentG - colorDarkness - altDark;
-  float b2 = colorCurrentB - colorDarkness - altDark;
+  gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0));
+
+
+
+  gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
 
 // Draw Cubior, the cube!
     // Back
-    glBegin(GL_POLYGON);
-    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r1-0.2,g1-0.2,b1-0.2); glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f(-0.5,-0.5,-0.5);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2); glVertex3f( 0.5,-0.5,-0.5);
+    glBegin(GL_TRIANGLES);
+    glColor3f(r2-0.2,g2-0.2,b2-0.2);
+    glVertex3f( 0.5,-0.5,-0.5);
+    glColor3f(r1-0.2,g1-0.2,b1-0.2);
+    glVertex3f( 0.5, 0.5,-0.5);
+    glVertex3f(-0.5, 0.5,-0.5);
     glEnd();
-    // Left
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.5, 0.5,-0.5);
+    glColor3f(r2-0.2,g2-0.2,b2-0.2);
+    glVertex3f(-0.5,-0.5,-0.5);
+    glVertex3f( 0.5,-0.5,-0.5);
     glEnd();
-    // Right
-    glBegin(GL_POLYGON);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
+
+  gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
+
     // Bottom
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5, 0.5);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,-0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,-0.5);
+    glColor3f(r2,g2,b2);
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.5,-0.5, 0.5);
+    glVertex3f( 0.5,-0.5, 0.5);
+    glVertex3f(-0.5,-0.5,-0.5);
     glEnd();
-    // Top
-    glBegin(GL_POLYGON);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5, 0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,-0.5);
+    glBegin(GL_TRIANGLES);
+    glVertex3f( 0.5,-0.5, 0.5);
+    glVertex3f( 0.5,-0.5,-0.5);
+    glVertex3f(-0.5,-0.5,-0.5);
     glEnd();
+
+  gettimeofday(&tim, NULL); int c5 = (tim.tv_sec+(tim.tv_usec/1.0));
+
     // Front
-    glBegin(GL_POLYGON);
-    glColor3f(r2,g2,b2); glVertex3f( 0.5,-0.5,0.5);
-    glColor3f(r2,g2,b2); glVertex3f(-0.5,-0.5,0.5);
-    glColor3f(r1,g1,b1); glVertex3f(-0.5, 0.5,0.5);
-    glColor3f(r1,g1,b1); glVertex3f( 0.5, 0.5,0.5);
+    glBegin(GL_TRIANGLES);
+    // extended from above glColor3f(r2,g2,b2);
+    glVertex3f( 0.5,-0.5,0.5);
+    glVertex3f(-0.5,-0.5,0.5);
+    glColor3f(r1,g1,b1);
+    glVertex3f( 0.5, 0.5,0.5);
     glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.5, 0.5,0.5);
+    glVertex3f( 0.5, 0.5,0.5);
+    glColor3f(r2,g2,b2);
+    glVertex3f(-0.5,-0.5,0.5);
+    glEnd();
+
+  gettimeofday(&tim, NULL); int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
+
+    // Left
+    glBegin(GL_TRIANGLES);
+    //extended from above glColor3f(r2,g2,b2);
+    glVertex3f( 0.5,-0.5,-0.5);
+    glVertex3f( 0.5,-0.5, 0.5);
+    glColor3f(r1,g1,b1);
+    glVertex3f( 0.5, 0.5,-0.5);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f( 0.5, 0.5, 0.5);
+    glVertex3f( 0.5, 0.5,-0.5);
+    glColor3f(r2,g2,b2);
+    glVertex3f( 0.5,-0.5, 0.5);
+    glEnd();
+
+  gettimeofday(&tim, NULL); int c7 = (tim.tv_sec+(tim.tv_usec/1.0));
+
+    // Right
+    glBegin(GL_TRIANGLES);
+    glColor3f(r2,g2,b2);
+    glVertex3f(-0.5,-0.5,-0.5);
+    glColor3f(r1,g1,b1);
+    glVertex3f(-0.5, 0.5,-0.5);
+    glVertex3f(-0.5, 0.5, 0.5);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f(-0.5, 0.5, 0.5);
+    glColor3f(r2,g2,b2);
+    glVertex3f(-0.5,-0.5, 0.5);
+    glVertex3f(-0.5,-0.5,-0.5);
+    glEnd();
+
+  gettimeofday(&tim, NULL); int c8 = (tim.tv_sec+(tim.tv_usec/1.0));
+
+    // Top
+    glColor3f(r1,g1,b1);
+    glBegin(GL_TRIANGLES);
+    glVertex3f( 0.5, 0.5,-0.5);
+    glVertex3f( 0.5, 0.5, 0.5);
+    glVertex3f(-0.5, 0.5, 0.5);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+    glVertex3f( 0.5, 0.5,-0.5);
+    glVertex3f(-0.5, 0.5, 0.5);
+    glVertex3f(-0.5, 0.5,-0.5);
+    glEnd();
+
+  gettimeofday(&tim, NULL); int c9 = (tim.tv_sec+(tim.tv_usec/1.0));
+
+if (100<(c9-c1)) {//(c9 - c1 > 100) {
+  printf("INSIDE...\n");
+  printf("update Visuals: %d\n",c2-c1);
+  printf("set colors: %d\n",c3-c2);
+  printf("back: %d\n",c4-c3);
+  printf("bottom: %d\n",c5-c4);
+  printf("front: %d\n",c6-c5);
+  printf("left: %d\n",c7-c6);
+  printf("right: %d\n",c8-c7);
+  printf("top: %d\n",c9-c8);
+  printf("total: %d\n",c9-c1);
+}
+
 }

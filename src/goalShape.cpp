@@ -16,7 +16,7 @@
 
 #include <cstdlib>
 
-void GoalShape::initVisuals() {
+void GoalShape::initGoalVisuals() {
   colorDarkness = 0.4;
   colorDefaultA = 0.4;
   colorDefaultR = 0.6;
@@ -25,6 +25,8 @@ void GoalShape::initVisuals() {
   colorCurrentR = colorDefaultR;
   colorCurrentG = colorDefaultG;
   colorCurrentB = colorDefaultB;
+  updateColors();
+  initVisuals(r1,g1,b1,colorDarkness,false);
 }
 
 void GoalShape::updateVisuals() {
@@ -48,5 +50,5 @@ void GoalShape::drawGoal(){//float r1, float g1, float b1, float colorDarkness) 
   updateVisuals();
 
   // call on cubeShape's function, drawCube, to make a cube visual
-  draw(r1,g1,b1,colorDarkness);
+  draw();
 }

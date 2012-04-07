@@ -24,7 +24,7 @@ class GoalShape : public CubeShape {
     float colorCurrentB;
 
   public:
-    void initVisuals();
+    void initGoalVisuals();
     void updateVisuals();
     void updateColors();
     void drawGoal();
