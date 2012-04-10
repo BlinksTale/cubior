@@ -9,10 +9,15 @@
 
 class CubeShape {
   protected:
+    bool alternatingSpot, midFloor; // for tile color and sides drawn
+    bool neighbors[6]; // points to neighbors array of cubeObj
+    float altDark;
+    float r1,g1,b1,r2,b2,g2;
   public:
-    virtual void initVisuals();
+    virtual void initVisuals(float,float,float,float,bool,bool);
+    void setNeighbors(bool[6]);
     virtual void updateVisuals();
-    virtual void draw(float,float,float,float);
+    virtual void draw();
 };
 
 #endif

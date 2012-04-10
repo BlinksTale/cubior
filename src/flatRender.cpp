@@ -17,20 +17,24 @@
 #include <GL/glut.h>
 #endif
 
-#include <cmath>
+#include <cmath> // for rand
 #include <cstring>
 #include <algorithm>
+#include <stdio.h> // for pauseText
+#include <time.h> // for printing timestamps
+#include <sys/time.h> // for linux time
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 int windowWidth = 640;
 int windowHeight = 480;
 // Whether to wait for idle to refresh, or force w/ timer
-static const bool idleNotTimer = false; // works better, otherwise hangs when PC busy
+static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = cubiorCount;
 const int cubeNum = cubeCount;// 9 + playableWidth*playableDepth;
+char pausedText[50];
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
@@ -54,6 +58,15 @@ static GLfloat cubeY[cubeNum];
 static GLfloat cubeZ[cubeNum];
 static GLfloat cubeCollision[cubeNum];
 
+// time stuff
+bool timing = false;
+struct timeval tim;
+int lastTime1 = 0;
+int lastTime2 = 0;
+int lastTime3 = 0;
+int lastTime4 = 0;
+int lastTime5 = 0;
+
 // Goal object's visual
 GoalShape goalShape;
 static GLfloat goalX;
@@ -65,6 +78,15 @@ CameraObj* cameraPointer[cubiorNum];
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
+
+  int dTime1, dTime2, dTime3, dTime4, dTime5, dTime6;
+  
+  if (timing) {
+  printf("------------\n");
+  gettimeofday(&tim, NULL);
+  int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
+  lastTime2 = dTime1;
+  }
   
   glScissor(0,0,windowWidth,windowHeight);
   glViewport(0,0,windowWidth,windowHeight);
@@ -73,32 +95,127 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
-  // Player 1
-  glScissor(windowWidth*0/2-1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*0/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(0);
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime2 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("preppingScreen time: %d\n",dTime2-dTime1);
+  }
   
-  // Player 2
-  glScissor(windowWidth*1/2+1,windowHeight*1/2+1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*1/2, windowHeight*1/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(1);
+  for (int i=0; i<getCubiorCount(); i++) {
+    if (getCubiorPlayable(i)) {
+      int cT1, cT2, cT3, cT4, cT5;
+      if (timing) {
+      printf("=====CUBIOR DRAW BEGIN=======\n");
+      gettimeofday(&tim, NULL);
+      int cT1 = (tim.tv_sec+(tim.tv_usec/1.0));
+      }
+      
+      int w=i%2;
+      int h=i>1?1:0;
+      int altX = (h)*2+1-w; // side screen neighbor
+      int altY = (1-h)*2+w; // elevator screen neighbor
+      int altXY = getCubiorCount()-i-1; // diagonal screen neighbor
+      int posX = windowWidth*w/2 +(2*w-1); // screen position
+      int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
+      int viewW = windowWidth*1/2;
+      int viewH = windowHeight*1/2;
+
+  if (timing) {
+      gettimeofday(&tim, NULL);
+      int cT2 = (tim.tv_sec+(tim.tv_usec/1.0));
+      printf("prep Cubior time: %d\n",cT2-cT1);
+  }
   
-  // Player 3
-  glScissor(windowWidth*0/2-1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*0/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(2);
+      // Now fill in empty space
+      if (!getCubiorPlayable(altX)
+      &&!getCubiorPlayable(altY)
+      &&!getCubiorPlayable(altXY)) {
+        // All alone? Fill it all!
+        viewW *= 2;
+        viewH *= 2;
+        posX = 0;
+        posY = 0;
+        setPerspective(2,2);
+      } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
+        // Space Vertically? Fill the height
+        viewH *= 2;
+        posY = 0;
+        setPerspective(1,2);
+      } else if (!getCubiorPlayable(altX)) {
+        // Space Horizontally? Fill the width
+        viewW *= 2;
+        posX = 0;
+        setPerspective(2,1);
+      } else {
+        // Nothing abnormal! As you were
+        setPerspective(1,1);
+      }
+
+  if (timing) {
+      gettimeofday(&tim, NULL);
+      int cT3 = (tim.tv_sec+(tim.tv_usec/1.0));
+      printf("splitscreen fill time: %d\n",cT3-cT2);
+  }
   
-  // Player 4
-  glScissor(windowWidth*1/2+1,windowHeight*0/2-1,windowWidth*1/2,windowHeight*1/2);
-  glViewport(windowWidth*1/2, windowHeight*0/2, windowWidth*1/2, windowHeight*1/2);
-  displayFor(3);
+      // Draw some player i
+      glScissor(posX,posY,viewW,viewH);
+
+  if (timing) {
+      gettimeofday(&tim, NULL);
+      int cT4 = (tim.tv_sec+(tim.tv_usec/1.0));
+      printf("scissor time: %d\n",cT4-cT3);
+  }
+  
+      glViewport(posX, posY, viewW, viewH);
+
+  if (timing) {
+      gettimeofday(&tim, NULL);
+      int cT5 = (tim.tv_sec+(tim.tv_usec/1.0));
+      printf("viewport time: %d\n",cT5-cT4);
+  }
+      displayFor(i);
+
+  if (timing) {
+      gettimeofday(&tim, NULL);
+      int cT6 = (tim.tv_sec+(tim.tv_usec/1.0));
+      printf("displayFor time: %d\n",cT6-cT5);
+  }
+  
+    }
+    
+  if (timing) {
+  printf("======CUBIOR DRAW END========\n");
+  }
+  }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("drawCubiors time: %d\n",dTime3-dTime2);
+  }
   
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime4 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("totalDrawTime() time: %d\n",dTime4-dTime1);
+  printf("------------\n");
+  }
+
 }
 
 void displayFor(int player) {
+  
+  int c1,c2,c3,c4,c5;
+  if (timing) {
+  printf("&&&&& DISPLAYFOR CUBIOR BEGIN &&&&&&&\n");
+
+  gettimeofday(&tim, NULL);
+  int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
+  }
   
   // Paint background cyan to neon blue
   glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
@@ -107,6 +224,12 @@ void displayFor(int player) {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c2 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("prep time: %d\n",c2-c1);
+  }
+  
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
   // old cam position
@@ -114,26 +237,62 @@ void displayFor(int player) {
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
   glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());  
 
-
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("moveCam time: %d\n",c3-c2);
+  }
+  
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("drawPlayer time: %d\n",c4-c3);
+  }
+  
   for (int i=0; i<cubeNum; i++) { drawCube(i); }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c5 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("drawCube time: %d\n",c5-c4);
+  }
+  
   drawGoal();
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("drawGoal time: %d\n",c6-c5);
+  }
 
   // Print pause menu
   if (getGameplayRunning()) {
-    printString("RUNNING",0,0);
+    //printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
   } else {
-/*    char* tempString = "P_ PAUSED";
-    tempString[1] = getLastPause();
-    cout << tempString << "\n";*/
-    printString("PAUSED",0,0);
+    int n, a=getLastPause() + 1;
+    if (a > 0) {
+      n=sprintf(pausedText, "P%d PAUSED", a);
+    } else {
+      n=sprintf(pausedText, "ALL PAUSED");
+    }
+    printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
   }
   // And player stats (wip/temp)
   //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int c7 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("drawFor nested time: %d\n",c7-c1);
+  printf("&&&&&& DISPLAYFOR CUBIOR END &&&&&&&&\n");
+  }
   
 }
 
 void drawPlayer(int n) {
+  if (getCubiorPlayable(n)) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
@@ -152,25 +311,40 @@ void drawPlayer(int n) {
   glScalef(100.0,100.0,100.0);
   cubiorShape[n].drawCubior(n);
   glPopMatrix();
+  }
 }
 
 void drawCube(int n) {
+
+  int c1,c2,c3,c4,c5;
+  if (timing) { gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+
   glPushMatrix();
   // Move player
   glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
-  int altSize = 400;
-  bool alternatingSpot =(
-        (cubeX[n]<0)^((int(abs(cubeX[n]+1))%(altSize*2)<altSize))
-    ) ^ (
-        (cubeY[n]<0)^((int(abs(cubeY[n]+1))%(altSize*2)<altSize))
-    )^ (
-        (cubeZ[n]<0)^((int(abs(cubeZ[n]+1))%(altSize*2)<altSize))
-    );
-  float altDark = alternatingSpot * 0.125;
+  
   // And make player bigger
   glScalef(100.0,100.0,100.0);
-  cubeShape[n].draw(0.95-0.5*cubeCollision[n]-altDark,1.0-0.5*cubeCollision[n]-altDark,0.5-0.5*cubeCollision[n]-altDark,0.5);
+
+  if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+
+  cubeShape[n].draw();
+
+  if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+
   glPopMatrix();
+
+  if (timing) { gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+
+  
+if (timing && c4-c1 > 200) {
+  printf(" %dth....drawCube number start....\n", n);
+  printf("prep time: %d\n",c2-c1);
+  printf("draw time: %d\n",c3-c2);
+  printf("popMatrix time: %d\n",c4-c3);
+  printf("drawCube nested time: %d\n",c4-c1);
+  printf(".....drawCube end.....\n");
+}
 }
 
 void drawGoal() {
@@ -192,36 +366,83 @@ void drawGoal() {
 void reshape(GLint w, GLint h) {
   windowWidth = w;
   windowHeight = h;
-  // working on splitscreen here atm
-  // http://nehe.gamedev.net/tutorial/multiple_viewports/20002/
-  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  setPerspective(1,1);
+}
+
+void setPerspective(int x, int y) {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); // blank canvas for transforms
-  if (windowWidth <= windowHeight) {
-    // width is smaller, go from -50 .. 50 in width
-    //glFrustum(-50.0, 50.0, -50.0/aspect, 50.0/aspect, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  } else {
-    // height is smaller, go from -50 .. 50 in height
-    //glFrustum(-50.0*aspect, 50.0*aspect, -50.0, 50.0, -1.0, 1.0);
-    gluPerspective(45.0, aspect, 0.50, 10.0);
-  }
+  GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
+  gluPerspective(45.0, aspect*x/y, 0.50, 10.0);
 }
 
 // main loop for rendering. Also calls gameplay loop,
 // updates graphics, and calls itself again
 // BASICALLY: main loop for everything
 void renderLoop() {
+  //time_t seconds;
+  //seconds = time(NULL);
+
+  int dTime1,dTime2,dTime3,dTime4,dTime5,dTime6;
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("restOfGame time: %d\n",dTime1-lastTime1);
+  lastTime1 = dTime1;
+  }
+  
   sendCommands();
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime2 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("sendCommands() time: %d\n",dTime2-dTime1);
+  }
+  
   gameplayLoop();
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("gameplayLoop() time: %d\n",dTime3-dTime2);
+  }
+  
   for (int i=0; i<cubiorNum; i++) {
     updatePlayerGraphic(i);
   }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime4 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("updatePlayerGraphic() time: %d\n",dTime4-dTime3);
+  }
+  
   for (int i=0; i<cubeNum; i++) {
     updateCubeGraphic(i);
   }
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime5 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("updateCubeGraphic() time: %d\n",dTime5-dTime4);
+  }
+  
   updateGoalGraphic();
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime6 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("updateGoalGraphic() time: %d\n",dTime6-dTime5);
+  }
+  
   glutPostRedisplay();
+
+  if (timing) {
+  gettimeofday(&tim, NULL);
+  int dTime7 = (tim.tv_sec+(tim.tv_usec/1.0));
+  printf("glutPostRedisplay() time: %d\n",dTime7-dTime6);
+  printf("renderLoop() time: %d\n",dTime7-dTime1);
+  }
 }
 
 void timerRenderLoop(int v) {
@@ -249,19 +470,29 @@ void initFlat(int argc, char** argv) {
 
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
+    /* May not need this, updateCubeGraphic does the work
     cubeX[i] = 0.0;
     cubeY[i] = 0.0;
-    cubeZ[i] = 0.0;
+    cubeZ[i] = 0.0;*/
     cubeCollision[i] = false;
-    cubeShape[i].initVisuals();
     updateCubeGraphic(i);
+    int altSize = 400;
+    bool alternatingSpot =(
+        (cubeX[i]<0)^((int(abs(cubeX[i]+1))%(altSize*2)<altSize))
+      ) ^ (
+        (cubeY[i]<0)^((int(abs(cubeY[i]+1))%(altSize*2)<altSize))
+      )^ (
+        (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
+      );
+    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot,cubeY[i]<=getFloor()  && abs(cubeZ[i])!=mapWidth/2);
+    cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
   }
 
   // Initialize Goal Visual Vals
   goalX = 0.0;
   goalX = 0.0;
   goalX = 0.0;
-  goalShape.initVisuals();
+  goalShape.initGoalVisuals();
   updateGoalGraphic();
 
   // standard initialization
@@ -290,7 +521,8 @@ void initFlat(int argc, char** argv) {
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
-  if (idleNotTimer) {
+
+  if (refreshOnIdle) {
     glutIdleFunc(renderLoop);
   } else {
     glutTimerFunc(100, timerRenderLoop, 0);
@@ -344,12 +576,15 @@ void renderFlat() {
   // will refresh screen, right?
 }
 
-void printString(const char *string, int x, int y) {
+void printString(char *string, int x, int y, int z) {
   int len, i;
   len = (int)strlen(string);
   glColor3f( 0.0f, 0.0f, 0.0f );
-  glRasterPos3f(-4.5f*len+x,200.0f+y,590.0f);
+  glRasterPos3f(-15.0f*len+x,0.0f+y,0.0f+z);
+  //glRasterPos3f(-4.5f*len+x,200.0f+y,590.0f);
   for (i = 0; i < len; i++) {
     glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
-    }
+  }
 }
+
+bool getTiming() { return timing; }

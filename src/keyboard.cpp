@@ -29,6 +29,7 @@ bool jumpKey[playerCount];
 bool lockKey[playerCount];
 bool superKey[playerCount];
 bool pauseKey[playerCount];
+bool joinKey[playerCount];
 int lastPause = -1; // Last player to pause
 
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
@@ -37,17 +38,22 @@ void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 
 // Pause tied to player who paused
 void playerPause(int p, bool newBool) {
-      if (!pauseKey[p] && newBool) { // newly pressing Enter
-        if (!getGameplayRunning()) {
-          if (lastPause == p || lastPause == -1) {
-            startGameplay();
-          }
-        } else {
-          stopGameplay();
-          lastPause = p;
-        }
+  if (!pauseKey[p] && newBool) { // newly pressing Enter
+    if (!getGameplayRunning()) {
+      if (lastPause == p || lastPause == -1) {
+        startGameplay();
       }
-      pauseKey[p] = newBool;
+    } else {
+      stopGameplay();
+      lastPause = p;
+    }
+  }
+  pauseKey[p] = newBool;
+}
+
+void playerJoin(int p, bool newBool) {
+  if (!joinKey[p] && newBool) { setCubiorPlayable(p,!getCubiorPlayable(p)); }
+  joinKey[p] = newBool;
 }
 
 int getLastPause() { return lastPause; }
@@ -78,6 +84,10 @@ void handleInput(unsigned char key, bool newBool) {
     case '6': playerPause(1,newBool); break;
     case '7': playerPause(2,newBool); break;
     case '8': playerPause(3,newBool); break;
+    case '1': playerJoin(0,newBool); break;
+    case '2': playerJoin(1,newBool); break;
+    case '3': playerJoin(2,newBool); break;
+    case '4': playerJoin(3,newBool); break;
     
     // OLD PLAYER 1 CONTROLS 
     case 'c': case 'C': setSuper(0,newBool); break;

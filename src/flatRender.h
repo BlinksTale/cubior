@@ -16,11 +16,13 @@
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();
+    void setPerspective(int, int);
     void setPlayerGraphic(int,int,int,int);
     void setCubeGraphic(int,int,int,int,bool);
     void setGoalGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
-    void printString(const char*,int,int);
+    void printString(char*,int,int,int);
+    bool getTiming();
 
 #endif 

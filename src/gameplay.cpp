@@ -17,6 +17,7 @@
 
 using namespace std;
 
+bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
 CubeObj* permanentMap[mapWidth][mapHeight][mapDepth];
@@ -61,19 +62,25 @@ void wipeMap(CubeObj* map[][mapHeight][mapDepth]){
 
 void gameplayStart() {
 if (gameplayRunning) {
-  // Start camera!
+
   for (int i=0; i<cubiorCount; i++) {
+  // Choose who starts
+    cubiorPlayable[i] = false;
+
+  // Start camera!
     camera[i].setPos(0,-165,-1550);
     camera[i].alwaysFollow(&cubior[i]);
-  }
+
   // Cubior Start States!
-  for (int i=0; i<cubiorCount; i++) {
     cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
     cubior[i].moveX(3);
     cubior[i].moveY(3);
     cubior[i].moveZ(3);
     cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
   }
+
+  // Then ensure at least P1 is playing
+  cubiorPlayable[0] = true;
 
   // and Cube Obstacle start states
   for (int i=0; i<cubeCount; i++) {
@@ -103,7 +110,11 @@ if (gameplayRunning) {
     //keepInBounds(&cube[i]);
     addToCollisionMap(&cube[i], permanentMap);
   }
-
+  // Then set their neighbors, for more efficient rendering
+  for (int i = 0; i<cubeCount; i++) {
+    findNeighbors(&cube[i], permanentMap);
+  }
+  
 }
 }
 
@@ -114,9 +125,11 @@ if (gameplayRunning) {
 
   // Run main tick loop for all Cubiors...
   for (int i = 0; i<cubiorCount; i++) {
-    cubior[i].tick();
-    keepInBounds(&cubior[i]);
-    addToCollisionMap(&cubior[i], collisionMap);
+    if (cubiorPlayable[i]) {
+      cubior[i].tick();
+      keepInBounds(&cubior[i]);
+      addToCollisionMap(&cubior[i], collisionMap);
+    }
   }
   // and the goal
   goal.tick();
@@ -124,26 +137,28 @@ if (gameplayRunning) {
 
   // Then check collision against all other obstacles (cubes/cubiors)
   for (int i = 0; i<cubiorCount; i++) {
+    if (cubiorPlayable[i]) {
+    
+      int cX = getCollisionMapSlot(&cubior[i],0);
+      int cY = getCollisionMapSlot(&cubior[i],1);
+      int cZ = getCollisionMapSlot(&cubior[i],2);
 
-    int cX = getCollisionMapSlot(&cubior[i],0);
-    int cY = getCollisionMapSlot(&cubior[i],1);
-    int cZ = getCollisionMapSlot(&cubior[i],2);
+      if (goodCollision) {
+        explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
+      } else {
+        unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
+      }
 
-    if (goodCollision) {
-      explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
-    } else {
-      unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
-    }
+      // Update c's for non-permanent-item collision
+      cX = getCollisionMapSlot(&cubior[i],0);
+      cY = getCollisionMapSlot(&cubior[i],1);
+      cZ = getCollisionMapSlot(&cubior[i],2);
 
-    // Update c's for non-permanent-item collision
-    cX = getCollisionMapSlot(&cubior[i],0);
-    cY = getCollisionMapSlot(&cubior[i],1);
-    cZ = getCollisionMapSlot(&cubior[i],2);
-
-    if (goodCollision) {
-      explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
-    } else {
+      if (goodCollision) {
+        explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+      } else {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
+      }
     }
   }
   
@@ -209,6 +224,22 @@ void addToCollisionMap(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
   map[cX][cY][cZ] = c1;
 }
 
+void findNeighbors(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
+  // The top/bot order on these might be wrong, but it shouldn't really matter too much
+  // since used to check if surrounded on a plane anyways
+  c1->setNeighbors(
+    map[cX+1][cY][cZ] != NULL,
+    map[cX-1][cY][cZ] != NULL,
+    map[cX][cY+1][cZ] != NULL,
+    map[cX][cY-1][cZ] != NULL,
+    map[cX][cY][cZ+1] != NULL,
+    map[cX][cY][cZ-1] != NULL
+  );
+}
+
 // pass cube and dimension to get map slot
 int getCollisionMapSlot(CubeObj* c, int d) {
   int map = (d==0? mapWidth : d==1? mapHeight : mapDepth);
@@ -222,6 +253,8 @@ CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
+bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
+void setCubiorPlayable(int i, bool b) { cubiorPlayable[i] = b; }
 const int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }
 CameraObj* getCamera(int i) { return &camera[i]; }

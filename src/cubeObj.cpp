@@ -152,6 +152,15 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision / movementSpee
 int CubeObj::getMomentumY() { return momentumY * movementDivision / movementSpeed; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision / movementSpeed; }
 
+void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
+  neighbors[0] = x1;
+  neighbors[1] = x2;
+  neighbors[2] = y1;
+  neighbors[3] = y2;
+  neighbors[4] = z1;
+  neighbors[5] = z2;
+}
+bool* CubeObj::getNeighbors() { return neighbors; }
 void CubeObj::setCollision(bool b) { collision = b; }
 bool CubeObj::getCollision() { return collision; }
 

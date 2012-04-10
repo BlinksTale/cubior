@@ -58,6 +58,9 @@ void CubiorShape::initCubiorVisuals(int n) {
   colorCurrentR = colorDefaultR;
   colorCurrentG = colorDefaultG;
   colorCurrentB = colorDefaultB;
+  updateCubiorVisuals(n);
+  initVisuals(r1,g1,b1,colorDarkness,false,false);
+
 }
 
 void CubiorShape::updateCubiorVisuals(int n) {
@@ -110,7 +113,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
   // call on cubeShape's function, drawCube, to make a cube visual
-  draw(r1,g1,b1,colorDarkness);
+  draw();
   
 
   // Cubior Face Matrix
