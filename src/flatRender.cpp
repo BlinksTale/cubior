@@ -29,7 +29,7 @@ static const int FPS = 60;
 int windowWidth = 640;
 int windowHeight = 480;
 // Whether to wait for idle to refresh, or force w/ timer
-static const bool idleNotTimer = true; // works better, otherwise hangs when PC busy
+static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = cubiorCount;
@@ -522,7 +522,7 @@ void initFlat(int argc, char** argv) {
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
 
-  if (idleNotTimer) {
+  if (refreshOnIdle) {
     glutIdleFunc(renderLoop);
   } else {
     glutTimerFunc(100, timerRenderLoop, 0);
