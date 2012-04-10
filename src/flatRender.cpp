@@ -79,7 +79,7 @@ CameraObj* cameraPointer[cubiorNum];
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
 
-  int dTime1, dTime2, dTime3, dTime4, dTime5, dTime6;
+  int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
   
   if (timing) {
   printf("------------\n");
@@ -238,8 +238,18 @@ void displayFor(int player) {
   glRotatef(-1*cameraPointer[player]->getAngleX(),1.0,0.0,0.0);
   glRotatef(-1*cameraPointer[player]->getAngleY(),0.0,1.0,0.0);
   glRotatef(-1*cameraPointer[player]->getAngleZ(),0.0,0.0,1.0);
-
   glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());
+
+/*  gluLookAt(
+    1*cameraPointer[player]->getX(),
+    1*cameraPointer[player]->getY(),
+    1*cameraPointer[player]->getZ(),
+    playerX[player],
+    playerY[player],
+    playerZ[player],
+    0,1,0
+  );
+*/
   if (timing) {
   gettimeofday(&tim, NULL);
   int c3 = (tim.tv_sec+(tim.tv_usec/1.0));

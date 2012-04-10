@@ -37,18 +37,19 @@ void CameraObj::follow(int a, int b, int c) {
   // For smoothing purposes
   int num = 29;
   int den = 30;
+  int newY = b + 200; // as to see jump height
 
   int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
 if (distToPlayer > farthestDist) {
-  x = (a + x*num)/den;
-  z = (c + z*num)/den;
+  x = (a+farthestDist*sin(angleY) + x*num)/den;
+  z = (c+farthestDist*cos(angleY) + z*num)/den;
 }
   y = ((1200-600*distToPlayer/(farthestDist)) + y*num)/den;
-  angleX = (angleX*num+( y!=b? 285+ atan(distToPlayer/(y-b))*360/(2*3.14) : angleX))/den;
-  int angleToBe = (c != z) ? ((c-z<0?0:180)+(int)(atan((a-x)/(c-z))*360/(2*3.14))) : angleY;//c-z > 0? 90 : 270;
+  angleX = (angleX*num+( y!=newY? 285+ atan(distToPlayer/(y-newY))*360/(2*3.14) : angleX))/den;
+  int angleToBe = (c != z) ? ((c-z<0?0:180)+(atan((a-x)/(c-z))*360/(2*3.14159))) : angleY;//c-z > 0? 90 : 270;
   // Frankly, I don't understand it, but a nice big buffer of 90 degrees makes this work where 1 degree didn't
-  if (angleY < 0 && angleToBe > 90) { angleY += 360; }
-  if (angleY > 90 && angleToBe < 0) { angleY -= 360; }
+  if (angleY < 0 && angleToBe > 180) { angleY += 360; }
+  if (angleY > 180 && angleToBe < 0) { angleY -= 360; }
   angleY =(angleY*num + angleToBe)/den;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 }
