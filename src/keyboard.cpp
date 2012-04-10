@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <math.h>
 #include "gameplay.h"
 
 using namespace std;
@@ -15,6 +16,8 @@ using namespace std;
 #else
 #include <GL/glut.h>
 #endif
+
+#define PI 3.14159265
 
 const int playerCount = 4;
 const bool jumpingEnabled = true;
@@ -62,10 +65,21 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
-      if (    upKey[i]) { getPlayer(i)->moveZ(-10); }
-      if (downKey[i]) { getPlayer(i)->moveZ( 10); }
-      if (   leftKey[i]) { getPlayer(i)->moveX(-10); }
-      if (rightKey[i]) { getPlayer(i)->moveX( 10); }
+      if (    upKey[i]) {
+        // careful! If you cast as int before multiplying by ten, it rounds to zero
+        getPlayer(i)->moveZ((int)(cos(getCamera(i)->getAngleY()*PI/180)*(-10)));
+        getPlayer(i)->moveX((int)(sin(getCamera(i)->getAngleY()*PI/180)*(-10)));
+      }
+      if (downKey[i]) {
+        getPlayer(i)->moveZ((int)(cos(getCamera(i)->getAngleY()*PI/180)*( 10)));
+        getPlayer(i)->moveX((int)(sin(getCamera(i)->getAngleY()*PI/180)*( 10)));
+      }
+      if (   leftKey[i]) {
+        getPlayer(i)->moveX(-10);
+      }
+      if (rightKey[i]) {
+        getPlayer(i)->moveX( 10);
+      }
       getPlayer(i)->jump(jumpKey[i]);
       getPlayer(i)->setLock(lockKey[i]);
       getPlayer(i)->setInvincibility(superKey[i]);

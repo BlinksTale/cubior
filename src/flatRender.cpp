@@ -234,9 +234,12 @@ void displayFor(int player) {
   glScalef(0.001,0.001,0.001);
   // old cam position
   //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
-  // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);  
-  glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());  
+  // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);
+  glRotatef(-1*cameraPointer[player]->getAngleX(),1.0,0.0,0.0);
+  glRotatef(-1*cameraPointer[player]->getAngleY(),0.0,1.0,0.0);
+  glRotatef(-1*cameraPointer[player]->getAngleZ(),0.0,0.0,1.0);
 
+  glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());
   if (timing) {
   gettimeofday(&tim, NULL);
   int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
