@@ -65,20 +65,26 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
+      int sinUD = ceil(sin(getCamera(i)->getAngleY()*PI/180)-0.5);
+      int cosUD = ceil(cos(getCamera(i)->getAngleY()*PI/180)-0.5);
+      int sinLR = ceil(sin((360-getCamera(i)->getAngleY())*PI/180)-0.5);
+      int cosLR = ceil(cos((360-getCamera(i)->getAngleY())*PI/180)-0.5);
       if (    upKey[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
-        getPlayer(i)->moveZ((int)(cos(getCamera(i)->getAngleY()*PI/180)*(-10)));
-        getPlayer(i)->moveX((int)(sin(getCamera(i)->getAngleY()*PI/180)*(-10)));
+        getPlayer(i)->moveZ((int)(cosUD*(-10)));
+        getPlayer(i)->moveX((int)(sinUD*(-10)));
       }
       if (downKey[i]) {
-        getPlayer(i)->moveZ((int)(cos(getCamera(i)->getAngleY()*PI/180)*( 10)));
-        getPlayer(i)->moveX((int)(sin(getCamera(i)->getAngleY()*PI/180)*( 10)));
+        getPlayer(i)->moveZ((int)(cosUD*( 10)));
+        getPlayer(i)->moveX((int)(sinUD*( 10)));
       }
       if (   leftKey[i]) {
-        getPlayer(i)->moveX(-10);
+        getPlayer(i)->moveZ((int)(sinLR*(-10)));
+        getPlayer(i)->moveX((int)(cosLR*(-10)));
       }
       if (rightKey[i]) {
-        getPlayer(i)->moveX( 10);
+        getPlayer(i)->moveZ((int)(sinLR*( 10)));
+        getPlayer(i)->moveX((int)(cosLR*( 10)));
       }
       getPlayer(i)->jump(jumpKey[i]);
       getPlayer(i)->setLock(lockKey[i]);

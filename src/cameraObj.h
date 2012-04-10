@@ -12,7 +12,7 @@
 
 class CameraObj {
   protected:
-    int x, y, z, angleX, angleY, angleZ;
+    int x, y, z, angleX, angleY, angleZ, farthestDist;
     CubeObj* permanentTarget;
   public:
     CameraObj();

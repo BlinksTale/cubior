@@ -12,28 +12,28 @@
 using namespace std;
 
 CubeObj::CubeObj() {
-  precision = 2;
+  
 
   // Pos vars
-  x =    0*precision;
-  y = -200*precision;
-  z = 1000*precision;
+  x =    0;
+  y = -200;
+  z = 1000;
 
   // Movement vars
-  movementSpeed =     1*precision;
-  movementDivision = 10*precision;
-  momentumX = 0 *precision;
-  momentumY = 0 *precision;
-  momentumZ = 0 *precision;
+  movementSpeed =     1;
+  movementDivision = 10;
+  momentumX = 0 ;
+  momentumY = 0 ;
+  momentumZ = 0 ;
 
-  maxSpeed = 20 *precision;
-  friction = 1  *precision;
+  maxSpeed = 20 ;
+  friction = 1  ;
 
   // Jumping vars
   jumpable = false;
   grounded = false;
-  maxJump = 25 *precision;
-  jumpSpeedRatio = 5 *precision;
+  maxJump = 25 ;
+  jumpSpeedRatio = 5 ;
 
   // Locking vars
   locked = false;
@@ -46,7 +46,7 @@ CubeObj::CubeObj() {
   
   // World vars
   floor = getFloor();
-  gravity = getGravity()*precision;
+  gravity = getGravity();
 }
 
 void CubeObj::tick() {
@@ -98,7 +98,7 @@ bool CubeObj::moving() {
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
   if (jumpable) {
-    if (n && momentumY < maxJump) { moveY(jumpSpeedRatio*10/precision); } else { jumpable = false; }
+    if (n && momentumY < maxJump) { moveY(jumpSpeedRatio*10); } else { jumpable = false; }
   }
 }
 
@@ -119,43 +119,43 @@ bool CubeObj::getPermalock() { return permalocked; }
 bool CubeObj::getGrounded() { return grounded; }
 
 // Set is absolute positioning
-void CubeObj::setX(int n) { x = n*precision; }
-void CubeObj::setY(int n) { y = n*precision; }
-void CubeObj::setZ(int n) { z = n*precision; }
-void CubeObj::setPos(int n, int o, int p) { x = n*precision, y = o*precision, z = p*precision; }
+void CubeObj::setX(int n) { x = n; }
+void CubeObj::setY(int n) { y = n; }
+void CubeObj::setZ(int n) { z = n; }
+void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 
 // Change is relative positioning
-void CubeObj::changeX(int n) { x += n*precision; }
-void CubeObj::changeY(int n) { y += n*precision; }
-void CubeObj::changeZ(int n) { z += n*precision; }
-void CubeObj::changePos(int n, int o, int p) { x += n*precision; y += o*precision; z += p*precision; }
+void CubeObj::changeX(int n) { x += n; }
+void CubeObj::changeY(int n) { y += n; }
+void CubeObj::changeZ(int n) { z += n; }
+void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 
 // SetMomentum is absolute momentum
-void CubeObj::setMomentumX(int n) { momentumX = n*precision * movementSpeed / movementDivision; }
-void CubeObj::setMomentumY(int n) { momentumY = n*precision * movementSpeed / movementDivision; }
-void CubeObj::setMomentumZ(int n) { momentumZ = n*precision * movementSpeed / movementDivision; }
+void CubeObj::setMomentumX(int n) { momentumX = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
-void CubeObj::moveX(int n) { momentumX += n*precision * movementSpeed / movementDivision; }
-void CubeObj::moveY(int n) { momentumY += n*precision * movementSpeed / movementDivision; }
-void CubeObj::moveZ(int n) { momentumZ += n*precision * movementSpeed / movementDivision; }
+void CubeObj::moveX(int n) { momentumX += n * movementSpeed / movementDivision; }
+void CubeObj::moveY(int n) { momentumY += n * movementSpeed / movementDivision; }
+void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed / movementDivision; }
 void CubeObj::movePos(int n, int o, int p) {
-  momentumX += n*precision * movementSpeed / movementDivision;
-  momentumY += o*precision * movementSpeed / movementDivision;
-  momentumZ += p*precision * movementSpeed / movementDivision;
+  momentumX += n * movementSpeed / movementDivision;
+  momentumY += o * movementSpeed / movementDivision;
+  momentumZ += p * movementSpeed / movementDivision;
 }
 
 // Freeze stops momentum
 void CubeObj::freeze() { momentumX = 0; momentumY = 0; momentumZ = 0; }
 
 // Getters
-int CubeObj::get(int s) { return s == 0 ? x/precision : s == 1 ? y/precision : z/precision; }
-int CubeObj::getX() { return x/precision; }
-int CubeObj::getY() { return y/precision; }
-int CubeObj::getZ() { return z/precision; }
-int CubeObj::getMomentumX() { return momentumX * movementDivision/precision; }
-int CubeObj::getMomentumY() { return momentumY * movementDivision/precision; }
-int CubeObj::getMomentumZ() { return momentumZ * movementDivision/precision; }
+int CubeObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
+int CubeObj::getX() { return x; }
+int CubeObj::getY() { return y; }
+int CubeObj::getZ() { return z; }
+int CubeObj::getMomentumX() { return momentumX * movementDivision; }
+int CubeObj::getMomentumY() { return momentumY * movementDivision; }
+int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   neighbors[0] = x1;
@@ -169,7 +169,6 @@ bool* CubeObj::getNeighbors() { return neighbors; }
 void CubeObj::setCollision(bool b) { collision = b; }
 bool CubeObj::getCollision() { return collision; }
 
-int CubeObj::getPrecision() { return precision; }
 int CubeObj::getSize(int s) { return s == 1 ? getHeight() : getWidth(); }
 int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }

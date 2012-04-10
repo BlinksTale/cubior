@@ -283,7 +283,7 @@ void displayFor(int player) {
     printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
   }
   // And player stats (wip/temp)
-  //if (getPlayer(0)->getGrounded()) { printString("grounded",0,-40); } else { printString("flying",0,-20); }
+  if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
 
   if (timing) {
   gettimeofday(&tim, NULL);

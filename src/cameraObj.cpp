@@ -7,15 +7,20 @@
 
 #include "cameraObj.h"
 #include "gameplay.h"
+#include <math.h>
+#include <stdlib.h>
 
 CameraObj::CameraObj() {
   // Pos vars
   x = 0;
-  y = -200;
-  z = 1000;
+  y = 200;
+  z = -1000;
   angleX = 0;
   angleY = 0;
   angleZ = 0;
+  
+  // Follow vars
+  farthestDist = 800;
 }
 
 void CameraObj::tick() {
@@ -29,11 +34,22 @@ void CameraObj::alwaysFollow(CubeObj* target) {
 }
 
 void CameraObj::follow(int a, int b, int c) {
-  x = a + 1000;
-  y = b + 200;
-  z = c + 1000;
-  angleX = 0;
-  angleY = 45;
+  // For smoothing purposes
+  int num = 29;
+  int den = 30;
+
+  int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
+if (distToPlayer > farthestDist) {
+  x = (a + x*num)/den;
+  z = (c + z*num)/den;
+}
+  y = ((1200-600*distToPlayer/(farthestDist)) + y*num)/den;
+  angleX = (angleX*num+( y!=b? 285+ atan(distToPlayer/(y-b))*360/(2*3.14) : angleX))/den;
+  int angleToBe = (c != z) ? ((c-z<0?0:180)+(int)(atan((a-x)/(c-z))*360/(2*3.14))) : angleY;//c-z > 0? 90 : 270;
+  // Frankly, I don't understand it, but a nice big buffer of 90 degrees makes this work where 1 degree didn't
+  if (angleY < 0 && angleToBe > 90) { angleY += 360; }
+  if (angleY > 90 && angleToBe < 0) { angleY -= 360; }
+  angleY =(angleY*num + angleToBe)/den;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 }
 
