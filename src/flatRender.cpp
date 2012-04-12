@@ -282,6 +282,9 @@ void displayFor(int player) {
 
   // Print pause menu
   if (getGameplayRunning()) {
+      int n, a=cameraPointer[player]->getAngleX();
+      n=sprintf(pausedText, "AngleX %d ", a);
+      printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
     //printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
   } else {
     int n, a=getLastPause() + 1;
