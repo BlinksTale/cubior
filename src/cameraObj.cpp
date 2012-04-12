@@ -13,9 +13,9 @@
 CameraObj::CameraObj() {
   // Pos vars
   x = 0;
-  y = 200;
+  y = 1111200;
   z = -1000;
-  angleX = 0;
+  angleX = -45;
   angleY = 0;
   angleZ = 0;
   
@@ -25,7 +25,7 @@ CameraObj::CameraObj() {
 
 void CameraObj::tick() {
   if (permanentTarget) {
-    follow(permanentTarget->getX(),permanentTarget->getY(),permanentTarget->getZ());
+    follow(permanentTarget->getX(),permanentTarget->getY(),permanentTarget->getZ(),permanentTarget->getGrounded());
   }
 }
 
@@ -33,20 +33,28 @@ void CameraObj::alwaysFollow(CubeObj* target) {
   permanentTarget = target;
 }
 
-void CameraObj::follow(int a, int b, int c) {
+void CameraObj::follow(int a, int b, int c, bool landed) {
   // For smoothing purposes
   int num = 29;
   int den = 30;
-  int newY = b + 000; // as to see jump height
+  int newY = landed ? b + 000 : newY; // as to see jump height
 
   int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
-if (distToPlayer > farthestDist) {
-  //x=100; z=100; y=600;
-  x = (a+farthestDist*sin(angleY) + x*num)/den;
-  z = (c+farthestDist*cos(angleY) + z*num)/den;
-}
+  // Normal scenario
+  if (distToPlayer > farthestDist) {
+    //x=100; z=100; y=600;
+    x = (a+farthestDist*sin(angleY) + x*num)/den;
+    z = (c+farthestDist*cos(angleY) + z*num)/den;
+  }
+  // Extreme dist scenario
+  if (distToPlayer > 3*farthestDist) {
+    x = (a+farthestDist*sin(angleY)*num + x)/den;
+    z = (c+farthestDist*cos(angleY)*num + z)/den;
+    y = ((1200-600*distToPlayer/(farthestDist))*num + y)/den;
+  }
+
   y = ((1200-600*distToPlayer/(farthestDist)) + y*num)/den;
-  int angleXToBe = (y!=newY) ? 285+ atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : angleX;
+  int angleXToBe = (y!=newY) ? 270+ atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : angleX;
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
   int angleYToBe = (c != z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
   // Frankly, I don't understand it, but a nice big buffer of 90 degrees makes this work where 1 degree didn't

@@ -18,7 +18,7 @@ class CameraObj {
     CameraObj();
     void tick();
     void alwaysFollow(CubeObj*);
-    void follow(int,int,int);
+    void follow(int,int,int,bool);
     int get(int);
     int getX();
     int getY();
