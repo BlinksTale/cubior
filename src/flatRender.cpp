@@ -235,10 +235,10 @@ void displayFor(int player) {
   // old cam position
   //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);
-  glRotatef(-1*cameraPointer[player]->getAngleX(),1.0,0.0,0.0);
-  glRotatef(-1*cameraPointer[player]->getAngleY(),0.0,1.0,0.0);
-  glRotatef(-1*cameraPointer[player]->getAngleZ(),0.0,0.0,1.0);
-  glTranslatef(-1*cameraPointer[player]->getX(),-1*cameraPointer[player]->getY(),-1*cameraPointer[player]->getZ());
+  glRotatef(-1.0*cameraPointer[player]->getAngleX(),1.0,0.0,0.0);
+  glRotatef(-1.0*cameraPointer[player]->getAngleY(),0.0,1.0,0.0);
+  glRotatef(-1.0*cameraPointer[player]->getAngleZ(),0.0,0.0,1.0);
+  glTranslatef(-1.0*cameraPointer[player]->getX(),-1.0*cameraPointer[player]->getY(),-1.0*cameraPointer[player]->getZ());
 
 /*  gluLookAt(
     1*cameraPointer[player]->getX(),

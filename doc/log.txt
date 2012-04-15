@@ -169,3 +169,7 @@ test: enjoyed the game in general! Also found king of the hill mode since we can
 bug: screen was allowing transparency with splitscreen so entire past was drawn
 fix: put the screen clear after the scissor cut was already made, so clears are limited to that area
 note: XOR is great for alternating tiles!
+
+---
+4/14/12
+note: cpp does not accept ints for floor(). Must guarantee it is int, or "Error 132" arises

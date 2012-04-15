@@ -164,7 +164,10 @@ if (gameplayRunning) {
   
   // Finally, make camera catchup
   for (int i=0; i<cubiorCount; i++) {
-    camera[i].tick();
+    if (cubiorPlayable[i]){
+      cout<<"THIS IS CAMERA " << i << "\n";
+      camera[i].tick();
+    }
   }
 }
 }

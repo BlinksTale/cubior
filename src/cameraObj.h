@@ -12,7 +12,8 @@
 
 class CameraObj {
   protected:
-    int x, y, z, angleX, angleY, angleZ, farthestDist;
+    int x, y, z, farthestDist, lastLandedY;
+    float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
   public:
     CameraObj();
@@ -23,18 +24,18 @@ class CameraObj {
     int getX();
     int getY();
     int getZ();
-    int getAngle(int);
-    int getAngleX();
-    int getAngleY();
-    int getAngleZ();
+    float getAngle(int);
+    float getAngleX();
+    float getAngleY();
+    float getAngleZ();
     void setPos(int,int,int);
     void setX(int);
     void setY(int);
     void setZ(int);
-    void setAngleX(int);
-    void setAngleY(int);
-    void setAngleZ(int);
-    void setAngle(int,int,int);
+    void setAngleX(float);
+    void setAngleY(float);
+    void setAngleZ(float);
+    void setAngle(float,float,float);
 };
 
 #endif 

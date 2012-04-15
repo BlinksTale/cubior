@@ -65,10 +65,10 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
-      int sinUD = ceil(sin(getCamera(i)->getAngleY()*PI/180)-0.5);
-      int cosUD = ceil(cos(getCamera(i)->getAngleY()*PI/180)-0.5);
-      int sinLR = ceil(sin((360-getCamera(i)->getAngleY())*PI/180)-0.5);
-      int cosLR = ceil(cos((360-getCamera(i)->getAngleY())*PI/180)-0.5);
+      int sinUD = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
+      int cosUD = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
+      int sinLR = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
+      int cosLR = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
       if (    upKey[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
         getPlayer(i)->moveZ((int)(cosUD*(-10)));
