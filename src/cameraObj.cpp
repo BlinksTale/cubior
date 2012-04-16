@@ -59,8 +59,7 @@ void CameraObj::follow(int a, int b, int c, bool landed, int strictness) {
   // For smoothing purposes
   int num = 29;
   int den = 30;
-  cout << "Landed is " << landed << " and lastLanded is " << lastLanded << endl;
-  float newY = lastLandedY; // as to see jump height
+  float newY = (b + lastLandedY)/2; // as to see jump height
   if (landed || lastLanded) {
     newY = b;
     lastLandedY = b;
@@ -90,8 +89,6 @@ void CameraObj::follow(int a, int b, int c, bool landed, int strictness) {
 
   int xToBe = (a+farthestDist*sin(angleY*3.14159/360) + x*num)/den;
   int zToBe = (c+farthestDist*cos(angleY*3.14159/360) + z*num)/den;
-  cout << "x-xToBe: " << x-xToBe << " and z-zToBe: " << z-zToBe << endl;
-  cout << "Before x, z: (" << x << ", " << z << ")\n";
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
 
