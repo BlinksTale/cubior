@@ -117,6 +117,7 @@ bool CubeObj::getPermalock() { return permalocked; }
 
 // and for Grounding
 bool CubeObj::getGrounded() { return grounded; }
+bool CubeObj::getLanded() { return grounded; }
 
 // Set is absolute positioning
 void CubeObj::setX(int n) { x = n; }

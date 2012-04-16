@@ -28,57 +28,73 @@ CameraObj::CameraObj() {
 }
 
 void CameraObj::tick() {
-  cout << "Tick1 angleX = " << angleX << "\n";
   if (permanentTarget) {
-    follow(permanentTarget->getX(),permanentTarget->getY(),permanentTarget->getZ(),permanentTarget->getGrounded());
+    follow(
+      permanentTarget->getX(),
+      permanentTarget->getY(),
+      permanentTarget->getZ(),
+      permanentTarget->getGrounded(),
+      4
+    );
   }
-  cout << "Tick2 angleX = " << angleX << "\n";
 }
 
 void CameraObj::alwaysFollow(CubeObj* target) {
   permanentTarget = target;
+  lastLandedY = target->getY();
+  lastLanded = target->getLanded();
+  x = target->getX()-camHeight;
+  y = target->getY()+50*camHeight;
+  z = target->getZ()-camHeight;
+  follow(
+      permanentTarget->getX(),
+      permanentTarget->getY(),
+      permanentTarget->getZ(),
+      permanentTarget->getGrounded(),
+      1
+    );
 }
 
-void CameraObj::follow(int a, int b, int c, bool landed) {
+void CameraObj::follow(int a, int b, int c, bool landed, int strictness) {
   // For smoothing purposes
   int num = 29;
   int den = 30;
-  float newY = landed || lastLandedY == NULL ? b + 0.00000000000000000000000000000 : lastLandedY; // as to see jump height
-
-  int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
-  // Normal scenario
-  if (distToPlayer > farthestDist) {
-    //x=100; z=100; y=600;
-/*    cout<<"("<<a<<"+"<<farthestDist<<"*"<<sin(angleY)<<"+"<< x<<"*"<<num<<")/"<<den<<"\n";
-    cout<<"becomes ("<<a<<"+"<<farthestDist*sin(angleY)<<"+"<<x*num<<")/"<<den<<"\n";
-    cout<<"to be ("<<a+farthestDist*sin(angleY) + x*num<<")/"<<den<<"\n";
-    cout<<"which is "<<(a+farthestDist*sin(angleY) + x*num)/den<<"\n\n";
-*/    // Maybe stuttering is from sin(angleY)?
-    x = 1000;//(a+farthestDist*sin(angleY) + x*num)/den;
-    z = 1000;//(c+farthestDist*cos(angleY) + z*num)/den;
+  cout << "Landed is " << landed << " and lastLanded is " << lastLanded << endl;
+  float newY = lastLandedY; // as to see jump height
+  if (landed || lastLanded) {
+    newY = b;
+    lastLandedY = b;
   }
+  lastLanded = landed; // because currently, cube alternates between landed and not when landed
+  int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
+
   // Extreme dist scenario
   if (distToPlayer > 3*farthestDist) {
     x = (a+farthestDist*sin(angleY)*num + x)/den;
     z = (c+farthestDist*cos(angleY)*num + z)/den;
-    y = ((1200-600*distToPlayer/(farthestDist))*num + y)/den;
+    y = ((camHeight*2-camHeight*distToPlayer/(farthestDist))*num + y)/den;
   }
-  y = 500;//((1200-600*distToPlayer/(farthestDist)) + y*num)/den;
-  if (newY < 0.0005 && newY > -0.0005) { newY = 0.0000000000000000000000000000; }
-  cout << "distToPlayer is " << distToPlayer << ", b is " << b << ", y is " << y << ", newY is " << newY << " and y-newY is " << y-newY << endl;
+  // so the camera doesn't go below a certain point
+  int distOrMaxDist = distToPlayer > 1.5*farthestDist ? 1.5*farthestDist : distToPlayer;
+  y = ((camHeight*2-camHeight*distOrMaxDist/(farthestDist)) + y*num)/den;
   float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 0;
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
   float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
-  // Frankly, I don't understand it, but a nice big buffer of 90 degrees makes this work where 1 degree didn't
+  // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
-  //angleX += -(angleX-angleXToBe)/4; //
-  cout << "angleX is " << angleX << " and angleXToBe is " << angleXToBe << endl;
-  angleX += -(angleX-angleXToBe)/4.0; //=(angleY*num + angleToBe)/den;
-  angleY += -(angleY-angleYToBe)/4.0; //=(angleY*num + angleToBe)/den;
+  angleX += -(angleX-angleXToBe)/strictness; //=(angleY*num + angleToBe)/den;
+  angleY += -(angleY-angleYToBe)/strictness; //=(angleY*num + angleToBe)/den;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
-  cout << "AngleX: " << angleX << endl;
+
+  int xToBe = (a+farthestDist*sin(angleY*3.14159/360) + x*num)/den;
+  int zToBe = (c+farthestDist*cos(angleY*3.14159/360) + z*num)/den;
+  cout << "x-xToBe: " << x-xToBe << " and z-zToBe: " << z-zToBe << endl;
+  cout << "Before x, z: (" << x << ", " << z << ")\n";
+  x += -(x-xToBe)/strictness;
+  z += -(z-zToBe)/strictness;
+
 }
 
 // Getters

@@ -35,6 +35,7 @@ class CubeObj {
     void setPermalock(bool);
     bool getPermalock();
     bool getGrounded();
+    bool getLanded();
 
     void setPos(int,int,int);
     void setX(int);

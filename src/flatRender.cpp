@@ -389,7 +389,7 @@ void setPerspective(int x, int y) {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity(); // blank canvas for transforms
   GLfloat aspect = (GLfloat)windowWidth / (GLfloat)windowHeight;
-  gluPerspective(45.0, aspect*x/y, 0.50, 10.0);
+  gluPerspective(45.0, aspect*x/y, 0.050, 100.0);
 }
 
 // main loop for rendering. Also calls gameplay loop,
