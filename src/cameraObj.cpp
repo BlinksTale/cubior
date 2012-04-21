@@ -25,6 +25,8 @@ CameraObj::CameraObj() {
   
   // Follow vars
   farthestDist = 800;
+  closestDist = 600;
+  idealDist = (farthestDist+closestDist)/2;
 }
 
 void CameraObj::tick() {
@@ -33,6 +35,7 @@ void CameraObj::tick() {
       permanentTarget->getX(),
       permanentTarget->getY(),
       permanentTarget->getZ(),
+      permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
       4
     );
@@ -50,15 +53,16 @@ void CameraObj::alwaysFollow(CubeObj* target) {
       permanentTarget->getX(),
       permanentTarget->getY(),
       permanentTarget->getZ(),
+      permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
       1
     );
 }
 
-void CameraObj::follow(int a, int b, int c, bool landed, int strictness) {
+void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   // For smoothing purposes
-  int num = 29;
-  int den = 30;
+  int num = 10;
+  int den = 11; 
   float newY = (b + lastLandedY)/2; // as to see jump height
   if (landed || lastLanded) {
     newY = b;
@@ -74,21 +78,26 @@ void CameraObj::follow(int a, int b, int c, bool landed, int strictness) {
     y = ((camHeight*2-camHeight*distToPlayer/(farthestDist))*num + y)/den;
   }
   // so the camera doesn't go below a certain point
-  int distOrMaxDist = distToPlayer > 1.5*farthestDist ? 1.5*farthestDist : distToPlayer;
-  y = ((camHeight*2-camHeight*distOrMaxDist/(farthestDist)) + y*num)/den;
+  int newDist = distToPlayer > farthestDist ? farthestDist : 
+    (distToPlayer < closestDist ? closestDist : distToPlayer);
+  y = 600;//((camHeight*2-camHeight*newDist/(farthestDist)) + y*num)/den;
   float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 0;
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
   float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
+  
+  angleYToBe = (angleYToBe*num + playerAngle)/den; // be inclined towards angle player is facing
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
-  angleX += -(angleX-angleXToBe)/strictness; //=(angleY*num + angleToBe)/den;
   angleY += -(angleY-angleYToBe)/strictness; //=(angleY*num + angleToBe)/den;
+  angleX += -(angleX-angleXToBe)/strictness; //=(angleY*num + angleToBe)/den;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 
-  int xToBe = (a+farthestDist*sin(angleY*3.14159/360) + x*num)/den;
-  int zToBe = (c+farthestDist*cos(angleY*3.14159/360) + z*num)/den;
+  int desiredX = a+farthestDist*sin(angleY*2*3.14159/360);
+  int desiredZ = c+farthestDist*cos(angleY*2*3.14159/360);
+  int xToBe = (desiredX);// + x*num)/den;
+  int zToBe = (desiredZ);// + z*num)/den;
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
 

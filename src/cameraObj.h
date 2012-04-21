@@ -13,7 +13,7 @@
 class CameraObj {
   protected:
     static const int camHeight = 600;
-    int x, y, z, farthestDist, lastLandedY;
+    int x, y, z, farthestDist, closestDist, idealDist, lastLandedY;
     bool lastLanded;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
@@ -21,7 +21,7 @@ class CameraObj {
     CameraObj();
     void tick();
     void alwaysFollow(CubeObj*);
-    void follow(int,int,int,bool,int);
+    void follow(int,int,int,int,bool,int);
     int get(int);
     int getX();
     int getY();

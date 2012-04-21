@@ -11,7 +11,7 @@
 class CubeObj {
   protected:
     bool neighbors[6];
-    int x, y, z, momentumX, momentumY, momentumZ;
+    int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ;
     int movementSpeed, movementDivision;
     bool collision;
     bool locked, lockable, permalocked, jumpable, grounded, loseMomentumOnLock;
@@ -60,6 +60,9 @@ class CubeObj {
     int getX();
     int getY();
     int getZ();
+    int getAngleX();
+    int getAngleY();
+    int getAngleZ();
     int getMomentumX();
     int getMomentumY();
     int getMomentumZ();

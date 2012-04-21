@@ -9,6 +9,7 @@
 #include "gameplay.h"
 
 #include <iostream>
+#include <cmath> // for atan
 using namespace std;
 
 CubeObj::CubeObj() {
@@ -18,6 +19,9 @@ CubeObj::CubeObj() {
   x =    0;
   y = -200;
   z = 1000;
+  diffX = 0;
+  diffY = 0;
+  diffZ = 0;
 
   // Movement vars
   movementSpeed =     1;
@@ -52,6 +56,11 @@ CubeObj::CubeObj() {
 void CubeObj::tick() {
   // don't move if frozen
   if (!locked && !permalocked) {
+    // Save old vals first
+    int oldX = x;
+    int oldY = y;
+    int oldZ = z;
+
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
@@ -71,6 +80,12 @@ void CubeObj::tick() {
       else if (momentumZ < 0) { momentumZ += friction; }
       else { momentumZ = 0; }
     }
+    
+    // And set diff vals last
+    if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }
+    if (abs(1.0*y-oldY) > 2) { diffY = y - oldY; }
+    if (abs(1.0*z-oldZ) > 2) { diffZ = z - oldZ; }
+
   // Can lose all momentum on locking if bool is set
   } else if (moving() && loseMomentumOnLock) { freeze(); }
 
@@ -154,6 +169,9 @@ int CubeObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CubeObj::getX() { return x; }
 int CubeObj::getY() { return y; }
 int CubeObj::getZ() { return z; }
+int CubeObj::getAngleX() { return 0; }
+int CubeObj::getAngleY() { return atan(diffX*1.0/(diffZ != 0 ? diffZ : 1))*60+180*(diffZ>0); }
+int CubeObj::getAngleZ() { return 0; }
 int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
