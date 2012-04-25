@@ -7,6 +7,7 @@
 
 #include "cameraObj.h"
 #include "gameplay.h"
+#include "trackerObj.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,14 +28,16 @@ CameraObj::CameraObj() {
   farthestDist = 800;
   closestDist = 600;
   idealDist = (farthestDist+closestDist)/2;
+  tracker = new TrackerObj();
 }
 
 void CameraObj::tick() {
   if (permanentTarget) {
+    tracker->tick();
     follow(
-      permanentTarget->getX(),
-      permanentTarget->getY(),
-      permanentTarget->getZ(),
+      tracker->getX(),
+      tracker->getY(),
+      tracker->getZ(),
       permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
       4
@@ -49,10 +52,11 @@ void CameraObj::alwaysFollow(CubeObj* target) {
   x = target->getX()-camHeight;
   y = target->getY()+50*camHeight;
   z = target->getZ()-camHeight;
+  tracker->setTarget(permanentTarget);
   follow(
-      permanentTarget->getX(),
-      permanentTarget->getY(),
-      permanentTarget->getZ(),
+      tracker->getX(),
+      tracker->getY(),
+      tracker->getZ(),
       permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
       1
@@ -86,7 +90,9 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
   float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
   
-  angleYToBe = (angleYToBe*num + playerAngle)/den; // be inclined towards angle player is facing
+  // be inclined towards angle player is facing if following
+  if (tracker->getChasing()) {angleYToBe = (angleYToBe*num + playerAngle)/den; }
+
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }

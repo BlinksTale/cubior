@@ -9,6 +9,7 @@
 #define CAMERAOBJ
 
 #include "cubeObj.h"
+#include "trackerObj.h"
 
 class CameraObj {
   protected:
@@ -17,6 +18,7 @@ class CameraObj {
     bool lastLanded;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
+    TrackerObj* tracker;
   public:
     CameraObj();
     void tick();
