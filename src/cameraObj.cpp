@@ -36,7 +36,7 @@ void CameraObj::tick() {
     tracker->tick();
     follow(
       tracker->getX(),
-      tracker->getY(),
+      permanentTarget->getY(),
       tracker->getZ(),
       permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
@@ -55,7 +55,7 @@ void CameraObj::alwaysFollow(CubeObj* target) {
   tracker->setTarget(permanentTarget);
   follow(
       tracker->getX(),
-      tracker->getY(),
+      permanentTarget->getY(),
       tracker->getZ(),
       permanentTarget->getAngleY(),
       permanentTarget->getGrounded(),
@@ -72,10 +72,10 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     newY = b;
     lastLandedY = b;
   }
-  lastLanded = landed; // because currently, cube alternates between landed and not when landed
+  lastLanded = landed; // because currently alternates between landed and not when actually landed
   int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
 
-  // Extreme dist scenario
+  // Extreme catchup for extreme dist scenario
   if (distToPlayer > 3*farthestDist) {
     x = (a+farthestDist*sin(angleY)*num + x)/den;
     z = (c+farthestDist*cos(angleY)*num + z)/den;
@@ -84,9 +84,10 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // so the camera doesn't go below a certain point
   int newDist = distToPlayer > farthestDist ? farthestDist : 
     (distToPlayer < closestDist ? closestDist : distToPlayer);
-  y = 600;//((camHeight*2-camHeight*newDist/(farthestDist)) + y*num)/den;
+  y = ((camHeight*2-camHeight*newDist/(farthestDist)) + y*num)/den;
   float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 0;
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
+
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
   float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
   
@@ -99,24 +100,24 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
-  angleY += -(angleY-angleYToBe)/strictness; //=(angleY*num + angleToBe)/den;
-  angleX += -(angleX-angleXToBe)/strictness; //=(angleY*num + angleToBe)/den;
+  angleY += -(angleY-angleYToBe)/strictness;
+  angleX += -(angleX-angleXToBe)/strictness;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 
-  int desiredX = a+farthestDist*sin(angleY*2*3.14159/360);
-  int desiredZ = c+farthestDist*cos(angleY*2*3.14159/360);
-  int xToBe = (desiredX);// + x*num)/den;
-  int zToBe = (desiredZ);// + z*num)/den;
+  // Then implement movement for the camera in its new facing direction
+  int xToBe = a+farthestDist*sin(angleY*2*3.14159/360);
+  int zToBe = c+farthestDist*cos(angleY*2*3.14159/360);
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
-
 }
 
+// See if y1 within delta of y2
 bool CameraObj::withinRangeOf(int y1, int y2, int delta) {
   matchRangeOf(y1,y2);
   return (y1 < y2+delta && y1 > y2-delta);
 }
 
+// Set y1 to within 180 of y2
 int CameraObj::matchRangeOf(int y1, int y2) {
   if (y1 - y2 > 180) { y1 -= 360; }
   else if (y2 - y1 > 180) { y1 += 360; }
