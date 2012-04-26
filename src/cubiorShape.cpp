@@ -148,7 +148,6 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glEnd();
   }
   // Eye L
-  cout << "hit: " << hit << endl;
   if (hit) {
     drawClosedEyeAt( 0.2, 0.15, 0.5,false);
   } else {
