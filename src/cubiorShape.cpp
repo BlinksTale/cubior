@@ -112,9 +112,11 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glPushMatrix();
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
+  bool fly = getPlayer(n)->getNotGrounded();
+  float gaspValue = 0.075;
+
   // call on cubeShape's function, drawCube, to make a cube visual
   draw();
-  
 
   // Cubior Face Matrix
   glPushMatrix();
@@ -124,40 +126,40 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
   glEnd();
   }
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
   glEnd();
   if (!getPlayer(n)->getLock()) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2,0.5); // top right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot left
   glEnd();
   }
   // Eye L
-  glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.25, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f( 0.15, 0.3,0.5);
-  glEnd();
+  drawEyeAt( 0.2, 0.15, 0.5);
   // Eye R
+  drawEyeAt(-0.2, 0.15, 0.5);
+
+  glPopMatrix();
+
+  glPopMatrix();
+
+}
+
+void CubiorShape::drawEyeAt(float a, float b, float c) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.3,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.15, 0.0,0.5);
-    glColor3f(0,0,0); glVertex3f(-0.25, 0.0,0.5);
+    glColor3f(0,0,0); glVertex3f(a+0.05,b+0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a+0.05,b-0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a-0.05,b-0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a-0.05,b+0.15,c+0.0);
   glEnd();
-  glPopMatrix();
-
-  glPopMatrix();
-
 }

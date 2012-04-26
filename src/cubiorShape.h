@@ -28,5 +28,6 @@ class CubiorShape : public CubeShape {
     void updateCubiorVisuals(int);
     void updateCubiorColors(int);
     void drawCubior(int);
+    void drawEyeAt(float,float,float);
 };
 #endif

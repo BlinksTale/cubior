@@ -14,7 +14,7 @@ class CubeObj {
     int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ;
     int movementSpeed, movementDivision;
     bool collision;
-    bool locked, lockable, permalocked, jumpable, grounded, loseMomentumOnLock;
+    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, loseMomentumOnLock;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, floor, gravity;
   public:
@@ -36,6 +36,8 @@ class CubeObj {
     void setPermalock(bool);
     bool getPermalock();
     bool getGrounded();
+    bool getStillGrounded();
+    bool getNotGrounded();
     bool getLanded();
 
     void setPos(int,int,int);

@@ -39,6 +39,7 @@ CubeObj::CubeObj() {
   // Jumping vars
   jumpable = false;
   grounded = false;
+  lastGrounded = false;
   maxJump = 25 ;
   jumpSpeedRatio = 5 ;
 
@@ -79,6 +80,7 @@ void CubeObj::tick() {
       else if (momentumZ < 0) { momentumZ += friction; }
       else { momentumZ = 0; }
     }
+    lastGrounded = grounded;
     
     calculateDiff();
 
@@ -138,6 +140,8 @@ bool CubeObj::getPermalock() { return permalocked; }
 
 // and for Grounding
 bool CubeObj::getGrounded() { return grounded; }
+bool CubeObj::getStillGrounded() { return lastGrounded && grounded; }
+bool CubeObj::getNotGrounded() { return !lastGrounded && !grounded; }
 bool CubeObj::getLanded() { return grounded; }
 
 // Set is absolute positioning
