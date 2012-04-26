@@ -61,6 +61,8 @@ void CubeObj::tick() {
   // don't move if frozen
   if (!locked && !permalocked) {
 
+    if (collision) { setCollision(false); }
+
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }

@@ -15,6 +15,8 @@
 #endif
 
 #include <cstdlib>
+#include <iostream>
+using namespace std;
 
 // Face smile height
 static float faceSmileValue = 0.1;
@@ -112,6 +114,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glPushMatrix();
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
+  bool hit = getPlayer(n)->getCollision();
   bool fly = getPlayer(n)->getNotGrounded();
   float gaspValue = 0.075;
 
@@ -122,7 +125,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glPushMatrix();
   glTranslatef(0.0,0.0,0.01);
   // Mouth
-  if (!getPlayer(n)->getLock()) {
+  if (!getPlayer(n)->getLock() && !hit) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
@@ -136,7 +139,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
   glEnd();
-  if (!getPlayer(n)->getLock()) {
+  if (!getPlayer(n)->getLock() && !hit) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
@@ -145,9 +148,18 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glEnd();
   }
   // Eye L
-  drawEyeAt( 0.2, 0.15, 0.5);
+  cout << "hit: " << hit << endl;
+  if (hit) {
+    drawClosedEyeAt( 0.2, 0.15, 0.5,false);
+  } else {
+    drawEyeAt( 0.2, 0.15, 0.5);
+  }
   // Eye R
-  drawEyeAt(-0.2, 0.15, 0.5);
+  if (hit) {
+    drawClosedEyeAt(-0.2, 0.15, 0.5,true);
+  } else {
+    drawEyeAt(-0.2, 0.15, 0.5);
+  }
 
   glPopMatrix();
 
@@ -161,5 +173,22 @@ void CubiorShape::drawEyeAt(float a, float b, float c) {
     glColor3f(0,0,0); glVertex3f(a+0.05,b-0.15,c+0.0);
     glColor3f(0,0,0); glVertex3f(a-0.05,b-0.15,c+0.0);
     glColor3f(0,0,0); glVertex3f(a-0.05,b+0.15,c+0.0);
+  glEnd();
+}
+
+
+void CubiorShape::drawClosedEyeAt(float a, float b, float c, bool flip) {
+  float f = flip? 0.0 : 0.15;
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f(a+0.00,b+0.15-f,c+0.0); // top left
+    glColor3f(0,0,0); glVertex3f(a+0.10,b-0.00-f,c+0.0); // bot left
+    glColor3f(0,0,0); glVertex3f(a-0.00,b-0.00-f,c+0.0); // bot right
+    glColor3f(0,0,0); glVertex3f(a-0.10,b+0.15-f,c+0.0); // top right
+  glEnd();
+  glBegin(GL_POLYGON);
+    glColor3f(0,0,0); glVertex3f(a+0.10,b+0.00+f,c+0.0); // top left
+    glColor3f(0,0,0); glVertex3f(a+0.00,b-0.15+f,c+0.0); // bot left
+    glColor3f(0,0,0); glVertex3f(a-0.10,b-0.15+f,c+0.0); // bot right
+    glColor3f(0,0,0); glVertex3f(a-0.00,b+0.00+f,c+0.0); // top right
   glEnd();
 }

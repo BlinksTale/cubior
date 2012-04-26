@@ -91,10 +91,14 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   } else if (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
+  c1->setCollision(true);
+  c2->setCollision(true);
 //    balanceMomentum(c1,c2,2);
   } else if (diffX != 0) {
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
+  c1->setCollision(true);
+  c2->setCollision(true);
 //    balanceMomentum(c1,c2,0);
   }
 }
