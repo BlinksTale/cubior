@@ -23,7 +23,10 @@ class CameraObj {
     CameraObj();
     void tick();
     void alwaysFollow(CubeObj*);
+    bool withinRangeOf(int,int,int);
+    int matchRangeOf(int,int);
     void follow(int,int,int,int,bool,int);
+
     int get(int);
     int getX();
     int getY();

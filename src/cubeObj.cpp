@@ -19,6 +19,9 @@ CubeObj::CubeObj() {
   x =    0;
   y = -200;
   z = 1000;
+  oldX = 0;
+  oldY = 0;
+  oldZ = 0;
   diffX = 0;
   diffY = 0;
   diffZ = 0;
@@ -56,10 +59,6 @@ CubeObj::CubeObj() {
 void CubeObj::tick() {
   // don't move if frozen
   if (!locked && !permalocked) {
-    // Save old vals first
-    int oldX = x;
-    int oldY = y;
-    int oldZ = z;
 
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
@@ -81,10 +80,7 @@ void CubeObj::tick() {
       else { momentumZ = 0; }
     }
     
-    // And set diff vals last
-    if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }
-    if (abs(1.0*y-oldY) > 2) { diffY = y - oldY; }
-    if (abs(1.0*z-oldZ) > 2) { diffZ = z - oldZ; }
+    calculateDiff();
 
   // Can lose all momentum on locking if bool is set
   } else if (moving() && loseMomentumOnLock) { freeze(); }
@@ -93,6 +89,16 @@ void CubeObj::tick() {
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
 }
 
+void CubeObj::calculateDiff() {
+    // And set diff vals last
+    if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }
+    if (abs(1.0*y-oldY) > 2) { diffY = y - oldY; }
+    if (abs(1.0*z-oldZ) > 2) { diffZ = z - oldZ; }
+    // Then update old vals
+    oldX = x;
+    oldY = y;
+    oldZ = z;
+}
 // Apply gravity! Stop if you hit the floor
 void CubeObj::fall() {
   if (y < floor) {

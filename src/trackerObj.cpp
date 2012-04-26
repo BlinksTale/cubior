@@ -25,12 +25,12 @@ void TrackerObj::tick() {
     int xDiff = target->getX()-x;
     int zDiff = target->getZ()-z;
     int distToTarget = sqrt(xDiff*xDiff+zDiff*zDiff);
-    cout << "distToTarget: " << distToTarget << " > followDist: " << followDist << endl;
     chasing = distToTarget > followDist;
     if (chasing) {
-      x += xDiff*(distToTarget-followDist)/distToTarget;
-      z += zDiff*(distToTarget-followDist)/distToTarget;
+      x+=(xDiff*(distToTarget-followDist)/distToTarget);
+      z+=(zDiff*(distToTarget-followDist)/distToTarget);
     }
+    calculateDiff();
     if (target->getGrounded()) { y = target->getY(); }
   }
 }

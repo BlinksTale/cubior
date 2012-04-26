@@ -91,7 +91,10 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
   
   // be inclined towards angle player is facing if following
-  if (tracker->getChasing()) {angleYToBe = (angleYToBe*num + playerAngle)/den; }
+  if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
+    playerAngle = matchRangeOf(playerAngle,angleYToBe);
+    angleYToBe = (angleYToBe*num + playerAngle)/den;
+  }
 
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
@@ -107,6 +110,17 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
 
+}
+
+bool CameraObj::withinRangeOf(int y1, int y2, int delta) {
+  matchRangeOf(y1,y2);
+  return (y1 < y2+delta && y1 > y2-delta);
+}
+
+int CameraObj::matchRangeOf(int y1, int y2) {
+  if (y1 - y2 > 180) { y1 -= 360; }
+  else if (y2 - y1 > 180) { y1 += 360; }
+  return y1;
 }
 
 // Getters

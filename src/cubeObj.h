@@ -11,7 +11,7 @@
 class CubeObj {
   protected:
     bool neighbors[6];
-    int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ;
+    int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ;
     int movementSpeed, movementDivision;
     bool collision;
     bool locked, lockable, permalocked, jumpable, grounded, loseMomentumOnLock;
@@ -22,6 +22,7 @@ class CubeObj {
 
     void tick();
 
+    void calculateDiff();
     void fall();
     void land();
     void freeze();
