@@ -24,6 +24,8 @@ const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
 const bool superEnabled = false;
 
+bool directionsPressed[playerCount]; // whether movement has started for this player
+int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
 bool upKey[playerCount];
 bool downKey[playerCount];
 bool leftKey[playerCount];
@@ -65,6 +67,12 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
+      if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
+        oldAngleY[i] = getCamera(i)->getAngleY();
+        directionsPressed[i] = true;
+      } else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
+        directionsPressed[i] = false;
+      }
       int sinUD = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
       int cosUD = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
       int sinLR = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);

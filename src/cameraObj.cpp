@@ -67,7 +67,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // For smoothing purposes
   int num = 10;
   int den = 11; 
-  float newY = (b + lastLandedY)/2; // as to see jump height
+  float newY = (b + lastLandedY); // as to see jump height
   if (landed || lastLanded) {
     newY = b;
     lastLandedY = b;
@@ -84,12 +84,12 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // so the camera doesn't go below a certain point
   int newDist = distToPlayer > farthestDist ? farthestDist : 
     (distToPlayer < closestDist ? closestDist : distToPlayer);
-  y = ((camHeight*2-camHeight*newDist/(farthestDist)) + y*num)/den;
+  y = ((camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
   float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 0;
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
 
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
-  float angleYToBe = (c!=z) ? ((c-z<0?0:180)+(atan((a-x)*1.0/(c-z))*360/(2*3.14159))) : angleY;
+  float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
   
   // be inclined towards angle player is facing if following
   if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
