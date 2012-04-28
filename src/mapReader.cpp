@@ -8,8 +8,8 @@
 #include <string>
 using namespace std;
 
-int MapReader::readMap() {
-  string file = "./maps/cubiorMap0.cubior";
+int MapReader::readMap(const string& s) {
+  string file = s;
   string row;
   ifstream newMap;
   newMap.open(file);//../maps/cubiorMap0.cubior");

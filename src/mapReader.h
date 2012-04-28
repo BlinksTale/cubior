@@ -12,7 +12,7 @@
 
 class MapReader {
   public:
-    static int readMap();
+    static int readMap(const std::string&);
 };
 
 #endif 

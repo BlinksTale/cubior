@@ -65,7 +65,7 @@ void gameplayStart() {
 if (gameplayRunning) {
 
   // Read in a map first!
-  MapReader::readMap();
+  MapReader::readMap("./maps/cubiorMap1.cubior");
 
   for (int i=0; i<cubiorCount; i++) {
   // Choose who starts

@@ -174,3 +174,8 @@ note: XOR is great for alternating tiles!
 4/14/12
 note: cpp does not accept ints for floor(). Must guarantee it is int, or "Error 132" arises
 note: float necessary for good camera angle turns (or at least higher precision than int 360)
+
+---
+4/27/12
+note: string is in std, so need std::string or "using namespace std"
+note: don't use "using namespace std" in headers, Stack Overflow calls it bad practice
