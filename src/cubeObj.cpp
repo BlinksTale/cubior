@@ -197,6 +197,17 @@ void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2)
   neighbors[5] = z2;
 }
 bool* CubeObj::getNeighbors() { return neighbors; }
+
+// For being up against an edge of the map - used mostly in collision detection
+void CubeObj::setEdges(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
+  edges[0] = x1;
+  edges[1] = x2;
+  edges[2] = y1;
+  edges[3] = y2;
+  edges[4] = z1;
+  edges[5] = z2;
+}
+bool* CubeObj::getEdges() { return edges; }
 void CubeObj::setCollision(bool b) { collision = b; }
 bool CubeObj::getCollision() { return collision; }
 

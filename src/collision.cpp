@@ -79,16 +79,37 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   int c1Land = (1-(c1Locked||c1Grounded)*1+(c2Locked||c2Grounded)*1);
   int c2Land = (1-(c2Locked||c2Grounded)*1+(c1Locked||c1Grounded)*1);
 
+  bool* c1e = c1->getEdges();
+  bool* c1n = c1->getNeighbors();
+  bool* c2e = c2->getEdges();
+  bool* c2n = c2->getNeighbors();
   // Only change one dimension at a time, the lowest that isn't zero
-  if (diffY != 0 
-  && ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)) {
+  if (
+      diffY != 0 &&
+    // Normal case: just make sure you aren't comparing in a dimension with no difference
+    (
+        ((abs(diffY) < abs(diffX)) || diffX == 0)
+      &&
+        ((abs(diffY) < abs(diffZ)) || diffZ == 0)
+    // Crazy case: other block is an edge block with neighbors
+    ) || (
+        ((c2e[0] || c2n[0]) && (c2e[1]||c2n[1]))
+      &&
+        ((c2e[4] || c2n[4]) && (c2e[5]||c2n[5]))
+    ) || (
+        ((c1e[0] || c1n[0]) && (c1e[1]||c1n[1]))
+      &&
+        ((c1e[4] || c1n[4]) && (c1e[5]||c1n[5]))
+    )
+  ) {
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
 //    balanceMomentum(c1,c2,1);
     // then in case either one lands...
     if (diffY < 0) { c1->land(); if (!c1Locked) { c1->changeY(1); } } // extra 1 of movement since landing caused sticking before
     if (diffY > 0) { c2->land(); if (!c2Locked) { c2->changeY(1); } }
-  } else if (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
+  } else if
+    (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0 || ((c2->getNeighbors())[4] && (c2->getNeighbors())[5]))) {
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   c1->setCollision(true);

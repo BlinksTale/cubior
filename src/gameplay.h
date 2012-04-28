@@ -15,16 +15,16 @@
 
 const int mapEdge = 3;
 
-const int playableWidth = 40;
-const int playableHeight= 20;
-const int playableDepth = 40;
+const int playableWidth = 100;
+const int playableHeight= 100;
+const int playableDepth = 100;
 const int maxWidth = playableWidth + mapEdge*2;
 const int maxHeight= playableHeight + mapEdge*2;
 const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
 
 const int cubiorCount = 4;
-const int maxCubeCount = 6 + (playableWidth+1)*(playableDepth+1);
+const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
 
     void gameplayStart();
     void gameplayLoop();

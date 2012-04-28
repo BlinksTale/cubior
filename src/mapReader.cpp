@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstdlib>// for atoi
 using namespace std;
 
 Map* MapReader::readMap(const string& s) {
@@ -33,17 +34,17 @@ Map* MapReader::readMap(const string& s) {
       if (!widthFound && !row.substr(0,6).compare("width:")) {
         cout << "Width found" << endl;
         widthFound = true;
-        map->setWidth(10);
+        map->setWidth(atoi((row.substr(6,row.length()-6)).c_str()));
       }
       if (!heightFound && !row.substr(0,7).compare("height:")){
         cout << "Height found"<< endl;
         heightFound = true;
-        map->setHeight(10);
+        map->setHeight(atoi((row.substr(7,row.length()-7)).c_str()));
       }
       if (!depthFound && !row.substr(0,6).compare("depth:")) {
         cout << "Depth found" << endl;
         depthFound = true;
-        map->setDepth(10);
+        map->setDepth(atoi((row.substr(6,row.length()-6)).c_str()));
       }
       // Start the spot reading!
       if (!readingMap && widthFound && heightFound && depthFound) {

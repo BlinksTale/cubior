@@ -23,6 +23,7 @@ bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+Map* levelMap;
 
 int currentMapWidth;
 int currentMapHeight;
@@ -46,17 +47,24 @@ int floor = -200;
 // Changing game state variables
 bool gameplayRunning = true;
 
+// Quick math function for keepInBounds
+int getEdge(int dimension, int neg) {
+  return (neg*(dimension-(neg>0)*1)/2)*tileSize-neg*2;
+}
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
 void keepInBounds(CubeObj* c1) {
     // The bounds are one fewer than the size of the grid
     // this makes checking collision in all directions from a cube never go out of bounds
-    if (c1->getX()< (-currentMapWidth/2+mapEdge)*tileSize){c1->setX((-currentMapWidth/2 +mapEdge)*tileSize);}
-    if (c1->getX()>=( currentMapWidth/2-mapEdge)*tileSize){c1->setX(( currentMapWidth/2 -mapEdge)*tileSize);}
-    if (c1->getY()<-(currentMapHeight/2+mapEdge)*tileSize){c1->setY((-currentMapHeight/2+mapEdge)*tileSize);}
-    if (c1->getY()>=(currentMapHeight/2-mapEdge)*tileSize){c1->setY(( currentMapHeight/2-mapEdge)*tileSize);}
-    if (c1->getZ()< (-currentMapDepth/2+mapEdge)*tileSize){c1->setZ((-currentMapDepth/2 +mapEdge)*tileSize);}
-    if (c1->getZ()>=( currentMapDepth/2-mapEdge)*tileSize){c1->setZ(( currentMapDepth/2 -mapEdge)*tileSize);}
+    // The extra "2" is to make sure it doesn't glitch up at the edges, since otherwise it falls through at two of the sides
+    // TODO: also fix this problem properly rather than this ugly +2 business.
+    if (c1->getX()< getEdge(currentMapWidth,-1)){c1->setX(getEdge(currentMapWidth,-1));}
+    if (c1->getX()>=getEdge(currentMapWidth,1)){c1->setX(getEdge(currentMapWidth,1));}
+    if (c1->getY()<getEdge(currentMapHeight,-1)){c1->setY(getEdge(currentMapHeight,-1));}
+    if (c1->getY()>=getEdge(currentMapHeight,1)){c1->setY(getEdge(currentMapHeight,1));}
+    if (c1->getZ()< getEdge(currentMapDepth,-1)){c1->setZ(getEdge(currentMapDepth,-1));}
+    if (c1->getZ()>=getEdge(currentMapDepth,1)){c1->setZ(getEdge(currentMapDepth,1));}
 }
+
 
 void wipeMap(CubeObj* map[][maxHeight][maxDepth]){
   // Wipe collision map, repopulate it
@@ -67,20 +75,34 @@ void wipeMap(CubeObj* map[][maxHeight][maxDepth]){
   } } }
 }
 
+void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
+  c1->setEdges(
+    c1->getX() >=(currentMapWidth/2-1)*tileSize,
+    c1->getX() <=-(currentMapWidth/2)*tileSize,
+    c1->getY() >=(currentMapHeight/2-1)*tileSize,
+    c1->getY() <=-(currentMapHeight/2)*tileSize,
+    c1->getZ() >=(currentMapDepth/2-1)*tileSize,
+    c1->getZ() <=-(currentMapDepth/2)*tileSize
+  );
+}
+
 void gameplayStart() {
 gameplayStartIterator++;
 cout << "gameplayStart iteration " << gameplayStartIterator << endl;
 if (gameplayRunning) {
 
   // Read in a map first!
-  MapReader::readMap("./maps/cubiorMap1.cubior");
-  currentMapWidth = 20;
-  currentMapHeight = 20;
-  currentMapDepth = 20;
+  levelMap = MapReader::readMap("./maps/cubiorMap0.cubior");
+  currentMapWidth = levelMap->getWidth();
+  currentMapHeight = levelMap->getHeight();
+  currentMapDepth = levelMap->getDepth();
   cubeCount = (currentMapWidth+1)*(currentMapDepth+1)+6;
-  if (currentMapWidth > maxWidth) { currentMapWidth = maxWidth; }
-  if (currentMapHeight > maxHeight) { currentMapHeight = maxHeight; }
-  if (currentMapDepth > maxDepth) { currentMapDepth = maxDepth; }
+  if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
+  if (currentMapHeight > playableHeight) { currentMapHeight = playableHeight; }
+  if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
   if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
 
   for (int i=0; i<cubiorCount; i++) {
@@ -107,8 +129,8 @@ if (gameplayRunning) {
 //    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
-  for (int x=0; x<=currentMapWidth; x++) {
-    for (int z=0; z<=currentMapDepth; z++) {
+  for (int x=0; x<currentMapWidth; x++) {
+    for (int z=0; z<currentMapDepth; z++) {
       cube[x*(currentMapDepth+1)+z].setPos(100*(x-currentMapWidth/2),-200,100*(z-currentMapDepth/2));
     }
   }
@@ -133,6 +155,7 @@ if (gameplayRunning) {
   // Then set their neighbors, for more efficient rendering
   for (int i = 0; i<cubeCount; i++) {
     findNeighbors(&cube[i], permanentMap);
+    findEdges(&cube[i], permanentMap);
   }
   
 }
@@ -199,6 +222,7 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], in
     for (int y = 0; y<=x; y++) {
       for (int z = 0; z<=x; z++) {
         if (x >= y+z) {
+         keepInBounds(i);
          Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ+z]);
          Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ+z]);
          Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ+z]);
