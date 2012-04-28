@@ -9,10 +9,11 @@
 #define MAPREADER
 
 #include <string>
+#include "map.h"
 
 class MapReader {
   public:
-    static int readMap(const std::string&);
+    static Map* readMap(const std::string&);
 };
 
 #endif 

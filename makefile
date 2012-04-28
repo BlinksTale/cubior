@@ -9,7 +9,7 @@ else
   Exe = cubior.exe
 endif
 
-AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o
+AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o
 
 all: bin/cubior.o bin/cubiorTest.o
 	g++ $(AllFiles) bin/cubior.o $(Graphics) -o bin/cubior && g++ $(AllFiles) bin/cubiorTest.o $(Graphics) -o bin/cubiorTest && bin/$(Exe)
@@ -74,8 +74,11 @@ bin/cameraObj.o: src/cameraObj.cpp bin/gameplay.o bin/trackerObj.o
 bin/trackerObj.o: src/trackerObj.cpp bin/cubeObj.o
 	g++ -c src/trackerObj.cpp -o bin/trackerObj.o
 
-bin/mapReader.o: src/mapReader.cpp bin/gameplay.o
+bin/mapReader.o: src/mapReader.cpp bin/gameplay.o bin/map.o
 	g++ -c -std=gnu++0x src/mapReader.cpp -o bin/mapReader.o # std=gnu++0x for C++11
+
+bin/map.o: src/map.cpp bin/cubeObj.o bin/gameplay.o
+	g++ -c src/map.cpp -o bin/map.o
 
 #########
 # INPUT #

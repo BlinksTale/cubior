@@ -18,6 +18,7 @@
 
 using namespace std;
 
+int gameplayStartIterator = 0;
 bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
@@ -67,6 +68,8 @@ void wipeMap(CubeObj* map[][maxHeight][maxDepth]){
 }
 
 void gameplayStart() {
+gameplayStartIterator++;
+cout << "gameplayStart iteration " << gameplayStartIterator << endl;
 if (gameplayRunning) {
 
   // Read in a map first!
