@@ -11,6 +11,7 @@
 #include "goalObj.h"
 #include "cubiorObj.h"
 #include "collision.h"
+#include "mapReader.h"
 #include <iostream>
 #include <cstdio>
 #include <stdlib.h> // for NULL
@@ -62,6 +63,9 @@ void wipeMap(CubeObj* map[][mapHeight][mapDepth]){
 
 void gameplayStart() {
 if (gameplayRunning) {
+
+  // Read in a map first!
+  MapReader::readMap();
 
   for (int i=0; i<cubiorCount; i++) {
   // Choose who starts

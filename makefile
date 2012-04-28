@@ -53,7 +53,7 @@ bin/textRender.o: src/textRender.cpp
 # GAMEPLAY #
 ############
 
-bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o bin/goalObj.o bin/cameraObj.o
+bin/gameplay.o: src/gameplay.cpp bin/cubiorObj.o bin/cubeObj.o bin/cubiorObj.o bin/collision.o bin/goalObj.o bin/cameraObj.o bin/mapReader.o
 	g++ -c src/gameplay.cpp -o bin/gameplay.o
 
 bin/collision.o: src/collision.cpp bin/cubeObj.o
@@ -74,8 +74,8 @@ bin/cameraObj.o: src/cameraObj.cpp bin/gameplay.o bin/trackerObj.o
 bin/trackerObj.o: src/trackerObj.cpp bin/cubeObj.o
 	g++ -c src/trackerObj.cpp -o bin/trackerObj.o
 
-bin/trackerObj.o: src/mapReader.cpp bin/gameplay.o
-	g++ -c src/mapReader.cpp -o bin/mapReader.o
+bin/mapReader.o: src/mapReader.cpp bin/gameplay.o
+	g++ -c -std=gnu++0x src/mapReader.cpp -o bin/mapReader.o # std=gnu++0x for C++11
 
 #########
 # INPUT #
