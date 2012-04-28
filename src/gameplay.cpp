@@ -20,11 +20,16 @@ using namespace std;
 
 bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
-CubeObj* collisionMap[mapWidth][mapHeight][mapDepth];
-CubeObj* permanentMap[mapWidth][mapHeight][mapDepth];
+CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
+CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+
+int currentMapWidth;
+int currentMapHeight;
+int currentMapDepth;
+int cubeCount;
 
 CubiorObj cubior[cubiorCount];
-CubeObj cube[cubeCount];
+CubeObj cube[maxCubeCount];
 GoalObj goal;
 CameraObj camera[cubiorCount];
 static int movementSpeed = 1;
@@ -44,19 +49,19 @@ bool gameplayRunning = true;
 void keepInBounds(CubeObj* c1) {
     // The bounds are one fewer than the size of the grid
     // this makes checking collision in all directions from a cube never go out of bounds
-    if (c1->getX()< (-mapWidth/2+mapEdge)*tileSize){c1->setX((-mapWidth/2 +mapEdge)*tileSize);}
-    if (c1->getX()>=( mapWidth/2-mapEdge)*tileSize){c1->setX(( mapWidth/2 -mapEdge)*tileSize);}
-    if (c1->getY()<-(mapHeight/2+mapEdge)*tileSize){c1->setY((-mapHeight/2+mapEdge)*tileSize);}
-    if (c1->getY()>=(mapHeight/2-mapEdge)*tileSize){c1->setY(( mapHeight/2-mapEdge)*tileSize);}
-    if (c1->getZ()< (-mapDepth/2+mapEdge)*tileSize){c1->setZ((-mapDepth/2 +mapEdge)*tileSize);}
-    if (c1->getZ()>=( mapDepth/2-mapEdge)*tileSize){c1->setZ(( mapDepth/2 -mapEdge)*tileSize);}
+    if (c1->getX()< (-currentMapWidth/2+mapEdge)*tileSize){c1->setX((-currentMapWidth/2 +mapEdge)*tileSize);}
+    if (c1->getX()>=( currentMapWidth/2-mapEdge)*tileSize){c1->setX(( currentMapWidth/2 -mapEdge)*tileSize);}
+    if (c1->getY()<-(currentMapHeight/2+mapEdge)*tileSize){c1->setY((-currentMapHeight/2+mapEdge)*tileSize);}
+    if (c1->getY()>=(currentMapHeight/2-mapEdge)*tileSize){c1->setY(( currentMapHeight/2-mapEdge)*tileSize);}
+    if (c1->getZ()< (-currentMapDepth/2+mapEdge)*tileSize){c1->setZ((-currentMapDepth/2 +mapEdge)*tileSize);}
+    if (c1->getZ()>=( currentMapDepth/2-mapEdge)*tileSize){c1->setZ(( currentMapDepth/2 -mapEdge)*tileSize);}
 }
 
-void wipeMap(CubeObj* map[][mapHeight][mapDepth]){
+void wipeMap(CubeObj* map[][maxHeight][maxDepth]){
   // Wipe collision map, repopulate it
-  for (int a=0; a<mapWidth; a++) {
-  for (int b=0; b<mapHeight;b++) {
-  for (int c=0; c<mapDepth; c++) {
+  for (int a=0; a<currentMapWidth; a++) {
+  for (int b=0; b<currentMapHeight;b++) {
+  for (int c=0; c<currentMapDepth; c++) {
      collisionMap[a][b][c]=0;
   } } }
 }
@@ -66,6 +71,14 @@ if (gameplayRunning) {
 
   // Read in a map first!
   MapReader::readMap("./maps/cubiorMap1.cubior");
+  currentMapWidth = 20;
+  currentMapHeight = 20;
+  currentMapDepth = 20;
+  cubeCount = (currentMapWidth+1)*(currentMapDepth+1)+6;
+  if (currentMapWidth > maxWidth) { currentMapWidth = maxWidth; }
+  if (currentMapHeight > maxHeight) { currentMapHeight = maxHeight; }
+  if (currentMapDepth > maxDepth) { currentMapDepth = maxDepth; }
+  if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
 
   for (int i=0; i<cubiorCount; i++) {
   // Choose who starts
@@ -91,9 +104,9 @@ if (gameplayRunning) {
 //    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
-  for (int x=0; x<=playableWidth; x++) {
-    for (int z=0; z<=playableDepth; z++) {
-      cube[x*(playableDepth+1)+z].setPos(100*(x-playableWidth/2),-200,100*(z-playableDepth/2));
+  for (int x=0; x<=currentMapWidth; x++) {
+    for (int z=0; z<=currentMapDepth; z++) {
+      cube[x*(currentMapDepth+1)+z].setPos(100*(x-currentMapWidth/2),-200,100*(z-currentMapDepth/2));
     }
   }
   cube[cubeCount-6].setPos(-100*0,-000,000);
@@ -177,7 +190,7 @@ if (gameplayRunning) {
 
 // Takes cubior, and its slot, then checks collision
 // called exploding diamond because it checks on an expanding radius
-void explodingDiamondCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], int cX, int cY, int cZ) {
+void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
   // Then check slots in relation to cXYZ
   for (int x = 0; x<mapEdge; x++) {
     for (int y = 0; y<=x; y++) {
@@ -199,7 +212,7 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], in
 
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
-void unintelligentCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], int cX, int cY, int cZ) {
+void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
     // First, check collision on all immediate directions
     // on X axis...
     for (int a = -2; a<3; a++) {
@@ -223,14 +236,14 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][mapHeight][mapDepth], int c
 }
 
 // Put a cube in the collision map
-void addToCollisionMap(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
+void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cX = getCollisionMapSlot(c1,0);
   int cY = getCollisionMapSlot(c1,1);
   int cZ = getCollisionMapSlot(c1,2);
   map[cX][cY][cZ] = c1;
 }
 
-void findNeighbors(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
+void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cX = getCollisionMapSlot(c1,0);
   int cY = getCollisionMapSlot(c1,1);
   int cZ = getCollisionMapSlot(c1,2);
@@ -248,7 +261,7 @@ void findNeighbors(CubeObj* c1, CubeObj* map[][mapHeight][mapDepth]) {
 
 // pass cube and dimension to get map slot
 int getCollisionMapSlot(CubeObj* c, int d) {
-  int map = (d==0? mapWidth : d==1? mapHeight : mapDepth);
+  int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
   return (c->get(d) - c->getSize(d)/2 + map/2*tileSize)/tileSize;
 }
 
@@ -261,7 +274,8 @@ GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
 void setCubiorPlayable(int i, bool b) { cubiorPlayable[i] = b; }
-const int getCubeCount() { return cubeCount; }
+const int getMaxCubeCount() { return maxCubeCount; }
+int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }
 CameraObj* getCamera(int i) { return &camera[i]; }
 

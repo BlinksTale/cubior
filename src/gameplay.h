@@ -14,26 +14,27 @@
 #include "cameraObj.h"
 
 const int mapEdge = 3;
+
 const int playableWidth = 40;
 const int playableHeight= 20;
 const int playableDepth = 40;
-const int mapWidth = playableWidth + mapEdge*2;
-const int mapHeight= playableHeight + mapEdge*2;
-const int mapDepth = playableDepth + mapEdge*2;
+const int maxWidth = playableWidth + mapEdge*2;
+const int maxHeight= playableHeight + mapEdge*2;
+const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
 
 const int cubiorCount = 4;
-const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
+const int maxCubeCount = 6 + (playableWidth+1)*(playableDepth+1);
 
     void gameplayStart();
     void gameplayLoop();
 
-    void explodingDiamondCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
-    void unintelligentCollision(CubeObj*,CubeObj*[][mapHeight][mapDepth],int,int,int);
-    void addToCollisionMap(CubeObj*,CubeObj*[][mapHeight][mapDepth]);
-    void findNeighbors(CubeObj*,CubeObj*[][mapHeight][mapDepth]);
+    void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
+    void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
+    void addToCollisionMap(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
+    void findNeighbors(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
     bool* getNeighbors(CubeObj*);
-    void wipeMap(CubeObj*[][mapHeight][mapDepth]);
+    void wipeMap(CubeObj*[][maxHeight][maxDepth]);
     int getCollisionMapSlot(CubeObj*,int);
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
@@ -43,7 +44,8 @@ const int cubeCount = 6 + (playableWidth+1)*(playableDepth+1);
     const int getCubiorCount();
     bool getCubiorPlayable(int);
     void setCubiorPlayable(int,bool);
-    const int getCubeCount();
+    const int getMaxCubeCount();
+    int getCubeCount();
     CameraObj* getCamera();
     CameraObj* getCamera(int);
 

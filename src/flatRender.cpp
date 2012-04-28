@@ -33,7 +33,8 @@ static const bool refreshOnIdle = false; // works better, otherwise hangs when P
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = cubiorCount;
-const int cubeNum = cubeCount;// 9 + playableWidth*playableDepth;
+const int maxCubeNum = maxCubeCount;// 9 + playableWidth*playableDepth;
+int cubeNum;
 char pausedText[50];
 
 // angle of cubior while he rotates
@@ -52,11 +53,11 @@ static GLfloat lastChangeZ[cubiorNum];
 
 // pos of cube obstacles
 //static int cubesTotal = 1;
-CubeShape cubeShape[cubeNum];
-static GLfloat cubeX[cubeNum];
-static GLfloat cubeY[cubeNum];
-static GLfloat cubeZ[cubeNum];
-static GLfloat cubeCollision[cubeNum];
+CubeShape cubeShape[maxCubeNum];
+static GLfloat cubeX[maxCubeNum];
+static GLfloat cubeY[maxCubeNum];
+static GLfloat cubeZ[maxCubeNum];
+static GLfloat cubeCollision[maxCubeNum];
 
 // time stuff
 bool timing = false;
@@ -484,6 +485,9 @@ void initFlat(int argc, char** argv) {
     updatePlayerGraphic(i);
   }
 
+  // Get the Cube count
+  cubeNum = getCubeCount();
+
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
     /* May not need this, updateCubeGraphic does the work
@@ -500,7 +504,7 @@ void initFlat(int argc, char** argv) {
       )^ (
         (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
       );
-    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot,cubeY[i]<=getFloor()  && abs(cubeZ[i])!=mapWidth/2);
+    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot,cubeY[i]<=getFloor()  && abs(cubeZ[i])!=maxWidth/2);
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
   }
 
