@@ -18,7 +18,6 @@
 
 using namespace std;
 
-int gameplayStartIterator = 0;
 bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
@@ -49,14 +48,12 @@ bool gameplayRunning = true;
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
-  return (neg*(dimension-(neg>0)*1)/2)*tileSize-neg*3;
+  return (neg*(dimension-(neg>0)*1)/2)*tileSize-neg*1;
 }
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
 void keepInBounds(CubeObj* c1) {
     // The bounds are one fewer than the size of the grid
     // this makes checking collision in all directions from a cube never go out of bounds
-    // The extra "2" is to make sure it doesn't glitch up at the edges, since otherwise it falls through at two of the sides
-    // TODO: also fix this problem properly rather than this ugly +2 business.
     if (c1->getX()< getEdge(currentMapWidth,-1)){c1->setX(getEdge(currentMapWidth,-1));}
     if (c1->getX()>=getEdge(currentMapWidth,1)){c1->setX(getEdge(currentMapWidth,1));}
     if (c1->getY()<getEdge(currentMapHeight,-1)){c1->setY(getEdge(currentMapHeight,-1));}
@@ -81,17 +78,15 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cZ = getCollisionMapSlot(c1,2);
   c1->setEdges(
     c1->getX() >=(currentMapWidth/2-1)*tileSize,
-    c1->getX() <=-(currentMapWidth/2-1)*tileSize, // broken
+    c1->getX() <=-(currentMapWidth/2-1)*tileSize,
     c1->getY() >=(currentMapHeight/2-1)*tileSize,
-    c1->getY() <=-(currentMapHeight/2-1)*tileSize, // broken?
+    c1->getY() <=-(currentMapHeight/2-1)*tileSize,
     c1->getZ() >=(currentMapDepth/2-1)*tileSize,
-    c1->getZ() <=-(currentMapDepth/2-1)*tileSize // broken
+    c1->getZ() <=-(currentMapDepth/2-1)*tileSize
   );
 }
 
 void gameplayStart() {
-gameplayStartIterator++;
-cout << "gameplayStart iteration " << gameplayStartIterator << endl;
 if (gameplayRunning) {
 
   // Read in a map first!
@@ -187,7 +182,6 @@ if (gameplayRunning) {
       int cZ = getCollisionMapSlot(&cubior[i],2);
 
       if (goodCollision) {
-        //cout << "Permanents Now" << endl;
         explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
       } else {
         unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
@@ -199,8 +193,7 @@ if (gameplayRunning) {
       cZ = getCollisionMapSlot(&cubior[i],2);
 
       if (goodCollision) {
-        //cout << "Nonpermanents Now" << endl;
-        //explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+        explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
       } else {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
       }
