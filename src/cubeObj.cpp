@@ -53,7 +53,6 @@ CubeObj::CubeObj() {
   collision = false;
   
   // World vars
-  floor = getFloor();
   gravity = getGravity();
 }
 
@@ -103,11 +102,10 @@ void CubeObj::calculateDiff() {
     oldY = y;
     oldZ = z;
 }
-// Apply gravity! Stop if you hit the floor
+// Apply gravity!
 void CubeObj::fall() {
-  if (y < floor) {
-    y = floor; land();
-  } else { momentumY -= gravity; grounded = false; } 
+  momentumY -= gravity;
+  grounded = false;
 }
 
 // Act as if you landed on ground

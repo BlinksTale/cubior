@@ -16,7 +16,7 @@ class CubeObj {
     bool collision;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, loseMomentumOnLock;
     int maxSpeed, friction;
-    int maxJump, jumpSpeedRatio, floor, gravity;
+    int maxJump, jumpSpeedRatio, gravity;
   public:
     CubeObj();
 

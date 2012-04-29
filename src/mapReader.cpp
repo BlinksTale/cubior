@@ -54,31 +54,24 @@ Map* MapReader::readMap(const string& s) {
         readingMap = true;
       }
       if (readingMap) {
-        cout << row.length() << " is the length" << endl;
         if (row.length()==0) {
           d=0;
           h++;
         } else {
           w = 0;
           while (w<row.length()) {
-            cout << "slot " << w << ", " << h << ", " << d << " is ";
             if (!row.substr(w,1).compare("1")) {
-              cout << "true" << endl;
               CubeObj newCube;
               newCube.tick();
               map->addCube(&newCube,w,h,d);
               map->setCubeCount(map->getCubeCount()+1);
-            } else {
-              cout << endl;
             }
             w++;
           }
           d++;
         }
       }
-      cout << "on line " << iterator << endl;
       iterator++;
-      cout << row << endl;
     }
     if (newMap.good()) {
       cout << "It failed!" << endl;

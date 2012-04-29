@@ -41,7 +41,6 @@ int maxSpeed = 20;
 int friction = 1;
 
 int gravity = 2;
-int floor = -200;
 
 // Changing game state variables
 bool gameplayRunning = true;
@@ -125,11 +124,12 @@ if (gameplayRunning) {
     cube[i].setPermalock(true);
   }
   int currentCube = 0;
-  for (int y=0; y<currentMapHeight; y++) {
-    for (int x=0; x<currentMapWidth; x++) {
-      for (int z=0; z<currentMapDepth; z++) {
-        if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
-          cube[currentCube].setPos(tileSize*(x-currentMapWidth/2),tileSize*(y-currentMapHeight/2),tileSize*(z-currentMapDepth/2));
+  for (int z=0; z<levelMap->getDepth(); z++) {
+    for (int x=0; x<levelMap->getWidth(); x++) {
+      for (int y=0; y<levelMap->getHeight(); y++) {
+        if (levelMap->getCubeAt(x,z,y) != 0 && currentCube < cubeCount) {
+          // FIXME: Because ugliest sin in this game, I had to switch y and z here.
+          cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
           currentCube++;
         }
       }
@@ -304,7 +304,6 @@ CameraObj* getCamera(int i) { return &camera[i]; }
 bool getInvincibility(int n) { return cubior[n].getInvincibility(); }
 void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newState); }
 
-int getFloor() { return floor; }
 int getGravity() { return gravity; }
 
 void  enableGoodCollision() { goodCollision = true; }

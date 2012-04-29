@@ -179,3 +179,8 @@ note: float necessary for good camera angle turns (or at least higher precision 
 4/27/12
 note: string is in std, so need std::string or "using namespace std"
 note: don't use "using namespace std" in headers, Stack Overflow calls it bad practice
+
+---
+4/28/12
+note: error right now in maps. Cannot put any blocks except floor within 2 spaces of edge
+note: everything else (except one artifact of a cube side) works after that
