@@ -94,7 +94,10 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // be inclined towards angle player is facing if following
   if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
     playerAngle = matchRangeOf(playerAngle,angleYToBe);
-    angleYToBe = (angleYToBe*num + playerAngle)/den;
+    // Camera only turns if player going mostly away from camera
+    if ((playerAngle < angleY + 125) && (playerAngle > angleY - 125)) {
+      angleYToBe = (angleYToBe*num + playerAngle)/den;
+    }
   }
 
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
