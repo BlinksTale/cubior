@@ -89,7 +89,7 @@ void gameplayStart() {
 if (gameplayRunning) {
 
   // Read in a map first!
-  levelMap = MapReader::readMap("./maps/cubiorMap2.cubior");
+  levelMap = MapReader::readMap("./maps/cubiorMap0.cubior");
   currentMapWidth = levelMap->getWidth();
   currentMapHeight= levelMap->getHeight();
   currentMapDepth = levelMap->getDepth();
