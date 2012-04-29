@@ -49,7 +49,7 @@ bool gameplayRunning = true;
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
-  return (neg*(dimension-(neg>0)*1)/2)*tileSize-neg*2;
+  return (neg*(dimension-(neg>0)*1)/2)*tileSize-neg*3;
 }
 // FIXME: This causes lots of lag right now. Intended to keep player inside game though
 void keepInBounds(CubeObj* c1) {
@@ -81,11 +81,11 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cZ = getCollisionMapSlot(c1,2);
   c1->setEdges(
     c1->getX() >=(currentMapWidth/2-1)*tileSize,
-    c1->getX() <=-(currentMapWidth/2)*tileSize,
+    c1->getX() <=-(currentMapWidth/2-1)*tileSize, // broken
     c1->getY() >=(currentMapHeight/2-1)*tileSize,
-    c1->getY() <=-(currentMapHeight/2)*tileSize,
+    c1->getY() <=-(currentMapHeight/2-1)*tileSize, // broken?
     c1->getZ() >=(currentMapDepth/2-1)*tileSize,
-    c1->getZ() <=-(currentMapDepth/2)*tileSize
+    c1->getZ() <=-(currentMapDepth/2-1)*tileSize // broken
   );
 }
 
@@ -187,6 +187,7 @@ if (gameplayRunning) {
       int cZ = getCollisionMapSlot(&cubior[i],2);
 
       if (goodCollision) {
+        //cout << "Permanents Now" << endl;
         explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
       } else {
         unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
@@ -198,7 +199,8 @@ if (gameplayRunning) {
       cZ = getCollisionMapSlot(&cubior[i],2);
 
       if (goodCollision) {
-        explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+        //cout << "Nonpermanents Now" << endl;
+        //explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
       } else {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
       }

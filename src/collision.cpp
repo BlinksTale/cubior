@@ -83,6 +83,19 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   bool* c1n = c1->getNeighbors();
   bool* c2e = c2->getEdges();
   bool* c2n = c2->getNeighbors();
+
+cout << "" << c1 << "'s collision with " << c2 << " is: " << (
+    (((c2e[0] || c2n[0]) && (c2e[1]||c2n[1]))
+      &&
+        ((c2e[4] || c2n[4]) && (c2e[5]||c2n[5]))
+    ) || (
+        ((c1e[0] || c1n[0]) && (c1e[1]||c1n[1]))
+      &&
+        ((c1e[4] || c1n[4]) && (c1e[5]||c1n[5]))
+    )) << endl;
+cout << "and my y is " << c1->getY() << endl;
+cout << "where c2's edges map is " << c2e[0] << ", " << c2e[1] << ", " << c2e[4] << ", " << c2e[5] << endl;
+cout << "where c2's neigh map is " << c2n[0] << ", " << c2n[1] << ", " << c2n[4] << ", " << c2n[5] << endl;
   // Only change one dimension at a time, the lowest that isn't zero
   if (
       diffY != 0 &&
@@ -102,6 +115,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
         ((c1e[4] || c1n[4]) && (c1e[5]||c1n[5]))
     )
   ) {
+    cout << "y is lowest diff!" << endl;
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
 //    balanceMomentum(c1,c2,1);
@@ -110,12 +124,14 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (diffY > 0) { c2->land(); if (!c2Locked) { c2->changeY(1); } }
   } else if
     (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0 || ((c2->getNeighbors())[4] && (c2->getNeighbors())[5]))) {
+    cout << "z is lowest diff!" << endl;
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   c1->setCollision(true);
   c2->setCollision(true);
 //    balanceMomentum(c1,c2,2);
   } else if (diffX != 0) {
+    cout << "x is lowest diff!" << endl;
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
   c1->setCollision(true);
