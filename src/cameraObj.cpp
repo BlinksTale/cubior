@@ -25,8 +25,8 @@ CameraObj::CameraObj() {
   angleZ = 0;
   
   // Follow vars
-  farthestDist = 800;
-  closestDist = 600;
+  farthestDist = 1200;
+  closestDist = 1000;
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
 }
@@ -67,7 +67,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // For smoothing purposes
   int num = 10;
   int den = 11; 
-  float newY = (b + lastLandedY); // as to see jump height
+  float newY = (b+lastLandedY)/2; // as to see jump height
   if (landed || lastLanded) {
     newY = b;
     lastLandedY = b;
@@ -84,8 +84,8 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // so the camera doesn't go below a certain point
   int newDist = distToPlayer > farthestDist ? farthestDist : 
     (distToPlayer < closestDist ? closestDist : distToPlayer);
-  y = ((camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
-  float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 0;
+  y = ((lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
+  float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 360;
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
 
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints

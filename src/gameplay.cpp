@@ -90,11 +90,11 @@ void gameplayStart() {
 if (gameplayRunning) {
 
   // Read in a map first!
-  levelMap = MapReader::readMap("./maps/cubiorMap0.cubior");
+  levelMap = MapReader::readMap("./maps/cubiorMap2.cubior");
   currentMapWidth = levelMap->getWidth();
   currentMapHeight = levelMap->getHeight();
   currentMapDepth = levelMap->getDepth();
-  cubeCount = (currentMapWidth+1)*(currentMapDepth+1)+6;
+  cubeCount = (currentMapWidth)*(currentMapDepth)+6;
   if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
   if (currentMapHeight > playableHeight) { currentMapHeight = playableHeight; }
   if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
@@ -126,7 +126,7 @@ if (gameplayRunning) {
   }
   for (int x=0; x<currentMapWidth; x++) {
     for (int z=0; z<currentMapDepth; z++) {
-      cube[x*(currentMapDepth+1)+z].setPos(100*(x-currentMapWidth/2),-200,100*(z-currentMapDepth/2));
+      cube[x*(currentMapDepth)+z].setPos(100*(x-currentMapWidth/2),-200,100*(z-currentMapDepth/2));
     }
   }
   cube[cubeCount-6].setPos(-100*0,-000,000);
