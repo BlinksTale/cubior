@@ -504,7 +504,7 @@ void initFlat(int argc, char** argv) {
       )^ (
         (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
       );
-    cubeShape[i].initVisuals(0.95,1.0,0.5,0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
   }
 

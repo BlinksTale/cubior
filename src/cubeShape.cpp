@@ -18,17 +18,20 @@
 #include <sys/time.h> // for linux time
 
 
-void CubeShape::initVisuals(float colorCurrentR, float colorCurrentG, float colorCurrentB, float colorDarkness, bool alt, bool mid) {
+void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarkness, bool alt, bool mid) {
   midFloor = mid;
   alternatingSpot = alt;
   altDark = alternatingSpot * 0.125;
   // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
-  r1 = colorCurrentR - altDark;
-  g1 = colorCurrentG - altDark;
-  b1 = colorCurrentB - altDark;
-  r2 = colorCurrentR - colorDarkness - altDark;
-  g2 = colorCurrentG - colorDarkness - altDark;
-  b2 = colorCurrentB - colorDarkness - altDark;
+  r1 = nR - altDark;
+  g1 = nG - altDark;
+  b1 = nB - altDark;
+  r2 = nR - colorDarkness - altDark;
+  g2 = nG - colorDarkness - altDark;
+  b2 = nB - colorDarkness - altDark;
+  r3 = nR2 - altDark;
+  g3 = nG2 - altDark;
+  b3 = nB2 - altDark;
 }
 
 void CubeShape::updateVisuals() {
@@ -145,7 +148,7 @@ struct timeval tim;
 }
     if (!neighbors[2]) { // 2 is above
     // Top
-    glColor3f(r1,g1,b1);
+    glColor3f(r3,g3,b3);
     glBegin(GL_TRIANGLES);
     glVertex3f( 0.5, 0.5,-0.5);
     glVertex3f( 0.5, 0.5, 0.5);
