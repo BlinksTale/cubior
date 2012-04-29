@@ -94,13 +94,9 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
         ((abs(diffY) < abs(diffZ)) || diffZ == 0)
     // Crazy case: other block is an edge block with neighbors
     ) || (
-        ((c2e[0] || c2n[0]) && (c2e[1]||c2n[1]))
-      &&
-        ((c2e[4] || c2n[4]) && (c2e[5]||c2n[5]))
-    ) || (
-        ((c1e[0] || c1n[0]) && (c1e[1]||c1n[1]))
-      &&
-        ((c1e[4] || c1n[4]) && (c1e[5]||c1n[5]))
+        (c1e[0] || c1e[1] || c1e[4] || c1e[5])
+      ) || (
+        (c2e[0] || c2e[1] || c2e[4] || c2e[5])
     )
   ) {
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
@@ -110,7 +106,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (diffY < 0) { c1->land(); if (!c1Locked) { c1->changeY(1); } } // extra 1 of movement since landing caused sticking before
     if (diffY > 0) { c2->land(); if (!c2Locked) { c2->changeY(1); } }
   } else if
-    (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0 || ((c2->getNeighbors())[4] && (c2->getNeighbors())[5]))) {
+    (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   c1->setCollision(true);
