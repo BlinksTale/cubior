@@ -31,7 +31,9 @@ void Map::removeCubeAt(int w, int h, int d) {
 void Map::setWidth(int n) { width = n; }
 void Map::setHeight(int n){ height= n; }
 void Map::setDepth(int n) { depth = n; }
+void Map::setCubeCount(int n) { cubeCount = n; }
 int Map::getWidth() { return width; }
 int Map::getHeight(){ return height;}
 int Map::getDepth() { return depth; }
+int Map::getCubeCount() { return cubeCount; }
 CubeObj* Map::getCubeAt(int w, int h, int d) { return map[w][d][h]; }

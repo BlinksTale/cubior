@@ -14,7 +14,7 @@
 class Map {
   protected:
     CubeObj* map[maxWidth][maxHeight][maxDepth];
-    int width, height, depth;
+    int width, height, depth, cubeCount;
   public:
     Map();
     Map(int,int,int);
@@ -25,10 +25,12 @@ class Map {
     void setWidth(int);
     void setHeight(int);
     void setDepth(int);
+    void setCubeCount(int);
 
     int getWidth();
     int getHeight();
     int getDepth();
+    int getCubeCount();
     CubeObj* getCubeAt(int,int,int);
 };
 

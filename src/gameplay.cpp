@@ -92,11 +92,11 @@ if (gameplayRunning) {
   // Read in a map first!
   levelMap = MapReader::readMap("./maps/cubiorMap2.cubior");
   currentMapWidth = levelMap->getWidth();
-  currentMapHeight = levelMap->getHeight();
+  currentMapHeight= levelMap->getHeight();
   currentMapDepth = levelMap->getDepth();
-  cubeCount = (currentMapWidth)*(currentMapDepth)+6;
+  cubeCount = levelMap->getCubeCount();
   if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
-  if (currentMapHeight > playableHeight) { currentMapHeight = playableHeight; }
+  if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
   if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
   if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
 
@@ -124,17 +124,17 @@ if (gameplayRunning) {
 //    cube[i].setPos(-100*i+00,-100,0);
     cube[i].setPermalock(true);
   }
-  for (int x=0; x<currentMapWidth; x++) {
-    for (int z=0; z<currentMapDepth; z++) {
-      cube[x*(currentMapDepth)+z].setPos(100*(x-currentMapWidth/2),-200,100*(z-currentMapDepth/2));
+  int currentCube = 0;
+  for (int y=0; y<currentMapHeight; y++) {
+    for (int x=0; x<currentMapWidth; x++) {
+      for (int z=0; z<currentMapDepth; z++) {
+        if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
+          cube[currentCube].setPos(tileSize*(x-currentMapWidth/2),tileSize*(y-currentMapHeight/2),tileSize*(z-currentMapDepth/2));
+          currentCube++;
+        }
+      }
     }
   }
-  cube[cubeCount-6].setPos(-100*0,-000,000);
-  cube[cubeCount-5].setPos(-100*2,-100,000);
-  cube[cubeCount-4].setPos(-100*1,-100,000);
-  cube[cubeCount-3].setPos(-100*0,-100,000);
-  cube[cubeCount-2].setPos(-100*1,-100,100);
-  cube[cubeCount-1].setPos(-100*0,-100,100);
   
   // Then the goal
   goal.setPos(000,700,-000);

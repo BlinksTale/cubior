@@ -25,8 +25,11 @@ Map* MapReader::readMap(const string& s) {
   // To return map
   Map* map = new Map;
 
+  // Stream in the file
   ifstream newMap;
   newMap.open(file);
+  
+  // Now find the ToC details
   if (newMap.is_open()) {
     while (newMap.good()) {
       getline(newMap, row);
@@ -61,6 +64,7 @@ Map* MapReader::readMap(const string& s) {
               CubeObj newCube;
               newCube.tick();
               map->addCube(&newCube,w,h,d);
+              map->setCubeCount(map->getCubeCount()+1);
             }
             w++;
           }
