@@ -27,7 +27,7 @@ Map* MapReader::readMap(const string& s) {
 
   // Stream in the file
   ifstream newMap;
-  newMap.open(file);
+  newMap.open(file.c_str());
   
   // Now find the ToC details
   if (newMap.is_open()) {

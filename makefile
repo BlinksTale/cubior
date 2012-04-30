@@ -75,7 +75,7 @@ bin/trackerObj.o: src/trackerObj.cpp bin/cubeObj.o
 	g++ -c src/trackerObj.cpp -o bin/trackerObj.o
 
 bin/mapReader.o: src/mapReader.cpp bin/gameplay.o bin/map.o
-	g++ -c -std=gnu++0x src/mapReader.cpp -o bin/mapReader.o # std=gnu++0x for C++11
+	g++ -c src/mapReader.cpp -o bin/mapReader.o
 
 bin/map.o: src/map.cpp bin/cubeObj.o bin/gameplay.o
 	g++ -c src/map.cpp -o bin/map.o
