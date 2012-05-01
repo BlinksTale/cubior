@@ -31,6 +31,7 @@ CameraObj::CameraObj() {
   tracker = new TrackerObj();
 }
 
+// The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
   if (permanentTarget) {
     tracker->tick();
@@ -45,6 +46,7 @@ void CameraObj::tick() {
   }
 }
 
+// Used to setup a target to always follow
 void CameraObj::alwaysFollow(CubeObj* target) {
   permanentTarget = target;
   lastLandedY = target->getY();
@@ -63,6 +65,7 @@ void CameraObj::alwaysFollow(CubeObj* target) {
     );
 }
 
+// Do the following itself of your target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   // For smoothing purposes
   int num = 10;

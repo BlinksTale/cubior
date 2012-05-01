@@ -19,6 +19,7 @@ Map* MapReader::readMap(const string& s) {
   bool widthFound = false;
   bool heightFound= false;
   bool depthFound = false;
+  bool goalHeightFound = false;
   int w = 0;
   int h = 0;
   int d = 0;
@@ -48,6 +49,11 @@ Map* MapReader::readMap(const string& s) {
         cout << "Depth found" << endl;
         depthFound = true;
         map->setDepth(atoi((row.substr(6,row.length()-6)).c_str()));
+      }
+      if (!goalHeightFound && !row.substr(0,11).compare("goalHeight:")) {
+        cout << "Goal Height found" << endl;
+        goalHeightFound = true;
+        map->setGoalHeight(atoi((row.substr(11,row.length()-11)).c_str()));
       }
       // Start the spot reading!
       if (!readingMap && widthFound && heightFound && depthFound) {

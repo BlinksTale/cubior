@@ -128,7 +128,7 @@ if (gameplayRunning) {
     for (int x=0; x<levelMap->getWidth(); x++) {
       for (int y=0; y<levelMap->getHeight(); y++) {
         if (levelMap->getCubeAt(x,z,y) != 0 && currentCube < cubeCount) {
-          // FIXME: Because ugliest sin in this game, I had to switch y and z here.
+          // FIXME: Because ugliest sin in this game, I had to switch y and z here for it to work.
           cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
           currentCube++;
         }
@@ -137,7 +137,7 @@ if (gameplayRunning) {
   }
   
   // Then the goal
-  goal.setPos(000,700,-000);
+  goal.setPos(000,levelMap->getGoalHeight(),-000);
 
   // Then populate permamap
   wipeMap(permanentMap);
@@ -197,6 +197,16 @@ if (gameplayRunning) {
       } else {
       unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
       }
+
+    if (i == 0) { cout << "Cubior pos:" << endl;
+      cout << "x is " << cubior[i].getX() << ", ";
+      cout << "y is " << cubior[i].getY() << ", ";
+      cout << "z is " << cubior[i].getZ() << endl;
+      cout << "While currentMapWidth = " << currentMapWidth << ", ";
+      cout << "currentMapHeight = " << currentMapHeight << ", ";
+      cout << "currentMapDepth = " << currentMapDepth << ", ";
+      cout << "and tileSize is " << tileSize << endl;
+    }
     }
   }
   
