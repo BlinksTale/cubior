@@ -16,7 +16,7 @@
 
 using namespace std; // necessary for string
 
-const int mapEdge = 3;
+const int mapEdge = 4;
 
 const int playableWidth = 100;
 const int playableHeight= 100;

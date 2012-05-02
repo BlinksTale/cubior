@@ -23,8 +23,9 @@ bool Collision::between(CubeObj* c1, CubeObj* c2) {
   int c2x = c2->getX();
   int c2y = c2->getY();
   int c2z = c2->getZ();
-	int c1Width = c1->getWidth()/2;
-	int c2Width = c2->getWidth()/2;
+  // Very oddly, just getWidth causes segfaults on Macs at level transitions. getDiff's getSize seems to work fine
+	int c1Width = 50;//c1->getWidth()/2;
+	int c2Width = 50;//c2->getWidth()/2;
 
   return
      (c1x + c1Width > c2x - c2Width) &&
@@ -126,8 +127,8 @@ void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
   int diffX = (c1->getX()-c2->getX());
   int diffY = (c1->getY()-c2->getY());
   int diffZ = (c1->getZ()-c2->getZ());
-	int c1Width = c1->getWidth();
-	int c2Width = c2->getWidth();
+  int c1Width = 100; // c1->getWidth() // Real value disabled since broken on Macs for new levels
+  int c2Width = 100; // c2->getWidth() // Real value disabled since broken on Macs for new levels
 	
   if (diffX > 0) { diffX -= c1Width/2 + c2Width/2; }
   else { diffX += c1Width/2 + c2Width/2; }
@@ -165,9 +166,15 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
+	cout << "We're in" << endl;
+	cout << "(c1 != NULL) == " << (c1 != NULL) << endl;
+	cout << "(c2 != NULL) == " << (c2 != NULL) << endl;
 	if (c1 != NULL && c2 != NULL) {
+		cout << "(between(c1,c2)) == " << (between(c1,c2)) << endl;
 		if (between(c1,c2)) {
+	      cout << "Condition true" << endl;
 		  bounce(c1,c2);
+	      cout << "Bounce worked!"<<endl;
           //balanceMomentum(c1,c2);
 		}
 	}
