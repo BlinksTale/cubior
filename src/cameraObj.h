@@ -26,7 +26,8 @@ class CameraObj {
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
     bool withinRangeOf(int,int,int);
-    int matchRangeOf(int,int);
+    float matchRangeOf(float,float);
+    float smoothMatchRangeOf(float,float);
     void follow(int,int,int,int,bool,int);
     int distToGoal();
     void betweenPlayerAndGoal();

@@ -91,6 +91,7 @@ void CameraObj::betweenPlayerAndGoal() {
   if (deltaX*deltaX + deltaZ*deltaZ < goalRange*goalRange) {
 
     angleY = deltasToDegrees(x-goalX, z-goalZ);
+    cout << "angleY = " << angleY << endl;
   }
 }
 
@@ -109,6 +110,7 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
   result *= 360.0/(2.0*PI);
   return result;
 }
+
 // Do the following itself of your target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   // For smoothing purposes
@@ -149,9 +151,11 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     }
   }
 
+  //angleYToBe = matchRangeOf(angleYToBe, angleY);
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
-  if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
-  if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
+  angleY = matchRangeOf(angleY, angleYToBe);
+  //if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
+  //if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
   angleY += -(angleY-angleYToBe)/strictness;
   angleX += -(angleX-angleXToBe)/strictness;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
@@ -161,6 +165,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   int zToBe = c+farthestDist*cos(angleY*2*3.14159/360);
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
+
 }
 
 // See if y1 within delta of y2
@@ -170,9 +175,16 @@ bool CameraObj::withinRangeOf(int y1, int y2, int delta) {
 }
 
 // Set y1 to within 180 of y2
-int CameraObj::matchRangeOf(int y1, int y2) {
+float CameraObj::matchRangeOf(float y1, float y2) {
   if (y1 - y2 > 180) { y1 -= 360; }
   else if (y2 - y1 > 180) { y1 += 360; }
+  return y1;
+}
+
+// Set y1 to within 180 of y2
+float CameraObj::smoothMatchRangeOf(float y1, float y2) {
+  if (y1 < 0 && y2 > 180) { y1 += 360; }
+  else if (y1 > 180 && y2 < 0) { y1 -= 360; }
   return y1;
 }
 
