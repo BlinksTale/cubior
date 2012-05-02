@@ -87,7 +87,7 @@ void resetCubior(int i) {
   // Put cubior in falling spot
 	int distFromCenter = i/2;
 	int directionFromCenter = (i%2)*(-1);
-  cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/10);
+  cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-200);
   cubior[i].moveX(0);
   cubior[i].moveY(3);
   cubior[i].moveZ(3);
@@ -120,6 +120,7 @@ void gameplayStart(string levelToLoad) {
       cout << "became " << cubior[i].getY() << " for " << i << endl << endl;
 
       // Start camera!
+	  camera[i].resetPos();
       camera[i].alwaysFollow(&cubior[i],&goal);
 
       // Cubior Start State
