@@ -13,9 +13,9 @@
 
 class CameraObj {
   protected:
-    static const int camHeight = 600, goalRange = 300;
-    int x, y, z, farthestDist, closestDist, idealDist, lastLandedY;
-    bool lastLanded;
+    static const int camHeight = 600, goalRange = 800;
+    int x, y, z, farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
+    bool lastLanded, followingBoth;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
@@ -25,12 +25,14 @@ class CameraObj {
     void resetPos();
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
+    bool goalWithinJumpRange();
     bool withinRangeOf(int,int,int);
     float matchRangeOf(float,float);
     float smoothMatchRangeOf(float,float);
     void follow(int,int,int,int,bool,int);
     int distToGoal();
     void betweenPlayerAndGoal();
+    float angleBetweenPlayerAndGoal();
     float deltasToDegrees(int, int);
 
     int get(int);

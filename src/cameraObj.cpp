@@ -20,10 +20,12 @@ CameraObj::CameraObj() {
   resetPos();
   
   // Follow vars
+  cameraSide = 0; // where zero is undetermined
   farthestDist = 1200;
   closestDist = 1000;
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
+  followingBoth = false; // Start by just following cube, not also goal
 }
 
 // Set to starting pos
@@ -75,7 +77,13 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
 int CameraObj::distToGoal() {
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
-  
+  return sqrt(deltaX*deltaX + deltaZ*deltaZ);
+}
+
+float CameraObj::angleBetweenPlayerAndGoal() {
+  int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
+  int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
+  return deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
 }
 
 // Look at the point halfway between the player and their goal
@@ -88,11 +96,16 @@ void CameraObj::betweenPlayerAndGoal() {
   int deltaX = playerX-goalX;
   int deltaZ = playerZ-goalZ;
 
-  if (deltaX*deltaX + deltaZ*deltaZ < goalRange*goalRange) {
+  if (distToGoal() < goalRange) {
 
     angleY = deltasToDegrees(x-goalX, z-goalZ);
     cout << "angleY = " << angleY << endl;
   }
+}
+
+// Check if you can even get to goal vertically
+bool CameraObj::goalWithinJumpRange() {
+  return abs(permanentTarget->getY() - permanentTargetGoal->getY()) < 500;
 }
 
 float CameraObj::deltasToDegrees(int opp, int adj) {
@@ -142,21 +155,46 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
   // wanted else to = 360/4
   
-  // be inclined towards angle player is facing if following
-  if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
-    playerAngle = matchRangeOf(playerAngle,angleYToBe);
-    // Camera only turns if player going mostly away from camera
-    if ((playerAngle < angleY + 125) && (playerAngle > angleY - 125)) {
-      angleYToBe = (angleYToBe*num + playerAngle)/den;
+  // if only following the player...
+  if (!followingBoth) {
+    // be inclined towards angle player is facing if following
+    if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
+      playerAngle = matchRangeOf(playerAngle,angleYToBe);
+      // Camera only turns if player going mostly away from camera
+      if ((playerAngle < angleY + 125) && (playerAngle > angleY - 125)) {
+        angleYToBe = (angleYToBe*num + playerAngle)/den;
+      }
+    }
+
+    // But if within goal range, change to look at player AND the goal
+    if (distToGoal() < goalRange && goalWithinJumpRange()) {
+      // Figure out which side to follow from
+      cameraSide = (1-2*(angleYToBe > angleY));
+      followingBoth = true;
+    }
+
+  // If you are following the goal and the player
+  } else {
+    if (distToGoal() > goalRange*1.25 || !goalWithinJumpRange()) {
+      // stop it if over 1.25 times the range
+      followingBoth = false;
+    } else {
+      int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
+      viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
+      angleYToBe = (angleYToBe*num + viewingAngle)/den;
     }
   }
+  cout << "angleYToBe = " << angleYToBe << endl;
+  cout << "angleY = " << angleY << endl;
 
   //angleYToBe = matchRangeOf(angleYToBe, angleY);
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   angleY = matchRangeOf(angleY, angleYToBe);
+  cout << "angleY = " << angleY << endl;
   //if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   //if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
   angleY += -(angleY-angleYToBe)/strictness;
+  cout << "angleY = " << angleY << endl << endl;
   angleX += -(angleX-angleXToBe)/strictness;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 
