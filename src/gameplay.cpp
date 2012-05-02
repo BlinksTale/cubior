@@ -92,6 +92,7 @@ void resetCubior(int i) {
 
 // Load in a level and set it up
 void gameplayStart(string levelToLoad) {
+  cout << "gameplayStart called" << endl;
   if (gameplayRunning) {
 
     // First wipe the current map
@@ -111,7 +112,9 @@ void gameplayStart(string levelToLoad) {
     // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
       // Starting camera and player pos
+      cout << cubior[i].getY() << endl;
       resetCubior(i);
+      cout << "became " << cubior[i].getY() << " for " << i << endl << endl;
 
       // Start camera!
       camera[i].alwaysFollow(&cubior[i],&goal);
@@ -161,6 +164,7 @@ void gameplayStart(string levelToLoad) {
 
 // To load the next level
 void nextLevel() {
+  cout << "nextLevel" << endl;
   currentLevel++;
   if (currentLevel >= totalLevels) { currentLevel = 0; }
   int n, a=currentLevel;
@@ -338,6 +342,7 @@ GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
 void setCubiorPlayable(int i, bool b) {
+  cout << "setPlayable called for " << i << endl;
   resetCubior(i);
   cubiorPlayable[i] = b;
 }
