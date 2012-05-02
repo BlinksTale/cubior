@@ -152,7 +152,6 @@ void gameplayStart(string levelToLoad) {
     }
     // Then set their neighbors, for more efficient rendering
     for (int i = 0; i<cubeCount; i++) {
-      (cube[i]).resetNeighbors();
       findNeighbors(&cube[i], permanentMap);
       findEdges(&cube[i], permanentMap);
     }

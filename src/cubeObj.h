@@ -70,7 +70,6 @@ class CubeObj {
     int getMomentumY();
     int getMomentumZ();
 
-    void resetNeighbors();
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     bool* getNeighbors();
     void setEdges(bool,bool,bool,bool,bool,bool);

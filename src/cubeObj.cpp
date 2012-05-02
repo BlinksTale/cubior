@@ -186,7 +186,6 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 
-void CubeObj::resetNeighbors() { neighbors = {false, false, false, false, false, false}; }
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   neighbors[0] = x1;
   neighbors[1] = x2;
