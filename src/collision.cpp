@@ -23,8 +23,8 @@ bool Collision::between(CubeObj* c1, CubeObj* c2) {
   int c2x = c2->getX();
   int c2y = c2->getY();
   int c2z = c2->getZ();
-	int c1Width = 50;//c1->getWidth()/2;
-	int c2Width = 50;//c2->getWidth()/2;
+	int c1Width = c1->getWidth()/2;
+	int c2Width = c2->getWidth()/2;
 
   return
      (c1x + c1Width > c2x - c2Width) &&
@@ -126,8 +126,8 @@ void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
   int diffX = (c1->getX()-c2->getX());
   int diffY = (c1->getY()-c2->getY());
   int diffZ = (c1->getZ()-c2->getZ());
-  int c1Width = 100; // c1->getWidth() // Real value disabled since broken on Macs for new levels
-  int c2Width = 100; // c2->getWidth() // Real value disabled since broken on Macs for new levels
+	int c1Width = c1->getWidth();
+	int c2Width = c2->getWidth();
 	
   if (diffX > 0) { diffX -= c1Width/2 + c2Width/2; }
   else { diffX += c1Width/2 + c2Width/2; }

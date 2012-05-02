@@ -85,8 +85,10 @@ void resetCubior(int i) {
   // Put camera in drop down spot
   camera[i].resetPos();
   // Put cubior in falling spot
-  cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,2000);
-  cubior[i].moveX(3);
+	int distFromCenter = i/2;
+	int directionFromCenter = (i%2)*(-1);
+  cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/10);
+  cubior[i].moveX(0);
   cubior[i].moveY(3);
   cubior[i].moveZ(3);
 }
