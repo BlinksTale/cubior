@@ -186,13 +186,14 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 
+void CubeObj::resetNeighbors() { neighbors = {false, false, false, false, false, false}; }
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
-  neighbors[0] = false;//x1;
-  neighbors[1] = false;//x2;
-  neighbors[2] = false;//y1;
-  neighbors[3] = false;//y2;
-  neighbors[4] = false;//z1;
-  neighbors[5] = false;//z2;
+  neighbors[0] = x1;
+  neighbors[1] = x2;
+  neighbors[2] = y1;
+  neighbors[3] = y2;
+  neighbors[4] = z1;
+  neighbors[5] = z2;
 }
 bool* CubeObj::getNeighbors() { return neighbors; }
 

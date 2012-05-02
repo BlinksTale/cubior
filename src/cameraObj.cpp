@@ -99,7 +99,7 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
   float result = (adj!=0) ? atan(opp/(adj*1.0)) : (-2*(opp > 0)+1)*PI/2.0;
 
   // This accounts for how atan only covers the top half of the circle for degrees
-  cout << "result at this point is " << result << endl;
+  // cout << "result at this point is " << result << endl;
 
   // This code was supposed to fix atan's wraparound issues... ended up causing them?
   // Commented out and saved just in case things go horribly wrong somehow.

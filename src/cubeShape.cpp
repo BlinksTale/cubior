@@ -53,7 +53,7 @@ struct timeval tim;
 
 
     if (getTiming()) { gettimeofday(&tim, NULL); c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-    if (!neighbors[5]) { // 5 must be back since 4 is front
+    if (!useNeighbors || !neighbors[5]) { // 5 must be back since 4 is front
 // Draw Cubior, the cube!
     // Back
     glBegin(GL_TRIANGLES);
@@ -73,7 +73,7 @@ struct timeval tim;
     if (getTiming()) { gettimeofday(&tim, NULL); c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 }
-    if (!neighbors[3]) { // 3 is bottom since 2 is top
+    if (!useNeighbors || !neighbors[3]) { // 3 is bottom since 2 is top
     // Bottom
     glColor3f(r2,g2,b2);
     glBegin(GL_TRIANGLES);
@@ -90,7 +90,7 @@ struct timeval tim;
     if (getTiming()) { gettimeofday(&tim, NULL); c5 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 }
-    if (!neighbors[4]) { // 4 is front side
+    if (!useNeighbors || !neighbors[4]) { // 4 is front side
     // Front
     glBegin(GL_TRIANGLES);
     glColor3f(r2,g2,b2); // can't guarantee it will exist above, since bottom may not be drawn
@@ -109,7 +109,7 @@ struct timeval tim;
     if (getTiming()) { gettimeofday(&tim, NULL); c6 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 }
-    if (!neighbors[0]) { // 0 is left
+    if (!useNeighbors || !neighbors[0]) { // 0 is left
     // Left
     glBegin(GL_TRIANGLES);
     glColor3f(r2,g2,b2);
@@ -128,7 +128,7 @@ struct timeval tim;
     if (getTiming()) { gettimeofday(&tim, NULL); c7 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
 }
-    if (!neighbors[1]) { // 1 is right
+    if (!useNeighbors || !neighbors[1]) { // 1 is right
     // Right
     glBegin(GL_TRIANGLES);
     glColor3f(r2,g2,b2);
@@ -146,7 +146,7 @@ struct timeval tim;
 
     if (getTiming()) { gettimeofday(&tim, NULL); c8 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 }
-    if (!neighbors[2]) { // 2 is above
+    if (!useNeighbors || !neighbors[2]) { // 2 is above
     // Top
     glColor3f(r3,g3,b3);
     glBegin(GL_TRIANGLES);

@@ -64,16 +64,7 @@ void keepInBounds(CubeObj* c1) {
     if (c1->getZ()>=getEdge(currentMapDepth,1)){c1->setZ(getEdge(currentMapDepth,1));}
 }
 
-
-void wipeMap(CubeObj* map[][maxHeight][maxDepth]){
-  // Wipe collision map, repopulate it
-  for (int a=0; a<currentMapWidth; a++) {
-  for (int b=0; b<currentMapHeight;b++) {
-  for (int c=0; c<currentMapDepth; c++) {
-     collisionMap[a][b][c]=0;
-  } } }
-}
-
+// Checks if any side of a cube is on the edge of the map
 void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cX = getCollisionMapSlot(c1,0);
   int cY = getCollisionMapSlot(c1,1);
@@ -103,7 +94,10 @@ void resetCubior(int i) {
 void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
 
-    // Read in a map first!
+    // First wipe the current map
+    wipeCurrentMap(permanentMap);
+
+    // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad);
     currentMapWidth = levelMap->getWidth();
     currentMapHeight= levelMap->getHeight();
@@ -150,7 +144,6 @@ void gameplayStart(string levelToLoad) {
     goal.setPos(000,levelMap->getGoalHeight(),-000);
 
     // Then populate permamap
-    wipeMap(permanentMap);
     // ... with permanent Cubes
     for (int i = 0; i<cubeCount; i++) {
       cube[i].tick();
@@ -159,6 +152,7 @@ void gameplayStart(string levelToLoad) {
     }
     // Then set their neighbors, for more efficient rendering
     for (int i = 0; i<cubeCount; i++) {
+      (cube[i]).resetNeighbors();
       findNeighbors(&cube[i], permanentMap);
       findEdges(&cube[i], permanentMap);
     }
@@ -180,7 +174,7 @@ void nextLevel() {
 void gameplayLoop() {
   if (gameplayRunning) {
 
-    wipeMap(collisionMap);
+    wipeCurrentMap(collisionMap);
 
     // Run main tick loop for all Cubiors...
     for (int i = 0; i<cubiorCount; i++) {
@@ -219,15 +213,15 @@ void gameplayLoop() {
         unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
         }
 
-      if (i == 0) { cout << "Cubior pos:" << endl;
-        cout << "x is " << cubior[i].getX() << ", ";
-        cout << "y is " << cubior[i].getY() << ", ";
-        cout << "z is " << cubior[i].getZ() << endl;
-        cout << "While currentMapWidth = " << currentMapWidth << ", ";
-        cout << "currentMapHeight = " << currentMapHeight << ", ";
-        cout << "currentMapDepth = " << currentMapDepth << ", ";
-        cout << "and tileSize is " << tileSize << endl;
-      }
+        /*if (i == 0) { cout << "Cubior pos:" << endl;
+          cout << "x is " << cubior[i].getX() << ", ";
+          cout << "y is " << cubior[i].getY() << ", ";
+          cout << "z is " << cubior[i].getZ() << endl;
+          cout << "While currentMapWidth = " << currentMapWidth << ", ";
+          cout << "currentMapHeight = " << currentMapHeight << ", ";
+          cout << "currentMapDepth = " << currentMapDepth << ", ";
+          cout << "and tileSize is " << tileSize << endl;
+        }*/
       }
     }
     
@@ -303,13 +297,31 @@ void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   // The top/bot order on these might be wrong, but it shouldn't really matter too much
   // since used to check if surrounded on a plane anyways
   c1->setNeighbors(
-    map[cX+1][cY][cZ] != NULL,
-    map[cX-1][cY][cZ] != NULL,
-    map[cX][cY+1][cZ] != NULL,
-    map[cX][cY-1][cZ] != NULL,
-    map[cX][cY][cZ+1] != NULL,
-    map[cX][cY][cZ-1] != NULL
+    map[cX+1][cY][cZ] != 0,
+    map[cX-1][cY][cZ] != 0,
+    map[cX][cY+1][cZ] != 0,
+    map[cX][cY-1][cZ] != 0,
+    map[cX][cY][cZ+1] != 0,
+    map[cX][cY][cZ-1] != 0
   );
+}
+
+// Wipe current collision map to prep for repopulating it
+void wipeCurrentMap(CubeObj* map[][maxHeight][maxDepth]){
+  for (int a=0; a<currentMapWidth; a++) {
+  for (int b=0; b<currentMapHeight;b++) {
+  for (int c=0; c<currentMapDepth; c++) {
+     map[a][b][c] = NULL;
+  } } }
+}
+
+// Wipe the full collision map to prep for repopulating it
+void wipeFullMap(CubeObj* map[][maxHeight][maxDepth]){
+  for (int a=0; a<maxWidth; a++) {
+  for (int b=0; b<maxHeight;b++) {
+  for (int c=0; c<maxDepth; c++) {
+     map[a][b][c] = NULL;
+  } } }
 }
 
 // pass cube and dimension to get map slot

@@ -36,22 +36,18 @@ Map* MapReader::readMap(const string& s) {
       getline(newMap, row);
       // Find initial properties
       if (!widthFound && !row.substr(0,6).compare("width:")) {
-        cout << "Width found" << endl;
         widthFound = true;
         map->setWidth(atoi((row.substr(6,row.length()-6)).c_str()));
       }
       if (!heightFound && !row.substr(0,7).compare("height:")){
-        cout << "Height found"<< endl;
         heightFound = true;
         map->setHeight(atoi((row.substr(7,row.length()-7)).c_str()));
       }
       if (!depthFound && !row.substr(0,6).compare("depth:")) {
-        cout << "Depth found" << endl;
         depthFound = true;
         map->setDepth(atoi((row.substr(6,row.length()-6)).c_str()));
       }
       if (!goalHeightFound && !row.substr(0,11).compare("goalHeight:")) {
-        cout << "Goal Height found" << endl;
         goalHeightFound = true;
         map->setGoalHeight(atoi((row.substr(11,row.length()-11)).c_str()));
       }
