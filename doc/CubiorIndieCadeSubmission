@@ -1,0 +1,124 @@
+Title: Cubior
+Developer: Brian Handy
+License: Copyright 2012 Brian Handy
+Publication Status: Not available yet! Finishing first demo for Senior Project presentation on Thurs...
+Developed In: United States
+Website URL: http://www.galigogames.com/cubior
+Format: PC/Mac/Linux executable game
+Physical Space Requirements: A couple MB, but needs 4 Wiimotes/Bluetooth keymapped to keyboard for multiplayer
+Genre: Platformer (3D)
+Languages: English
+
+===Game Description===
+
+Inspired by Mario's success and Sonic's shortcomings, Cubior attempts to tackle the 3D Platformer genre from an Indie approach. Built with a custom engine for collision and camera angles, Cubior attempts to make a smart camera to simplify controls and encourage less experienced players. The physical interaction of the cubes makes for very direct multiplayer (with lots of pushing and shoving) and the simple graphics allow for small levels that can be played on any computer (graphics card or not). With splitscreen reminiscent of the 90s and platforming that feels smooth, Cubior brings about a merger of straight up, no guns, four player platforming that the world has still not seen today. Oh, and all the characters have different emotions, and are really cute too (so you might just like that).
+
+===Artistic Statement===
+
+Cubior is an extension of an article I did in 2008 about Mario vs. Sonic's transition from 2D to 3D. I was fascinated by why Mario succeeded so much where Sonic failed, and this eventually became the basis for my senior individual project at Loyola Marymount University (so, no teammates). The idea was to match Mario's camera system to enough of a degree that players never felt like it got in the way of core gameplay. Built in C++ using OpenGL and GLUT, Cubior was meant to be multiplatform for as much exposure as possible. Ultimately, the clumsy use of 3rd party software (Darwiin and GlovePIE) for assigning keymapping to Wiimotes was necessary to use Bluetooth controllers, but the freedom of handing out a Wiimote to individual players was more than rewarding enough. With its simple colors and blatant block visuals, players quickly understand a scene and begin working immediately at getting to the goal. Through all these things, Cubior is trying to grab at the magic that makes Mario 3D platforming still work so well today, and hopes to eventually be able to bring that over into faster paced platforming like Sonic, or apply it to better physics and momentum.
+
+The name Cubior is a mix of common letters in the words Mario and Sonic, and is pronounced like "Junior". The facial expressions were added to make the Cubior universe a happier place.
+
+===Installation Instructions===
+
+Download file, double click binary/exe, play. For 1/2 players, just use Arrows/Space and WASD/F respectively. For 3/4 player, install GlovePIE/DarWiin and keymap four Wiimotes to a single computer (hint: DarWiin makes you copy the application four times) with these keymappings:
+
+Wiimote: Right/Left/Up/Down/+/-/1/2 (since the Wiimote is held sideways, so Left is used for going up)
+#1 Keys: Up/Down/Left/Right/5/1/Space/Space (directions are arrows)
+#2 Keys: W/S/A/D/6/2/F/F
+#3 Keys: I/O/U/P/7/3/[/[ (note: open-square-bracket)
+#4 Keys: K/L/J/;/8/4/'/' (note: semicolon, apostrophe)
+
+More 3/4 player instructions on download page.
+
+===Full Installation Instructions===
+
+Alright, so, here's the deal: for three/four player, setup is really awful right now. I apologize in advance for this, so I recommend getting someone else to setup the game so you can just focus on the gameplay. My best experiences with people playing the game have involved just handing a controller over and saying "go" so I would love it if the judges had the same opportunity as the people who will actually play the game if it gets into IndieCade. For singleplayer though, just download the files, run one of them, and start playing with the arrow keys and space on your keyboard, and for two player, get someone else to use WASD and F.
+
+I've uploaded a download link to the game itself on galigogames.com/cubior, and that will support all three platforms (Windows, Mac, Linux). You can also see the source code on my github (github.com/BlinksTale/cubior). For multiplayer however, you're going to need keymapping.
+
+3-4 player Multiplayer Setup:
+
+1. Make sure you have four Wiimotes and Bluetooth. You can have any number really, but I mean come on. Four's always more fun.
+
+2. Install GlovePIE to Windows or Darwiin to your Mac. I will upload my script for GlovePIE to the Cubior page, but for Darwiin you'll have to actually setup all the individual keys in four different copies of the application. Yeah, it's pretty painful, but you only have to do it once.
+
+3a. To keymap in Darwiin: Open Darwiin and go to Preferences. You can setup the keys that the buttons represent there. Do this for four different new configurations with the keymappings shown below (the Wiimote will be held sideways for gameplay) and close Darwiin. Copy the application three times, to make four versions total. Open all four together, and set each one to a different player's keymappings. Press "Connect to Wii Remote" on each one, press 1+2 on the appropriate controller (you may want to change the LED checkboxes too) and they should all connect. Now the game should work!
+
+3b. To keymap in GlovePIE: One copy of the script can run, it just needs to have different titles for the different controllers (Wiimote1, Wiimote2, etc). I will have an example script on my download page for Cubior (http://www.galigogames.com/cubior) so check back there for (hopefully) copy and paste code for what you need.
+
+Keymappings:
+Wiimote: Right/Left/Up/Down/+/-/1/2 (since the Wiimote is held sideways, so Left is used for going up)
+#1 Keys: Up/Down/Left/Right/5/1/Space/Space (where Up/Down/etc are arrow keys)
+#2 Keys: W/S/A/D/6/2/F/F (you might notice here that 1 and 2 both jump, this is just to make the player's life easier)
+#3 Keys: I/O/U/P/7/3/[/[ (these are the ones which make Wiimotes essential. Note the use of open-square-bracket)
+#4 Keys: K/L/J/;/8/4/'/' (yep, semicolon and apostrophe are actually used)
+
+4. So just make sure your WiiMotes are connected by Bluetooth, click the appropriate "Run" button on Darwiin or GlovePIE (for Mac or Windows) and launch the game! (you should be able to just double click on it) Now you're playing, so see Gameplay Instructions for the next part.
+
+===Gameplay Instructions===
+
+A full play through of the demo should take 5 to 30 minutes, depending on skill and how much level design I get done. Now that your controls are setup, just press a direction and go that way, then hit the appropriate jump key to jump! Go for the floating red cube, it's the goal, and will take you to the next level. Players can drop in/out at any time (literally) and the smart camera should take care of the rest. Enjoy! (oh, and a tip: you can't pass through other players)
+
+===What's your story?===
+
+Made as a student independent project for a senior year final class, Cubior is 100% independent. A supervisor ensured that I regularly produced results and tested my presentation abilities, but otherwise, this game was entirely me. If Cubior continues to receive the positive reaction it has so far, I will pursue funding for bringing this title to consoles. Made in one semester, Cubior required giving up spring and Easter breaks, many Friday and Saturday nights with Cubior's primary audience, and even cut into other studies. Ultimately, it was beyond worth it though, and I'm incredibly excited to finally get to share this game with some of the independent industry. Recognition by Gamasutra and IndieGames.com on my last game, Sweat Life, helped push my motivation towards giving Cubior my all though - and showed just how amazing this industry really is when it comes to acknowledging independent titles!
+
+===Team Description===
+
+My team was a professor to supervise, two classmates to overhear and comment on my weekly progress, and myself for programming, graphics, gameplay, and design. There was an entire lab of students next door where I would regularly test my game for feedback, and years of being a lab assistant have gained me many friends who were more than willing to help me test. I regularly showed the art off to countless people as well, and continued to get feedback on which things were "cute" in specific. Basically, I tried to get as much of a response as I could at every step, and it has payed off very, very well.
+
+===Level of Polish (Work in Progress)===
+
+This game is barely working - I can't believe it's as playable as it is actually. The core controls are in place and the level editor works, so it has the illusion of some completeness, but really this game is a long way from done. I would like to work with a modeler or team, a sound effects artist has agreed to help after May, and a musician I originally had never really manifested. So, that this is as playable as it is comes as a shocker to me. I want to keep working on Cubior until it's a finished game, and that will involve a game where I actually want to regularly return to it for it's co-op platforming.
+
+===Keywords===
+
+platform
+platformer
+puzzle platformer
+colorful
+colourful
+
+mario
+jump&run
+homage
+
+co-op
+co-op mode
+cooperative
+local multiplayer
+split screen
+splitscreen
+multiplayer
+multi-player
+3-4 players
+2-4 players
+2-4 player
+4-player
+3-player
+2-player
+4 players
+2 player
+1 player
+single player
+
+cube
+cubes
+blocks
+cute
+minimalist
+simple
+easy-to-learn
+
+family
+family friendly
+kids
+
+third person
+physics
+win/mac/linux
+cross-platform
+
+student
+student game

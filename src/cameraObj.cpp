@@ -47,8 +47,9 @@ void CameraObj::tick() {
 }
 
 // Used to setup a target to always follow
-void CameraObj::alwaysFollow(CubeObj* target) {
+void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
   permanentTarget = target;
+  permanentTargetGoal = targetGoal;
   lastLandedY = target->getY();
   lastLanded = target->getLanded();
   x = target->getX()-camHeight;
@@ -65,6 +66,44 @@ void CameraObj::alwaysFollow(CubeObj* target) {
     );
 }
 
+// Find how close player is to their goal, if close enough we'll use this to look at both at once
+int CameraObj::distToGoal() {
+  int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
+  int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
+  
+}
+
+// Look at the point halfway between the player and their goal
+void CameraObj::betweenPlayerAndGoal() {
+  int playerX = permanentTarget->getX();
+  int playerZ = permanentTarget->getZ();
+  int goalX = permanentTargetGoal->getX();
+  int goalZ = permanentTargetGoal->getZ();
+
+  int deltaX = playerX-goalX;
+  int deltaZ = playerZ-goalZ;
+
+  if (deltaX*deltaX + deltaZ*deltaZ < goalRange*goalRange) {
+
+    angleY = deltasToDegrees(x-goalX, z-goalZ);
+  }
+}
+
+float CameraObj::deltasToDegrees(int opp, int adj) {
+  float PI = 3.14159;
+  float result = (adj!=0) ? atan(opp/(adj*1.0)) : (-2*(opp > 0)+1)*PI/2.0;
+
+  // This accounts for how atan only covers the top half of the circle for degrees
+  cout << "result at this point is " << result << endl;
+
+  // This code was supposed to fix atan's wraparound issues... ended up causing them?
+  // Commented out and saved just in case things go horribly wrong somehow.
+  //if (opp < 0) { result += (-2*(adj<0)+1)*PI-result; } // true = 1, false = 0
+
+  // Then convert radians to degrees
+  result *= 360.0/(2.0*PI);
+  return result;
+}
 // Do the following itself of your target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   // For smoothing purposes
@@ -88,11 +127,13 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   int newDist = distToPlayer > farthestDist ? farthestDist : 
     (distToPlayer < closestDist ? closestDist : distToPlayer);
   y = ((lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
-  float theAtan = (y!=newY) ? atan(distToPlayer/((y-newY)*1.0))*360/(2*3.14159) : 360;
+  float theAtan = deltasToDegrees(distToPlayer,y-newY);
   float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
 
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
-  float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
+  //float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
+  float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
+  // wanted else to = 360/4
   
   // be inclined towards angle player is facing if following
   if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {

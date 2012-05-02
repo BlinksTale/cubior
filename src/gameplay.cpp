@@ -105,7 +105,7 @@ if (gameplayRunning) {
 
   // Start camera!
     camera[i].setPos(0,-165,-1550);
-    camera[i].alwaysFollow(&cubior[i]);
+    camera[i].alwaysFollow(&cubior[i],&goal);
 
   // Cubior Start States!
     cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
