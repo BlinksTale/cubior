@@ -17,5 +17,5 @@ GoalObj::GoalObj() {
 }
 
 void GoalObj::collisionEffect(CubeObj*) {
-  stopGameplay();
+  nextLevel();
 }
