@@ -99,7 +99,6 @@ void CameraObj::betweenPlayerAndGoal() {
   if (distToGoal() < goalRange) {
 
     angleY = deltasToDegrees(x-goalX, z-goalZ);
-    cout << "angleY = " << angleY << endl;
   }
 }
 
@@ -184,17 +183,13 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
       angleYToBe = (angleYToBe*num + viewingAngle)/den;
     }
   }
-  cout << "angleYToBe = " << angleYToBe << endl;
-  cout << "angleY = " << angleY << endl;
 
   //angleYToBe = matchRangeOf(angleYToBe, angleY);
   // A nice big buffer of 90 degrees makes this work where 1 degree didn't
   angleY = matchRangeOf(angleY, angleYToBe);
-  cout << "angleY = " << angleY << endl;
   //if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
   //if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
   angleY += -(angleY-angleYToBe)/strictness;
-  cout << "angleY = " << angleY << endl << endl;
   angleX += -(angleX-angleXToBe)/strictness;
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 

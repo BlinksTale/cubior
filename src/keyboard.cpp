@@ -73,12 +73,20 @@ void sendCommands() {
       } else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
         directionsPressed[i] = false;
       }
-      int sinUD = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
-      int cosUD = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
-      int sinLR = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
-      int cosLR = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
-      if (upKey[i]) {
+      float sinUD = (sin((getCamera(i)->getAngleY())*PI/180));
+      float cosUD = (cos((getCamera(i)->getAngleY())*PI/180));
+      float sinLR = (sin((360-(getCamera(i)->getAngleY()))*PI/180));
+      float cosLR = (cos((360-(getCamera(i)->getAngleY()))*PI/180));
+      if (leftKey[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
+        cout << "(360 - " << getCamera(i)->getAngleY() << ") * " << PI << " / 180 = (" << (360-getCamera(i)->getAngleY()) << ") * " << (PI/180) << endl;
+        cout << "So cos(" << (360-getCamera(i)->getAngleY())*(PI/180) << ") = " << cos((360-getCamera(i)->getAngleY())*(PI/180)) << endl;
+        cout << " & sin(" << (360-getCamera(i)->getAngleY())*(PI/180) << ") = " << sin((360-getCamera(i)->getAngleY())*(PI/180)) << endl;
+        cout << " sinLR = " << sinLR << endl;
+        cout << " cosLR = " << cosLR << endl;
+        cout << "movingZ " << (cosLR*(-10)) << endl;
+        cout << "movingX " << (sinLR*(-10)) << endl << endl;
+
         getPlayer(i)->moveZ((int)(cosUD*(-10)));
         getPlayer(i)->moveX((int)(sinUD*(-10)));
       }
