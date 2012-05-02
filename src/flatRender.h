@@ -9,6 +9,7 @@
 
     void display();
     void displayFor(int); // individual views
+    void initVisuals();
     void initFlat(int, char**);
     void drawPlayer(int);
     void drawCube(int);

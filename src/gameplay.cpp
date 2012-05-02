@@ -12,6 +12,7 @@
 #include "cubiorObj.h"
 #include "collision.h"
 #include "mapReader.h"
+#include "flatRender.h"
 #include <iostream>
 #include <cstdio>
 #include <stdlib.h> // for NULL
@@ -87,6 +88,18 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   );
 }
 
+// Put a Cubior back in its start spot
+void resetCubior(int i) {
+  // Put camera in drop down spot
+  camera[i].resetPos();
+  // Put cubior in falling spot
+  cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,2000);
+  cubior[i].moveX(3);
+  cubior[i].moveY(3);
+  cubior[i].moveZ(3);
+}
+
+// Load in a level and set it up
 void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
 
@@ -101,19 +114,15 @@ void gameplayStart(string levelToLoad) {
     if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
     if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
 
+    // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
-    // Choose who starts
-      cubiorPlayable[i] = false;
+      // Starting camera and player pos
+      resetCubior(i);
 
-    // Start camera!
-      camera[i].setPos(0,-165,-1550);
+      // Start camera!
       camera[i].alwaysFollow(&cubior[i],&goal);
 
-    // Cubior Start States!
-      cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
-      cubior[i].moveX(3);
-      cubior[i].moveY(3);
-      cubior[i].moveZ(3);
+      // Cubior Start State
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
     }
 
@@ -153,17 +162,19 @@ void gameplayStart(string levelToLoad) {
       findNeighbors(&cube[i], permanentMap);
       findEdges(&cube[i], permanentMap);
     }
-    
+
   }
 }
 
 // To load the next level
 void nextLevel() {
   currentLevel++;
+  if (currentLevel >= totalLevels) { currentLevel = 0; }
   int n, a=currentLevel;
   char* s;
   n=sprintf(s, "./maps/cubiorMap%d.cubior", a);
   gameplayStart(s);
+  initVisuals();
 }
 
 void gameplayLoop() {
@@ -315,7 +326,10 @@ CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
-void setCubiorPlayable(int i, bool b) { cubiorPlayable[i] = b; }
+void setCubiorPlayable(int i, bool b) {
+  resetCubior(i);
+  cubiorPlayable[i] = b;
+}
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }

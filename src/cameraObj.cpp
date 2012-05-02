@@ -17,18 +17,23 @@ using namespace std;
 
 CameraObj::CameraObj() {
   // Pos vars
-  x = 0;
-  y = 1111200;
-  z = -1000;
-  angleX = -45;
-  angleY = 0;
-  angleZ = 0;
+  resetPos();
   
   // Follow vars
   farthestDist = 1200;
   closestDist = 1000;
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
+}
+
+// Set to starting pos
+void CameraObj::resetPos() {
+  x = 0;
+  y = 1000000;
+  z = -1000;
+  angleX = -45;
+  angleY = 0;
+  angleZ = 0;
 }
 
 // The most basic increment, called once per main loop/frame

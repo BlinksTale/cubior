@@ -47,7 +47,6 @@ void playerPause(int p, bool newBool) {
     if (!getGameplayRunning()) {
       if (lastPause == p || lastPause == -1) {
         startGameplay();
-        nextLevel();
       }
     } else {
       stopGameplay();
@@ -78,7 +77,7 @@ void sendCommands() {
       int cosUD = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
       int sinLR = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
       int cosLR = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
-      if (    upKey[i]) {
+      if (upKey[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
         getPlayer(i)->moveZ((int)(cosUD*(-10)));
         getPlayer(i)->moveX((int)(sinUD*(-10)));
@@ -87,7 +86,7 @@ void sendCommands() {
         getPlayer(i)->moveZ((int)(cosUD*( 10)));
         getPlayer(i)->moveX((int)(sinUD*( 10)));
       }
-      if (   leftKey[i]) {
+      if (leftKey[i]) {
         getPlayer(i)->moveZ((int)(sinLR*(-10)));
         getPlayer(i)->moveX((int)(cosLR*(-10)));
       }

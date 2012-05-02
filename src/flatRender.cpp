@@ -102,6 +102,7 @@ void display() {
     printf("preppingScreen time: %d\n",dTime2-dTime1);
   }
   
+  // Draw all playing Cubior views
   for (int i=0; i<getCubiorCount(); i++) {
     if (getCubiorPlayable(i)) {
       int cT1, cT2, cT3, cT4, cT5;
@@ -132,7 +133,7 @@ void display() {
         &&!getCubiorPlayable(altY)
         &&!getCubiorPlayable(altXY)) {
 
-        // All alone? Fill it all!
+        // All alone? Fill all the screen space!
         viewW *= 2;
         viewH *= 2;
         posX = 0;
@@ -470,7 +471,8 @@ void timerRenderLoop(int v) {
   glutTimerFunc(1000/FPS, timerRenderLoop, v);
 }
 
-void initFlat(int argc, char** argv) { 
+// To setup the items we will show
+void initVisuals() {
 
   // Initialize Cubior Visual Vals
   for (int i=0; i<cubiorNum; i++) {
@@ -517,6 +519,14 @@ void initFlat(int argc, char** argv) {
   goalX = 0.0;
   goalShape.initGoalVisuals();
   updateGoalGraphic();
+
+}
+
+// To setup OpenGL and GLUT in general
+void initFlat(int argc, char** argv) {
+
+  // Setup all-cubes-of-any-form visuals 
+  initVisuals();
 
   // standard initialization
   glutInit(&argc, argv);

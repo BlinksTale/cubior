@@ -22,6 +22,7 @@ class CameraObj {
     TrackerObj* tracker;
   public:
     CameraObj();
+    void resetPos();
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
     bool withinRangeOf(int,int,int);
