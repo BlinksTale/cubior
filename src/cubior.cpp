@@ -17,7 +17,7 @@ void tick() {
 }
 
 int main(int argc, char** argv) {
-  gameplayStart();
+  gameplayStart("./maps/cubiorMap2.cubior");
   initRender(argc, argv); // nothing gets called after this
   tick();
   return 0;

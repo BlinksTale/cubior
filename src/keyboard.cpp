@@ -47,6 +47,7 @@ void playerPause(int p, bool newBool) {
     if (!getGameplayRunning()) {
       if (lastPause == p || lastPause == -1) {
         startGameplay();
+        nextLevel();
       }
     } else {
       stopGameplay();

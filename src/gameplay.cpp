@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstdio>
 #include <stdlib.h> // for NULL
+#include <string> // for loading a level by var passed
 
 using namespace std;
 
@@ -28,6 +29,7 @@ int currentMapWidth;
 int currentMapHeight;
 int currentMapDepth;
 int cubeCount;
+int currentLevel = 0;
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
@@ -85,138 +87,146 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   );
 }
 
-void gameplayStart() {
-if (gameplayRunning) {
+void gameplayStart(string levelToLoad) {
+  if (gameplayRunning) {
 
-  // Read in a map first!
-  levelMap = MapReader::readMap("./maps/cubiorMap2.cubior");
-  currentMapWidth = levelMap->getWidth();
-  currentMapHeight= levelMap->getHeight();
-  currentMapDepth = levelMap->getDepth();
-  cubeCount = levelMap->getCubeCount();
-  if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
-  if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
-  if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
-  if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
+    // Read in a map first!
+    levelMap = MapReader::readMap(levelToLoad);
+    currentMapWidth = levelMap->getWidth();
+    currentMapHeight= levelMap->getHeight();
+    currentMapDepth = levelMap->getDepth();
+    cubeCount = levelMap->getCubeCount();
+    if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
+    if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
+    if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
+    if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
 
-  for (int i=0; i<cubiorCount; i++) {
-  // Choose who starts
-    cubiorPlayable[i] = false;
+    for (int i=0; i<cubiorCount; i++) {
+    // Choose who starts
+      cubiorPlayable[i] = false;
 
-  // Start camera!
-    camera[i].setPos(0,-165,-1550);
-    camera[i].alwaysFollow(&cubior[i],&goal);
+    // Start camera!
+      camera[i].setPos(0,-165,-1550);
+      camera[i].alwaysFollow(&cubior[i],&goal);
 
-  // Cubior Start States!
-    cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
-    cubior[i].moveX(3);
-    cubior[i].moveY(3);
-    cubior[i].moveZ(3);
-    cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
-  }
+    // Cubior Start States!
+      cubior[i].setPos(-200*(i - cubiorCount/2)+0,100,400);
+      cubior[i].moveX(3);
+      cubior[i].moveY(3);
+      cubior[i].moveZ(3);
+      cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
+    }
 
-  // Then ensure at least P1 is playing
-  cubiorPlayable[0] = true;
+    // Then ensure at least P1 is playing
+    cubiorPlayable[0] = true;
 
-  // and Cube Obstacle start states
-  for (int i=0; i<cubeCount; i++) {
-//    cube[i].setPos(-100*i+00,-100,0);
-    cube[i].setPermalock(true);
-  }
-  int currentCube = 0;
-  for (int z=0; z<levelMap->getDepth(); z++) {
-    for (int x=0; x<levelMap->getWidth(); x++) {
-      for (int y=0; y<levelMap->getHeight(); y++) {
-        if (levelMap->getCubeAt(x,z,y) != 0 && currentCube < cubeCount) {
-          // FIXME: Because ugliest sin in this game, I had to switch y and z here for it to work.
-          cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
-          currentCube++;
+    // and Cube Obstacle start states
+    for (int i=0; i<cubeCount; i++) {
+      cube[i].setPermalock(true);
+    }
+    int currentCube = 0;
+    for (int z=0; z<levelMap->getDepth(); z++) {
+      for (int x=0; x<levelMap->getWidth(); x++) {
+        for (int y=0; y<levelMap->getHeight(); y++) {
+          if (levelMap->getCubeAt(x,z,y) != 0 && currentCube < cubeCount) {
+            // FIXME: Because ugliest sin in this game, I had to switch y and z here for it to work.
+            cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
+            currentCube++;
+          }
         }
       }
     }
-  }
-  
-  // Then the goal
-  goal.setPos(000,levelMap->getGoalHeight(),-000);
+    
+    // Then the goal
+    goal.setPos(000,levelMap->getGoalHeight(),-000);
 
-  // Then populate permamap
-  wipeMap(permanentMap);
-  // ... with permanent Cubes
-  for (int i = 0; i<cubeCount; i++) {
-    cube[i].tick();
-    //keepInBounds(&cube[i]);
-    addToCollisionMap(&cube[i], permanentMap);
+    // Then populate permamap
+    wipeMap(permanentMap);
+    // ... with permanent Cubes
+    for (int i = 0; i<cubeCount; i++) {
+      cube[i].tick();
+      //keepInBounds(&cube[i]);
+      addToCollisionMap(&cube[i], permanentMap);
+    }
+    // Then set their neighbors, for more efficient rendering
+    for (int i = 0; i<cubeCount; i++) {
+      findNeighbors(&cube[i], permanentMap);
+      findEdges(&cube[i], permanentMap);
+    }
+    
   }
-  // Then set their neighbors, for more efficient rendering
-  for (int i = 0; i<cubeCount; i++) {
-    findNeighbors(&cube[i], permanentMap);
-    findEdges(&cube[i], permanentMap);
-  }
-  
 }
+
+// To load the next level
+void nextLevel() {
+  currentLevel++;
+  int n, a=currentLevel;
+  char* s;
+  n=sprintf(s, "./maps/cubiorMap%d.cubior", a);
+  gameplayStart(s);
 }
 
 void gameplayLoop() {
-if (gameplayRunning) {
+  if (gameplayRunning) {
 
-  wipeMap(collisionMap);
+    wipeMap(collisionMap);
 
-  // Run main tick loop for all Cubiors...
-  for (int i = 0; i<cubiorCount; i++) {
-    if (cubiorPlayable[i]) {
-      cubior[i].tick();
-      keepInBounds(&cubior[i]);
-      addToCollisionMap(&cubior[i], collisionMap);
+    // Run main tick loop for all Cubiors...
+    for (int i = 0; i<cubiorCount; i++) {
+      if (cubiorPlayable[i]) {
+        cubior[i].tick();
+        keepInBounds(&cubior[i]);
+        addToCollisionMap(&cubior[i], collisionMap);
+      }
     }
-  }
-  // and the goal
-  goal.tick();
-  addToCollisionMap(&goal, collisionMap);
+    // and the goal
+    goal.tick();
+    addToCollisionMap(&goal, collisionMap);
 
-  // Then check collision against all other obstacles (cubes/cubiors)
-  for (int i = 0; i<cubiorCount; i++) {
-    if (cubiorPlayable[i]) {
+    // Then check collision against all other obstacles (cubes/cubiors)
+    for (int i = 0; i<cubiorCount; i++) {
+      if (cubiorPlayable[i]) {
+      
+        int cX = getCollisionMapSlot(&cubior[i],0);
+        int cY = getCollisionMapSlot(&cubior[i],1);
+        int cZ = getCollisionMapSlot(&cubior[i],2);
+
+        if (goodCollision) {
+          explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
+        } else {
+          unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
+        }
+
+        // Update c's for non-permanent-item collision
+        cX = getCollisionMapSlot(&cubior[i],0);
+        cY = getCollisionMapSlot(&cubior[i],1);
+        cZ = getCollisionMapSlot(&cubior[i],2);
+
+        if (goodCollision) {
+          explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+        } else {
+        unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
+        }
+
+      if (i == 0) { cout << "Cubior pos:" << endl;
+        cout << "x is " << cubior[i].getX() << ", ";
+        cout << "y is " << cubior[i].getY() << ", ";
+        cout << "z is " << cubior[i].getZ() << endl;
+        cout << "While currentMapWidth = " << currentMapWidth << ", ";
+        cout << "currentMapHeight = " << currentMapHeight << ", ";
+        cout << "currentMapDepth = " << currentMapDepth << ", ";
+        cout << "and tileSize is " << tileSize << endl;
+      }
+      }
+    }
     
-      int cX = getCollisionMapSlot(&cubior[i],0);
-      int cY = getCollisionMapSlot(&cubior[i],1);
-      int cZ = getCollisionMapSlot(&cubior[i],2);
-
-      if (goodCollision) {
-        explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
-      } else {
-        unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
+    // Finally, make camera catchup
+    for (int i=0; i<cubiorCount; i++) {
+      if (cubiorPlayable[i]){
+        camera[i].tick();
       }
-
-      // Update c's for non-permanent-item collision
-      cX = getCollisionMapSlot(&cubior[i],0);
-      cY = getCollisionMapSlot(&cubior[i],1);
-      cZ = getCollisionMapSlot(&cubior[i],2);
-
-      if (goodCollision) {
-        explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
-      } else {
-      unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
-      }
-
-    if (i == 0) { cout << "Cubior pos:" << endl;
-      cout << "x is " << cubior[i].getX() << ", ";
-      cout << "y is " << cubior[i].getY() << ", ";
-      cout << "z is " << cubior[i].getZ() << endl;
-      cout << "While currentMapWidth = " << currentMapWidth << ", ";
-      cout << "currentMapHeight = " << currentMapHeight << ", ";
-      cout << "currentMapDepth = " << currentMapDepth << ", ";
-      cout << "and tileSize is " << tileSize << endl;
-    }
     }
   }
-  
-  // Finally, make camera catchup
-  for (int i=0; i<cubiorCount; i++) {
-    if (cubiorPlayable[i]){
-      camera[i].tick();
-    }
-  }
-}
 }
 
 // Takes cubior, and its slot, then checks collision

@@ -287,8 +287,8 @@ void displayFor(int player) {
       int n, a=cameraPointer[player]->getAngleX();
       n=sprintf(pausedText, "AngleX %d ", a);
       // Commented out so that these values can easily be displayed again if necessary 
-      //printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
-      //printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
+      // printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
+      // printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
   } else {
     int n, a=getLastPause() + 1;
     if (a > 0) {
@@ -300,7 +300,7 @@ void displayFor(int player) {
   }
   // And player stats (wip/temp)
   // Commented out so that these values can easily be displayed again if necessary 
-  //if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
+  // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
 
   if (timing) {
     gettimeofday(&tim, NULL);

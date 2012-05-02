@@ -12,6 +12,9 @@
 #include "goalObj.h"
 #include "cubiorObj.h"
 #include "cameraObj.h"
+#include <iostream> // necessary for string
+
+using namespace std; // necessary for string
 
 const int mapEdge = 3;
 
@@ -26,7 +29,8 @@ const int tileSize = 100;
 const int cubiorCount = 4;
 const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
 
-    void gameplayStart();
+    void gameplayStart(string);
+    void nextLevel();
     void gameplayLoop();
 
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
