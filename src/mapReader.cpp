@@ -10,8 +10,7 @@
 using namespace std;
 
 Map* MapReader::readMap(const string& s) {
-	cout << "Map reader 1" << endl;
-  // To read file
+	// To read file
   string file = s;
   string row;
   // To keep track of pos in file
@@ -27,14 +26,10 @@ Map* MapReader::readMap(const string& s) {
   // To return map
   Map* map = new Map;
 	
-	cout << "Map reader 2" << endl;
-
   // Stream in the file
   ifstream newMap;
   newMap.open(file.c_str());
 	
-	cout << "Map reader 3" << endl;
-
   // Now find the ToC details
   if (newMap.is_open()) {
     while (newMap.good()) {
@@ -88,7 +83,5 @@ Map* MapReader::readMap(const string& s) {
 
   else cout << "Unable to open " << file << endl; 
 	
-	cout << "Map reader 4" << endl;
-
   return map;
 }

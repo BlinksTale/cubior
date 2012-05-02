@@ -95,7 +95,6 @@ void resetCubior(int i) {
 
 // Load in a level and set it up
 void gameplayStart(string levelToLoad) {
-  cout << "gameplayStart called" << endl;
   if (gameplayRunning) {
 
     // First wipe the current map
@@ -115,10 +114,8 @@ void gameplayStart(string levelToLoad) {
     // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
       // Starting camera and player pos
-      cout << cubior[i].getY() << endl;
       resetCubior(i);
-      cout << "became " << cubior[i].getY() << " for " << i << endl << endl;
-
+  
       // Start camera!
 	  camera[i].resetPos();
       camera[i].alwaysFollow(&cubior[i],&goal);
@@ -169,84 +166,57 @@ void gameplayStart(string levelToLoad) {
 // To load the next level
 void nextLevel() {
 	changeLevel = true;
-  cout << "nextLevel" << endl;
   currentLevel++;
-	cout << "check currentLevel against total"<<endl;
   if (currentLevel >= totalLevels) { currentLevel = 0; }
-	cout <<"OK!" << endl;
   int n;
-	cout <<"New ints just got made" << endl;
 	char buffer[100];
-	cout <<"new char" << endl;
-  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
-	cout << "about to start gameplay" << endl;
+	n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
 	gameplayStart(buffer);
-	cout << "about to initVisuals" << endl;
   initVisuals();
-	cout << "nextLevel aok!" << endl;
 }
 
 void gameplayLoop() {
-	cout << "Got in to gameplay loop!" << endl;
   if (gameplayRunning) {
 	  
 	  // Only recognize a level change for one loop
 	  if (changeLevel) { changeLevel = false; }
 	  
-	  cout << "Gonna wipe map..." << endl;
     wipeCurrentMap(collisionMap);
-	  cout << "Map wiped!" << endl;
     // Run main tick loop for all Cubiors...
     for (int i = 0; i<cubiorCount; i++) {
-		cout << "Going to do something w/ Cubior " << i << "..." << endl;
       if (cubiorPlayable[i]) {
-		  cout << "Playable!" << endl;
         cubior[i].tick();
-		  cout <<"Ticked!" << endl;
         keepInBounds(&cubior[i]);
-		  cout <<"Kept in bounds!"<<endl;
         addToCollisionMap(&cubior[i], collisionMap); // Problem here. Is collision Map reset? Yeah. Is it the right size? Maybe our numbers are off for w/h/d
-		  cout <<"Added to collision map"<<endl;
       }
     }
-	  cout << "Main tick called for all cubiors!" << endl;
 	// and the goal
     goal.tick();
     addToCollisionMap(&goal, collisionMap);
 	  
-	  cout << "next check collision" << endl;
 
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
-		  cout << "about to check " << i << endl;
       if (cubiorPlayable[i]) {
-		  cout << "success for " << i << endl;
 
         int cX = getCollisionMapSlot(&cubior[i],0);
         int cY = getCollisionMapSlot(&cubior[i],1);
         int cZ = getCollisionMapSlot(&cubior[i],2);
 
-		  cout << "got map slots" << endl;
         if (goodCollision) {
-			cout << "checking diamon collision" << endl;
           explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
         } else {
           unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
         }
-		cout << "getting map slots" << endl;
         // Update c's for non-permanent-item collision
         cX = getCollisionMapSlot(&cubior[i],0);
         cY = getCollisionMapSlot(&cubior[i],1);
         cZ = getCollisionMapSlot(&cubior[i],2);
-		  cout << "second diamond coll" << endl;
         if (goodCollision) {
-			cout << "here we go!" << endl;
           explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
-			cout << "Did it work?" << endl;
         } else {
         unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
         }
-		  cout << "IT'S OVARRRR" << endl;
         /*if (i == 0) { cout << "Cubior pos:" << endl;
           cout << "x is " << cubior[i].getX() << ", ";
           cout << "y is " << cubior[i].getY() << ", ";
@@ -258,7 +228,6 @@ void gameplayLoop() {
         }*/
       }
     }
-	  cout << "collision check complete!" << endl;
     
     // Finally, make camera catchup
     for (int i=0; i<cubiorCount; i++) {
@@ -267,8 +236,7 @@ void gameplayLoop() {
         camera[i].tick();
       }
     }
-	  
-	  cout << "camera work done" << endl;
+
   }
 }
 
@@ -337,15 +305,10 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int c
 
 // Put a cube in the collision map
 void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
-	cout << "Getting map slot x" << endl;
-  int cX = getCollisionMapSlot(c1,0);
-	cout << "it was " << cX << "! Now getting y" << endl;
+	int cX = getCollisionMapSlot(c1,0);
 	int cY = getCollisionMapSlot(c1,1);
-	cout << "it was " << cY << "! Now getting z" << endl;
 	int cZ = getCollisionMapSlot(c1,2);
-	cout << "it was " << cZ << "! Now set its place" << endl;
-  map[cX][cY][cZ] = c1;
-	cout << "You did it!" << endl;
+	map[cX][cY][cZ] = c1;
 }
 
 void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {

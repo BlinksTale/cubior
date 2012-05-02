@@ -40,10 +40,8 @@ void CameraObj::resetPos() {
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
-	cout << "Camera tick" << endl;
-  if (permanentTarget) {
-	  cout << "You have a permanent target!"<<endl;
-    tracker->tick();
+	if (permanentTarget) {
+	  tracker->tick();
     follow(
       tracker->getX(),
       permanentTarget->getY(),
@@ -53,7 +51,6 @@ void CameraObj::tick() {
       4
     );
   }
-	cout << "End camera tick"<<endl;
 }
 
 // Used to setup a target to always follow
@@ -128,7 +125,6 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
 
 // Do the following itself of your target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
-	cout << "Following!" << endl;
   // For smoothing purposes
   int num = 10;
   int den = 11; 
@@ -203,8 +199,6 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
 	
-	cout << "Finished following" << endl;
-
 }
 
 // See if y1 within delta of y2

@@ -166,16 +166,10 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
-	cout << "We're in" << endl;
-	cout << "(c1 != NULL) == " << (c1 != NULL) << endl;
-	cout << "(c2 != NULL) == " << (c2 != NULL) << endl;
 	if (c1 != NULL && c2 != NULL) {
-		cout << "(between(c1,c2)) == " << (between(c1,c2)) << endl;
 		if (between(c1,c2)) {
-	      cout << "Condition true" << endl;
 		  bounce(c1,c2);
-	      cout << "Bounce worked!"<<endl;
-          //balanceMomentum(c1,c2);
+	    //balanceMomentum(c1,c2);
 		}
 	}
 }
