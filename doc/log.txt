@@ -184,3 +184,10 @@ note: don't use "using namespace std" in headers, Stack Overflow calls it bad pr
 4/28/12
 note: error right now in maps. Cannot put any blocks except floor within 2 spaces of edge
 note: everything else (except one artifact of a cube side) works after that
+
+---
+5/2/12
+note: there seems to be an ongoing problem with getWidth() for cube when a new level is made. I think it's because it's a virtual function, but not sure.
+error: getWidth causes segfault on new level for macs
+fix: just putting a hard constant in its place - bad idea but works for senior presentation deadline
+note: char s* doesn't work on Mac for sprintf buffer, but char s[100] does

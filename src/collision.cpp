@@ -23,8 +23,8 @@ bool Collision::between(CubeObj* c1, CubeObj* c2) {
   int c2x = c2->getX();
   int c2y = c2->getY();
   int c2z = c2->getZ();
-  int c1Width = c1->getWidth()/2;
-  int c2Width = c2->getWidth()/2;
+	int c1Width = 50;//c1->getWidth()/2;
+	int c2Width = 50;//c2->getWidth()/2;
 
   return
      (c1x + c1Width > c2x - c2Width) &&
@@ -58,13 +58,13 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
   int diffX = getDiff(c1,c2,0);
   int diffY = getDiff(c1,c2,1);
   int diffZ = getDiff(c1,c2,2);
-
+	cout << "Got diffs" << endl;
   bounceByDiff(c1,c2,diffX,diffY,diffZ);
-
+	cout << "Bounced by diff" << endl;
   // Whatever special effects happen, call them post-bounce
   c1->collisionEffect(c2);
   c2->collisionEffect(c1);
-
+	cout << "Applied collision effects" << endl;
 }
 
 void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int diffZ) {
@@ -126,13 +126,15 @@ void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
   int diffX = (c1->getX()-c2->getX());
   int diffY = (c1->getY()-c2->getY());
   int diffZ = (c1->getZ()-c2->getZ());
-
-  if (diffX > 0) { diffX -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffX += c1->getWidth()/2 + c2->getWidth()/2; }
-  if (diffY > 0) { diffY -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffY += c1->getWidth()/2 + c2->getWidth()/2; }
-  if (diffZ > 0) { diffZ -= c1->getWidth()/2 + c2->getWidth()/2; }
-  else { diffZ += c1->getWidth()/2 + c2->getWidth()/2; }
+  int c1Width = 100; // c1->getWidth() // Real value disabled since broken on Macs for new levels
+  int c2Width = 100; // c2->getWidth() // Real value disabled since broken on Macs for new levels
+	
+  if (diffX > 0) { diffX -= c1Width/2 + c2Width/2; }
+  else { diffX += c1Width/2 + c2Width/2; }
+  if (diffY > 0) { diffY -= c1Width/2 + c2Width/2; }
+  else { diffY += c1Width/2 + c2Width/2; }
+  if (diffZ > 0) { diffZ -= c1Width/2 + c2Width/2; }
+  else { diffZ += c1Width/2 + c2Width/2; }
   
   c1->changeX(-1);
   c1->changeY(-1);
@@ -163,9 +165,10 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
-
-  if (c1 != NULL && c2 != NULL && between(c1,c2)) {
-    bounce(c1,c2);
-    //balanceMomentum(c1,c2);
-  }
+	if (c1 != NULL && c2 != NULL) {
+		if (between(c1,c2)) {
+		  bounce(c1,c2);
+          //balanceMomentum(c1,c2);
+		}
+	}
 }

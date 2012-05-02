@@ -31,6 +31,7 @@ int currentMapHeight;
 int currentMapDepth;
 int cubeCount;
 int currentLevel = 0;
+bool changeLevel = false;
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
@@ -164,58 +165,85 @@ void gameplayStart(string levelToLoad) {
 
 // To load the next level
 void nextLevel() {
+	changeLevel = true;
   cout << "nextLevel" << endl;
   currentLevel++;
+	cout << "check currentLevel against total"<<endl;
   if (currentLevel >= totalLevels) { currentLevel = 0; }
-  int n, a=currentLevel;
-  char* s;
-  n=sprintf(s, "./maps/cubiorMap%d.cubior", a);
-  gameplayStart(s);
+	cout <<"OK!" << endl;
+  int n;
+	cout <<"New ints just got made" << endl;
+	char buffer[100];
+	cout <<"new char" << endl;
+  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
+	cout << "about to start gameplay" << endl;
+	gameplayStart(buffer);
+	cout << "about to initVisuals" << endl;
   initVisuals();
+	cout << "nextLevel aok!" << endl;
 }
 
 void gameplayLoop() {
+	cout << "Got in to gameplay loop!" << endl;
   if (gameplayRunning) {
-
+	  
+	  // Only recognize a level change for one loop
+	  if (changeLevel) { changeLevel = false; }
+	  
+	  cout << "Gonna wipe map..." << endl;
     wipeCurrentMap(collisionMap);
-
+	  cout << "Map wiped!" << endl;
     // Run main tick loop for all Cubiors...
     for (int i = 0; i<cubiorCount; i++) {
+		cout << "Going to do something w/ Cubior " << i << "..." << endl;
       if (cubiorPlayable[i]) {
+		  cout << "Playable!" << endl;
         cubior[i].tick();
+		  cout <<"Ticked!" << endl;
         keepInBounds(&cubior[i]);
-        addToCollisionMap(&cubior[i], collisionMap);
+		  cout <<"Kept in bounds!"<<endl;
+        addToCollisionMap(&cubior[i], collisionMap); // Problem here. Is collision Map reset? Yeah. Is it the right size? Maybe our numbers are off for w/h/d
+		  cout <<"Added to collision map"<<endl;
       }
     }
-    // and the goal
+	  cout << "Main tick called for all cubiors!" << endl;
+	// and the goal
     goal.tick();
     addToCollisionMap(&goal, collisionMap);
+	  
+	  cout << "next check collision" << endl;
 
     // Then check collision against all other obstacles (cubes/cubiors)
-    for (int i = 0; i<cubiorCount; i++) {
+	  for (int i = 0; i<cubiorCount; i++) {
+		  cout << "about to check " << i << endl;
       if (cubiorPlayable[i]) {
-      
+		  cout << "success for " << i << endl;
+
         int cX = getCollisionMapSlot(&cubior[i],0);
         int cY = getCollisionMapSlot(&cubior[i],1);
         int cZ = getCollisionMapSlot(&cubior[i],2);
 
+		  cout << "got map slots" << endl;
         if (goodCollision) {
+			cout << "checking diamon collision" << endl;
           explodingDiamondCollision(&cubior[i],permanentMap,cX,cY,cZ);
         } else {
           unintelligentCollision(&cubior[i],permanentMap,cX,cY,cZ);
         }
-
+		cout << "getting map slots" << endl;
         // Update c's for non-permanent-item collision
         cX = getCollisionMapSlot(&cubior[i],0);
         cY = getCollisionMapSlot(&cubior[i],1);
         cZ = getCollisionMapSlot(&cubior[i],2);
-
+		  cout << "second diamond coll" << endl;
         if (goodCollision) {
+			cout << "here we go!" << endl;
           explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
+			cout << "Did it work?" << endl;
         } else {
         unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
         }
-
+		  cout << "IT'S OVARRRR" << endl;
         /*if (i == 0) { cout << "Cubior pos:" << endl;
           cout << "x is " << cubior[i].getX() << ", ";
           cout << "y is " << cubior[i].getY() << ", ";
@@ -227,13 +255,17 @@ void gameplayLoop() {
         }*/
       }
     }
+	  cout << "collision check complete!" << endl;
     
     // Finally, make camera catchup
     for (int i=0; i<cubiorCount; i++) {
-      if (cubiorPlayable[i]){
+		if (changeLevel) { break; }
+		if (cubiorPlayable[i]){
         camera[i].tick();
       }
     }
+	  
+	  cout << "camera work done" << endl;
   }
 }
 
@@ -245,20 +277,35 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], in
     for (int y = 0; y<=x; y++) {
       for (int z = 0; z<=x; z++) {
         if (x >= y+z) {
-         keepInBounds(i);
-         Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ+z]);
-         Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ+z]);
-         Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ+z]);
-         Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ+z]);
-         Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ-z]);
-         Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ-z]);
-         Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ-z]);
-         Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ-z]);
-        }
-      }
-    }
-  }
-}
+			/*
+			 * YUCK! Lots of ugly breaks in case one collision is a levelChange.
+			 * TODO: Fix so that a flag is set when goal collided with, then act
+			 *       on it after the current loop ends.
+			 */
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ+z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ+z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ+z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ+z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ-z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ-z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ-z]);
+			if (changeLevel) { break; }
+			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ-z]);
+			if (changeLevel) { break; }
+		}
+		  if (changeLevel) { break; }
+	  }
+		if (changeLevel) { break; }
+	}
+	  if (changeLevel) { break; }
+  }}
 
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
@@ -287,10 +334,15 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int c
 
 // Put a cube in the collision map
 void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
+	cout << "Getting map slot x" << endl;
   int cX = getCollisionMapSlot(c1,0);
-  int cY = getCollisionMapSlot(c1,1);
-  int cZ = getCollisionMapSlot(c1,2);
+	cout << "it was " << cX << "! Now getting y" << endl;
+	int cY = getCollisionMapSlot(c1,1);
+	cout << "it was " << cY << "! Now getting z" << endl;
+	int cZ = getCollisionMapSlot(c1,2);
+	cout << "it was " << cZ << "! Now set its place" << endl;
   map[cX][cY][cZ] = c1;
+	cout << "You did it!" << endl;
 }
 
 void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
@@ -330,7 +382,11 @@ void wipeFullMap(CubeObj* map[][maxHeight][maxDepth]){
 // pass cube and dimension to get map slot
 int getCollisionMapSlot(CubeObj* c, int d) {
   int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
-  return (c->get(d) - c->getSize(d)/2 + map/2*tileSize)/tileSize;
+  int cD = c->get(d);
+  int cS = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
+  int mS = map/2*tileSize;
+  int result = (cD - cS + mS)/tileSize;
+  return result;
 }
 
 // Returns gameplay state
@@ -342,7 +398,6 @@ GoalObj* getGoal() { return &goal; }
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
 void setCubiorPlayable(int i, bool b) {
-  cout << "setPlayable called for " << i << endl;
   resetCubior(i);
   cubiorPlayable[i] = b;
 }

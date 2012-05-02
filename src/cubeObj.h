@@ -76,9 +76,9 @@ class CubeObj {
     bool* getEdges();
     void setCollision(bool);
     bool getCollision();
-    virtual int getSize(int);
     virtual int getWidth();
     virtual int getHeight();
+    virtual int getSize(int);
 };
 
 #endif 

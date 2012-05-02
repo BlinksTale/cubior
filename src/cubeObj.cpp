@@ -209,6 +209,6 @@ bool* CubeObj::getEdges() { return edges; }
 void CubeObj::setCollision(bool b) { collision = b; }
 bool CubeObj::getCollision() { return collision; }
 
-int CubeObj::getSize(int s) { return s == 1 ? getHeight() : getWidth(); }
 int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }
+int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and getWidth but Segfaulted on Mac. Read: I need to learn virtual functions better

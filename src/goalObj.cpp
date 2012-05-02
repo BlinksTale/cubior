@@ -17,5 +17,7 @@ GoalObj::GoalObj() {
 }
 
 void GoalObj::collisionEffect(CubeObj*) {
-  nextLevel();
+    cout << "Goal object just got hit!" << endl;
+	nextLevel();
+	cout << "next Level called aok!" << endl;
 }
