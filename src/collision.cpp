@@ -59,13 +59,10 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
   int diffX = getDiff(c1,c2,0);
   int diffY = getDiff(c1,c2,1);
   int diffZ = getDiff(c1,c2,2);
-	cout << "Got diffs" << endl;
   bounceByDiff(c1,c2,diffX,diffY,diffZ);
-	cout << "Bounced by diff" << endl;
   // Whatever special effects happen, call them post-bounce
   c1->collisionEffect(c2);
   c2->collisionEffect(c1);
-	cout << "Applied collision effects" << endl;
 }
 
 void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int diffZ) {

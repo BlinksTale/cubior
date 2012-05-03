@@ -61,7 +61,7 @@ Map* MapReader::readMap(const string& s) {
           h++;
         } else {
           w = 0;
-          while (w<row.length()) {
+          while (w<row.length()&&w<map->getWidth()) {
             // Convert map numbers to material numbers
             std::string mapColorString = row.substr(w,1);
             int mapColor = atoi(mapColorString.c_str());

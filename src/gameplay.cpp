@@ -85,8 +85,8 @@ void resetCubior(int i) {
   // Put camera in drop down spot
   camera[i].resetPos();
   // Put cubior in falling spot
-	int distFromCenter = i/2;
-	int directionFromCenter = (i%2)*(-1);
+	int distFromCenter = (i+1)/2;
+	int directionFromCenter = 1+(i%2)*(-2);
   cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-200);
   cubior[i].moveX(0);
   cubior[i].moveY(3);
@@ -131,7 +131,6 @@ void gameplayStart(string levelToLoad) {
     for (int i=0; i<cubeCount; i++) {
       cube[i].setPermalock(true);
     }
-cout << "HEY!" << endl;
             
     // Load cubes in from level reader
     int currentCube = 0;
