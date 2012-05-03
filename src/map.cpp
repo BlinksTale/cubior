@@ -40,7 +40,7 @@ int Map::getDepth() { return depth; }
 int Map::getCubeCount() { return cubeCount; }
 int Map::getGoalHeight() { return goalHeight; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
-void Map::defaultColors() { red = 0.3; green = 0.5; blue = 1.0; }
+void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
   return map[w][h][d];
 }

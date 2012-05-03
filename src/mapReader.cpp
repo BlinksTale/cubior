@@ -66,16 +66,15 @@ Map* MapReader::readMap(const string& s) {
       }
       if (!haveBlue && !row.substr(0,5).compare("blue:")) {
         haveBlue = true;
-        cout << "Found at blue: " << (row.substr(5,row.length()-5)) << endl;
         blue = atof((row.substr(5,row.length()-5)).c_str());
-        cout << "Making blue: " << blue << endl;
       }
       // Start the spot reading!
       if (row.length()==0 && !readingMap && widthFound && heightFound && depthFound) {
         readingMap = true;
         // But also check to see if we have a full set of new colors
-        map->setCustomColors(red, green, blue);
-        cout << "Blue is " << blue << " and red is " << red << " so green is " << green << endl;
+        if (haveRed && haveGreen && haveBlue) {
+          map->setCustomColors(red, green, blue);
+        }
       }
       if (readingMap) {
         if (row.length()==0) {

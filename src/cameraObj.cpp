@@ -129,6 +129,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // For smoothing purposes
   int num = 10;
   int den = 11; 
+  int viewingDist = farthestDist;
   float newY = (b+lastLandedY)/2; // as to see jump height
   if (landed || lastLanded) {
     newY = b;
@@ -141,6 +142,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     // FIXME: For the presentation: getX/getZ aren't working but 0 is, so... whatever works for now
     a = (a*2 + (0 + a/2))/3;//(a + permanentTarget->getX()*3) / 4;
     c = (c*2 + (0 + c/2))/3;//(c + permanentTarget->getZ()*3) / 4;
+    viewingDist = farthestDist * (goalRange + distToGoal()/10) / goalRange;
   }
 
   // Then start normal camera variables
@@ -204,8 +206,8 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
 
   // Then implement movement for the camera in its new facing direction
-  int xToBe = a+farthestDist*sin(angleY*2*3.14159/360);
-  int zToBe = c+farthestDist*cos(angleY*2*3.14159/360);
+  int xToBe = a+viewingDist*sin(angleY*2*3.14159/360);
+  int zToBe = c+viewingDist*cos(angleY*2*3.14159/360);
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
 	
