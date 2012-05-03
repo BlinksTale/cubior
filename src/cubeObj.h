@@ -8,6 +8,8 @@
 #ifndef CUBEOBJ
 #define CUBEOBJ
 
+#include <string> // for material
+
 class CubeObj {
   protected:
     bool neighbors[6],edges[6];
@@ -17,6 +19,7 @@ class CubeObj {
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, loseMomentumOnLock;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, gravity;
+    std::string material;
   public:
     CubeObj();
 
@@ -31,6 +34,7 @@ class CubeObj {
 
     virtual void collisionEffect(CubeObj*);
 
+    void setMaterial(std::string);
     void setLock(bool);
     bool getLock();
     void setPermalock(bool);
@@ -79,6 +83,7 @@ class CubeObj {
     virtual int getWidth();
     virtual int getHeight();
     virtual int getSize(int);
+    std::string getMaterial();
 };
 
 #endif 

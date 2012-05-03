@@ -62,8 +62,16 @@ Map* MapReader::readMap(const string& s) {
         } else {
           w = 0;
           while (w<row.length()) {
+            // Grass tiles
             if (!row.substr(w,1).compare("1")) {
               CubeObj newCube;
+              newCube.tick();
+              map->addCube(&newCube,w,h,d);
+              map->setCubeCount(map->getCubeCount()+1);
+            // Stone tiles
+            } else if (!row.substr(w,1).compare("2")) {
+              CubeObj newCube;
+              newCube.setMaterial("stone");
               newCube.tick();
               map->addCube(&newCube,w,h,d);
               map->setCubeCount(map->getCubeCount()+1);
