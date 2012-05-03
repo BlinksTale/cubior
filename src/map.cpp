@@ -10,7 +10,7 @@
 #include "gameplay.h"
 
 Map::Map() {
-  defaultColors();
+  init();
 }
 
 Map::Map(int w, int h, int d) {
@@ -18,6 +18,12 @@ Map::Map(int w, int h, int d) {
   width = w;
   height = h;
   depth = d;
+  init();
+}
+
+// Default way to initialize a map
+void Map::init() {
+  goalDepth = 0;
   defaultColors();
 }
 
@@ -34,11 +40,13 @@ void Map::setHeight(int n){ height= n; }
 void Map::setDepth(int n) { depth = n; }
 void Map::setCubeCount(int n) { cubeCount = n; }
 void Map::setGoalHeight(int n) { goalHeight = n; }
+void Map::setGoalDepth(int n) { goalDepth = n; }
 int Map::getWidth() { return width; }
 int Map::getHeight(){ return height;}
 int Map::getDepth() { return depth; }
 int Map::getCubeCount() { return cubeCount; }
 int Map::getGoalHeight() { return goalHeight; }
+int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {

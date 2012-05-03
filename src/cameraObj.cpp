@@ -192,7 +192,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     } else {
       int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
       viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
-      angleYToBe = (angleYToBe*num + viewingAngle)/den;
+      angleYToBe = (angleYToBe*3 + viewingAngle)/4;
     }
   }
 

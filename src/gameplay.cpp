@@ -88,7 +88,7 @@ void resetCubior(int i) {
   // Put cubior in falling spot
 	int distFromCenter = (i+1)/2;
 	int directionFromCenter = 1+(i%2)*(-2);
-  cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-200);
+  cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);
@@ -151,7 +151,7 @@ void gameplayStart(string levelToLoad) {
     }
     
     // Then the goal
-    goal.setPos(000,levelMap->getGoalHeight(),-000);
+    goal.setPos(000,levelMap->getGoalHeight(),levelMap->getGoalDepth());
 
     // Then populate permamap
     // ... with permanent Cubes
