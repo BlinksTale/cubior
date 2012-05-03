@@ -9,14 +9,13 @@
 #include "gameplay.h"
 
 #include <iostream>
-#include <string> // for material
 #include <cmath> // for atan
 using namespace std;
 
 CubeObj::CubeObj() {
   
   // material default
-  material = "grass";
+  material = 0;
 
   // Pos vars
   x =    0;
@@ -57,11 +56,6 @@ CubeObj::CubeObj() {
   
   // World vars
   gravity = getGravity();
-}
-
-// Set the material, for coloring
-void CubeObj::setMaterial(string s) {
-  material = s;
 }
 
 void CubeObj::tick() {
@@ -220,4 +214,7 @@ bool CubeObj::getCollision() { return collision; }
 int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }
 int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and getWidth but Segfaulted on Mac. Read: I need to learn virtual functions better
-string CubeObj::getMaterial() { return material; }
+int CubeObj::getMaterial() { return material; }
+// Set the material, for coloring
+void CubeObj::setMaterial(int s) { material = s; }
+

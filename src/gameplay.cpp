@@ -131,14 +131,16 @@ void gameplayStart(string levelToLoad) {
     for (int i=0; i<cubeCount; i++) {
       cube[i].setPermalock(true);
     }
+cout << "HEY!" << endl;
+            
     // Load cubes in from level reader
     int currentCube = 0;
     for (int z=0; z<levelMap->getDepth(); z++) {
       for (int x=0; x<levelMap->getWidth(); x++) {
         for (int y=0; y<levelMap->getHeight(); y++) {
-          if (levelMap->getCubeAt(x,z,y) != 0 && currentCube < cubeCount) {
-            // FIXME: Because ugliest sin in this game, I had to switch y and z here for it to work.
+          if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
             cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
+            cube[currentCube].setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
             currentCube++;
           }
         }

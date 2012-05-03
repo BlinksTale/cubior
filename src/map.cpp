@@ -38,4 +38,6 @@ int Map::getHeight(){ return height;}
 int Map::getDepth() { return depth; }
 int Map::getCubeCount() { return cubeCount; }
 int Map::getGoalHeight() { return goalHeight; }
-CubeObj* Map::getCubeAt(int w, int h, int d) { return map[w][d][h]; }
+CubeObj* Map::getCubeAt(int w, int h, int d) {
+  return map[w][h][d];
+}
