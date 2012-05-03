@@ -117,7 +117,7 @@ void gameplayStart(string levelToLoad) {
       resetCubior(i);
   
       // Start camera!
-	  camera[i].resetPos();
+	    camera[i].resetPos();
       camera[i].alwaysFollow(&cubior[i],&goal);
 
       // Cubior Start State
@@ -131,6 +131,7 @@ void gameplayStart(string levelToLoad) {
     for (int i=0; i<cubeCount; i++) {
       cube[i].setPermalock(true);
     }
+    // Load cubes in from level reader
     int currentCube = 0;
     for (int z=0; z<levelMap->getDepth(); z++) {
       for (int x=0; x<levelMap->getWidth(); x++) {
@@ -187,10 +188,10 @@ void gameplayLoop() {
       if (cubiorPlayable[i]) {
         cubior[i].tick();
         keepInBounds(&cubior[i]);
-        addToCollisionMap(&cubior[i], collisionMap); // Problem here. Is collision Map reset? Yeah. Is it the right size? Maybe our numbers are off for w/h/d
+        addToCollisionMap(&cubior[i], collisionMap);
       }
     }
-	// and the goal
+  	// and the goal
     goal.tick();
     addToCollisionMap(&goal, collisionMap);
 	  
