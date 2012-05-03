@@ -25,7 +25,7 @@ const int maxWidth = playableWidth + mapEdge*2;
 const int maxHeight= playableHeight + mapEdge*2;
 const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
-const int totalLevels = 5; // for now, update this when new levels are added
+const int totalLevels = 6; // for now, update this when new levels are added
 
 const int cubiorCount = 4;
 const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);

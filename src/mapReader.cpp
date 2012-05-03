@@ -62,17 +62,13 @@ Map* MapReader::readMap(const string& s) {
         } else {
           w = 0;
           while (w<row.length()) {
-            // Grass tiles
-            if (!row.substr(w,1).compare("1")) {
-              CubeObj* newCube = new CubeObj;
-              newCube->setMaterial(1);
-              newCube->tick();
-              map->addCube(newCube,w,h,d);
-              map->setCubeCount(map->getCubeCount()+1);
-            // Stone tiles
-            } else if (!row.substr(w,1).compare("2")) {
+            // Convert map numbers to material numbers
+            std::string mapColorString = row.substr(w,1);
+            int mapColor = atoi(mapColorString.c_str());
+            // Add any tile
+            if (mapColor!=0) {
               CubeObj* newCube = new CubeObj();
-              newCube->setMaterial(2);
+              newCube->setMaterial(mapColor);
               newCube->tick();
               map->addCube(newCube,w,h,d);
               map->setCubeCount(map->getCubeCount()+1);

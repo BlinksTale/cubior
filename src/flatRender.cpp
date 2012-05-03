@@ -509,8 +509,14 @@ void initVisuals() {
       )^ (
         (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
       );
+    // Yellow case
+    if (getCube(i)->getMaterial()==9) {
+      cubeShape[i].initVisuals(0.95,1.00,0.50, 0.9,1.0,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    // Snow case
+    } else if (getCube(i)->getMaterial()==3) {
+      cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     // Stone case
-    if (getCube(i)->getMaterial()==2) {
+    } else if (getCube(i)->getMaterial()==2) {
       cubeShape[i].initVisuals(0.52,0.62,0.54, 0.9,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     // Grass case
     } else {
