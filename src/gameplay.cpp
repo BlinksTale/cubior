@@ -24,6 +24,7 @@ bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+CubeObj cameraCube;
 Map* levelMap;
 
 int currentMapWidth;
@@ -220,7 +221,7 @@ void gameplayLoop() {
         if (goodCollision) {
           explodingDiamondCollision(&cubior[i],collisionMap,cX,cY,cZ);
         } else {
-        unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
+          unintelligentCollision(&cubior[i],collisionMap,cX,cY,cZ);
         }
         /*if (i == 0) { cout << "Cubior pos:" << endl;
           cout << "x is " << cubior[i].getX() << ", ";
@@ -236,9 +237,27 @@ void gameplayLoop() {
     
     // Finally, make camera catchup
     for (int i=0; i<cubiorCount; i++) {
-		if (changeLevel) { break; }
-		if (cubiorPlayable[i]){
+  	  if (changeLevel) { break; }
+	    if (cubiorPlayable[i]){
+        // Basic setup
         camera[i].tick();
+
+        // And bounce off walls if colliding
+        cameraCube.setPos(camera[i].getX(), camera[i].getY(), camera[i].getZ());
+        int cX = getCollisionMapSlot(&cameraCube,0);
+        int cY = getCollisionMapSlot(&cameraCube,1);
+        int cZ = getCollisionMapSlot(&cameraCube,2);
+        if (goodCollision) {
+          explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
+          explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
+        } else {
+          unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
+          unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
+        }
+        // And then update camera to reflect changes
+        camera[i].setX(cameraCube.getX());
+        camera[i].setY(cameraCube.getY());
+        camera[i].setZ(cameraCube.getZ());
       }
     }
 
