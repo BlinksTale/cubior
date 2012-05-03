@@ -35,6 +35,7 @@ bool lockKey[playerCount];
 bool superKey[playerCount];
 bool pauseKey[playerCount];
 bool joinKey[playerCount];
+bool nextLevelKey;
 int lastPause = -1; // Last player to pause
 
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
@@ -101,6 +102,13 @@ void sendCommands() {
   }
 }
 
+// Quick jump to next level
+void nextLevelPressed(bool b) {
+  if (!nextLevelKey && b) {
+    nextLevel();
+  }
+  nextLevelKey = b;
+}
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
   switch(key) {
@@ -116,6 +124,8 @@ void handleInput(unsigned char key, bool newBool) {
     case '2': playerJoin(1,newBool); break;
     case '3': playerJoin(2,newBool); break;
     case '4': playerJoin(3,newBool); break;
+    // Shift + '=' to jump ahead a level
+    case '+': nextLevelPressed(newBool); break;
     
     // OLD PLAYER 1 CONTROLS 
     case 'c': case 'C': setSuper(0,newBool); break;

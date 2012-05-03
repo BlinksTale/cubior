@@ -384,3 +384,7 @@ void disableGoodCollision() { goodCollision = false; }
 void  stopGameplay() { gameplayRunning = false; }
 void startGameplay() { gameplayRunning = true; }
 bool getGameplayRunning() { return gameplayRunning; }
+float getMapRed()   { return levelMap->getRed(); }
+float getMapGreen() { return levelMap->getGreen(); }
+float getMapBlue()  { return levelMap->getBlue(); }
+

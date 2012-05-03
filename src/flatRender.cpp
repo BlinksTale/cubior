@@ -212,16 +212,17 @@ void display() {
 
 void displayFor(int player) {
   
+  // Timing vars
   int c1,c2,c3,c4,c5;
   if (timing) {
-  printf("&&&&& DISPLAYFOR CUBIOR BEGIN &&&&&&&\n");
+    printf("&&&&& DISPLAYFOR CUBIOR BEGIN &&&&&&&\n");
 
-  gettimeofday(&tim, NULL);
-  int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
+    gettimeofday(&tim, NULL);
+    int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
   }
   
   // Paint background cyan to neon blue
-  glClearColor(0.3f, 1.0f, 1.0f, 0.0f);
+  glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);

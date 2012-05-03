@@ -66,5 +66,8 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void stopGameplay();
     void startGameplay();
     bool getGameplayRunning();
+    float getMapRed();
+    float getMapGreen();
+    float getMapBlue();
 
 #endif 

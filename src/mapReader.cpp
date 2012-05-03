@@ -20,6 +20,10 @@ Map* MapReader::readMap(const string& s) {
   bool heightFound= false;
   bool depthFound = false;
   bool goalHeightFound = false;
+  bool haveRed   = false;
+  bool haveGreen = false;
+  bool haveBlue  = false;
+  float red, green, blue;
   int w = 0;
   int h = 0;
   int d = 0;
@@ -51,9 +55,27 @@ Map* MapReader::readMap(const string& s) {
         goalHeightFound = true;
         map->setGoalHeight(atoi((row.substr(11,row.length()-11)).c_str()));
       }
+      // Find background color
+      if (!haveRed && !row.substr(0,4).compare("red:")) {
+        haveRed = true;
+        red = atof((row.substr(4,row.length()-4)).c_str());
+      }
+      if (!haveGreen && !row.substr(0,6).compare("green:")) {
+        haveGreen = true;
+        green = atof((row.substr(6,row.length()-6)).c_str());
+      }
+      if (!haveBlue && !row.substr(0,5).compare("blue:")) {
+        haveBlue = true;
+        cout << "Found at blue: " << (row.substr(5,row.length()-5)) << endl;
+        blue = atof((row.substr(5,row.length()-5)).c_str());
+        cout << "Making blue: " << blue << endl;
+      }
       // Start the spot reading!
-      if (!readingMap && widthFound && heightFound && depthFound) {
+      if (row.length()==0 && !readingMap && widthFound && heightFound && depthFound) {
         readingMap = true;
+        // But also check to see if we have a full set of new colors
+        map->setCustomColors(red, green, blue);
+        cout << "Blue is " << blue << " and red is " << red << " so green is " << green << endl;
       }
       if (readingMap) {
         if (row.length()==0) {

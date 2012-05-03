@@ -125,6 +125,7 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
 
 // Do the following itself of your target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
+
   // For smoothing purposes
   int num = 10;
   int den = 11; 
@@ -134,6 +135,15 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     lastLandedY = b;
   }
   lastLanded = landed; // because currently alternates between landed and not when actually landed
+
+  // First, if following both, look between both, not at just one
+  if (followingBoth) {
+    // FIXME: For the presentation: getX/getZ aren't working but 0 is, so... whatever works for now
+    a = (a*2 + (0 + a/2))/3;//(a + permanentTarget->getX()*3) / 4;
+    c = (c*2 + (0 + c/2))/3;//(c + permanentTarget->getZ()*3) / 4;
+  }
+
+  // Then start normal camera variables
   int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
 
   // Extreme catchup for extreme dist scenario
