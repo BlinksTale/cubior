@@ -267,8 +267,29 @@ void displayFor(int player) {
     int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawPlayer time: %d\n",c4-c3);
   }
-  
-  for (int i=0; i<cubeNum; i++) { drawCube(i); }
+
+  // Only try block culling if looking from close to the ground
+  if (cameraPointer[player]->getY() < playerY[player]+2000) {
+    int backwardsDist = 1000;
+    int camAngleNow = ((int)cameraPointer[player]->getAngleY() + 720 + 180 - 45) % 360;
+    int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
+    int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
+    for (int i=0; i<cubeNum; i++) {
+      // Only draw if it's in the range the camera will see
+      int deltaX = cameraPointer[player]->getX() - cubeX[i];
+      int deltaZ = cubeZ[i] - cameraPointer[player]->getZ();
+      if ((deltaX*camFacingX<backwardsDist)
+        &&(deltaZ*camFacingZ<backwardsDist)) {
+        drawCube(i);
+      }
+    }
+  // So if far away, just draw cubes normally
+  } else {
+    for (int i=0; i<cubeNum; i++) {
+      drawCube(i);
+    }
+  }
+
 
   if (timing) {
     gettimeofday(&tim, NULL);
