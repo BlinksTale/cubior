@@ -171,13 +171,15 @@ void gameplayStart(string levelToLoad) {
 
 // To load the next level
 void nextLevel() {
-	changeLevel = true;
-  currentLevel++;
-  if (currentLevel >= totalLevels) { currentLevel = 0; }
+  // Set next level number
+  changeLevel = true;
+  currentLevel = (currentLevel + 1) % totalLevels;
+
+  // Then load the appropriate level
   int n;
-	char buffer[100];
-	n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
-	gameplayStart(buffer);
+  char buffer[100];
+  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
+  gameplayStart(buffer);
   initVisuals();
 }
 
