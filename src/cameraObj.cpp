@@ -81,6 +81,14 @@ int CameraObj::distToGoal() {
   return sqrt(deltaX*deltaX + deltaZ*deltaZ);
 }
 
+// Find how close player is to camera
+int CameraObj::distToPlayer() {
+  int deltaX = x-permanentTargetGoal->getX();
+  int deltaY = y-permanentTargetGoal->getY();
+  int deltaZ = z-permanentTargetGoal->getZ();
+  return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+}
+
 float CameraObj::angleBetweenPlayerAndGoal() {
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();

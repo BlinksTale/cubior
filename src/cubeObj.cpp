@@ -171,12 +171,20 @@ void CubeObj::changePosTowards(CubeObj* target, int delta) {
   double ratio = delta*(-1.0)/hypXYZ;
   //cout << "Finding hypXZ as " << hypXZ << " and hypXYZ as " << hypXYZ << " and ratio as " << ratio << endl;
 
+  //cout << "hypXYZ is " << hypXYZ << " where delta is " << delta << endl;
   // sometimes NaN
   if (!(ratio != ratio)) {
-    // Then move everything
-    changeX(n*ratio);
-    changeY(o*ratio);
-    changeZ(p*ratio);
+    // Then move everything. If far enough, move normally
+    if (delta <= hypXYZ) {
+      changeX(n*ratio);
+      changeY(o*ratio);
+      changeZ(p*ratio);
+    // If too close, just land on it
+    } else {
+      changeX(-n);
+      changeY(-o);
+      changeZ(-p);
+    }
     //cout << "Change by (" << n*ratio << ", " << o*ratio << ", " << p*ratio << ")" << endl;
   }
 }

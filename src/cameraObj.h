@@ -32,6 +32,7 @@ class CameraObj : public CubeObj {
     float smoothMatchRangeOf(float,float);
     void follow(int,int,int,int,bool,int);
     int distToGoal();
+    int distToPlayer();
     void betweenPlayerAndGoal();
     float angleBetweenPlayerAndGoal();
     float deltasToDegrees(int, int);

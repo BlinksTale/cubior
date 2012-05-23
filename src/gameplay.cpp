@@ -245,19 +245,31 @@ void gameplayLoop() {
         camera[i].tick();
 
         // And bounce off walls if colliding
-        int cX = getCollisionMapSlot(&camera[i],0);
-        int cY = getCollisionMapSlot(&camera[i],1);
-        int cZ = getCollisionMapSlot(&camera[i],2);
+        cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+        // using cameraCube here since a lack thereof make camera's collision stop working 
+        int cX = getCollisionMapSlot(&cameraCube,0);
+        int cY = getCollisionMapSlot(&cameraCube,1);
+        int cZ = getCollisionMapSlot(&cameraCube,2);
         if (goodCollision) {
-          explodingDiamondCollision(&camera[i],permanentMap,cX,cY,cZ);
-          explodingDiamondCollision(&camera[i],collisionMap,cX,cY,cZ);
+          explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
+          explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
         } else {
-          unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
-          unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
+          unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
+          unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
         }
+        camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
         // Then check if player is visible
         checkCameraLOS(&camera[i],permanentMap);
+        // And if not, go forwards until player IS visible
+        while (camera[i].distToPlayer() < 2000 && camera[i].distToPlayer() > tileSize/2 && !camera[i].getLOS()) {
+          cout << "Trying to fix it" << endl;
+          cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+          cameraCube.changePosTowards(camera[i].getPermanentTarget(),tileSize/2);
+          camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+          checkCameraLOS(&camera[i],permanentMap);
+          //cout << "Still here, los is " << camera[i].getLOS() << " with cam at (" << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << ") aiming for (" << camera[i].getPermanentTarget()->getX() << ", " << camera[i].getPermanentTarget()->getY() << ", " << camera[i].getPermanentTarget()->getZ() << ")" << endl;
+        }
         cout << "Camera " << i << "'s visibility is " << camera[i].getLOS() << endl;
       }
     }
@@ -283,14 +295,14 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
   int gZ = getCollisionMapSlot(c->getPermanentTarget(),2);
   
   // While not arrived, search
-  while(cX != gX && cY != gY && cZ != gZ) {
+  while(cX != gX || cY != gY || cZ != gZ) {
     // Found something there?
     if (m[cX][cY][cZ] != NULL) {
       c->setLOS(false);
       return;
     }
     // Otherwise, move closer
-    tracker.changePosTowards(c->getPermanentTarget(),5);
+    tracker.changePosTowards(c->getPermanentTarget(),tileSize/4);
 
     // Then Reset Cam Tracker Pos
     cX = getCollisionMapSlot(&tracker,0);
