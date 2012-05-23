@@ -245,25 +245,28 @@ void gameplayLoop() {
         camera[i].tick();
 
         // And bounce off walls if colliding
-        cameraCube.setPos(camera[i].getX(), camera[i].getY(), camera[i].getZ());
-        int cX = getCollisionMapSlot(&cameraCube,0);
-        int cY = getCollisionMapSlot(&cameraCube,1);
-        int cZ = getCollisionMapSlot(&cameraCube,2);
+        int cX = getCollisionMapSlot(&camera[i],0);
+        int cY = getCollisionMapSlot(&camera[i],1);
+        int cZ = getCollisionMapSlot(&camera[i],2);
         if (goodCollision) {
-          explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
-          explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
+          explodingDiamondCollision(&camera[i],permanentMap,cX,cY,cZ);
+          explodingDiamondCollision(&camera[i],collisionMap,cX,cY,cZ);
         } else {
-          unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
-          unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
+          unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
+          unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
         }
-        // And then update camera to reflect changes
-        camera[i].setX(cameraCube.getX());
-        camera[i].setY(cameraCube.getY());
-        camera[i].setZ(cameraCube.getZ());
       }
     }
 
   }
+}
+
+// Tells Camera if it can see player or not, sets up Line of Sight
+void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
+  int cX = getCollisionMapSlot(c,0);
+  int cY = getCollisionMapSlot(c,1);
+  int cZ = getCollisionMapSlot(c,2);
+  c->setLOS(true);
 }
 
 // Takes cubior, and its slot, then checks collision

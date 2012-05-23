@@ -11,11 +11,12 @@
 #include "cubeObj.h"
 #include "trackerObj.h"
 
-class CameraObj {
+class CameraObj : public CubeObj {
+// FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
     static const int camHeight = 600, goalRange = 800;
     int x, y, z, farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
-    bool lastLanded, followingBoth;
+    bool lastLanded, followingBoth, los;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
@@ -51,6 +52,9 @@ class CameraObj {
     void setAngleY(float);
     void setAngleZ(float);
     void setAngle(float,float,float);
+
+    void setLOS(bool);
+    bool getLOS();
 };
 
 #endif 

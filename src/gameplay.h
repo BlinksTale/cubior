@@ -34,6 +34,7 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void nextLevel();
     void gameplayLoop();
 
+    void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void addToCollisionMap(CubeObj*,CubeObj*[][maxHeight][maxDepth]);

@@ -26,6 +26,7 @@ CameraObj::CameraObj() {
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
   followingBoth = false; // Start by just following cube, not also goal
+  los = true; // Assume you can see the player from the sky :P
 }
 
 // Set to starting pos
@@ -253,3 +254,7 @@ void CameraObj::setAngle(float n, float o, float p) { angleX = n, angleY = o, an
 void CameraObj::setAngleX(float n) { angleX = n; }
 void CameraObj::setAngleY(float n) { angleY = n; }
 void CameraObj::setAngleZ(float n) { angleZ = n; }
+
+// Line of Sight - returns if view to player is clear or not
+void CameraObj::setLOS(bool b) { los = b; }
+bool CameraObj::getLOS() { return los; }
