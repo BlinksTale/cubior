@@ -50,6 +50,7 @@ class CubeObj {
     void changeX(int);
     void changeY(int);
     void changeZ(int);
+    void changePosTowards(CubeObj*,int);
 
     void setMomentumX(int);
     void setMomentumY(int);

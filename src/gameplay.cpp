@@ -255,6 +255,10 @@ void gameplayLoop() {
           unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
           unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
         }
+
+        // Then check if player is visible
+        checkCameraLOS(&camera[i],permanentMap);
+        cout << "Camera " << i << "'s visibility is " << camera[i].getLOS() << endl;
       }
     }
 
@@ -263,9 +267,40 @@ void gameplayLoop() {
 
 // Tells Camera if it can see player or not, sets up Line of Sight
 void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
-  int cX = getCollisionMapSlot(c,0);
-  int cY = getCollisionMapSlot(c,1);
-  int cZ = getCollisionMapSlot(c,2);
+
+  // Used to check all spaces between cam and target
+  CubeObj tracker;
+  tracker.setPos(c->getX(), c->getY(), c->getZ());
+
+  // Cam Tracker Pos
+  int cX, cY, cZ; 
+  cX = getCollisionMapSlot(&tracker,0);
+  cY = getCollisionMapSlot(&tracker,1);
+  cZ = getCollisionMapSlot(&tracker,2);
+  // Goal Pos
+  int gX = getCollisionMapSlot(c->getPermanentTarget(),0);
+  int gY = getCollisionMapSlot(c->getPermanentTarget(),1);
+  int gZ = getCollisionMapSlot(c->getPermanentTarget(),2);
+  
+  // While not arrived, search
+  while(cX != gX && cY != gY && cZ != gZ) {
+    // Found something there?
+    if (m[cX][cY][cZ] != NULL) {
+      c->setLOS(false);
+      return;
+    }
+    // Otherwise, move closer
+    tracker.changePosTowards(c->getPermanentTarget(),5);
+
+    // Then Reset Cam Tracker Pos
+    cX = getCollisionMapSlot(&tracker,0);
+    cY = getCollisionMapSlot(&tracker,1);
+    cZ = getCollisionMapSlot(&tracker,2);
+    //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
+    //cout << "gX is " << gX << ", gY is " << gY << ", gZ is " << gZ << endl;
+    //cout << "From (" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ") to (" << c->getPermanentTarget()->getX() << ", " << c->getPermanentTarget()->getY() << ", " << c->getPermanentTarget()->getZ() << ")" << endl;
+  }
+
   c->setLOS(true);
 }
 

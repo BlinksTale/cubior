@@ -55,6 +55,7 @@ class CameraObj : public CubeObj {
 
     void setLOS(bool);
     bool getLOS();
+    CubeObj* getPermanentTarget();
 };
 
 #endif 

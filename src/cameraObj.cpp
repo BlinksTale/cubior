@@ -258,3 +258,4 @@ void CameraObj::setAngleZ(float n) { angleZ = n; }
 // Line of Sight - returns if view to player is clear or not
 void CameraObj::setLOS(bool b) { los = b; }
 bool CameraObj::getLOS() { return los; }
+CubeObj* CameraObj::getPermanentTarget() { return permanentTarget; }
