@@ -316,6 +316,13 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
   c->setLOS(true);
 }
 
+// No checkAndBounce if out of bounds
+void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
+    if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
+        Collision::checkAndBounce(i,m[cX][cY][cZ]);
+    }
+}
+
 // Takes cubior, and its slot, then checks collision
 // called exploding diamond because it checks on an expanding radius
 void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
@@ -330,21 +337,21 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], in
 			 *       on it after the current loop ends.
 			 */
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ+z]);
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY+y,cZ+z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ+z]);
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY+y,cZ+z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ+z]);
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY-y,cZ+z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ+z]);
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY-y,cZ+z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY+y][cZ-z]);
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY+y,cZ-z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY+y][cZ-z]);
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY+y,cZ-z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX+x-(y+z)][cY-y][cZ-z]);
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY-y,cZ-z);
 			if (changeLevel) { break; }
-			Collision::checkAndBounce(i,m[cX-x+(y+z)][cY-y][cZ-z]);
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY-y,cZ-z);
 			if (changeLevel) { break; }
 		}
 		  if (changeLevel) { break; }
@@ -352,7 +359,8 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], in
 		if (changeLevel) { break; }
 	}
 	  if (changeLevel) { break; }
-  }}
+  }
+}
 
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
@@ -360,22 +368,22 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int c
     // First, check collision on all immediate directions
     // on X axis...
     for (int a = -2; a<3; a++) {
-    Collision::checkAndBounce(i,m[cX+a][cY][cZ]);
+    tryCheckAndBounce(i,m,cX+a,cY,cZ);
     }
     // ...Y axis...
     for (int b = -2; b<3; b++) {
-    Collision::checkAndBounce(i,m[cX][cY+b][cZ]);
+    tryCheckAndBounce(i,m,cX,cY+b,cZ);
     }
     // ...and Z axis
     for (int c = -2; c<3; c++) {
-    Collision::checkAndBounce(i,m[cX][cY][cZ+c]);
+    tryCheckAndBounce(i,m,cX,cY,cZ+c);
     }
     // Then check the diagonals too
     // (this technique is a bit wasteful here, will clean up later if I have time)
     for (int a = -2; a<3; a++) {
     for (int b = -2; b<3; b++) {
     for (int c = -2; c<3; c++) {
-    Collision::checkAndBounce(i,m[cX+a][cY+b][cZ+c]);
+    tryCheckAndBounce(i,m,cX+a,cY+b,cZ+c);
     } } }
 }
 
