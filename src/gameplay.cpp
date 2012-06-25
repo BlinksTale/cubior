@@ -257,8 +257,10 @@ void gameplayLoop() {
         }
 
         // Then check if player is visible
-        checkCameraLOS(&camera[i],permanentMap);
-        cout << "Camera " << i << "'s visibility is " << camera[i].getLOS() << endl;
+        // FIXME: checkCameraLOS currently does not work for Multiplayer
+        // ERROR: multiplayer checkCameraLOS
+        //checkCameraLOS(&camera[i],permanentMap);
+        //cout << "Camera " << i << "'s visibility is " << camera[i].getLOS() << endl;
       }
     }
 
