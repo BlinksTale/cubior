@@ -26,6 +26,7 @@ CameraObj::CameraObj() {
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
   followingBoth = false; // Start by just following cube, not also goal
+  nearGoal = false; // inherently won't start right under the goal
   los = true; // Assume you can see the player from the sky :P
 }
 
@@ -74,7 +75,8 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
     );
 }
 
-// Find how close player is to their goal, if close enough we'll use this to look at both at once
+// Find how close player is to their goal,
+// if close enough we'll use this to look at both at once
 int CameraObj::distToGoal() {
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
@@ -87,6 +89,12 @@ int CameraObj::distToPlayer() {
   int deltaY = y-permanentTargetGoal->getY();
   int deltaZ = z-permanentTargetGoal->getZ();
   return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+}
+
+float CameraObj::angleToGoal() {
+  int deltaX = x-permanentTargetGoal->getX();
+  int deltaZ = z-permanentTargetGoal->getZ();
+  return deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
 }
 
 float CameraObj::angleBetweenPlayerAndGoal() {
@@ -116,6 +124,26 @@ bool CameraObj::goalWithinJumpRange() {
   return abs(permanentTarget->getY() - permanentTargetGoal->getY()) < 500;
 }
 
+// Check if you can even get to goal horizontally
+bool CameraObj::goalWithinDistRange() {
+  return distToGoal() < goalRange;
+}
+
+// Check if you cannot even get to goal horizontally
+bool CameraObj::goalOutsideDistRange() {
+  return distToGoal() > goalRange * 1.25;
+}
+
+// Check if you are right underneath the goal
+bool CameraObj::goalWithinNearRange() {
+  return distToGoal() < goalRange * 0.25;
+}
+
+// Check if you aren't right underneath the goal
+bool CameraObj::goalOutsideNearRange() {
+  return distToGoal() > goalRange * 0.35;
+}
+
 float CameraObj::deltasToDegrees(int opp, int adj) {
   float PI = 3.14159;
   float result = (adj!=0) ? atan(opp/(adj*1.0)) : (-2*(opp > 0)+1)*PI/2.0;
@@ -130,6 +158,16 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
   // Then convert radians to degrees
   result *= 360.0/(2.0*PI);
   return result;
+}
+
+
+// When camera starts following both, decide from which angle
+float CameraObj::findFollowingBothSide(float angleYToBe, float angleY) {
+  //return (1-2*(angleYToBe > angleY)); OLD WAY
+  float atg = angleToGoal();
+  angleY = matchRangeOf(angleY,atg);
+  float angleDiff = atg - angleY;
+  return angleDiff > 0 ? -1 : 1;
 }
 
 // Do the following itself of your target
@@ -187,21 +225,35 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     }
 
     // But if within goal range, change to look at player AND the goal
-    if (distToGoal() < goalRange && goalWithinJumpRange()) {
+    if (goalWithinDistRange() && goalWithinJumpRange()) {
       // Figure out which side to follow from
-      cameraSide = (1-2*(angleYToBe > angleY));
+      cameraSide = findFollowingBothSide(angleYToBe, angleY);
       followingBoth = true;
     }
 
-  // If you are following the goal and the player
+  // If you are following both the goal and the player
   } else {
-    if (distToGoal() > goalRange*1.25 || !goalWithinJumpRange()) {
-      // stop it if over 1.25 times the range
+    // if outside range...
+    if (goalOutsideDistRange() || !goalWithinJumpRange()) {
+      // stop following goal if no longer near it
       followingBoth = false;
+    // if within range...
     } else {
-      int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
-      viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
-      angleYToBe = (angleYToBe*3 + viewingAngle)/4;
+      // ...but not too near...
+      if (goalOutsideNearRange()) {
+        // If last step you were near the goal still
+        if (nearGoal) {
+          nearGoal = false;
+          // set a new camera side! May have moved to other side of cube
+          cameraSide = findFollowingBothSide(angleYToBe, angleY);
+        }
+        int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
+        viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
+        angleYToBe = (angleYToBe*3 + viewingAngle)/4;
+      // ...but if you ARE too near...
+      } else if (!nearGoal) {
+        nearGoal = true;
+      }
     }
   }
 
@@ -212,7 +264,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   //if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
   angleY += -(angleY-angleYToBe)/strictness;
   angleX += -(angleX-angleXToBe)/strictness;
-  angleZ = 0; // Generally, don't want to change this one - it causes a disorienting effect
+  angleZ = 0; // Generally, don't want to change this - causes disorientation
 
   // Then implement movement for the camera in its new facing direction
   int viewingDist = (intendedDist + 3*distToPlayer)/4;
@@ -248,7 +300,9 @@ int CameraObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CameraObj::getX() { return x; }
 int CameraObj::getY() { return y; }
 int CameraObj::getZ() { return z; }
-float CameraObj::getAngle(int s) { return s == 0 ? angleX : s == 1 ? angleY : angleZ; }
+float CameraObj::getAngle(int s) {
+  return s == 0 ? angleX : s == 1 ? angleY : angleZ;
+}
 float CameraObj::getAngleX() { return angleX; }
 float CameraObj::getAngleY() { return angleY; }
 float CameraObj::getAngleZ() { return angleZ; }
@@ -258,7 +312,9 @@ void CameraObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 void CameraObj::setX(int n) { x = n; }
 void CameraObj::setY(int n) { y = n; }
 void CameraObj::setZ(int n) { z = n; }
-void CameraObj::setAngle(float n, float o, float p) { angleX = n, angleY = o, angleZ = p; }
+void CameraObj::setAngle(float n, float o, float p) {
+  angleX = n, angleY = o, angleZ = p;
+}
 void CameraObj::setAngleX(float n) { angleX = n; }
 void CameraObj::setAngleY(float n) { angleY = n; }
 void CameraObj::setAngleZ(float n) { angleZ = n; }
@@ -266,4 +322,5 @@ void CameraObj::setAngleZ(float n) { angleZ = n; }
 // Line of Sight - returns if view to player is clear or not
 void CameraObj::setLOS(bool b) { los = b; }
 bool CameraObj::getLOS() { return los; }
+bool CameraObj::getVisibility() { return los; }
 CubeObj* CameraObj::getPermanentTarget() { return permanentTarget; }

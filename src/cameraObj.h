@@ -16,7 +16,7 @@ class CameraObj : public CubeObj {
   protected:
     static const int camHeight = 600, goalRange = 800;
     int x, y, z, farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
-    bool lastLanded, followingBoth, los;
+    bool lastLanded, followingBoth, nearGoal, los;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
@@ -27,6 +27,11 @@ class CameraObj : public CubeObj {
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
     bool goalWithinJumpRange();
+    bool goalWithinDistRange();
+    bool goalOutsideDistRange();
+    bool goalWithinNearRange();
+    bool goalOutsideNearRange();
+    float findFollowingBothSide(float, float);
     bool withinRangeOf(int,int,int);
     float matchRangeOf(float,float);
     float smoothMatchRangeOf(float,float);
@@ -34,6 +39,7 @@ class CameraObj : public CubeObj {
     int distToGoal();
     int distToPlayer();
     void betweenPlayerAndGoal();
+    float angleToGoal();
     float angleBetweenPlayerAndGoal();
     float deltasToDegrees(int, int);
 
@@ -56,6 +62,7 @@ class CameraObj : public CubeObj {
 
     void setLOS(bool);
     bool getLOS();
+    bool getVisibility();
     CubeObj* getPermanentTarget();
 };
 

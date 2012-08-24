@@ -1,0 +1,4 @@
+# Ignore project files that Netbeans made
+.cproject
+.project
+nbproject/

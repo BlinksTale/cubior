@@ -270,7 +270,7 @@ void gameplayLoop() {
           checkCameraLOS(&camera[i],permanentMap);
           //cout << "Still here, los is " << camera[i].getLOS() << " with cam at (" << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << ") aiming for (" << camera[i].getPermanentTarget()->getX() << ", " << camera[i].getPermanentTarget()->getY() << ", " << camera[i].getPermanentTarget()->getZ() << ")" << endl;
         }
-        cout << "Camera " << i << "'s visibility is " << camera[i].getLOS() << endl;
+        //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
       }
     }
 
