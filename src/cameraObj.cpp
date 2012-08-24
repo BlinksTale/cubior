@@ -163,7 +163,6 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
 
 // When camera starts following both, decide from which angle
 float CameraObj::findFollowingBothSide(float angleYToBe, float angleY) {
-  //return (1-2*(angleYToBe > angleY)); OLD WAY
   float atg = angleToGoal();
   angleY = matchRangeOf(angleY,atg);
   float angleDiff = atg - angleY;
