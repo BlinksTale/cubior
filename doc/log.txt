@@ -191,3 +191,7 @@ note: there seems to be an ongoing problem with getWidth() for cube when a new l
 error: getWidth causes segfault on new level for macs
 fix: just putting a hard constant in its place - bad idea but works for senior presentation deadline
 note: char s* doesn't work on Mac for sprintf buffer, but char s[100] does
+
+---
+8/24/12
+remember: "git rm --cached file" makes it easy to take files off a command line commit, but keep the file
