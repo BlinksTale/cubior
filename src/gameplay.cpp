@@ -13,6 +13,7 @@
 #include "collision.h"
 #include "mapReader.h"
 #include "flatRender.h"
+#include <cmath> // for trig stuff with getAngleBetween
 #include <iostream>
 #include <cstdio>
 #include <stdlib.h> // for NULL
@@ -259,22 +260,117 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
-        // Then check if player is visible
-        checkCameraLOS(&camera[i],permanentMap);
-        // And if not, go forwards until player IS visible
-        while (camera[i].distToPlayer() < 2000 && camera[i].distToPlayer() > tileSize/2 && !camera[i].getLOS()) {
-          cout << "Trying to fix it" << endl;
-          cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-          cameraCube.changePosTowards(camera[i].getPermanentTarget(),tileSize/2);
-          camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
-          checkCameraLOS(&camera[i],permanentMap);
-          //cout << "Still here, los is " << camera[i].getLOS() << " with cam at (" << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << ") aiming for (" << camera[i].getPermanentTarget()->getX() << ", " << camera[i].getPermanentTarget()->getY() << ", " << camera[i].getPermanentTarget()->getZ() << ")" << endl;
+        cout << "Check visibility"<<endl;
+        ensurePlayerVisible(i);
         }
-        //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
-      }
     }
 
   }
+}
+
+// This checks if the player is visible, and fixes invisible cases too
+void ensurePlayerVisible(int i) {
+  // Check
+  if (playerNotVisible(i)) {
+    // and fix if needed
+    cout << "Player hidden!" << endl;
+    fixPlayerVisibility(i);
+  } else {
+    cout << "Player visible" << endl;
+  }
+  //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
+}
+
+// Gives player non-visibility
+bool playerNotVisible(int i) {
+  // Must check LOS first, or getLOS will not be updated
+  checkCameraLOS(&camera[i],permanentMap);
+  return camera[i].distToPlayer() < 2000 && camera[i].distToPlayer() > tileSize/2 && !camera[i].getLOS();
+}
+
+// We know the player is not visible, so fix it!
+void fixPlayerVisibility(int i) {
+  if (rotateIfInvisible) {
+    rotateToPlayer(i);
+  } else {
+    moveToPlayer(i);
+  }
+  //cout << "Still here, los is " << camera[i].getLOS() << " with cam at (" << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << ") aiming for (" << camera[i].getPermanentTarget()->getX() << ", " << camera[i].getPermanentTarget()->getY() << ", " << camera[i].getPermanentTarget()->getZ() << ")" << endl;
+
+}
+
+// Get the camera closer to the player
+void moveToPlayer(int i) {
+  // go forwards until player is visible
+  while (playerNotVisible(i)) {
+    cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+    cameraCube.changePosTowards(camera[i].getPermanentTarget(),tileSize/2);
+    camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+  }
+}
+
+// Rotate the camera to angle to see the player
+void rotateToPlayer(int i) {
+  
+  // How many angles to try
+  float anglesToTry = 4;//12;
+  bool foundAnAngle = false;
+  
+  // Pivot point for rotation
+  int targetX = camera[i].getPermanentTarget()->getX();
+  int targetZ = camera[i].getPermanentTarget()->getZ();
+  // Position we will move to on each turn
+  int oldX = camera[i].getX();
+  int oldZ = camera[i].getZ();
+  int newX = oldX;
+  int newZ = oldZ;
+  
+  // Hypotenuse for triangle formed between camera and target
+  int hyp = camera[i].groundDistToPlayer();
+  
+  // Angle that we will be moving away from, pivot point side
+  float baseAngle = M_PI/2.0 - getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  // Angle we will be moving to, based on pivot
+  float newAngle = baseAngle;
+  
+  cout << "START" << endl;
+  // rotate until player is visible or 180 from start
+  for (int k = 0; k<anglesToTry; k++)
+  {
+    // New pivot angle to go to
+    newAngle = baseAngle + (M_PI*2.0/anglesToTry)*k/2.0*(1.0-2.0*(k%2));
+    
+    // Set new intended pos for each turn
+    newX = targetX + hyp*sin(newAngle);
+    newZ = targetZ + hyp*cos(newAngle);
+    
+    cout << "Target " << targetX << ", " << targetZ << endl;
+    cout << "hyp is " << hyp << " w/ newX " << newX << " and newZ " << newZ << endl;
+    cout << "newAngle is " << newAngle << " from baseAngle " << baseAngle << endl;
+    
+    // Leaving camera cube in here just in case forgetting it would ruin something, not sure
+    // FIXME later by testing it with no camera cube step
+    cameraCube.setPos(newX,camera[i].getY(),newZ);
+    camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+    
+    // Once you see the player visible, quit!
+    // May need to fix this later, as requires setting cam pos every time
+    if (!playerNotVisible(i)) {
+      camera[i].tick();
+      foundAnAngle = true;
+      cout << "Found a fix!" << endl;
+      break;
+    }
+    cout << "No fix yet on try " << k << " of " << anglesToTry << endl;
+  }
+  cout << "END" << endl;
+  
+  if (!foundAnAngle) {
+    // And if no escape, just go back to what we had :/
+    cameraCube.setPos(oldX,camera[i].getY(),oldZ);
+    camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+  }
+  
 }
 
 // Tells Camera if it can see player or not, sets up Line of Sight
@@ -470,3 +566,10 @@ float getMapRed()   { return levelMap->getRed(); }
 float getMapGreen() { return levelMap->getGreen(); }
 float getMapBlue()  { return levelMap->getBlue(); }
 
+// Return the angle between two points
+float getAngleBetween(int a, int b, int x, int y) {
+  int diffX = a - x;
+  int diffY = b - y;
+  // assuming these are radians we're dealing with... 0 is up and PI is down
+  return diffX == 0 ? (diffY > 0 ? 0 : M_PI) : atan(diffY*1.0/diffX);
+}

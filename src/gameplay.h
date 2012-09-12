@@ -16,6 +16,7 @@
 
 using namespace std; // necessary for string
 
+const bool rotateIfInvisible = true;
 const int mapEdge = 4;
 
 const int playableWidth = 100;
@@ -34,6 +35,12 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void nextLevel();
     void gameplayLoop();
 
+    void ensurePlayerVisible(int);
+    bool playerNotVisible(int);
+    void fixPlayerVisibility(int);
+    void moveToPlayer(int);
+    void rotateToPlayer(int);
+    
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
@@ -70,5 +77,7 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     float getMapRed();
     float getMapGreen();
     float getMapBlue();
+    
+    float getAngleBetween(int,int,int,int);
 
 #endif 

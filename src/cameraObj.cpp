@@ -42,8 +42,11 @@ void CameraObj::resetPos() {
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  // If you are following one target every frame,
 	if (permanentTarget) {
+    // make sure to update the item that's following the target
 	  tracker->tick();
+    // then move the camera itself
     follow(
       tracker->getX(),
       permanentTarget->getY(),
@@ -55,7 +58,7 @@ void CameraObj::tick() {
   }
 }
 
-// Used to setup a target to always follow
+// Used to permanently set a target to always follow
 void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
   permanentTarget = target;
   permanentTargetGoal = targetGoal;
@@ -91,12 +94,26 @@ int CameraObj::distToPlayer() {
   return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
 }
 
+// Find how close player is to camera on X,Z
+int CameraObj::groundDistToPlayer() {
+  return groundDistTo(permanentTargetGoal->getX(),permanentTargetGoal->getZ());
+}
+
+// Find how close camera is to some X,Z
+int CameraObj::groundDistTo(int a, int c) {
+  int deltaX = x-a;
+  int deltaZ = z-c;
+  return sqrt(deltaX*deltaX + deltaZ*deltaZ);
+}
+
+// Ground angle to goal from camera
 float CameraObj::angleToGoal() {
   int deltaX = x-permanentTargetGoal->getX();
   int deltaZ = z-permanentTargetGoal->getZ();
   return deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
 }
 
+// Ground angle to goal from player/permanentTarget
 float CameraObj::angleBetweenPlayerAndGoal() {
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
@@ -144,6 +161,7 @@ bool CameraObj::goalOutsideNearRange() {
   return distToGoal() > goalRange * 0.35;
 }
 
+// Convert a diff in two dimensions to an angle
 float CameraObj::deltasToDegrees(int opp, int adj) {
   float PI = 3.14159;
   float result = (adj!=0) ? atan(opp/(adj*1.0)) : (-2*(opp > 0)+1)*PI/2.0;
@@ -169,7 +187,25 @@ float CameraObj::findFollowingBothSide(float angleYToBe, float angleY) {
   return angleDiff > 0 ? -1 : 1;
 }
 
-// Do the following itself of your target
+// Gives intendedDist for looking at both goal and follow target (player)
+int CameraObj::lookAtBoth(int a, int c, int intendedDist) {
+    // FIXME: For the presentation: getX/getZ aren't working but 0 is, so... whatever works for now
+    // was originally designed to take in intendedDist... not sure why I don't have that now
+    // must FIXME for intendedDist later as well!
+    a = (a*2 + (0 + a/2))/3;//(a + permanentTarget->getX()*3) / 4;
+    c = (c*2 + (0 + c/2))/3;//(c + permanentTarget->getZ()*3) / 4;
+    return farthestDist * (goalRange + distToGoal()/10) / goalRange;
+}
+
+void CameraObj::checkExtremeCatchup(int distToPlayer, int a, int c, int num, int den) {
+  if (distToPlayer > 3*farthestDist) {
+    x = (a+farthestDist*sin(angleY)*num + x)/den;
+    z = (c+farthestDist*cos(angleY)*num + z)/den;
+    y = ((camHeight*2-camHeight*distToPlayer/(farthestDist))*num + y)/den;
+  }
+}
+
+// Do the following itself of the camera's target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
 
   // For smoothing purposes
@@ -185,34 +221,34 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
 
   // First, if following both, look between both, not at just one
   if (followingBoth) {
-    // FIXME: For the presentation: getX/getZ aren't working but 0 is, so... whatever works for now
-    a = (a*2 + (0 + a/2))/3;//(a + permanentTarget->getX()*3) / 4;
-    c = (c*2 + (0 + c/2))/3;//(c + permanentTarget->getZ()*3) / 4;
-    intendedDist = farthestDist * (goalRange + distToGoal()/10) / goalRange;
+    intendedDist = lookAtBoth(a,c,intendedDist);
   }
 
   // Then start normal camera variables
-  int distToPlayer = sqrt((x-a)*(x-a)+(z-c)*(z-c));
-
+  int distToPlayer = groundDistTo(a,c);
+  
   // Extreme catchup for extreme dist scenario
-  if (distToPlayer > 3*farthestDist) {
-    x = (a+farthestDist*sin(angleY)*num + x)/den;
-    z = (c+farthestDist*cos(angleY)*num + z)/den;
-    y = ((camHeight*2-camHeight*distToPlayer/(farthestDist))*num + y)/den;
-  }
+  checkExtremeCatchup(distToPlayer,a,c,num,den);
+  
   // so the camera doesn't go below a certain point
   int newDist = distToPlayer > farthestDist ? farthestDist : 
     (distToPlayer < closestDist ? closestDist : distToPlayer);
+  // Set camera at a Y height between its current y and the last landed + some height - that height by dist/farthest ratio
   y = ((lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
-  float theAtan = deltasToDegrees(distToPlayer,y-newY);
-  float angleXToBe =  theAtan != 0 ? 270 + theAtan : angleX;
+  
+  // theAtan is for the triangle between ground hyp and y diff
+  float vertAtan = deltasToDegrees(distToPlayer,y-newY);
+  
+  // angleXToBe is how far down to be looking, from the camera, to the player
+  float angleXToBe =  vertAtan != 0 ? 270 + vertAtan : angleX;
 
+  // angleYToBe represents the L/R direction to look to see the player
   // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
-  //float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
+  ////float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
   float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
   // wanted else to = 360/4
   
-  // if only following the player...
+  // if only following the player (and not the goal too)...
   if (!followingBoth) {
     // be inclined towards angle player is facing if following
     if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {

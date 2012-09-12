@@ -35,9 +35,15 @@ class CameraObj : public CubeObj {
     bool withinRangeOf(int,int,int);
     float matchRangeOf(float,float);
     float smoothMatchRangeOf(float,float);
+    
+    int lookAtBoth(int,int,int);
+    void checkExtremeCatchup(int,int,int,int,int);
+    
     void follow(int,int,int,int,bool,int);
     int distToGoal();
     int distToPlayer();
+    int groundDistToPlayer();
+    int groundDistTo(int,int);
     void betweenPlayerAndGoal();
     float angleToGoal();
     float angleBetweenPlayerAndGoal();
