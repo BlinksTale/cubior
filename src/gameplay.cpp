@@ -419,6 +419,14 @@ void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, in
     }
 }
 
+
+// No checkAndBounce if out of bounds
+void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
+    if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
+        Collision::checkAndBounce(i,m[cX][cY][cZ]);
+    }
+}
+
 // Takes cubior, and its slot, then checks collision
 // called exploding diamond because it checks on an expanding radius
 void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
@@ -482,6 +490,7 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int c
     tryCheckAndBounce(i,m,cX+a,cY+b,cZ+c);
     } } }
 }
+
 
 // Put a cube in the collision map
 void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
