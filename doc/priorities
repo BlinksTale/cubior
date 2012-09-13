@@ -3,5 +3,6 @@ Current priorities as of 9/12/12:
 2. Fix castle lag/put vertex points in array
 3. Adjust angle of movement based on camera angle more precisely
 
+?. Finish cleaning up cameraObj::follow
 ?. Move camera less, keep static more
 ?. Camera should swing if possible, not just jump

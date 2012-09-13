@@ -94,6 +94,12 @@ int CameraObj::distToPlayer() {
   return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
 }
 
+// Find how high player is to camera
+int CameraObj::heightToPlayer() {
+  int deltaY = y-permanentTargetGoal->getY();
+  return abs(deltaY);
+}
+
 // Find how close player is to camera on X,Z
 int CameraObj::groundDistToPlayer() {
   return groundDistTo(permanentTargetGoal->getX(),permanentTargetGoal->getZ());
@@ -355,7 +361,10 @@ void CameraObj::setAngleY(float n) { angleY = n; }
 void CameraObj::setAngleZ(float n) { angleZ = n; }
 
 // Line of Sight - returns if view to player is clear or not
-void CameraObj::setLOS(bool b) { los = b; }
+void CameraObj::setLOS(bool b) {
+  //cout << "LOS SET TO " << b << "!!!!!!!!!!!!" << endl;
+  los = b; 
+}
 bool CameraObj::getLOS() { return los; }
 bool CameraObj::getVisibility() { return los; }
 CubeObj* CameraObj::getPermanentTarget() { return permanentTarget; }

@@ -44,6 +44,7 @@ static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
 int maxJump = 25;
 int maxSpeed = 20;
+int maxCameraHeight = 2000;
 int friction = 1;
 
 int gravity = 2;
@@ -270,22 +271,28 @@ void gameplayLoop() {
 
 // This checks if the player is visible, and fixes invisible cases too
 void ensurePlayerVisible(int i) {
-  // Check
-  if (playerNotVisible(i)) {
-    // and fix if needed
-    cout << "Player hidden!" << endl;
-    fixPlayerVisibility(i);
-  } else {
-    cout << "Player visible" << endl;
+  // Don't check if zooming in or too close
+  if (camera[i].heightToPlayer() < maxCameraHeight && camera[i].distToPlayer() > tileSize/2) {
+    // Otherwise,
+    if (playerVisible(i)) {
+      cout << "Player visible" << endl;
+      //cout << "with camera saying " << (camera[i].getLOS() ? "true" : "false") << endl;
+      //cout << "and dist to player " << camera[i].distToPlayer() << endl;
+    } else {
+      // and fix if needed
+      cout << "Player hidden!" << endl;
+      fixPlayerVisibility(i);
+    }
+    //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
   }
-  //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
 }
 
 // Gives player non-visibility
-bool playerNotVisible(int i) {
+bool playerVisible(int i) {
   // Must check LOS first, or getLOS will not be updated
   checkCameraLOS(&camera[i],permanentMap);
-  return camera[i].distToPlayer() < 2000 && camera[i].distToPlayer() > tileSize/2 && !camera[i].getLOS();
+  // then return the newly updated results
+  return  camera[i].getLOS();
 }
 
 // We know the player is not visible, so fix it!
@@ -302,9 +309,9 @@ void fixPlayerVisibility(int i) {
 // Get the camera closer to the player
 void moveToPlayer(int i) {
   // go forwards until player is visible
-  while (playerNotVisible(i)) {
+  while (!playerVisible(i)) {
     cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-    cameraCube.changePosTowards(camera[i].getPermanentTarget(),tileSize/2);
+    cameraCube.changePosTowards(camera[i].getPermanentTarget(),tileSize/2.0);
     camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
   }
 }
@@ -355,7 +362,7 @@ void rotateToPlayer(int i) {
     
     // Once you see the player visible, quit!
     // May need to fix this later, as requires setting cam pos every time
-    if (!playerNotVisible(i)) {
+    if (playerVisible(i)) {
       camera[i].tick();
       foundAnAngle = true;
       cout << "Found a fix!" << endl;
@@ -376,49 +383,69 @@ void rotateToPlayer(int i) {
 // Tells Camera if it can see player or not, sets up Line of Sight
 void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
 
-  // Used to check all spaces between cam and target
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+
+  // Tracker moves along the line, getting as close as possible
   CubeObj tracker;
   tracker.setPos(c->getX(), c->getY(), c->getZ());
 
   // Cam Tracker Pos
+  // will check out all the spots before trying to move into them
   int cX, cY, cZ; 
   cX = getCollisionMapSlot(&tracker,0);
   cY = getCollisionMapSlot(&tracker,1);
   cZ = getCollisionMapSlot(&tracker,2);
   // Goal Pos
+  // where the player is, and we want to go eventually
   int gX = getCollisionMapSlot(c->getPermanentTarget(),0);
   int gY = getCollisionMapSlot(c->getPermanentTarget(),1);
   int gZ = getCollisionMapSlot(c->getPermanentTarget(),2);
   
+  cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
+  cout << "goal @ <" << (c->getPermanentTarget())->getX() << ", " << (c->getPermanentTarget())->getY() << ", " << (c->getPermanentTarget())->getZ() << ">" << endl;
+  cout << "were @ <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
+  cout << "Trying to reach [" << gX << ", " << gY << ", " << gZ << "]" << endl;
+  cout << "Currently viewing [" << cX << ", " << cY << ", " << cZ << "]" << endl;
+  
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
+    
     // Found something there?
     if (m[cX][cY][cZ] != NULL) {
       c->setLOS(false);
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      cout << "Not visible at <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
+      cout << "Not visible at [" << cX << ", " << cY << ", " << cZ << "]" << endl;
       return;
     }
     // Otherwise, move closer
-    tracker.changePosTowards(c->getPermanentTarget(),tileSize/4);
+    tracker.changePosTowards(c->getPermanentTarget(),tileSize/16.0); // was /4
 
     // Then Reset Cam Tracker Pos
     cX = getCollisionMapSlot(&tracker,0);
     cY = getCollisionMapSlot(&tracker,1);
     cZ = getCollisionMapSlot(&tracker,2);
-    //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
+  /*  cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
+    cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
+    cout << "[" << gX << ", " << gY << ", " << gZ << "]" << endl;
+   */ //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
     //cout << "gX is " << gX << ", gY is " << gY << ", gZ is " << gZ << endl;
     //cout << "From (" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ") to (" << c->getPermanentTarget()->getX() << ", " << c->getPermanentTarget()->getY() << ", " << c->getPermanentTarget()->getZ() << ")" << endl;
   }
-
+  /*cout << "matched with [" << gX << ", " << gY << ", " << gZ << "]" << endl;
+  cout << "THUS IT MUST BE SUCH THAT IT IS VISIBLE" << endl;
+  */
   c->setLOS(true);
 }
-
-// No checkAndBounce if out of bounds
-void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
-    if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
-        Collision::checkAndBounce(i,m[cX][cY][cZ]);
-    }
-}
-
 
 // No checkAndBounce if out of bounds
 void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {

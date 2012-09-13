@@ -42,6 +42,7 @@ class CameraObj : public CubeObj {
     void follow(int,int,int,int,bool,int);
     int distToGoal();
     int distToPlayer();
+    int heightToPlayer();
     int groundDistToPlayer();
     int groundDistTo(int,int);
     void betweenPlayerAndGoal();

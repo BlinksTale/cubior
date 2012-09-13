@@ -158,7 +158,7 @@ void CubeObj::changeY(int n) { y += n; }
 void CubeObj::changeZ(int n) { z += n; }
 void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 // Find the differences, find the ultimate hyp, and move everything by that ratio
-void CubeObj::changePosTowards(CubeObj* target, int delta) {
+void CubeObj::changePosTowards(CubeObj* target, double delta) {
   // Get initial differences
   int n = x - target->getX();
   int o = y - target->getY();

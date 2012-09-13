@@ -36,7 +36,7 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void gameplayLoop();
 
     void ensurePlayerVisible(int);
-    bool playerNotVisible(int);
+    bool playerVisible(int);
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
     void rotateToPlayer(int);
