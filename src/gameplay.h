@@ -1,4 +1,4 @@
-/*
+ /*
  * Gameplay header for Cubior
  * by Brian Handy
  * 1/23/12
@@ -41,7 +41,11 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void moveToPlayer(int);
     void rotateToPlayer(int);
     
+    // Camera
+    bool checkPathVisibility(CubeObj*, CubeObj*, CubeObj* [][maxHeight][maxDepth]);
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
+    
+    // Collision
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void addToCollisionMap(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
@@ -50,6 +54,10 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void wipeCurrentMap(CubeObj*[][maxHeight][maxDepth]);
     void wipeFullMap(CubeObj*[][maxHeight][maxDepth]);
     int getCollisionMapSlot(CubeObj*,int);
+    int getCollisionMapPosition(int,int);    
+    int positionToSlot(CubeObj*,int);
+    int slotToPosition(int, int);
+  
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
     CubeObj* getCube();

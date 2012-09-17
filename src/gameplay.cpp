@@ -320,7 +320,7 @@ void moveToPlayer(int i) {
 void rotateToPlayer(int i) {
   
   // How many angles to try
-  float anglesToTry = 4;//12;
+  float anglesToTry = 8;//12;
   bool foundAnAngle = false;
   
   // Pivot point for rotation
@@ -380,43 +380,25 @@ void rotateToPlayer(int i) {
   
 }
 
-// Tells Camera if it can see player or not, sets up Line of Sight
-void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
-
-  // Used to check all spaces between cam and target,
-  // it will follow a line from the cameraObj to the player within the perm map
-  // checking each slot along that line, and returning false if there is an
-  // occupation before the player is reached.
-
-  // Tracker moves along the line, getting as close as possible
-  CubeObj tracker;
-  tracker.setPos(c->getX(), c->getY(), c->getZ());
-
-  // Cam Tracker Pos
-  // will check out all the spots before trying to move into them
-  int cX, cY, cZ; 
-  cX = getCollisionMapSlot(&tracker,0);
-  cY = getCollisionMapSlot(&tracker,1);
-  cZ = getCollisionMapSlot(&tracker,2);
-  // Goal Pos
-  // where the player is, and we want to go eventually
-  int gX = getCollisionMapSlot(c->getPermanentTarget(),0);
-  int gY = getCollisionMapSlot(c->getPermanentTarget(),1);
-  int gZ = getCollisionMapSlot(c->getPermanentTarget(),2);
-  
-  cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
+bool checkSlotsVisibility(int cX, int cY, int cZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
+  /*
+   cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
   cout << "goal @ <" << (c->getPermanentTarget())->getX() << ", " << (c->getPermanentTarget())->getY() << ", " << (c->getPermanentTarget())->getZ() << ">" << endl;
   cout << "were @ <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
   cout << "Trying to reach [" << gX << ", " << gY << ", " << gZ << "]" << endl;
   cout << "Currently viewing [" << cX << ", " << cY << ", " << cZ << "]" << endl;
+  */
+  
+  // Tracker moves along the line, getting as close as possible
+  CubeObj tracker;
+  tracker.setPos(slotToPosition(cX,0), slotToPosition(cY,1), slotToPosition(cZ,2));
   
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
     
     // Found something there?
     if (m[cX][cY][cZ] != NULL) {
-      c->setLOS(false);
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+      /*cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
       cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
       cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
       cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
@@ -425,26 +407,67 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
       cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
       cout << "Not visible at <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
       cout << "Not visible at [" << cX << ", " << cY << ", " << cZ << "]" << endl;
-      return;
+      */
+      return false;
     }
     // Otherwise, move closer
-    tracker.changePosTowards(c->getPermanentTarget(),tileSize/16.0); // was /4
+    tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/16.0); // was /4
 
     // Then Reset Cam Tracker Pos
     cX = getCollisionMapSlot(&tracker,0);
     cY = getCollisionMapSlot(&tracker,1);
     cZ = getCollisionMapSlot(&tracker,2);
-  /*  cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
+    /*
+    cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
     cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
     cout << "[" << gX << ", " << gY << ", " << gZ << "]" << endl;
-   */ //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
+    */
+    //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
     //cout << "gX is " << gX << ", gY is " << gY << ", gZ is " << gZ << endl;
     //cout << "From (" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ") to (" << c->getPermanentTarget()->getX() << ", " << c->getPermanentTarget()->getY() << ", " << c->getPermanentTarget()->getZ() << ")" << endl;
   }
+  return true;
+}
+
+bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][maxDepth]) {
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+
+  cout << "camera currently at " << (c2->getX()) << ", " << (c2->getY()) << ", " << (c2->getZ()) << endl;
+  // Cam Tracker Pos
+  // will check out all the spots before trying to move into them
+  int cX, cY, cZ; 
+  cX = getCollisionMapSlot(c2,0);
+  cY = getCollisionMapSlot(c2,1);
+  cZ = getCollisionMapSlot(c2,2);
+  // Goal Pos
+  // where the player is, and we want to go eventually
+  int gX = getCollisionMapSlot(target,0);
+  int gY = getCollisionMapSlot(target,1);
+  int gZ = getCollisionMapSlot(target,2);
+  cout << "Checking slots visibility " << cX << ", " << cY << ", " << cZ << " against " << gX << ", " << gY << ", " << gZ << endl;
+  return checkSlotsVisibility(cX,cY,cZ,gX,gY,gZ,m);
+}
+
+// Tells Camera if it can see player or not, sets up Line of Sight
+void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
+
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+
   /*cout << "matched with [" << gX << ", " << gY << ", " << gZ << "]" << endl;
   cout << "THUS IT MUST BE SUCH THAT IT IS VISIBLE" << endl;
   */
-  c->setLOS(true);
+  cout << "camera currently at " << (c->getX()) << ", " << (c->getY()) << ", " << (c->getZ()) << endl;
+  CubeObj tracker;
+  tracker.setPos(c->getX(), c->getY(), c->getZ());
+  // FIXME: Feeling rusty, do I need to delete tracker again to avoid a mem leak, or is containment in function ample?
+  
+  c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
 }
 
 // No checkAndBounce if out of bounds
@@ -564,11 +587,30 @@ void wipeFullMap(CubeObj* map[][maxHeight][maxDepth]){
 // pass cube and dimension to get map slot
 int getCollisionMapSlot(CubeObj* c, int d) {
   int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
-  int cD = c->get(d);
-  int cS = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
-  int mS = map/2*tileSize;
-  int result = (cD - cS + mS)/tileSize;
+  int cubePosition = c->get(d);
+  int cubeRadius = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
+  int mapHalfSize = map/2*tileSize;
+  int result = (cubePosition - cubeRadius + mapHalfSize)/tileSize;
   return result;
+}
+
+// pass cube and dimension to get map slot
+// exact inverse of getCollisionMapSlot
+int getCollisionMapPosition(int slot, int d) {
+  int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
+  int cubeRadius = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
+  int mapHalfSize = map/2*tileSize;
+  int result = slot*tileSize - mapHalfSize + cubeRadius;
+  return result;
+}
+
+// Shorthand for getCollisionMapSlot
+int positionToSlot(CubeObj* c, int d) {
+  return getCollisionMapSlot(c,d);
+}
+// Shorthand for getCollisionMapPosition
+int slotToPosition(int slot, int d) {
+  return getCollisionMapPosition(slot,d);
 }
 
 // Returns gameplay state

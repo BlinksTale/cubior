@@ -157,12 +157,19 @@ void CubeObj::changeX(int n) { x += n; }
 void CubeObj::changeY(int n) { y += n; }
 void CubeObj::changeZ(int n) { z += n; }
 void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
-// Find the differences, find the ultimate hyp, and move everything by that ratio
+
+// Shorthand for changePosTowards but with a target object
 void CubeObj::changePosTowards(CubeObj* target, double delta) {
+  changePosTowards(target->getX(),target->getY(),target->getZ(),delta);
+}
+
+// Find the differences, find the ultimate hyp, and move everything by that ratio
+void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
+  
   // Get initial differences
-  int n = x - target->getX();
-  int o = y - target->getY();
-  int p = z - target->getZ();
+  int n = x - tX;
+  int o = y - tY;
+  int p = z - tZ;
   //cout << "at (" << n << ", " << o << ", " << p << ")" << endl;
 
   // Find ultimate hyp and ratio

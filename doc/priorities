@@ -1,8 +1,10 @@
 Current priorities as of 9/12/12:
-1. Fix "wall width 1" visible/invisible detection
-2. Fix castle lag/put vertex points in array
-3. Adjust angle of movement based on camera angle more precisely
+1. Fix castle lag/put vertex points in array
+2. Adjust player movement based on camera angle more precisely
+3. Smooth camera movements and implement cameraIntendedPos
 
 ?. Finish cleaning up cameraObj::follow
 ?. Move camera less, keep static more
 ?. Camera should swing if possible, not just jump
+
+?. Make camera line up perpendicular to walls
