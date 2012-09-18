@@ -298,7 +298,9 @@ bool playerVisible(int i) {
 // We know the player is not visible, so fix it!
 void fixPlayerVisibility(int i) {
   if (rotateIfInvisible) {
-    rotateToPlayer(i);
+    if (!camera[i].getFoundIntendedPos()) {
+      rotateToPlayer(i);
+    }
   } else {
     moveToPlayer(i);
   }
@@ -378,7 +380,7 @@ void rotateToPlayer(int i) {
 
         //cout << "Actually, it is perfect!" << endl;
         // Found a straight shot? Remember it and stop looking for anything better!
-        intendedPos.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+        intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         foundIntendedPos = true;
         break;
 

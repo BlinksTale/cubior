@@ -14,13 +14,13 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
-    static const int camHeight = 600, goalRange = 800, camSpeed = 1;
-    int x, y, z, farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
+    static const int camHeight = 600, goalRange = 800, camSpeed = 30;
+    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
     bool lastLanded, followingBoth, nearGoal, los;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
-    CubeObj* intendedPos;
+    CubeObj intendedPos;
     bool foundIntendedPos;
     bool freedom;
     TrackerObj* tracker;
@@ -44,9 +44,14 @@ class CameraObj : public CubeObj {
     
     // functions necessary for follow to work:
     int findIntendedDist(int,int);
-    float findNewY(int,bool);
+    float findTargetY(int,bool);
     
+    void lookAtPlayer(int,int,int,int,bool,int);
     void follow(int,int,int,int,bool,int);
+    float followOne(float,int,int,int);
+    float followBoth(float);
+    void positionByAngles(int,int,int,int,float,int);
+    
     int distToGoal();
     int distToPlayer();
     int heightToPlayer();
@@ -76,6 +81,7 @@ class CameraObj : public CubeObj {
 
     // To move camera to a new, specific location
     void setIntendedPos(CubeObj*);
+    bool getFoundIntendedPos();
     void setFoundIntendedPos(bool);
     void disableIntendedPos();
     

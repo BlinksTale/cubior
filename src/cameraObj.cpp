@@ -67,21 +67,53 @@ void CameraObj::tick() {
       cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
-        cout << "Intended Position found" << endl;
+        cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
+        cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
+        cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
+        cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
         // If still not at the destination
-        if (distToCube(intendedPos) > camSpeed) {
+        if (distToCube(&intendedPos) > camSpeed) {
           cout << "Moving towards intended pos" << endl;
+          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           // Move towards it
-          changePosTowards(intendedPos,camSpeed);
+          changePosTowards(&intendedPos,camSpeed);
           cout << "Move success!" << endl;
+          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
         } else {
           cout << "No need to move, already here" << endl;
+          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          x = intendedPos.getX();
+          y = intendedPos.getY();
+          z = intendedPos.getZ();
+          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           // You're there! Stop trying.
           foundIntendedPos = false;
-          //freedom = false;
+          freedom = false;
           cout << "intendedPos and freedom set to false" << endl;
         }
       }
+      // No matter what, since you have a permanent target,
+      // always look at the player still
+      lookAtPlayer(
+        tracker->getX(),
+        permanentTarget->getY(),
+        tracker->getZ(),
+        permanentTarget->getAngleY(),
+        permanentTarget->getGrounded(),
+        4);
+      
+      cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getX() << ", " << intendedPos.getX() << endl;
+      cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+      cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
+
+      // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
+      /*positionByAngles(
+        tracker->getX(),
+        tracker->getZ(),
+        100,
+        groundDistToPlayer(),
+        permanentTarget->getAngleY(),
+        4);*/
     }
   }
   //cout << "End camera tick" << endl;
@@ -253,20 +285,20 @@ int CameraObj::findIntendedDist(int a, int c) {
   return intendedDist;
 }
 
-float CameraObj::findNewY(int b, bool landed) {
+float CameraObj::findTargetY(int playerY, bool landed) {
   // Look at vertical position halfway between current and last ground landing
     // (let's us see a bit higher when jumping)
-    float newY = (b+lastLandedY)/2;
+    float targetY = (playerY+lastLandedY)/2;
     // If you are on the ground, or were just on the ground a moment ago,
     if (landed || lastLanded) {
       // then your position is the vertical point to aim at
-      newY = b;
-      lastLandedY = b;
+      targetY = playerY;
+      lastLandedY = playerY;
     }
     // And then with every new step, update lastLanded
     // (because currently it alternates between landed and not when actually landed)
     lastLanded = landed; 
-    return newY;
+    return targetY;
 }
 // Do the following itself of the camera's target
 void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
@@ -274,8 +306,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // Basically, trying to find right angle, then distance camera appropriately
   
   // For smoothing purposes
-  int num = 10;
-  int den = 11; 
+  int num = 10, den = 11; 
   // and measuring dist
   int distToPlayer = groundDistTo(a,c);
   // (if really too far though, catch up to player)
@@ -284,92 +315,118 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   /* Distance deciding segment */
   int intendedDist = findIntendedDist(a,c);
   
-  /* Vertical aiming segment! */
-  float newY = findNewY(b, landed);
-  
-
-  
-  
   // so the camera doesn't go below a certain point
-  int newDist = distToPlayer > farthestDist ? farthestDist : 
-    (distToPlayer < closestDist ? closestDist : distToPlayer);
+  // FIXME: Actually, I think these lines aren't even used - so, commented out
+  //int newDist = distToPlayer > farthestDist ? farthestDist : 
+    //(distToPlayer < closestDist ? closestDist : distToPlayer);
   // Set camera at a Y height between its current y and the last landed + some height - that height by dist/farthest ratio
-  y = ((lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist)) + y*num)/den;
+  int intendedY = (lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist));
+  y = (intendedY+y*num)/den;
   
-  // theAtan is for the triangle between ground hyp and y diff
-  float vertAtan = deltasToDegrees(distToPlayer,y-newY);
+  /*
+   * Y position is figured out 
+   * Now move on to the angles
+   */
+  lookAtPlayer(a,b,c,playerAngle,landed,strictness);
+
+  /* Just figure out X & Z positions now */
   
-  // angleXToBe is how far down to be looking, from the camera, to the player
-  float angleXToBe =  vertAtan != 0 ? 270 + vertAtan : angleX;
+  // Finally, implement movement for the camera in its new facing direction
+  positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
+	
+}
 
-  // angleYToBe represents the L/R direction to look to see the player
-  // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
-  ////float angleYToBe = ((c-z<=0?0:180)+(((c!=z) ? atan((a-x)*1.0/(c-z)) : 3.14159/2)*360/(2*3.14159)));
-  float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
-  // wanted else to = 360/4
+// Bare basics of any normal tick/update: look at the player
+void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   
-  // if only following the player (and not the goal too)...
-  if (!followingBoth) {
-    // be inclined towards angle player is facing if following
-    if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
-      playerAngle = matchRangeOf(playerAngle,angleYToBe);
-      // Camera only turns if player going mostly away from camera
-      if ((playerAngle < angleY + 125) && (playerAngle > angleY - 125)) {
-        angleYToBe = (angleYToBe*num + playerAngle)/den;
-      }
-    }
+    int num = 10, den = 11; 
+    /* Vertical aiming segment */
+    float targetY = findTargetY(b, landed);
+    // quick temp var for the triangle between ground hyp and y diff
+    float vertAtan = deltasToDegrees(groundDistTo(a,c),y-targetY);  
+    // angleXToBe is how far down to be looking, from the camera, to the player
+    float angleXToBe =  vertAtan != 0 ? 270 + vertAtan : angleX;
 
-    // But if within goal range, change to look at player AND the goal
-    if (goalWithinDistRange() && goalWithinJumpRange()) {
-      // Figure out which side to follow from
-      cameraSide = findFollowingBothSide(angleYToBe, angleY);
-      followingBoth = true;
-    }
+    /* Horizontal aiming segment */
+    // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
+    float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
 
-  // If you are following both the goal and the player
-  } else {
-    // if outside range...
-    if (goalOutsideDistRange() || !goalWithinJumpRange()) {
-      // stop following goal if no longer near it
-      followingBoth = false;
-    // if within range...
+    // Figure out follow-just-the-player mode
+    if (!followingBoth) {
+      angleYToBe = followOne(angleYToBe, playerAngle, num, den);
+    // Otherwise, watch the player *and* the goal
     } else {
-      // ...but not too near...
-      if (goalOutsideNearRange()) {
-        // If last step you were near the goal still
-        if (nearGoal) {
-          nearGoal = false;
-          // set a new camera side! May have moved to other side of cube
-          cameraSide = findFollowingBothSide(angleYToBe, angleY);
-        }
-        int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
-        viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
-        angleYToBe = (angleYToBe*3 + viewingAngle)/4;
-      // ...but if you ARE too near...
-      } else if (!nearGoal) {
-        nearGoal = true;
-      }
+      angleYToBe = followBoth(angleYToBe);
     }
-  }
 
-  //angleYToBe = matchRangeOf(angleYToBe, angleY);
-  // A nice big buffer of 90 degrees makes this work where 1 degree didn't
-  angleY = matchRangeOf(angleY, angleYToBe);
-  //if (angleY < 0 && angleYToBe > 180) { angleY += 360; }
-  //if (angleY > 180 && angleYToBe < 0) { angleY -= 360; }
-  angleY += -(angleY-angleYToBe)/strictness;
-  angleX += -(angleX-angleXToBe)/strictness;
-  angleZ = 0; // Generally, don't want to change this - causes disorientation
+    // Then update the final angles themselves
+    angleY = matchRangeOf(angleY, angleYToBe);
+    angleY += -(angleY-angleYToBe)/strictness;
+    angleX += -(angleX-angleXToBe)/strictness;
+    angleZ = 0; // Generally, don't want to change this - causes disorientation
+}
 
-  // Then implement movement for the camera in its new facing direction
+// Final step of follow, adjust position to match camera angles
+void CameraObj::positionByAngles(int a, int c, int intendedDist, int distToPlayer, float angleY, int strictness) {
   int viewingDist = (intendedDist + 3*distToPlayer)/4;
   int xToBe = a+viewingDist*sin(angleY*2*3.14159/360);
   int zToBe = c+viewingDist*cos(angleY*2*3.14159/360);
   x += -(x-xToBe)/strictness;
   z += -(z-zToBe)/strictness;
-	
 }
 
+float CameraObj::followOne(float oldYToBe, int playerAngle, int num, int den) {
+  
+  float angleYToBe = oldYToBe;
+  
+  // be inclined towards angle player is facing if following
+  if ( withinRangeOf(tracker->getAngleY(),permanentTarget->getAngleY(),45) ) {
+    playerAngle = matchRangeOf(playerAngle,angleYToBe);
+    // Camera only turns if player going mostly away from camera
+    if ((playerAngle < angleY + 125) && (playerAngle > angleY - 125)) {
+      angleYToBe = (angleYToBe*num + playerAngle)/den;
+    }
+  }
+
+  // But if within goal range, *change* modes to look at player AND the goal
+  if (goalWithinDistRange() && goalWithinJumpRange()) {
+    // Figure out which side to follow from
+    cameraSide = findFollowingBothSide(angleYToBe, angleY);
+    followingBoth = true;
+  }
+  
+  return angleYToBe;
+}
+
+// Use this if following player and goal both
+float CameraObj::followBoth(float oldYToBe) {
+
+  float angleYToBe = oldYToBe;
+  // if outside range...
+  if (goalOutsideDistRange() || !goalWithinJumpRange()) {
+    // stop following goal if no longer near it
+    followingBoth = false;
+  // if within range...
+  } else {
+    // ...but not too near...
+    if (goalOutsideNearRange()) {
+      // If last step you were near the goal still
+      if (nearGoal) {
+        nearGoal = false;
+        // set a new camera side! May have moved to other side of cube
+        cameraSide = findFollowingBothSide(angleYToBe, angleY);
+      }
+      int viewingAngle = angleBetweenPlayerAndGoal() + 90*cameraSide;
+      viewingAngle = matchRangeOf(viewingAngle, angleYToBe);
+      angleYToBe = (angleYToBe*3 + viewingAngle)/4;
+    // ...but if you ARE too near...
+    } else if (!nearGoal) {
+      nearGoal = true;
+    }
+  }
+  
+  return angleYToBe;
+}
 // See if y1 within delta of y2
 bool CameraObj::withinRangeOf(int y1, int y2, int delta) {
   matchRangeOf(y1,y2);
@@ -391,10 +448,11 @@ float CameraObj::smoothMatchRangeOf(float y1, float y2) {
 }
 
 void CameraObj::setIntendedPos(CubeObj* c) {
-  intendedPos = c;
+  intendedPos.setPos(c->getX(),c->getY(),c->getZ());
   foundIntendedPos = true;
 }
 
+bool CameraObj::getFoundIntendedPos() { return foundIntendedPos; }
 void CameraObj::setFoundIntendedPos(bool b) { foundIntendedPos = b; }
 void CameraObj::disableIntendedPos() { foundIntendedPos = false; }
 

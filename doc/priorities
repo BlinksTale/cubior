@@ -1,4 +1,7 @@
 Current priorities as of 9/12/12:
+0. distToCube is not working, giving single digit numbers for double or triple digit differences
+   ends up that extra x,y,z vars in cameraObj.h were ruining everything ><
+0. Something wrong with intendedPos in cameraObj.cpp, recording max ints as pos
 1. Fix CameraObj::follow so it's broken into lookAt and follow
 1. Fix castle lag/put vertex points in array
 2. Adjust player movement based on camera angle more precisely
@@ -9,3 +12,5 @@ Current priorities as of 9/12/12:
 ?. Camera should swing if possible, not just jump
 
 ?. Make camera line up perpendicular to walls
+
+???. Using int for playerAngle in cameraObj, is this causing some of the player-movement issues?

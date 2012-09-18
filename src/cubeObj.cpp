@@ -155,10 +155,15 @@ void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 
 // Find how close you are to another cube
 int CubeObj::distToCube(CubeObj* cube) {
+  cout << "  current pos is " << x << ", " << y << ", " << z << endl;
+  cout << "  cube    pos is " << cube->getX() << ", " << cube->getY() << ", " << cube->getZ() << endl;
   int deltaX = x-cube->getX();
   int deltaY = y-cube->getY();
   int deltaZ = z-cube->getZ();
-  return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+  cout << "  deltas are " << deltaX << "," << deltaY << "," << deltaZ << endl;
+  int theSqrt = sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+  cout << "  the sqrt is " << theSqrt << endl;
+  return theSqrt;
 }
 
 // Change is relative positioning
