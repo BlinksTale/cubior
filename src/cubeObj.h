@@ -46,6 +46,8 @@ class CubeObj {
     void setY(int);
     void setZ(int);
 
+    int distToCube(CubeObj*);
+    
     void changePos(int,int,int);
     void changeX(int);
     void changeY(int);

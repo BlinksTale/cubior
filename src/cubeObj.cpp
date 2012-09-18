@@ -152,6 +152,15 @@ void CubeObj::setY(int n) { y = n; }
 void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 
+
+// Find how close you are to another cube
+int CubeObj::distToCube(CubeObj* cube) {
+  int deltaX = x-cube->getX();
+  int deltaY = y-cube->getY();
+  int deltaZ = z-cube->getZ();
+  return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+}
+
 // Change is relative positioning
 void CubeObj::changeX(int n) { x += n; }
 void CubeObj::changeY(int n) { y += n; }

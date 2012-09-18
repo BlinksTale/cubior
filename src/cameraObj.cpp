@@ -23,6 +23,7 @@ CameraObj::CameraObj() {
   cameraSide = 0; // where zero is undetermined
   farthestDist = 1200;
   closestDist = 1000;
+    
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
   followingBoth = false; // Start by just following cube, not also goal
@@ -30,7 +31,7 @@ CameraObj::CameraObj() {
   los = true; // Assume you can see the player from the sky :P
 }
 
-// Set to starting pos
+// Set to starting pos, start of a new level
 void CameraObj::resetPos() {
   x = 0;
   y = 1000000;
@@ -38,24 +39,52 @@ void CameraObj::resetPos() {
   angleX = -45;
   angleY = 0;
   angleZ = 0;
+  
+  // start with no intended pos and full movement freedom
+  foundIntendedPos = false;
+  freedom = true;
 }
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  //cout << "Start camera tick" << endl;
   // If you are following one target every frame,
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
-    // then move the camera itself
-    follow(
-      tracker->getX(),
-      permanentTarget->getY(),
-      tracker->getZ(),
-      permanentTarget->getAngleY(),
-      permanentTarget->getGrounded(),
-      4
-    );
+    // then move the camera itself if free to do so
+    if (freedom && !foundIntendedPos) {
+      //cout << "Normal loop! Freedom found, no intended pos" << endl;
+      follow(
+        tracker->getX(),
+        permanentTarget->getY(),
+        tracker->getZ(),
+        permanentTarget->getAngleY(),
+        permanentTarget->getGrounded(),
+        4
+      );
+    } else {
+      cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
+      // if you do have a place to be or aren't allowed to move,
+      if (foundIntendedPos) {
+        cout << "Intended Position found" << endl;
+        // If still not at the destination
+        if (distToCube(intendedPos) > camSpeed) {
+          cout << "Moving towards intended pos" << endl;
+          // Move towards it
+          changePosTowards(intendedPos,camSpeed);
+          cout << "Move success!" << endl;
+        } else {
+          cout << "No need to move, already here" << endl;
+          // You're there! Stop trying.
+          foundIntendedPos = false;
+          //freedom = false;
+          cout << "intendedPos and freedom set to false" << endl;
+        }
+      }
+    }
   }
+  //cout << "End camera tick" << endl;
 }
 
 // Used to permanently set a target to always follow
@@ -211,30 +240,55 @@ void CameraObj::checkExtremeCatchup(int distToPlayer, int a, int c, int num, int
   }
 }
 
-// Do the following itself of the camera's target
-void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
-
-  // For smoothing purposes
-  int num = 10;
-  int den = 11; 
+/*
+ * IntendedDist is how far to be from the player.
+ * If following two things (goal and player),
+ * just move back far enough to see both.
+ */
+int CameraObj::findIntendedDist(int a, int c) {
   int intendedDist = farthestDist;
-  float newY = (b+lastLandedY)/2; // as to see jump height
-  if (landed || lastLanded) {
-    newY = b;
-    lastLandedY = b;
-  }
-  lastLanded = landed; // because currently alternates between landed and not when actually landed
-
-  // First, if following both, look between both, not at just one
   if (followingBoth) {
     intendedDist = lookAtBoth(a,c,intendedDist);
   }
+  return intendedDist;
+}
 
-  // Then start normal camera variables
-  int distToPlayer = groundDistTo(a,c);
+float CameraObj::findNewY(int b, bool landed) {
+  // Look at vertical position halfway between current and last ground landing
+    // (let's us see a bit higher when jumping)
+    float newY = (b+lastLandedY)/2;
+    // If you are on the ground, or were just on the ground a moment ago,
+    if (landed || lastLanded) {
+      // then your position is the vertical point to aim at
+      newY = b;
+      lastLandedY = b;
+    }
+    // And then with every new step, update lastLanded
+    // (because currently it alternates between landed and not when actually landed)
+    lastLanded = landed; 
+    return newY;
+}
+// Do the following itself of the camera's target
+void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int strictness) {
+
+  // Basically, trying to find right angle, then distance camera appropriately
   
-  // Extreme catchup for extreme dist scenario
+  // For smoothing purposes
+  int num = 10;
+  int den = 11; 
+  // and measuring dist
+  int distToPlayer = groundDistTo(a,c);
+  // (if really too far though, catch up to player)
   checkExtremeCatchup(distToPlayer,a,c,num,den);
+  
+  /* Distance deciding segment */
+  int intendedDist = findIntendedDist(a,c);
+  
+  /* Vertical aiming segment! */
+  float newY = findNewY(b, landed);
+  
+
+  
   
   // so the camera doesn't go below a certain point
   int newDist = distToPlayer > farthestDist ? farthestDist : 
@@ -336,6 +390,14 @@ float CameraObj::smoothMatchRangeOf(float y1, float y2) {
   return y1;
 }
 
+void CameraObj::setIntendedPos(CubeObj* c) {
+  intendedPos = c;
+  foundIntendedPos = true;
+}
+
+void CameraObj::setFoundIntendedPos(bool b) { foundIntendedPos = b; }
+void CameraObj::disableIntendedPos() { foundIntendedPos = false; }
+
 // Getters
 int CameraObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CameraObj::getX() { return x; }
@@ -359,6 +421,10 @@ void CameraObj::setAngle(float n, float o, float p) {
 void CameraObj::setAngleX(float n) { angleX = n; }
 void CameraObj::setAngleY(float n) { angleY = n; }
 void CameraObj::setAngleZ(float n) { angleZ = n; }
+
+// Regarding camera's ability to move on its own, for follow, vs. set placement
+void CameraObj::setFreedom(bool b) { freedom = b; }
+bool CameraObj::getFreedom() { return freedom; }
 
 // Line of Sight - returns if view to player is clear or not
 void CameraObj::setLOS(bool b) {

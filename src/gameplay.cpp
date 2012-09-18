@@ -25,7 +25,7 @@ bool cubiorPlayable[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
-CubeObj cameraCube;
+CubeObj cameraCube; // FIXME: Seems to only be here for collision purposes
 Map* levelMap;
 
 int currentMapWidth;
@@ -261,7 +261,7 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
-        cout << "Check visibility"<<endl;
+        //cout << "Check visibility"<<endl;
         ensurePlayerVisible(i);
         }
     }
@@ -275,12 +275,12 @@ void ensurePlayerVisible(int i) {
   if (camera[i].heightToPlayer() < maxCameraHeight && camera[i].distToPlayer() > tileSize/2) {
     // Otherwise,
     if (playerVisible(i)) {
-      cout << "Player visible" << endl;
+      //cout << "Player visible" << endl;
       //cout << "with camera saying " << (camera[i].getLOS() ? "true" : "false") << endl;
       //cout << "and dist to player " << camera[i].distToPlayer() << endl;
     } else {
       // and fix if needed
-      cout << "Player hidden!" << endl;
+      //cout << "Player hidden!" << endl;
       fixPlayerVisibility(i);
     }
     //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
@@ -316,21 +316,26 @@ void moveToPlayer(int i) {
   }
 }
 
-// Rotate the camera to angle to see the player
+// Try to find an angle & rotate the camera to angle to see the player
 void rotateToPlayer(int i) {
   
   // How many angles to try
   float anglesToTry = 8;//12;
   bool foundAnAngle = false;
+  CubeObj intendedPos;
+  bool foundIntendedPos = false;
+  CubeObj oldCamera;
   
   // Pivot point for rotation
   int targetX = camera[i].getPermanentTarget()->getX();
   int targetZ = camera[i].getPermanentTarget()->getZ();
   // Position we will move to on each turn
   int oldX = camera[i].getX();
+  int oldY = camera[i].getY();
   int oldZ = camera[i].getZ();
   int newX = oldX;
   int newZ = oldZ;
+  oldCamera.setPos(oldX,oldY,oldZ);
   
   // Hypotenuse for triangle formed between camera and target
   int hyp = camera[i].groundDistToPlayer();
@@ -340,7 +345,7 @@ void rotateToPlayer(int i) {
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
   
-  cout << "START" << endl;
+  //cout << "START" << endl;
   // rotate until player is visible or 180 from start
   for (int k = 0; k<anglesToTry; k++)
   {
@@ -351,63 +356,103 @@ void rotateToPlayer(int i) {
     newX = targetX + hyp*sin(newAngle);
     newZ = targetZ + hyp*cos(newAngle);
     
-    cout << "Target " << targetX << ", " << targetZ << endl;
-    cout << "hyp is " << hyp << " w/ newX " << newX << " and newZ " << newZ << endl;
-    cout << "newAngle is " << newAngle << " from baseAngle " << baseAngle << endl;
+    //cout << "Target " << targetX << ", " << targetZ << endl;
+    //cout << "hyp is " << hyp << " w/ newX " << newX << " and newZ " << newZ << endl;
+    //cout << "newAngle is " << newAngle << " from baseAngle " << baseAngle << endl;
     
     // Leaving camera cube in here just in case forgetting it would ruin something, not sure
     // FIXME later by testing it with no camera cube step
     cameraCube.setPos(newX,camera[i].getY(),newZ);
     camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
     
-    // Once you see the player visible, quit!
+    // Once you see the player visible, remember it! If a clear shot to 
+    // the camera, use the position for sure.
     // May need to fix this later, as requires setting cam pos every time
     if (playerVisible(i)) {
       camera[i].tick();
       foundAnAngle = true;
-      cout << "Found a fix!" << endl;
-      break;
+      //cout << "Found a fix! (might not be perfect)" << endl;
+           
+      // Next, test if it is also a straight shot from the current camera
+      if (checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
+
+        //cout << "Actually, it is perfect!" << endl;
+        // Found a straight shot? Remember it and stop looking for anything better!
+        intendedPos.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+        foundIntendedPos = true;
+        break;
+
+      }
+
+      // Otherwise, if your first result, save it so we have *something*
+      if (!foundIntendedPos) {
+
+        //cout << "Not perfect, but a good first fix!" << endl;
+        intendedPos.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+
+        // And now we have found such a position, so remember that it's taken
+        foundIntendedPos = true;
+
+      }      
     }
-    cout << "No fix yet on try " << k << " of " << anglesToTry << endl;
+    //cout << "No perfect fix yet on try " << k << " of " << anglesToTry << endl;
   }
-  cout << "END" << endl;
+  //cout << "END OF ATTEMPTS" << endl;
   
-  if (!foundAnAngle) {
+  //if (!foundAnAngle) {
+    //cout << "No good results" << endl;
     // And if no escape, just go back to what we had :/
-    cameraCube.setPos(oldX,camera[i].getY(),oldZ);
+    cameraCube.setPos(oldX,oldY,oldZ);
     camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
-  }
+  //}
   
+  // Otherwise, the best we found is the best we found, use it!
+  if (foundIntendedPos) {
+    //cout << "Got something!" << endl;
+    //FIXME: commented out since seemingly pointless.
+    // cameraCube.setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
+    // Meanwhile, this is commented out to use intendedPos instead
+    //camera[i].setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
+    
+    camera[i].setIntendedPos(&intendedPos);
+  }
+  cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
 }
 
-bool checkSlotsVisibility(int cX, int cY, int cZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
-  /*
-   cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
-  cout << "goal @ <" << (c->getPermanentTarget())->getX() << ", " << (c->getPermanentTarget())->getY() << ", " << (c->getPermanentTarget())->getZ() << ">" << endl;
-  cout << "were @ <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
-  cout << "Trying to reach [" << gX << ", " << gY << ", " << gZ << "]" << endl;
-  cout << "Currently viewing [" << cX << ", " << cY << ", " << cZ << "]" << endl;
-  */
+bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
+  
+  bool showData = false;
+  int cX = aX, cY = aY, cZ = aZ;
   
   // Tracker moves along the line, getting as close as possible
   CubeObj tracker;
   tracker.setPos(slotToPosition(cX,0), slotToPosition(cY,1), slotToPosition(cZ,2));
+  
+  if (showData) {
+    cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
+    cout << "goal @ <" << (gX) << ", " << (gY) << ", " << (gZ) << ">" << endl;
+    cout << "were @ <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
+    cout << "Trying to reach [" << gX << ", " << gY << ", " << gZ << "]" << endl;
+    cout << "Currently viewing [" << cX << ", " << cY << ", " << cZ << "]" << endl;
+  }
   
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
     
     // Found something there?
     if (m[cX][cY][cZ] != NULL) {
-      /*cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
-      cout << "Not visible at <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
-      cout << "Not visible at [" << cX << ", " << cY << ", " << cZ << "]" << endl;
-      */
+      if (showData) {
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
+        cout << "Not visible at <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
+        cout << "Not visible at [" << cX << ", " << cY << ", " << cZ << "]" << endl;
+      }
+      
       return false;
     }
     // Otherwise, move closer
@@ -417,11 +462,13 @@ bool checkSlotsVisibility(int cX, int cY, int cZ, int gX, int gY, int gZ, CubeOb
     cX = getCollisionMapSlot(&tracker,0);
     cY = getCollisionMapSlot(&tracker,1);
     cZ = getCollisionMapSlot(&tracker,2);
-    /*
-    cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
-    cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
-    cout << "[" << gX << ", " << gY << ", " << gZ << "]" << endl;
-    */
+    
+    if (showData) {
+      cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
+      cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
+      cout << "[" << gX << ", " << gY << ", " << gZ << "]" << endl;
+    }
+    
     //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
     //cout << "gX is " << gX << ", gY is " << gY << ", gZ is " << gZ << endl;
     //cout << "From (" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ") to (" << c->getPermanentTarget()->getX() << ", " << c->getPermanentTarget()->getY() << ", " << c->getPermanentTarget()->getZ() << ")" << endl;
@@ -435,7 +482,7 @@ bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][m
   // checking each slot along that line, and returning false if there is an
   // occupation before the player is reached.
 
-  cout << "camera currently at " << (c2->getX()) << ", " << (c2->getY()) << ", " << (c2->getZ()) << endl;
+  //cout << "camera currently at " << (c2->getX()) << ", " << (c2->getY()) << ", " << (c2->getZ()) << endl;
   // Cam Tracker Pos
   // will check out all the spots before trying to move into them
   int cX, cY, cZ; 
@@ -447,8 +494,8 @@ bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][m
   int gX = getCollisionMapSlot(target,0);
   int gY = getCollisionMapSlot(target,1);
   int gZ = getCollisionMapSlot(target,2);
-  cout << "Checking slots visibility " << cX << ", " << cY << ", " << cZ << " against " << gX << ", " << gY << ", " << gZ << endl;
-  return checkSlotsVisibility(cX,cY,cZ,gX,gY,gZ,m);
+  //cout << "Checking slots visibility " << cX << ", " << cY << ", " << cZ << " against " << gX << ", " << gY << ", " << gZ << endl;
+  return checkSlotPathVisibility(cX,cY,cZ,gX,gY,gZ,m);
 }
 
 // Tells Camera if it can see player or not, sets up Line of Sight
@@ -462,7 +509,7 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
   /*cout << "matched with [" << gX << ", " << gY << ", " << gZ << "]" << endl;
   cout << "THUS IT MUST BE SUCH THAT IT IS VISIBLE" << endl;
   */
-  cout << "camera currently at " << (c->getX()) << ", " << (c->getY()) << ", " << (c->getZ()) << endl;
+  //cout << "camera currently at " << (c->getX()) << ", " << (c->getY()) << ", " << (c->getZ()) << endl;
   CubeObj tracker;
   tracker.setPos(c->getX(), c->getY(), c->getZ());
   // FIXME: Feeling rusty, do I need to delete tracker again to avoid a mem leak, or is containment in function ample?

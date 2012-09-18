@@ -42,6 +42,7 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
     void rotateToPlayer(int);
     
     // Camera
+    bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);
     bool checkPathVisibility(CubeObj*, CubeObj*, CubeObj* [][maxHeight][maxDepth]);
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
     

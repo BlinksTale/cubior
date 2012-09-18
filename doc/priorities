@@ -1,4 +1,5 @@
 Current priorities as of 9/12/12:
+1. Fix CameraObj::follow so it's broken into lookAt and follow
 1. Fix castle lag/put vertex points in array
 2. Adjust player movement based on camera angle more precisely
 3. Smooth camera movements and implement cameraIntendedPos
