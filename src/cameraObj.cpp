@@ -43,6 +43,8 @@ void CameraObj::resetPos() {
   // start with no intended pos and full movement freedom
   foundIntendedPos = false;
   freedom = true;
+  visibleIntendedCount = 0;
+  backupFreedom = true;
 }
 
 // The most basic increment, called once per main loop/frame
@@ -362,6 +364,7 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
       cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
         angleYToBe = followOne(angleYToBe, playerAngle, num, den);
+        backupFreedom = true; // if player's moving again, feel the freedom to backup
       }
     // Otherwise, watch the player *and* the goal
     } else {
@@ -380,8 +383,17 @@ void CameraObj::positionByAngles(int a, int c, int intendedDist, int distToPlaye
   int viewingDist = (intendedDist + 3*distToPlayer)/4;
   int xToBe = a+viewingDist*sin(angleY*2*3.14159/360);
   int zToBe = c+viewingDist*cos(angleY*2*3.14159/360);
-  x += -(x-xToBe)/strictness;
-  z += -(z-zToBe)/strictness;
+  
+  // This will be a bit tricky, need to determine if new dist is smaller than old
+  // when backup freedom is disabled
+  int newDist = sqrt(pow(zToBe-permanentTarget->getZ(),2)+pow(xToBe-permanentTarget->getX(),2));
+  int oldDist = sqrt(pow(z-permanentTarget->getZ(),2)+pow(x-permanentTarget->getX(),2));
+  bool newDistSmaller = newDist < oldDist;
+  
+  if (backupFreedom || newDistSmaller) {
+    x += -(x-xToBe)/strictness;
+    z += -(z-zToBe)/strictness;
+  }
 }
 
 float CameraObj::followOne(float oldYToBe, int playerAngle, int num, int den) {
@@ -456,14 +468,21 @@ float CameraObj::smoothMatchRangeOf(float y1, float y2) {
   return y1;
 }
 
+// Regarding place we want camera to go in order to see player again
 void CameraObj::setIntendedPos(CubeObj* c) {
   intendedPos.setPos(c->getX(),c->getY(),c->getZ());
   foundIntendedPos = true;
 }
-
 bool CameraObj::getFoundIntendedPos() { return foundIntendedPos; }
 void CameraObj::setFoundIntendedPos(bool b) { foundIntendedPos = b; }
 void CameraObj::disableIntendedPos() { foundIntendedPos = false; }
+// And if we can see the player early, keep tally of how long
+int CameraObj::getVisibleIntended() { return visibleIntendedCount; }
+void CameraObj::setVisibleIntended(int i) { visibleIntendedCount = i; }
+
+// Backup Freedom stuff, for when headed towards intended pos
+bool CameraObj::getBackupFreedom() { return backupFreedom; }
+void CameraObj::setBackupFreedom(bool b) { backupFreedom = b; }
 
 // Getters
 int CameraObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }

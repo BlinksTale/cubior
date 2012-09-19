@@ -15,8 +15,8 @@ class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
     static const int camHeight = 600, goalRange = 800, camSpeed = 30;
-    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide;
-    bool lastLanded, followingBoth, nearGoal, los;
+    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide, visibleIntendedCount;
+    bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
@@ -84,6 +84,14 @@ class CameraObj : public CubeObj {
     bool getFoundIntendedPos();
     void setFoundIntendedPos(bool);
     void disableIntendedPos();
+    // to make sure it doesn't go too long towards that location
+    // when the player is, in fact, already visible.
+    int getVisibleIntended();
+    void setVisibleIntended(int);
+    
+    // Along intended pos is the freedom to backup... or lack thereof
+    void setBackupFreedom(bool);
+    bool getBackupFreedom();
     
     // Relates to cameras ability to recenter and move freely
     // is false after putting player back into visibility

@@ -87,6 +87,9 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
 void resetCubior(int i) {
   // Put camera in drop down spot
   camera[i].resetPos();
+  // And reset its visible-yet-intended count
+  camera[i].setVisibleIntended(0);
+  
   // Put cubior in falling spot
 	int distFromCenter = (i+1)/2;
 	int directionFromCenter = 1+(i%2)*(-2);
@@ -281,8 +284,20 @@ void ensurePlayerVisible(int i) {
       
       //If visible, make sure you're not moving to a new angle anymore!
       // then first, make absolutely sure you still need an intended pos
+      /*if (camera[i].getFoundIntendedPos()) {
+        if (camera[i].getVisibleIntended() > visibleIntendedMax) {
+          camera[i].setFoundIntendedPos(false);
+        } else {
+          camera[i].setVisibleIntended(camera[i].getVisibleIntended()+1);
+        }
+      } else if (camera[i].getVisibleIntended() > 0) {
+        camera[i].setVisibleIntended(0);
+      }*/
+      // Well that didn't work as planned...
+      
+      // Attempt #2! Stop moving camera once player is visible
       if (camera[i].getFoundIntendedPos()) {
-        camera[i].setFoundIntendedPos(false);
+        camera[i].setBackupFreedom(false); // Better not backup if you found the player
       }
     } else {
       // and fix if needed
@@ -445,8 +460,8 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
     
-    // Found something there?
-    if (m[cX][cY][cZ] != NULL) {
+    // Found something there? Make sure it has 2D of neighbors (is a real threat)
+    if (m[cX][cY][cZ] != NULL && m[cX][cY][cZ]->isWall()) {
       if (showData) {
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;

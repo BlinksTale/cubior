@@ -33,6 +33,9 @@ const int totalLevels = 6; // for now, update this when new levels are added
 const int cubiorCount = 4;
 const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
 
+// Variables for how long we've moved towards intended, yet target is visible..
+const int visibleIntendedMax = 0;
+
     void gameplayStart(string);
     void nextLevel();
     void gameplayLoop();
