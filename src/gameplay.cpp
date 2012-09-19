@@ -360,6 +360,8 @@ void rotateToPlayer(int i) {
   
   // Hypotenuse for triangle formed between camera and target
   int hyp = camera[i].groundDistToPlayer();
+  cout << "GroundDistToPlayer: " << hyp << endl;
+  cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
   
   // Angle that we will be moving away from, pivot point side
   float baseAngle = M_PI/2.0 - getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);

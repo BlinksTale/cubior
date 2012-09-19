@@ -66,33 +66,35 @@ void CameraObj::tick() {
         4
       );
     } else { // not free or have an intended pos
-      cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
+      //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
+        /*
         cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
         cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
         cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
         cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
+        */
         // If still not at the destination
         if (distToCube(&intendedPos) > camSpeed) {
-          cout << "Moving towards intended pos" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          //cout << "Moving towards intended pos" << endl;
+          //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           // Move towards it
           changePosTowards(&intendedPos,camSpeed);
-          cout << "Move success!" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          //cout << "Move success!" << endl;
+          //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
         } else {
-          cout << "No need to move, already here" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          //cout << "No need to move, already here" << endl;
+          //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           x = intendedPos.getX();
           y = intendedPos.getY();
           z = intendedPos.getZ();
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           // You're there! Stop trying.
           foundIntendedPos = false;
           // currently disabled to try and find a technique without this
           //freedom = false;
-          cout << "intendedPos and freedom set to false" << endl;
+          //cout << "intendedPos and freedom set to false" << endl;
         }
       }
       // No matter what, since you have a permanent target,
@@ -104,11 +106,11 @@ void CameraObj::tick() {
         permanentTarget->getAngleY(),
         permanentTarget->getGrounded(),
         4);
-      
+      /*
       cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
       cout << "currentPos  " << x << ", " << y << ", " << z << endl;
       cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
-
+      */
       // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
       /*positionByAngles(
         tracker->getX(),
@@ -166,14 +168,20 @@ int CameraObj::heightToPlayer() {
 
 // Find how close player is to camera on X,Z
 int CameraObj::groundDistToPlayer() {
-  return groundDistTo(permanentTargetGoal->getX(),permanentTargetGoal->getZ());
+  cout << "Get groundDistToPlayer for " << (permanentTarget->getX()) << ", " << (permanentTarget->getZ()) << endl;
+  return groundDistTo(permanentTarget->getX(),permanentTarget->getZ());
 }
 
 // Find how close camera is to some X,Z
 int CameraObj::groundDistTo(int a, int c) {
+  cout << "So for x,z as " << x << ", " << z << endl;
+  cout << "and a,c as " << a << ", " << c << endl;
   int deltaX = x-a;
   int deltaZ = z-c;
-  return sqrt(deltaX*deltaX + deltaZ*deltaZ);
+  cout << "We have deltaX " << deltaX << " and deltaZ " << deltaZ << endl;
+  int result = sqrt(deltaX*deltaX + deltaZ*deltaZ);
+  cout << "With result " << result << endl;
+  return result;
 }
 
 // Ground angle to goal from camera
@@ -361,7 +369,7 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     // Figure out follow-just-the-player mode
     if (!followingBoth) {
       // Only point the way the player faces if you're moving
-      cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
+      //cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
         angleYToBe = followOne(angleYToBe, playerAngle, num, den);
         backupFreedom = true; // if player's moving again, feel the freedom to backup
