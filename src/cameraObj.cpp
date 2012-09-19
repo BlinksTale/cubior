@@ -63,7 +63,7 @@ void CameraObj::tick() {
         permanentTarget->getGrounded(),
         4
       );
-    } else {
+    } else { // not free or have an intended pos
       cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
@@ -88,7 +88,8 @@ void CameraObj::tick() {
           cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           // You're there! Stop trying.
           foundIntendedPos = false;
-          freedom = false;
+          // currently disabled to try and find a technique without this
+          //freedom = false;
           cout << "intendedPos and freedom set to false" << endl;
         }
       }
@@ -102,7 +103,7 @@ void CameraObj::tick() {
         permanentTarget->getGrounded(),
         4);
       
-      cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getX() << ", " << intendedPos.getX() << endl;
+      cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
       cout << "currentPos  " << x << ", " << y << ", " << z << endl;
       cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
 
@@ -322,13 +323,17 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   // Set camera at a Y height between its current y and the last landed + some height - that height by dist/farthest ratio
   int intendedY = (lastLandedY+camHeight*2-camHeight*distToPlayer/(farthestDist));
   y = (intendedY+y*num)/den;
+  // FIXME: This is good for not going underground, but causes jumpiness
+  if (landed) { if (y<b+200) { y = (b+200+y*num)/den; }
+  } else if (y<b+200) { y = (b+200+y*num)/den; } // was "if y<lastLandedY+200" but caused jerkiness, so, meh
   
   /*
    * Y position is figured out 
    * Now move on to the angles
    */
-  lookAtPlayer(a,b,c,playerAngle,landed,strictness);
-
+  if (b<y) { // Don't look up if player above you, makes camera flip over to backside
+    lookAtPlayer(a,b,c,playerAngle,landed,strictness);
+  }
   /* Just figure out X & Z positions now */
   
   // Finally, implement movement for the camera in its new facing direction
@@ -353,7 +358,11 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
 
     // Figure out follow-just-the-player mode
     if (!followingBoth) {
-      angleYToBe = followOne(angleYToBe, playerAngle, num, den);
+      // Only point the way the player faces if you're moving
+      cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
+      if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
+        angleYToBe = followOne(angleYToBe, playerAngle, num, den);
+      }
     // Otherwise, watch the player *and* the goal
     } else {
       angleYToBe = followBoth(angleYToBe);

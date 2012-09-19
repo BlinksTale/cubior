@@ -18,6 +18,8 @@ using namespace std; // necessary for string
 
 const bool rotateIfInvisible = true;
 const int mapEdge = 4;
+// How many angles to try when rotating back into view of player
+const float anglesToTry = 12;
 
 const int playableWidth = 100;
 const int playableHeight= 100;

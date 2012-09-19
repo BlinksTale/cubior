@@ -77,6 +77,10 @@ class CubeObj {
 
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     bool* getNeighbors();
+    // These two check neighbor status and return if double neighbors in one or two dimensions respectively
+    bool isColumn();
+    bool isWall();
+    
     void setEdges(bool,bool,bool,bool,bool,bool);
     bool* getEdges();
     void setCollision(bool);

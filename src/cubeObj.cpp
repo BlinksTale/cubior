@@ -249,6 +249,16 @@ void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2)
   neighbors[5] = z2;
 }
 bool* CubeObj::getNeighbors() { return neighbors; }
+// If neighbors on both sides for one dimension
+bool CubeObj::isColumn() {
+  return (neighbors[0]&&neighbors[1])||(neighbors[2]&&neighbors[3])||(neighbors[4]&&neighbors[5]);
+}
+// If neighbors on both sides for two dimensions
+bool CubeObj::isWall() {
+  return ((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+       ||((neighbors[0]&&neighbors[1])&&(neighbors[4]&&neighbors[5]))
+       ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
+}
 
 // For being up against an edge of the map - used mostly in collision detection
 void CubeObj::setEdges(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {

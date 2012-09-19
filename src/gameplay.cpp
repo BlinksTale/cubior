@@ -278,6 +278,12 @@ void ensurePlayerVisible(int i) {
       //cout << "Player visible" << endl;
       //cout << "with camera saying " << (camera[i].getLOS() ? "true" : "false") << endl;
       //cout << "and dist to player " << camera[i].distToPlayer() << endl;
+      
+      //If visible, make sure you're not moving to a new angle anymore!
+      // then first, make absolutely sure you still need an intended pos
+      if (camera[i].getFoundIntendedPos()) {
+        camera[i].setFoundIntendedPos(false);
+      }
     } else {
       // and fix if needed
       //cout << "Player hidden!" << endl;
@@ -321,8 +327,6 @@ void moveToPlayer(int i) {
 // Try to find an angle & rotate the camera to angle to see the player
 void rotateToPlayer(int i) {
   
-  // How many angles to try
-  float anglesToTry = 8;//12;
   bool foundAnAngle = false;
   CubeObj intendedPos;
   bool foundIntendedPos = false;
