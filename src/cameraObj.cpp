@@ -45,6 +45,8 @@ void CameraObj::resetPos() {
   freedom = true;
   visibleIntendedCount = 0;
   backupFreedom = true;
+  lastDistToIntended = 0;
+  intendedStuckCount = 0;
 }
 
 // The most basic increment, called once per main loop/frame
@@ -83,6 +85,21 @@ void CameraObj::tick() {
           changePosTowards(&intendedPos,camSpeed);
           //cout << "Move success!" << endl;
           //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          
+          // If you get stuck trying to get to intended
+          if (lastDistToIntended == distToCube(&intendedPos)) {
+            // keep track of how long you've been stuck
+            intendedStuckCount++;
+            // if this is too long a stick, just jump!
+            if (intendedStuckCount >= intendedStuckMax) {
+              setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
+              intendedStuckCount = 0; // and reset stuck count, of course
+            }
+          } else if (intendedStuckCount > 0) {
+            intendedStuckCount = 0; // no stick? Reset stuck count
+          }
+          // finally, update how far you are from player
+          lastDistToIntended = distToCube(&intendedPos);
         } else {
           //cout << "No need to move, already here" << endl;
           //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
@@ -168,19 +185,19 @@ int CameraObj::heightToPlayer() {
 
 // Find how close player is to camera on X,Z
 int CameraObj::groundDistToPlayer() {
-  cout << "Get groundDistToPlayer for " << (permanentTarget->getX()) << ", " << (permanentTarget->getZ()) << endl;
+  //cout << "Get groundDistToPlayer for " << (permanentTarget->getX()) << ", " << (permanentTarget->getZ()) << endl;
   return groundDistTo(permanentTarget->getX(),permanentTarget->getZ());
 }
 
 // Find how close camera is to some X,Z
 int CameraObj::groundDistTo(int a, int c) {
-  cout << "So for x,z as " << x << ", " << z << endl;
-  cout << "and a,c as " << a << ", " << c << endl;
+  //cout << "So for x,z as " << x << ", " << z << endl;
+  //cout << "and a,c as " << a << ", " << c << endl;
   int deltaX = x-a;
   int deltaZ = z-c;
-  cout << "We have deltaX " << deltaX << " and deltaZ " << deltaZ << endl;
+  //cout << "We have deltaX " << deltaX << " and deltaZ " << deltaZ << endl;
   int result = sqrt(deltaX*deltaX + deltaZ*deltaZ);
-  cout << "With result " << result << endl;
+  //cout << "With result " << result << endl;
   return result;
 }
 

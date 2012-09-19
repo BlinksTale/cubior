@@ -1,11 +1,8 @@
 Current priorities as of 9/12/12:
 000. COOL! A lot of other smoothing stuff is working, backupFreedom is great feeling,
-     soooo now I just need to get it to literally not snag on walls while going towards intended pos.
-     if I can do that, I think this smooth camera things is about done. TWO FINAL POINTS:
      ONE: still seems to want to always go to the far side of Cubior. Double check that the angles around
           cubior for the "find visible angle" function are all the right angles - it might start on
           the wrong or opposite side.
-     TWO: Enable jump mode if not moving while having an intended Pos
      Also... figure out that jumping to the next level automatically thing in room 2, 
      and seriously... clean up these priorities D:
 00. create an angle of absolution, furthest dimension between camera and target,

@@ -14,8 +14,9 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
-    static const int camHeight = 600, goalRange = 800, camSpeed = 30;
-    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide, visibleIntendedCount;
+    static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 5;
+    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
+           visibleIntendedCount, lastDistToIntended, intendedStuckCount;
     bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
