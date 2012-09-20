@@ -274,6 +274,8 @@ void gameplayLoop() {
 
 // This checks if the player is visible, and fixes invisible cases too
 void ensurePlayerVisible(int i) {
+  //FIXME: Only need this cout for understanding range of angles or how they work
+  cout << "baseAngle: " <<  getAngleBetween(camera[i].getX(),camera[i].getZ(), camera[i].getPermanentTarget()->getX(), camera[i].getPermanentTarget()->getZ()) << endl;
   // Don't check if zooming in or too close
   if (camera[i].heightToPlayer() < maxCameraHeight && camera[i].distToPlayer() > tileSize/2) {
     // Otherwise,
@@ -360,13 +362,16 @@ void rotateToPlayer(int i) {
   
   // Hypotenuse for triangle formed between camera and target
   int hyp = camera[i].groundDistToPlayer();
-  cout << "GroundDistToPlayer: " << hyp << endl;
-  cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
+  //cout << "GroundDistToPlayer: " << hyp << endl;
+  //cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
   
   // Angle that we will be moving away from, pivot point side
-  float baseAngle = M_PI/2.0 - getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  float baseAngle = /*M_PI*3/2.0 - */ getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
+  cout << "oldX: " << oldX << ", oldX: " << oldZ << endl;
+  cout << "targetX: " << targetX << ", targetZ: " << targetZ << endl;
+  cout << "baseAngle, " << baseAngle << ", newAngle, " << newAngle << endl;
   
   //cout << "START" << endl;
   // rotate until player is visible or 180 from start
@@ -375,9 +380,11 @@ void rotateToPlayer(int i) {
     // New pivot angle to go to
     newAngle = baseAngle + (M_PI*2.0/anglesToTry)*k/2.0*(1.0-2.0*(k%2));
     
+    cout << "newAngle, " << newAngle << endl;
     // Set new intended pos for each turn
     newX = targetX + hyp*sin(newAngle);
     newZ = targetZ + hyp*cos(newAngle);
+    cout << "newX: " << newX << ", newZ: " << newZ << endl;
     
     //cout << "Target " << targetX << ", " << targetZ << endl;
     //cout << "hyp is " << hyp << " w/ newX " << newX << " and newZ " << newZ << endl;
@@ -714,10 +721,14 @@ float getMapRed()   { return levelMap->getRed(); }
 float getMapGreen() { return levelMap->getGreen(); }
 float getMapBlue()  { return levelMap->getBlue(); }
 
-// Return the angle between two points
+// Return the angle between two points.
+// Definitely in radians... but currently doing PI/2 to -PI/2, 0, PI/2 to -PI/2, 0.
+// Wow, I think I finally got this working. FIXME because I want to double check
+// or do a unit test or something... but man, that looks pretty good so far.
 float getAngleBetween(int a, int b, int x, int y) {
   int diffX = a - x;
   int diffY = b - y;
-  // assuming these are radians we're dealing with... 0 is up and PI is down
-  return diffX == 0 ? (diffY > 0 ? 0 : M_PI) : atan(diffY*1.0/diffX);
+  float result = atan(diffY*1.0/diffX) + (diffX>0)*M_PI;
+  // So we deal with radians from -M_PI/2 to M_PI*3/2
+  return diffX == 0 ? (diffY > 0 ? M_PI*3.0/2.0 : M_PI*1.0/2.0) : result;
 }
