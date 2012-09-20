@@ -1,13 +1,10 @@
 Current priorities as of 9/12/12:
-000. intendedPos still seems to want to always go to the far side of Cubior. Double check that the angles around
-          cubior for the "find visible angle" function are all the right angles - it might start on
-          the wrong or opposite side.
 1. Fix castle lag/put vertex points in array
 2. Adjust player movement based on camera angle more precisely
 3. Smooth camera movements
 
 ?. Move camera less, keep static more
 ?. Make camera line up perpendicular to walls
-?. Does room 2 still sometimes jump you to the next level when camera issues occur? YAR! STILL A PROBLEM! Camera related?
+?. Room 2 camera freakout jumps you to the next level
 
 ???. Using int for playerAngle in cameraObj, is this causing some of the player-movement issues?
