@@ -13,7 +13,7 @@ class CubeObj {
     bool neighbors[6],edges[6];
     int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ;
     int movementSpeed, movementDivision;
-    bool collision, hasMaterial;
+    bool collision, hasMaterial, playerStatus;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, loseMomentumOnLock;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, gravity;
@@ -28,6 +28,7 @@ class CubeObj {
     void land();
     void freeze();
     bool isMoving();
+    bool isPlayer();
     void jump(bool);
 
     virtual void collisionEffect(CubeObj*);

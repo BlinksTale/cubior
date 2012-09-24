@@ -35,6 +35,8 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
 
 // Variables for how long we've moved towards intended, yet target is visible..
 const int visibleIntendedMax = 0;
+// longest period we can not see player w/o fixing it
+const int invisibleMax = 5;
 
     void gameplayStart(string);
     void nextLevel();

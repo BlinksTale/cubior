@@ -12,6 +12,7 @@
 CubiorObj::CubiorObj() {
   happiness = 1.0;
   invincible = false;
+  playerStatus = true;
   
 }
 

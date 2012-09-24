@@ -16,6 +16,9 @@ CubeObj::CubeObj() {
   
   // material default
   material = 0;
+  
+  // usually not a player
+  playerStatus = false;
 
   // Pos vars
   x =    0;
@@ -118,6 +121,10 @@ void CubeObj::land() {
 // isMoving is any movement bool
 bool CubeObj::isMoving() {
  return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
+}
+// isPlayer returns whether just a normal block or a player
+bool CubeObj::isPlayer() {
+  return playerStatus;
 }
 
 // Jump is possible if you have hit the ground since last jump

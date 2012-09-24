@@ -16,6 +16,8 @@ GoalObj::GoalObj() {
   permalocked = true;
 }
 
-void GoalObj::collisionEffect(CubeObj*) {
-  nextLevel();
+void GoalObj::collisionEffect(CubeObj* c) {
+  if (c->isPlayer()) {
+    nextLevel();
+  }
 }

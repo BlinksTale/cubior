@@ -161,6 +161,11 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
     );
 }
 
+// Farthest/Max dist we want to be from player
+int CameraObj::getFarthestDist() {
+  return farthestDist;
+}
+
 // Find how close player is to their goal,
 // if close enough we'll use this to look at both at once
 int CameraObj::distToGoal() {

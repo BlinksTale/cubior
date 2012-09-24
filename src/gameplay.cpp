@@ -34,6 +34,7 @@ int currentMapDepth;
 int cubeCount;
 int currentLevel = 0;
 bool changeLevel = false;
+int invisibleCount = 0;
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
@@ -264,11 +265,9 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
-        // If player is not moving, feel free to move camera
         //cout << "Check visibility"<<endl;
-        if (!cubior[i].isMoving()) {
-          ensurePlayerVisible(i);
-        }
+        ensurePlayerVisible(i);
+        
       }
     }
 
@@ -307,7 +306,13 @@ void ensurePlayerVisible(int i) {
     } else {
       // and fix if needed
       //cout << "Player hidden!" << endl;
-      fixPlayerVisibility(i);
+      // If player is not moving or been invisible too long, feel free to move camera
+      if (!cubior[i].isMoving() || invisibleCount >= invisibleMax) {
+        fixPlayerVisibility(i);
+        invisibleCount = 0;
+      } else {
+        invisibleCount++;
+      }
     }
     //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
   }
@@ -365,6 +370,9 @@ void rotateToPlayer(int i) {
   
   // Hypotenuse for triangle formed between camera and target
   int hyp = camera[i].groundDistToPlayer();
+  if (hyp > camera[i].getFarthestDist()) {
+    hyp = camera[i].getFarthestDist();
+  }
   //cout << "GroundDistToPlayer: " << hyp << endl;
   //cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
   
