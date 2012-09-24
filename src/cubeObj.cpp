@@ -88,7 +88,7 @@ void CubeObj::tick() {
     calculateDiff();
 
   // Can lose all momentum on locking if bool is set
-  } else if (moving() && loseMomentumOnLock) { freeze(); }
+  } else if (isMoving() && loseMomentumOnLock) { freeze(); }
 
   // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
@@ -115,8 +115,8 @@ void CubeObj::land() {
   momentumY = 0; lockable = true; jumpable = true; grounded = true;
 }
 
-// Moving is any movement bool
-bool CubeObj::moving() {
+// isMoving is any movement bool
+bool CubeObj::isMoving() {
  return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
 }
 

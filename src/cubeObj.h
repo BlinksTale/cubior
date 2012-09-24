@@ -27,7 +27,7 @@ class CubeObj {
     void fall();
     void land();
     void freeze();
-    bool moving();
+    bool isMoving();
     void jump(bool);
 
     virtual void collisionEffect(CubeObj*);

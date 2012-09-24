@@ -264,9 +264,12 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
+        // If player is not moving, feel free to move camera
         //cout << "Check visibility"<<endl;
-        ensurePlayerVisible(i);
+        if (!cubior[i].isMoving()) {
+          ensurePlayerVisible(i);
         }
+      }
     }
 
   }
@@ -370,6 +373,7 @@ void rotateToPlayer(int i) {
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
   cout << "oldX: " << oldX << ", oldX: " << oldZ << endl;
+  cout << "hyp: " << hyp << endl;
   cout << "targetX: " << targetX << ", targetZ: " << targetZ << endl;
   cout << "baseAngle, " << baseAngle << ", newAngle, " << newAngle << endl;
   
@@ -382,8 +386,10 @@ void rotateToPlayer(int i) {
     
     cout << "newAngle, " << newAngle << endl;
     // Set new intended pos for each turn
-    newX = targetX + hyp*sin(newAngle);
-    newZ = targetZ + hyp*cos(newAngle);
+    // math is a little hackey, tried swapping cos and sin and adding M_PI
+    // and the numbers looked better, and camera worked better
+    newX = targetX + hyp*cos(M_PI+newAngle);
+    newZ = targetZ + hyp*sin(M_PI+newAngle);
     cout << "newX: " << newX << ", newZ: " << newZ << endl;
     
     //cout << "Target " << targetX << ", " << targetZ << endl;
@@ -399,7 +405,9 @@ void rotateToPlayer(int i) {
     // the camera, use the position for sure.
     // May need to fix this later, as requires setting cam pos every time
     if (playerVisible(i)) {
-      camera[i].tick();
+      // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
+      // since the camera kind of jumps when it starts to readjust every angle
+      //camera[i].tick();
       foundAnAngle = true;
       //cout << "Found a fix! (might not be perfect)" << endl;
            
@@ -410,6 +418,19 @@ void rotateToPlayer(int i) {
         // Found a straight shot? Remember it and stop looking for anything better!
         intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         foundIntendedPos = true;
+        
+        // Then see if you can go one step further and have equal visibility
+        // (basically, all of the above code squished together for round 2)
+        int l = k + 2;
+        float doubleNewAngle = baseAngle + (M_PI*2.0/anglesToTry)*l/2.0*(1.0-2.0*(l%2));
+        int doubleNewX = targetX + hyp*cos(M_PI+doubleNewAngle);
+        int doubleNewZ = targetZ + hyp*sin(M_PI+doubleNewAngle);
+        cameraCube.setPos(doubleNewX,camera[i].getY(),doubleNewZ);
+        camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+        if (playerVisible(i) && checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
+          intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());          
+        }
+        
         break;
 
       }
