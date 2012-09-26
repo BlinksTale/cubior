@@ -38,6 +38,11 @@ bool joinKey[playerCount];
 bool nextLevelKey;
 int lastPause = -1; // Last player to pause
 
+// keep track of angles for dir movement
+bool oldUD[playerCount];
+bool oldLR[playerCount];
+int sinUD[playerCount], cosUD[playerCount], sinLR[playerCount], cosLR[playerCount];
+    
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
@@ -68,36 +73,54 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
-      if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
+      //if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
         oldAngleY[i] = getCamera(i)->getAngleY();
-        directionsPressed[i] = true;
-      } else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
+        //directionsPressed[i] = true;
+      /*} else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
         directionsPressed[i] = false;
-      }
-      int sinUD = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
-      int cosUD = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
-      int sinLR = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
-      int cosLR = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
+      }*/
+      // First, record if any movement requested
+      bool newUD = upKey[i] || downKey[i];
+      bool newLR = leftKey[i] || rightKey[i];
+      
+      // Then set movement angles based on cam angle if that's true
+      //if (newUD && !oldUD[i]) {
+        sinUD[i] = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
+        cosUD[i] = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
+      //}
+      //if (newLR && !oldLR[i]) {
+        sinLR[i] = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
+        cosLR[i] = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
+      //}
+      
       if (upKey[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
-        getPlayer(i)->moveZ((int)(cosUD*(-10)));
-        getPlayer(i)->moveX((int)(sinUD*(-10)));
+        getPlayer(i)->moveZ((int)(cosUD[i]*(-10)));
+        getPlayer(i)->moveX((int)(sinUD[i]*(-10)));
       }
       if (downKey[i]) {
-        getPlayer(i)->moveZ((int)(cosUD*( 10)));
-        getPlayer(i)->moveX((int)(sinUD*( 10)));
+        getPlayer(i)->moveZ((int)(cosUD[i]*( 10)));
+        getPlayer(i)->moveX((int)(sinUD[i]*( 10)));
       }
       if (leftKey[i]) {
-        getPlayer(i)->moveZ((int)(sinLR*(-10)));
-        getPlayer(i)->moveX((int)(cosLR*(-10)));
+        getPlayer(i)->moveZ((int)(sinLR[i]*(-10)));
+        getPlayer(i)->moveX((int)(cosLR[i]*(-10)));
       }
       if (rightKey[i]) {
-        getPlayer(i)->moveZ((int)(sinLR*( 10)));
-        getPlayer(i)->moveX((int)(cosLR*( 10)));
+        getPlayer(i)->moveZ((int)(sinLR[i]*( 10)));
+        getPlayer(i)->moveX((int)(cosLR[i]*( 10)));
       }
       getPlayer(i)->jump(jumpKey[i]);
       getPlayer(i)->setLock(lockKey[i]);
       getPlayer(i)->setInvincibility(superKey[i]);
+      
+      // Then make sure oldMovement is up to date
+      /*if (oldUD[i] != newUD) {
+        oldUD[i] = newUD;
+      }
+      if (oldLR[i] != newLR) {
+        oldLR[i] = newLR;
+      }*/
     }
   }
 }

@@ -270,14 +270,15 @@ void displayFor(int player) {
 
   // Only try block culling if looking from close to the ground
   if (cameraPointer[player]->getY() < playerY[player]+2000) {
-    int backwardsDist = 1000;
+    int backwardsDist = 500;
     int camAngleNow = ((int)cameraPointer[player]->getAngleY() + 720 + 180 - 45) % 360;
     int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
     int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
     for (int i=0; i<cubeNum; i++) {
       // Only draw if it's in the range the camera will see
       int deltaX = cameraPointer[player]->getX() - cubeX[i];
-      int deltaZ = cubeZ[i] - cameraPointer[player]->getZ();
+      int deltaZ = -cameraPointer[player]->getZ() + cubeZ[i]; // Oddly, must be negated to work
+      
       if ((deltaX*camFacingX<backwardsDist)
         &&(deltaZ*camFacingZ<backwardsDist)) {
         drawCube(i);
@@ -426,7 +427,10 @@ void renderLoop() {
   //time_t seconds;
   //seconds = time(NULL);
 
+  // Variables to track time spent on each section
+  // for lag info
   int dTime1,dTime2,dTime3,dTime4,dTime5,dTime6;
+
   if (timing) {
     gettimeofday(&tim, NULL);
     int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
@@ -460,9 +464,11 @@ void renderLoop() {
     printf("updatePlayerGraphic() time: %d\n",dTime4-dTime3);
   }
   
-  for (int i=0; i<cubeNum; i++) {
+  // FIXME: Wait, we should totally not need to update this every loop
+  // the cubes are all static. Leave them that way.
+  /*for (int i=0; i<cubeNum; i++) {
     updateCubeGraphic(i);
-  }
+  }*/
 
   if (timing) {
     gettimeofday(&tim, NULL);
@@ -572,9 +578,9 @@ void initFlat(int argc, char** argv) {
   glutCreateWindow("Cubior");
   
   // Make sure back faces are behind front faces
-  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST); // And GL_DEPTH_BUFFER_BIT is in clear calls too!
   glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT);
+  glCullFace(GL_FRONT); // This is odd, it should be GL_BACK. Camera must be inverted or something
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
 
   // input

@@ -78,13 +78,13 @@ void CubeObj::tick() {
     z += momentumZ; 
 
     // apply friction if on the ground
-    if (grounded) {
-      if (momentumX > 0) { momentumX -= friction; }
-      else if (momentumX < 0) { momentumX += friction; }
-      else { momentumX = 0; }
-      if (momentumZ > 0) { momentumZ -= friction; }
-      else if (momentumZ < 0) { momentumZ += friction; }
-      else { momentumZ = 0; }
+    if (grounded && (momentumX != 0 || momentumZ != 0)) {
+      if (momentumX+friction > 0) { momentumX -= friction; }
+      else if (momentumX-friction < 0) { momentumX += friction; }
+      else if (momentumX != 0) { momentumX = 0; }
+      if (momentumZ+friction > 0) { momentumZ -= friction; }
+      else if (momentumZ-friction < 0) { momentumZ += friction; }
+      else if (momentumZ != 0) { momentumZ = 0; }
     }
     lastGrounded = grounded;
     
@@ -115,7 +115,7 @@ void CubeObj::fall() {
 
 // Act as if you landed on ground
 void CubeObj::land() {
-  momentumY = 0; lockable = true; jumpable = true; grounded = true;
+  momentumY = 0; lockable = true; grounded = true; jumpable = true;
 }
 
 // isMoving is any movement bool
@@ -129,9 +129,18 @@ bool CubeObj::isPlayer() {
 
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
-  if (jumpable) {
+  // Straight up, need to have landed and not tried to jump again before new jump
+  //if (!n && this->getStillGrounded()) { newJump = true; }
+  
+  //cout << "So jumpable is " << jumpable << " and newJump is " << newJump << " and getStillGrounded is " << this->getGrounded() << endl;
+  // Try to jump!
+  if (jumpable) {// || (getStillGrounded() && newJump)) {
+    // To start a new jump off the ground
+    //if (newJump) { newJump = false; jumpable = true; }
+    // To keep an old jump flying
     if (n && momentumY < maxJump) { moveY(jumpSpeedRatio*10); } else { jumpable = false; }
   }
+  
 }
 
 // Collision Effect defaults to nothing happening

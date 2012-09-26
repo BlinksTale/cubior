@@ -6,7 +6,7 @@
  */
 #ifndef KEYBOARD
 #define KEYBOARD
-
+ 
     void playerPause(int, bool);
     int getLastPause();
 
