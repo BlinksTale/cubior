@@ -79,11 +79,11 @@ void CubeObj::tick() {
 
     // apply friction if on the ground
     if (grounded && (momentumX != 0 || momentumZ != 0)) {
-      if (momentumX+friction > 0) { momentumX -= friction; }
-      else if (momentumX-friction < 0) { momentumX += friction; }
+      if (momentumX > 0) { momentumX -= friction; }
+      else if (momentumX < 0) { momentumX += friction; }
       else if (momentumX != 0) { momentumX = 0; }
-      if (momentumZ+friction > 0) { momentumZ -= friction; }
-      else if (momentumZ-friction < 0) { momentumZ += friction; }
+      if (momentumZ > 0) { momentumZ -= friction; }
+      else if (momentumZ < 0) { momentumZ += friction; }
       else if (momentumZ != 0) { momentumZ = 0; }
     }
     lastGrounded = grounded;
