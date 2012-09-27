@@ -318,6 +318,8 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
 // Grabs your rgb1 colors and makes a dark version of yourself
 // Perfect for walking behind walls, but player identification
 void CubeShape::drawSilhouette() {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable( GL_BLEND );
   glPushMatrix();
   //glScalef(0.99,0.99,0.99);
   // These code blocks modified from work on songho.ca
@@ -328,7 +330,7 @@ void CubeShape::drawSilhouette() {
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
   for (int i=0; i<6; i++) {
     if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-      glColor3f(r1*0.5,g1*0.5,b1*0.5);
+      glColor4f(r1*0.25+0.125,g1*0.25+0.125,b1*0.25+0.125,0.5);
       // 0 to 3 means we only have four vertices used for each face
       // 6 is the total points we create though from those four.
       // indices+6*i is where we are looking, which face in indices
@@ -339,6 +341,7 @@ void CubeShape::drawSilhouette() {
   // deactivate vertex arrays after drawing
   glDisableClientState(GL_VERTEX_ARRAY);
   glPopMatrix();
+  glDisable( GL_BLEND );
 }
 
 void CubeShape::setNeighbors(bool newNeighbors[6]) { 
