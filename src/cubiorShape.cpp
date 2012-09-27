@@ -127,24 +127,24 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   // Mouth
   if (!getPlayer(n)->getLock() && !hit) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top right
   glEnd();
   }
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
-    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
   glEnd();
   if (!getPlayer(n)->getLock() && !hit) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
-    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot left
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
+    glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight + faceLineWidth/2 + faceSmileValue,0.5); // top left
   glEnd();
   }
   // Eye L
@@ -168,10 +168,10 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
 
 void CubiorShape::drawEyeAt(float a, float b, float c) {
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(a+0.05,b+0.15,c+0.0);
-    glColor3f(0,0,0); glVertex3f(a+0.05,b-0.15,c+0.0);
-    glColor3f(0,0,0); glVertex3f(a-0.05,b-0.15,c+0.0);
     glColor3f(0,0,0); glVertex3f(a-0.05,b+0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a-0.05,b-0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a+0.05,b-0.15,c+0.0);
+    glColor3f(0,0,0); glVertex3f(a+0.05,b+0.15,c+0.0);
   glEnd();
 }
 
@@ -179,15 +179,15 @@ void CubiorShape::drawEyeAt(float a, float b, float c) {
 void CubiorShape::drawClosedEyeAt(float a, float b, float c, bool flip) {
   float f = flip? 0.0 : 0.15;
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(a+0.00,b+0.15-f,c+0.0); // top left
-    glColor3f(0,0,0); glVertex3f(a+0.10,b-0.00-f,c+0.0); // bot left
-    glColor3f(0,0,0); glVertex3f(a-0.00,b-0.00-f,c+0.0); // bot right
     glColor3f(0,0,0); glVertex3f(a-0.10,b+0.15-f,c+0.0); // top right
+    glColor3f(0,0,0); glVertex3f(a-0.00,b-0.00-f,c+0.0); // bot right
+    glColor3f(0,0,0); glVertex3f(a+0.10,b-0.00-f,c+0.0); // bot left
+    glColor3f(0,0,0); glVertex3f(a+0.00,b+0.15-f,c+0.0); // top left
   glEnd();
   glBegin(GL_POLYGON);
-    glColor3f(0,0,0); glVertex3f(a+0.10,b+0.00+f,c+0.0); // top left
-    glColor3f(0,0,0); glVertex3f(a+0.00,b-0.15+f,c+0.0); // bot left
-    glColor3f(0,0,0); glVertex3f(a-0.10,b-0.15+f,c+0.0); // bot right
     glColor3f(0,0,0); glVertex3f(a-0.00,b+0.00+f,c+0.0); // top right
+    glColor3f(0,0,0); glVertex3f(a-0.10,b-0.15+f,c+0.0); // bot right
+    glColor3f(0,0,0); glVertex3f(a+0.00,b-0.15+f,c+0.0); // bot left
+    glColor3f(0,0,0); glVertex3f(a+0.10,b+0.00+f,c+0.0); // top left
   glEnd();
 }

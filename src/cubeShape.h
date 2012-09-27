@@ -8,6 +8,7 @@
 #define CUBESHAPE
 
 class CubeShape {
+  
   protected:
     bool alternatingSpot, midFloor; // for tile color and sides drawn
     bool neighbors[6]; // points to neighbors array of cubeObj

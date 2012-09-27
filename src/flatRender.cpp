@@ -580,7 +580,7 @@ void initFlat(int argc, char** argv) {
   // Make sure back faces are behind front faces
   glEnable(GL_DEPTH_TEST); // And GL_DEPTH_BUFFER_BIT is in clear calls too!
   glEnable(GL_CULL_FACE);
-  glCullFace(GL_FRONT); // This is odd, it should be GL_BACK. Camera must be inverted or something
+  glCullFace(GL_BACK); // This is odd, it should be GL_BACK. Camera must be inverted or something
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
 
   // input

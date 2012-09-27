@@ -6,6 +6,8 @@ Current priorities as of 9/12/12:
 2. Adjust player movement based on camera angle more precisely
 3. Smooth camera movements
 
+??. multiplayer/splitscreen problem with camera looking not at player when moved.
+      may be related to views tied to goal?
 ?. Move camera less, keep static more
 ?. Make camera line up perpendicular to walls
 
