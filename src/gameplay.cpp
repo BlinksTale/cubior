@@ -277,7 +277,7 @@ void gameplayLoop() {
 // This checks if the player is visible, and fixes invisible cases too
 void ensurePlayerVisible(int i) {
   //FIXME: Only need this cout for understanding range of angles or how they work
-  cout << "baseAngle: " <<  getAngleBetween(camera[i].getX(),camera[i].getZ(), camera[i].getPermanentTarget()->getX(), camera[i].getPermanentTarget()->getZ()) << endl;
+  //cout << "baseAngle: " <<  getAngleBetween(camera[i].getX(),camera[i].getZ(), camera[i].getPermanentTarget()->getX(), camera[i].getPermanentTarget()->getZ()) << endl;
   // Don't check if zooming in or too close
   if (camera[i].heightToPlayer() < maxCameraHeight && camera[i].distToPlayer() > tileSize/2) {
     // Otherwise,

@@ -13,6 +13,8 @@
 #include <GL/glut.h>
 #endif
 
+#include <iostream> // for cout
+#include <algorithm> // for std::copy for colors
 #include <stdio.h> // for pauseText
 #include <time.h> // for printing timestamps
 #include <sys/time.h> // for linux time
@@ -36,7 +38,11 @@ GLfloat vertices[] = {  0.5, 0.5, 0.5, // 0 - front upper left
                         0.5,-0.5,-0.5, // 6 - rear lower left
                        -0.5,-0.5,-0.5  // 7 - rear lower right
                      };
-    
+
+// color array, modified from songho.ca code
+/*GLfloat colors[]    = { 1, 1, 1,   1, 1, 0,   1, 0, 0,   1, 0, 1,   // v0,v1,v2,v3 (front)
+                        0, 0, 1,   0, 0, 0,   0, 1, 0,   0, 1, 1 }; // v4,v7,v6,v5 (back)
+*/
 // Also directly lifted from songho.ca. Working with this on my own, but I figure
 // it's better for now at least since I'm already using the tutorial's order
 // for verticies.
@@ -77,6 +83,26 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   r3 = nR2 - altDark;
   g3 = nG2 - altDark;
   b3 = nB2 - altDark;
+  /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
+  std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
+  std::cout << "rbg3: " << r3 << ", " << g3 << ", " << b3 << std::endl << std::endl;
+  
+  for (int i=0; i<24; i++) {
+    std::cout << "newColors[" << i << "] is " << newColors[i] << std::endl;
+    colors[i] = newColors[i];
+    std::cout << "colors[" << i << "] is " << colors[i] << std::endl;
+  }*/
+  //std::copy(newColors, newColors + 3*8, colors);
+        /*case 2: // top        
+          glColor3f(r3,g3,b3);
+          break;
+        case 5: // back         
+          glColor3f(r2-0.2,g2-0.2,b2-0.2);
+          break;
+        default:    
+          glColor3f(r1,g1,b1); // for the top verticies*/
+  //for (int i=0; i<24; i++) {
+  //}
 }
 
 void CubeShape::updateVisuals() {
@@ -221,18 +247,61 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
 }
 */
 
-  glColor3f(r3,g3,b3);
+  // Did not want to have to make an array every draw,
+  // but otherwise all the arrays meld into one,
+  // and all turn the last color submitted -
+  // red for the goal. So here we are!
+  GLfloat newColors[] = { r1, g1, b1, // front top left
+                        r1, g1, b1, // front top right
+                        r2, g2, b2, // front bottom left
+                        r2, g2, b2, // front bottom right
+                        r1, g1, b1, // back top left
+                        r1, g1, b1, // back top right
+                        r2, g2, b2, // back bottom left
+                        r2, g2, b2  // back bottom right
+                      }; 
+
+  // These code blocks modified from work on songho.ca
+  // don't need this if using color array glColor3f(r3,g3,b3);
+  glEnableClientState(GL_COLOR_ARRAY);
   // activate and specify pointer to vertex array
   glEnableClientState(GL_VERTEX_ARRAY);
+  glColorPointer(3, GL_FLOAT, 0, newColors);
   glVertexPointer(3, GL_FLOAT, 0, vertices);
 
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
   for (int i=0; i<6; i++) {
     if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-    // 0 to 3 means we only have four vertices used for each face
-    // 6 is the total points we create though from those four.
-    // indices+6*i is where we are looking, which face in indices
+      /*switch(i) {
+        case 2: // top        
+          glColor3f(r3,g3,b3);
+          break;
+        case 5: // back         
+          glColor3f(r2-0.2,g2-0.2,b2-0.2);
+          break;
+        default:    
+          glColor3f(r1,g1,b1); // for the top verticies
+          //glColor3f(r2,g2,b2); // for the bottom verticies
+          break;
+      }*/
+      
+      // Top is special
+      if (i==2) {
+        // Disable array colors,
+        glDisableClientState(GL_COLOR_ARRAY);
+        // use a special color
+        glColor3f(r3,g3,b3);
+      }
+        // 0 to 3 means we only have four vertices used for each face
+        // 6 is the total points we create though from those four.
+        // indices+6*i is where we are looking, which face in indices
       glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
+
+      // Top has special cleanup too
+      if (i==2) {
+        // and re-enable array colors
+        glEnableClientState(GL_COLOR_ARRAY);
+      }
     }
   }
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
@@ -243,6 +312,7 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
 
   // deactivate vertex arrays after drawing
   glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void CubeShape::setNeighbors(bool newNeighbors[6]) { 
