@@ -315,6 +315,32 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
   glDisableClientState(GL_COLOR_ARRAY);
 }
 
+// Grabs your rgb1 colors and makes a dark version of yourself
+// Perfect for walking behind walls, but player identification
+void CubeShape::drawSilhouette() {
+  glPushMatrix();
+  //glScalef(0.99,0.99,0.99);
+  // These code blocks modified from work on songho.ca
+  // activate and specify pointer to vertex array
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  // draw first half, range is 6 - 0 + 1 = 7 vertices used
+  for (int i=0; i<6; i++) {
+    if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+      glColor3f(r1*0.5,g1*0.5,b1*0.5);
+      // 0 to 3 means we only have four vertices used for each face
+      // 6 is the total points we create though from those four.
+      // indices+6*i is where we are looking, which face in indices
+      glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
+    }
+  }
+
+  // deactivate vertex arrays after drawing
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glPopMatrix();
+}
+
 void CubeShape::setNeighbors(bool newNeighbors[6]) { 
   for (int i=0; i< 6; i++) {
   neighbors[i] = newNeighbors[i];

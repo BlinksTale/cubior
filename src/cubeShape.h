@@ -20,6 +20,7 @@ class CubeShape {
     void setNeighbors(bool[6]);
     virtual void updateVisuals();
     virtual void draw();
+    virtual void drawSilhouette();
 };
 
 #endif

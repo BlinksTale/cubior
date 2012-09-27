@@ -107,6 +107,7 @@ void CubiorShape::updateCubiorColors(int n) {
 
 void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorDarkness) {
 
+  
   // make sure emotions are on the same page
   updateCubiorVisuals(n);
 
@@ -118,9 +119,13 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   bool fly = getPlayer(n)->getNotGrounded();
   float gaspValue = 0.075;
 
+  glDisable(GL_DEPTH_TEST); // disable depth test for "shadow cubior"
+  drawSilhouette();
+  glEnable(GL_DEPTH_TEST); // Then return to normal stuff
+  
   // call on cubeShape's function, drawCube, to make a cube visual
   draw();
-
+  
   // Cubior Face Matrix
   glPushMatrix();
   glTranslatef(0.0,0.0,0.01);

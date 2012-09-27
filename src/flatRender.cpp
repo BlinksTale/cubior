@@ -259,9 +259,8 @@ void displayFor(int player) {
     int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("moveCam time: %d\n",c3-c2);
   }
-  
-  for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
 
+  // Yeah, so, drawPlayer was here - moved to do silhouette though
   if (timing) {
     gettimeofday(&tim, NULL);
     int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
@@ -306,6 +305,9 @@ void displayFor(int player) {
     printf("drawGoal time: %d\n",c6-c5);
   }
 
+  // Draw player as last thing before HUD
+  for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
+  
   // Print pause menu
   if (getGameplayRunning()) {
       int n, a=cameraPointer[player]->getAngleX();
@@ -579,6 +581,7 @@ void initFlat(int argc, char** argv) {
   
   // Make sure back faces are behind front faces
   glEnable(GL_DEPTH_TEST); // And GL_DEPTH_BUFFER_BIT is in clear calls too!
+  glDepthFunc(GL_LEQUAL); // determines what is chosen as visible, that with a less than/eq dist from cam
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK); // This is odd, it should be GL_BACK. Camera must be inverted or something
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
