@@ -39,6 +39,7 @@ const int visibleIntendedMax = 0;
 const int invisibleMax = 5;
 
     void gameplayStart(string);
+    void nextLevelCountdown(int);
     void nextLevel();
     void gameplayLoop();
 
@@ -47,6 +48,7 @@ const int invisibleMax = 5;
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
     void rotateToPlayer(int);
+    void rotateAroundPlayer(int,int); // for victory shot
     
     // Camera
     bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);

@@ -35,6 +35,12 @@ int cubeCount;
 int currentLevel = 0;
 bool changeLevel = false;
 int invisibleCount = 0;
+float winAngle;
+int winner = -1;
+bool winningShot = false;
+int winningHyp = 0;
+float winningZoom = 0.9985;
+int winningRotations = 256;
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
@@ -131,6 +137,7 @@ void gameplayStart(string levelToLoad) {
       camera[i].alwaysFollow(&cubior[i],&goal);
 
       // Cubior Start State
+      cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
     }
 
@@ -175,8 +182,39 @@ void gameplayStart(string levelToLoad) {
   }
 }
 
+// To count down to loading the next level
+void nextLevelCountdown(int i) {
+
+  winner = i;
+  
+  cout << "Start countdown? Well..." << endl;
+  // Same as the pivot point for upcoming rotation
+  int targetX = cubior[winner].getX();
+  int targetZ = cubior[winner].getZ();
+
+  cout << "targetX and Z are " << targetX << " and " << targetZ << endl;
+  
+  // Then capture this moment
+  winAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  cout << "winAngle is " << winAngle << endl;
+  
+  // And tell the world someone just won
+  winningShot = true;
+  winningHyp = camera[winner].groundDistToPlayer();
+  if (winningHyp > camera[winner].getFarthestDist()) {
+    winningHyp = camera[winner].getFarthestDist();
+  }
+  cout << "winningShot is " << winningShot << endl;
+  
+}
+
 // To load the next level
 void nextLevel() {
+  
+  // Finally moving on, reset the winner
+  winner = -1;
+  winningShot = false;
+  
   // Set next level number
   changeLevel = true;
   currentLevel = (currentLevel + 1) % totalLevels;
@@ -190,7 +228,7 @@ void nextLevel() {
 }
 
 void gameplayLoop() {
-  if (gameplayRunning) {
+  if (gameplayRunning && !winningShot) {
 	  
 	  // Only recognize a level change for one loop
 	  if (changeLevel) { changeLevel = false; }
@@ -271,6 +309,22 @@ void gameplayLoop() {
       }
     }
 
+  } else if (winningShot) {
+    // How to handle the victory screen
+    rotateAroundPlayer(winner, winningHyp);
+    winningHyp *= winningZoom;
+    
+    // Same as the pivot point for rotation
+    int targetX = camera[winner].getPermanentTarget()->getX();
+    int targetZ = camera[winner].getPermanentTarget()->getZ();
+    float delta = abs(winAngle-getAngleBetween(camera[winner].getX(),camera[winner].getZ(),targetX,targetZ));
+    while (delta >= 2*M_PI) { delta -= 2*M_PI; }
+    while (delta <=-2*M_PI) { delta += 2*M_PI; }
+    
+    // If made a full rotation, onwards!
+    if (delta < (M_PI/winningRotations)) {
+      nextLevel();
+    }
   }
 }
 
@@ -477,6 +531,48 @@ void rotateToPlayer(int i) {
   }
   cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
 }
+
+// Try to find an angle & rotate the camera to angle to see the player
+void rotateAroundPlayer(int i, int hyp) {
+  cout << "tryna rotate" << endl;
+  CubeObj oldCamera;
+  
+  // Pivot point for rotation
+  int targetX = camera[i].getPermanentTarget()->getX();
+  int targetZ = camera[i].getPermanentTarget()->getZ();
+  // Position we will move to on each turn
+  int oldX = camera[i].getX();
+  int oldY = camera[i].getY();
+  int oldZ = camera[i].getZ();
+  int newX = oldX;
+  int newZ = oldZ;
+  
+  //cout << "GroundDistToPlayer: " << hyp << endl;
+  //cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
+  
+  // Angle that we will be moving away from, pivot point side
+  float baseAngle = /*M_PI*3/2.0 - */ getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  // Angle we will be moving to, based on pivot
+  float newAngle = baseAngle;
+  
+  //cout << "START" << endl;
+  // rotate until player is visible or 180 from start
+  // New pivot angle to go to
+  newAngle = baseAngle + (M_PI*2.0/(winningRotations));
+
+  // Set new intended pos for each turn
+  // math is a little hackey, tried swapping cos and sin and adding M_PI
+  // and the numbers looked better, and camera worked better
+  newX = targetX + hyp*cos(M_PI+newAngle);
+  newZ = targetZ + hyp*sin(M_PI+newAngle);
+
+  // Leaving camera cube in here just in case forgetting it would ruin something, not sure
+  // FIXME later by testing it with no camera cube step
+  cameraCube.setPos(newX,camera[i].getY(),newZ);
+  camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+  camera[i].lookAtTarget();
+}
+
 
 bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
   

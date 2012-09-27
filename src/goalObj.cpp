@@ -18,6 +18,11 @@ GoalObj::GoalObj() {
 
 void GoalObj::collisionEffect(CubeObj* c) {
   if (c->isPlayer()) {
-    nextLevel();
+    CubiorObj* temp = (CubiorObj*)c;
+    //stopGameplay();
+    int theNum = temp->getCubiorNum();
+    cout << "theNum is " << theNum << " k?" << endl;
+    nextLevelCountdown(theNum);
+    cout << "countdown Started" << endl;
   }
 }

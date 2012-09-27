@@ -373,6 +373,15 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
 	
 }
 
+void CameraObj::lookAtTarget() {
+  lookAtPlayer(
+        tracker->getX(),
+        permanentTarget->getY(),
+        tracker->getZ(),
+        permanentTarget->getAngleY(),
+        permanentTarget->getGrounded(),
+        4);
+}
 // Bare basics of any normal tick/update: look at the player
 void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   

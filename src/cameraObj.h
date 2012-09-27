@@ -40,6 +40,8 @@ class CameraObj : public CubeObj {
     float matchRangeOf(float,float);
     float smoothMatchRangeOf(float,float);
     
+    void lookAtPlayer(int,int,int,int,bool,int);
+    void lookAtTarget();
     int lookAtBoth(int,int,int);
     void checkExtremeCatchup(int,int,int,int,int);
     
@@ -47,7 +49,6 @@ class CameraObj : public CubeObj {
     int findIntendedDist(int,int);
     float findTargetY(int,bool);
     
-    void lookAtPlayer(int,int,int,int,bool,int);
     void follow(int,int,int,int,bool,int);
     float followOne(float,int,int,int);
     float followBoth(float);
