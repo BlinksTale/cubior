@@ -28,6 +28,9 @@
 static const int FPS = 60;
 int windowWidth = 640;
 int windowHeight = 480;
+int oldWindowWidth = windowWidth;
+int oldWindowHeight = windowHeight;
+bool fullscreen = false;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
@@ -573,12 +576,17 @@ void initFlat(int argc, char** argv) {
   // standard initialization
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
-  
+    
   // setup & create window
   glutInitWindowPosition(0,0);
   glutInitWindowSize(windowWidth,windowHeight);
   glutCreateWindow("Cubior");
-
+  
+  // Lets me apply fullscreen val as starting state
+  // without splitting up function :P Might fix later.
+  fullscreen = !fullscreen;
+  toggleFullscreen();
+  
   // Make sure back faces are behind front faces
   glEnable(GL_DEPTH_TEST); // And GL_DEPTH_BUFFER_BIT is in clear calls too!
   glDepthFunc(GL_LEQUAL); // determines what is chosen as visible, that with a less than/eq dist from cam
@@ -664,3 +672,18 @@ void printString(char *string, int x, int y, int z) {
 }
 
 bool getTiming() { return timing; }
+
+// Switch on/off fullscreen mode (from/to windowed)
+void toggleFullscreen() {
+  fullscreen = !fullscreen;
+  
+  if (fullscreen) {
+	  oldWindowWidth = windowWidth;
+    oldWindowHeight = windowHeight;
+    glutFullScreen();
+    glutSetCursor(GLUT_CURSOR_NONE);
+  } else {
+    glutReshapeWindow(oldWindowWidth,oldWindowHeight);
+    glutSetCursor(GLUT_CURSOR_INHERIT);
+  }
+}

@@ -83,7 +83,7 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   r3 = nR2 - altDark;
   g3 = nG2 - altDark;
   b3 = nB2 - altDark;
-    
+  
   /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
   std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
   std::cout << "rbg3: " << r3 << ", " << g3 << ", " << b3 << std::endl << std::endl;

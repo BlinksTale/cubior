@@ -97,5 +97,6 @@ const int invisibleMax = 5;
     float getMapBlue();
     
     float getAngleBetween(int,int,int,int);
-
+    void switchFullscreen();
+    
 #endif 
