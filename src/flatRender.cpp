@@ -242,10 +242,15 @@ void displayFor(int player) {
   // old cam position
   //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
   // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);
-  glRotatef(-1.0*cameraPointer[player]->getAngleX(),1.0,0.0,0.0);
-  glRotatef(-1.0*cameraPointer[player]->getAngleY(),0.0,1.0,0.0);
-  glRotatef(-1.0*cameraPointer[player]->getAngleZ(),0.0,0.0,1.0);
-  glTranslatef(-1.0*cameraPointer[player]->getX(),-1.0*cameraPointer[player]->getY(),-1.0*cameraPointer[player]->getZ());
+  
+  // Set camera angle and pos, based off averages
+/*  cout << "truth: " << 1.0*cameraPointer[player]->getX() << " vs mean: " << 1.0*cameraPointer[player]->getMeanX() <<endl;
+  cout << "truth: " << 1.0*cameraPointer[player]->getY() << " vs mean: " << 1.0*cameraPointer[player]->getMeanY() <<endl;
+  cout << "truth: " << 1.0*cameraPointer[player]->getZ() << " vs mean: " << 1.0*cameraPointer[player]->getMeanZ() <<endl <<endl;
+*/glRotatef(-1.0*cameraPointer[player]->getMeanAngleX(),1.0,0.0,0.0);
+  glRotatef(-1.0*cameraPointer[player]->getMeanAngleY(),0.0,1.0,0.0);
+  glRotatef(-1.0*cameraPointer[player]->getMeanAngleZ(),0.0,0.0,1.0);
+  glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());
 
 /*  gluLookAt(
     1*cameraPointer[player]->getX(),
@@ -271,15 +276,16 @@ void displayFor(int player) {
   }
 
   // Only try block culling if looking from close to the ground
-  if (cameraPointer[player]->getY() < playerY[player]+2000) {
+  //truth
+  if (cameraPointer[player]->getMeanY() < playerY[player]+2000) {
     int backwardsDist = 500;
-    int camAngleNow = ((int)cameraPointer[player]->getAngleY() + 720 + 180 - 45) % 360;
+    int camAngleNow = ((int)cameraPointer[player]->getMeanAngleY() + 720 + 180 - 45) % 360;
     int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
     int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
     for (int i=0; i<cubeNum; i++) {
       // Only draw if it's in the range the camera will see
-      int deltaX = cameraPointer[player]->getX() - cubeX[i];
-      int deltaZ = -cameraPointer[player]->getZ() + cubeZ[i]; // Oddly, must be negated to work
+      int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
+      int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
       
       if ((deltaX*camFacingX<backwardsDist)
         &&(deltaZ*camFacingZ<backwardsDist)) {
@@ -313,7 +319,7 @@ void displayFor(int player) {
   
   // Print pause menu
   if (getGameplayRunning()) {
-      int n, a=cameraPointer[player]->getAngleX();
+      int n, a=cameraPointer[player]->getMeanAngleX(); //truth
       n=sprintf(pausedText, "AngleX %d ", a);
       // Commented out so that these values can easily be displayed again if necessary 
       // printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);

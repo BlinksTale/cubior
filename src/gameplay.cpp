@@ -534,7 +534,6 @@ void rotateToPlayer(int i) {
 
 // Try to find an angle & rotate the camera to angle to see the player
 void rotateAroundPlayer(int i, int hyp) {
-  cout << "tryna rotate" << endl;
   CubeObj oldCamera;
   
   // Pivot point for rotation
@@ -571,6 +570,8 @@ void rotateAroundPlayer(int i, int hyp) {
   cameraCube.setPos(newX,camera[i].getY(),newZ);
   camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
   camera[i].lookAtTarget();
+  camera[i].updateCamArray();
+  camera[i].updateMeans();
 }
 
 

@@ -14,15 +14,19 @@ using namespace std;
 
 GoalObj::GoalObj() {
   permalocked = true;
+  glow = false; // will glow when hit
 }
 
 void GoalObj::collisionEffect(CubeObj* c) {
   if (c->isPlayer()) {
+    // Make it white!
+    glow = true;
+    
+    // Then start player anim sequence
     CubiorObj* temp = (CubiorObj*)c;
-    //stopGameplay();
     int theNum = temp->getCubiorNum();
-    cout << "theNum is " << theNum << " k?" << endl;
     nextLevelCountdown(theNum);
-    cout << "countdown Started" << endl;
   }
 }
+
+bool GoalObj::getGlow() { return glow; }

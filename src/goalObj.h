@@ -11,9 +11,12 @@
 #include "cubeObj.h"
 
 class GoalObj : public CubeObj {
+  protected:
+    bool glow;
   public:
     GoalObj();
     void collisionEffect(CubeObj*);
+    bool getGlow();
 };
 
 #endif 

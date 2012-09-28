@@ -15,6 +15,7 @@
 
 using namespace std;
 
+
 CameraObj::CameraObj() {
   // Pos vars
   resetPos();
@@ -23,6 +24,9 @@ CameraObj::CameraObj() {
   cameraSide = 0; // where zero is undetermined
   farthestDist = 1200;
   closestDist = 1000;
+  
+  // To cycle through camPos arrays
+  currentCamSlot = 0;
     
   idealDist = (farthestDist+closestDist)/2;
   tracker = new TrackerObj();
@@ -47,10 +51,73 @@ void CameraObj::resetPos() {
   backupFreedom = true;
   lastDistToIntended = 0;
   intendedStuckCount = 0;
+  
+  //cout << "resetting array" << endl;
+  for (int i=0; i<camArraySize; i++) {
+    updateCamArray();
+  }
+  updateMeans();
 }
 
+// Used for smoothing, avgs last camArraySize pos and angles
+void CameraObj::updateCamArray() {
+  camPosX[currentCamSlot] = x;
+  camPosY[currentCamSlot] = y;
+  camPosZ[currentCamSlot] = z;
+  /*while (angleX > 180+meanAngleX) { angleX -= 360; }
+  while (angleX <-180+meanAngleX) { angleX += 360; }
+  while (angleY > 180+meanAngleY) { angleY -= 360; }
+  while (angleY <-180+meanAngleY) { angleY += 360; }
+  while (angleZ > 180+meanAngleZ) { angleZ -= 360; }
+  while (angleZ <-180+meanAngleZ) { angleZ += 360; }
+  */
+  // FIXME: This still feels really laggy, can't it be more efficient? Maybe never matchrangeof?
+  for (int i=0; i<camArraySize; i++) {
+    //if (outsideRangeOf(meanAngleX,angleX)) { 
+    camAngleX[i] = matchRangeOf(camAngleX[i], angleX);
+    //}
+    //if (outsideRangeOf(meanAngleY,angleY)) { 
+    camAngleY[i] = matchRangeOf(camAngleY[i], angleY);
+    //}
+    //if (outsideRangeOf(meanAngleZ,angleZ)) { 
+    camAngleZ[i] = matchRangeOf(camAngleZ[i], angleZ);
+    //}
+  }
+  camAngleX[currentCamSlot] = angleX;
+  camAngleY[currentCamSlot] = angleY;
+  camAngleZ[currentCamSlot] = angleZ;
+  currentCamSlot = (currentCamSlot + 1) % camArraySize;
+}
+
+void CameraObj::updateMeans() {
+  // Pos
+  meanX = 0;
+  meanY = 0;
+  meanZ = 0;
+  // Angles
+  meanAngleX = 0.0;
+  meanAngleY = 0.0;
+  meanAngleZ = 0.0;
+  // Fill 'em
+  for (int i=0; i<camArraySize; i++) {
+    meanX += camPosX[i];
+    meanY += camPosY[i];
+    meanZ += camPosZ[i];
+    meanAngleX += camAngleX[i];
+    meanAngleY += camAngleY[i];
+    meanAngleZ += camAngleZ[i];
+  }
+  // And divide 'em back down to size
+  meanX /= camArraySize;
+  meanY /= camArraySize;
+  meanZ /= camArraySize;
+  meanAngleX /= camArraySize;
+  meanAngleY /= camArraySize;
+  meanAngleZ /= camArraySize;
+}
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
   //cout << "Start camera tick" << endl;
   // If you are following one target every frame,
 	if (permanentTarget) {
@@ -139,6 +206,15 @@ void CameraObj::tick() {
     }
   }
   //cout << "End camera tick" << endl;
+  updateCamArray();
+  updateMeans();
+  //cout << "current camPosY[] = " << endl;
+  //for (int i=0; i<camArraySize; i++) {
+    //cout << "[" << camPosY[i] << "]" << endl;
+  //}
+  //cout << "to make camMeanY = " << getMeanY() << endl;
+  //cout << "-----" << endl;
+  
 }
 
 // Used to permanently set a target to always follow
@@ -370,7 +446,6 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   
   // Finally, implement movement for the camera in its new facing direction
   positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
-	
 }
 
 void CameraObj::lookAtTarget() {
@@ -493,6 +568,10 @@ bool CameraObj::withinRangeOf(int y1, int y2, int delta) {
   return (y1 < y2+delta && y1 > y2-delta);
 }
 
+bool CameraObj::outsideRangeOf(int y1, int y2) {
+  return !withinRangeOf(y1, y2, 360);
+}
+
 // Set y1 to within 180 of y2
 float CameraObj::matchRangeOf(float y1, float y2) {
   if (y1 - y2 > 180) { y1 -= 360; }
@@ -523,17 +602,43 @@ void CameraObj::setVisibleIntended(int i) { visibleIntendedCount = i; }
 bool CameraObj::getBackupFreedom() { return backupFreedom; }
 void CameraObj::setBackupFreedom(bool b) { backupFreedom = b; }
 
-// Getters
+/***********/
+/* Getters */
+/***********/
+
+// Straight pos
 int CameraObj::get(int s) { return s == 0 ? x : s == 1 ? y : z; }
 int CameraObj::getX() { return x; }
 int CameraObj::getY() { return y; }
 int CameraObj::getZ() { return z; }
+
+// Average pos of the last camArraySize positions
+int CameraObj::getMean(int s) {  
+  return s==0? meanX : s==1? meanY : meanZ;
+}
+int CameraObj::getMeanX() { return getMean(0); }
+int CameraObj::getMeanY() { return getMean(1); }
+int CameraObj::getMeanZ() { return getMean(2); }
+
+// Straight angle
 float CameraObj::getAngle(int s) {
   return s == 0 ? angleX : s == 1 ? angleY : angleZ;
 }
 float CameraObj::getAngleX() { return angleX; }
 float CameraObj::getAngleY() { return angleY; }
 float CameraObj::getAngleZ() { return angleZ; }
+
+// Average angle of the last camArraySize positions
+float CameraObj::getMeanAngle(int s) {
+  return s==0? meanAngleX : s==1? meanAngleY : meanAngleZ;
+}
+float CameraObj::getMeanAngleX() { return getMeanAngle(0); }
+float CameraObj::getMeanAngleY() { return getMeanAngle(1); }
+float CameraObj::getMeanAngleZ() { return getMeanAngle(2); }
+
+/***********/
+/* Setters */
+/***********/
 
 // Set is absolute positioning
 void CameraObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
