@@ -161,6 +161,11 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
     );
 }
 
+// Farthest/Max dist we want to be from player
+int CameraObj::getFarthestDist() {
+  return farthestDist;
+}
+
 // Find how close player is to their goal,
 // if close enough we'll use this to look at both at once
 int CameraObj::distToGoal() {
@@ -368,6 +373,15 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
 	
 }
 
+void CameraObj::lookAtTarget() {
+  lookAtPlayer(
+        tracker->getX(),
+        permanentTarget->getY(),
+        tracker->getZ(),
+        permanentTarget->getAngleY(),
+        permanentTarget->getGrounded(),
+        4);
+}
 // Bare basics of any normal tick/update: look at the player
 void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, int strictness) {
   

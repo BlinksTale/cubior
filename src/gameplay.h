@@ -19,7 +19,7 @@ using namespace std; // necessary for string
 const bool rotateIfInvisible = true;
 const int mapEdge = 4;
 // How many angles to try when rotating back into view of player
-const float anglesToTry = 12;
+const float anglesToTry = 8;
 
 const int playableWidth = 100;
 const int playableHeight= 100;
@@ -35,8 +35,11 @@ const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
 
 // Variables for how long we've moved towards intended, yet target is visible..
 const int visibleIntendedMax = 0;
+// longest period we can not see player w/o fixing it
+const int invisibleMax = 5;
 
     void gameplayStart(string);
+    void nextLevelCountdown(int);
     void nextLevel();
     void gameplayLoop();
 
@@ -45,6 +48,7 @@ const int visibleIntendedMax = 0;
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
     void rotateToPlayer(int);
+    void rotateAroundPlayer(int,int); // for victory shot
     
     // Camera
     bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);

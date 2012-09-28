@@ -16,6 +16,13 @@ GoalObj::GoalObj() {
   permalocked = true;
 }
 
-void GoalObj::collisionEffect(CubeObj*) {
-  nextLevel();
+void GoalObj::collisionEffect(CubeObj* c) {
+  if (c->isPlayer()) {
+    CubiorObj* temp = (CubiorObj*)c;
+    //stopGameplay();
+    int theNum = temp->getCubiorNum();
+    cout << "theNum is " << theNum << " k?" << endl;
+    nextLevelCountdown(theNum);
+    cout << "countdown Started" << endl;
+  }
 }

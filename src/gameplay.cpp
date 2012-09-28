@@ -34,6 +34,13 @@ int currentMapDepth;
 int cubeCount;
 int currentLevel = 0;
 bool changeLevel = false;
+int invisibleCount = 0;
+float winAngle;
+int winner = -1;
+bool winningShot = false;
+int winningHyp = 0;
+float winningZoom = 0.9985;
+int winningRotations = 256;
 
 CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
@@ -130,6 +137,7 @@ void gameplayStart(string levelToLoad) {
       camera[i].alwaysFollow(&cubior[i],&goal);
 
       // Cubior Start State
+      cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
     }
 
@@ -174,8 +182,39 @@ void gameplayStart(string levelToLoad) {
   }
 }
 
+// To count down to loading the next level
+void nextLevelCountdown(int i) {
+
+  winner = i;
+  
+  cout << "Start countdown? Well..." << endl;
+  // Same as the pivot point for upcoming rotation
+  int targetX = cubior[winner].getX();
+  int targetZ = cubior[winner].getZ();
+
+  cout << "targetX and Z are " << targetX << " and " << targetZ << endl;
+  
+  // Then capture this moment
+  winAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  cout << "winAngle is " << winAngle << endl;
+  
+  // And tell the world someone just won
+  winningShot = true;
+  winningHyp = camera[winner].groundDistToPlayer();
+  if (winningHyp > camera[winner].getFarthestDist()) {
+    winningHyp = camera[winner].getFarthestDist();
+  }
+  cout << "winningShot is " << winningShot << endl;
+  
+}
+
 // To load the next level
 void nextLevel() {
+  
+  // Finally moving on, reset the winner
+  winner = -1;
+  winningShot = false;
+  
   // Set next level number
   changeLevel = true;
   currentLevel = (currentLevel + 1) % totalLevels;
@@ -189,7 +228,7 @@ void nextLevel() {
 }
 
 void gameplayLoop() {
-  if (gameplayRunning) {
+  if (gameplayRunning && !winningShot) {
 	  
 	  // Only recognize a level change for one loop
 	  if (changeLevel) { changeLevel = false; }
@@ -266,16 +305,33 @@ void gameplayLoop() {
 
         //cout << "Check visibility"<<endl;
         ensurePlayerVisible(i);
-        }
+        
+      }
     }
 
+  } else if (winningShot) {
+    // How to handle the victory screen
+    rotateAroundPlayer(winner, winningHyp);
+    winningHyp *= winningZoom;
+    
+    // Same as the pivot point for rotation
+    int targetX = camera[winner].getPermanentTarget()->getX();
+    int targetZ = camera[winner].getPermanentTarget()->getZ();
+    float delta = abs(winAngle-getAngleBetween(camera[winner].getX(),camera[winner].getZ(),targetX,targetZ));
+    while (delta >= 2*M_PI) { delta -= 2*M_PI; }
+    while (delta <=-2*M_PI) { delta += 2*M_PI; }
+    
+    // If made a full rotation, onwards!
+    if (delta < (M_PI/winningRotations)) {
+      nextLevel();
+    }
   }
 }
 
 // This checks if the player is visible, and fixes invisible cases too
 void ensurePlayerVisible(int i) {
   //FIXME: Only need this cout for understanding range of angles or how they work
-  cout << "baseAngle: " <<  getAngleBetween(camera[i].getX(),camera[i].getZ(), camera[i].getPermanentTarget()->getX(), camera[i].getPermanentTarget()->getZ()) << endl;
+  //cout << "baseAngle: " <<  getAngleBetween(camera[i].getX(),camera[i].getZ(), camera[i].getPermanentTarget()->getX(), camera[i].getPermanentTarget()->getZ()) << endl;
   // Don't check if zooming in or too close
   if (camera[i].heightToPlayer() < maxCameraHeight && camera[i].distToPlayer() > tileSize/2) {
     // Otherwise,
@@ -304,7 +360,13 @@ void ensurePlayerVisible(int i) {
     } else {
       // and fix if needed
       //cout << "Player hidden!" << endl;
-      fixPlayerVisibility(i);
+      // If player is not moving or been invisible too long, feel free to move camera
+      if (!cubior[i].isMoving() || invisibleCount >= invisibleMax) {
+        fixPlayerVisibility(i);
+        invisibleCount = 0;
+      } else {
+        invisibleCount++;
+      }
     }
     //cout << "Camera " << i << "'s vis = " << camera[i].getLOS() << " & p1 to goal = " << camera[i].goalWithinNearRange() << endl;
   }
@@ -362,6 +424,9 @@ void rotateToPlayer(int i) {
   
   // Hypotenuse for triangle formed between camera and target
   int hyp = camera[i].groundDistToPlayer();
+  if (hyp > camera[i].getFarthestDist()) {
+    hyp = camera[i].getFarthestDist();
+  }
   //cout << "GroundDistToPlayer: " << hyp << endl;
   //cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
   
@@ -370,6 +435,7 @@ void rotateToPlayer(int i) {
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
   cout << "oldX: " << oldX << ", oldX: " << oldZ << endl;
+  cout << "hyp: " << hyp << endl;
   cout << "targetX: " << targetX << ", targetZ: " << targetZ << endl;
   cout << "baseAngle, " << baseAngle << ", newAngle, " << newAngle << endl;
   
@@ -382,8 +448,10 @@ void rotateToPlayer(int i) {
     
     cout << "newAngle, " << newAngle << endl;
     // Set new intended pos for each turn
-    newX = targetX + hyp*sin(newAngle);
-    newZ = targetZ + hyp*cos(newAngle);
+    // math is a little hackey, tried swapping cos and sin and adding M_PI
+    // and the numbers looked better, and camera worked better
+    newX = targetX + hyp*cos(M_PI+newAngle);
+    newZ = targetZ + hyp*sin(M_PI+newAngle);
     cout << "newX: " << newX << ", newZ: " << newZ << endl;
     
     //cout << "Target " << targetX << ", " << targetZ << endl;
@@ -399,7 +467,9 @@ void rotateToPlayer(int i) {
     // the camera, use the position for sure.
     // May need to fix this later, as requires setting cam pos every time
     if (playerVisible(i)) {
-      camera[i].tick();
+      // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
+      // since the camera kind of jumps when it starts to readjust every angle
+      //camera[i].tick();
       foundAnAngle = true;
       //cout << "Found a fix! (might not be perfect)" << endl;
            
@@ -410,6 +480,19 @@ void rotateToPlayer(int i) {
         // Found a straight shot? Remember it and stop looking for anything better!
         intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         foundIntendedPos = true;
+        
+        // Then see if you can go one step further and have equal visibility
+        // (basically, all of the above code squished together for round 2)
+        int l = k + 2;
+        float doubleNewAngle = baseAngle + (M_PI*2.0/anglesToTry)*l/2.0*(1.0-2.0*(l%2));
+        int doubleNewX = targetX + hyp*cos(M_PI+doubleNewAngle);
+        int doubleNewZ = targetZ + hyp*sin(M_PI+doubleNewAngle);
+        cameraCube.setPos(doubleNewX,camera[i].getY(),doubleNewZ);
+        camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+        if (playerVisible(i) && checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
+          intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());          
+        }
+        
         break;
 
       }
@@ -448,6 +531,48 @@ void rotateToPlayer(int i) {
   }
   cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
 }
+
+// Try to find an angle & rotate the camera to angle to see the player
+void rotateAroundPlayer(int i, int hyp) {
+  cout << "tryna rotate" << endl;
+  CubeObj oldCamera;
+  
+  // Pivot point for rotation
+  int targetX = camera[i].getPermanentTarget()->getX();
+  int targetZ = camera[i].getPermanentTarget()->getZ();
+  // Position we will move to on each turn
+  int oldX = camera[i].getX();
+  int oldY = camera[i].getY();
+  int oldZ = camera[i].getZ();
+  int newX = oldX;
+  int newZ = oldZ;
+  
+  //cout << "GroundDistToPlayer: " << hyp << endl;
+  //cout << "our own math for it " << (sqrt(pow(oldX-targetX,2)+pow(oldZ-targetZ,2))) << endl;
+  
+  // Angle that we will be moving away from, pivot point side
+  float baseAngle = /*M_PI*3/2.0 - */ getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  // Angle we will be moving to, based on pivot
+  float newAngle = baseAngle;
+  
+  //cout << "START" << endl;
+  // rotate until player is visible or 180 from start
+  // New pivot angle to go to
+  newAngle = baseAngle + (M_PI*2.0/(winningRotations));
+
+  // Set new intended pos for each turn
+  // math is a little hackey, tried swapping cos and sin and adding M_PI
+  // and the numbers looked better, and camera worked better
+  newX = targetX + hyp*cos(M_PI+newAngle);
+  newZ = targetZ + hyp*sin(M_PI+newAngle);
+
+  // Leaving camera cube in here just in case forgetting it would ruin something, not sure
+  // FIXME later by testing it with no camera cube step
+  cameraCube.setPos(newX,camera[i].getY(),newZ);
+  camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+  camera[i].lookAtTarget();
+}
+
 
 bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
   
