@@ -857,3 +857,7 @@ float getAngleBetween(int a, int b, int x, int y) {
   // So we deal with radians from -M_PI/2 to M_PI*3/2
   return diffX == 0 ? (diffY > 0 ? M_PI*3.0/2.0 : M_PI*1.0/2.0) : result;
 }
+
+void switchFullscreen() {
+  toggleFullscreen();
+}

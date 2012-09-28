@@ -35,6 +35,7 @@ bool lockKey[playerCount];
 bool superKey[playerCount];
 bool pauseKey[playerCount];
 bool joinKey[playerCount];
+bool fullscreenKey;
 bool nextLevelKey;
 int lastPause = -1; // Last player to pause
 
@@ -46,6 +47,14 @@ int sinUD[playerCount], cosUD[playerCount], sinLR[playerCount], cosLR[playerCoun
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
+
+// Pause fullscreen can be anyone, actually
+void playerFullscreen(bool newBool) {
+  if (!fullscreenKey && newBool) { // newly pressing Enter
+    switchFullscreen();
+  }
+  fullscreenKey = newBool;
+}
 
 // Pause tied to player who paused
 void playerPause(int p, bool newBool) {
@@ -136,8 +145,8 @@ void nextLevelPressed(bool b) {
 void handleInput(unsigned char key, bool newBool) {
   switch(key) {
     // SYSTEM CONTROLS
-    case '0':  enableGoodCollision(); break;
-    case '9': disableGoodCollision(); break;
+    case '0': playerFullscreen(newBool); break;//enableGoodCollision(); break;
+    //case '9': disableGoodCollision(); break;
     case 13 : // Press Enter to pause from p1
     case '5': playerPause(0,newBool); break;
     case '6': playerPause(1,newBool); break;

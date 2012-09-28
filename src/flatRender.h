@@ -25,5 +25,6 @@
     void renderFlat();
     void printString(char*,int,int,int);
     bool getTiming();
+    void toggleFullscreen();
 
 #endif 

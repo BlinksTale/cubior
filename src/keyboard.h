@@ -7,6 +7,7 @@
 #ifndef KEYBOARD
 #define KEYBOARD
  
+    void playerFullscreen(bool);
     void playerPause(int, bool);
     int getLastPause();
 
