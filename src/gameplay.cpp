@@ -305,6 +305,21 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
+        // Just before checking visibility,
+        // try to line camera up against a wall
+        // FIXME: May want to make this an alternative to normal procedure,
+        // rather than tacked on to the end
+        int xWall[4];
+        int zWall[4];
+        searchForWall(i,xWall,permanentMap,0);
+        searchForWall(i,zWall,permanentMap,2);
+        cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
+        cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
+        // FIXME: I want this to be based on an "is any space or wall" bool
+        /*if (xWall != 0 || zWall != 0) {
+          cout << "atan is " << atan(zWall*1.0/xWall) << endl;
+          rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
+        }*/
         //cout << "Check visibility"<<endl;
         ensurePlayerVisible(i);
         
@@ -335,8 +350,8 @@ void gameplayLoop() {
  *******************/
 
 // Looks for vertical walls or clearings along 1 dimension of player
-int searchForWall(int player, CubeObj* m[][maxHeight][maxDepth], int dimension) {
-  bool rearWall = 0, frontWall = 0;
+int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth], int dimension) {
+  bool rearWall = 0, frontWall = 0, rearSpace = 0, frontSpace = 0;
   int cX = getCollisionMapSlot(&cubior[player],0);
   int cY = getCollisionMapSlot(&cubior[player],1);
   int cZ = getCollisionMapSlot(&cubior[player],2);
@@ -350,18 +365,29 @@ int searchForWall(int player, CubeObj* m[][maxHeight][maxDepth], int dimension) 
     if (dimension == 0) { dX = i; }
     if (dimension == 2) { dZ = i; }
     // check in front
-    if ((m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()) ||
-        (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ))){
-      frontWall = true;
-    }
+    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall());
+    // or for a lack behind
+    frontSpace = (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ));
     // check behind
-    if ((m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()) ||
-        (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ))){
-      rearWall = true;
-    }
+    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall());
+    // or for a lack in front
+    rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ));
   }
-  // then it reports on if any walls exist in front of or behind, or both/none
-  return frontWall - rearWall;
+  results[0] = frontWall;
+  results[1] = rearWall;
+  results[2] = frontSpace;
+  results[3] = rearSpace;
+  return results;
+/*  // then it reports on if any walls exist in front of or behind, or both/none
+  if (frontWall && rearWall && frontSpace && rearSpace) {
+    return 0;
+  } else if (frontWall && frontSpace) {
+    return 1;
+  } else if (rearWall && rearSpace) {
+    return -1;
+  } else {
+    return frontWall - rearWall + rearSpace - frontSpace;
+  }*/
 }
 
 // Check if equiv of isVertWall, but all spaces empty

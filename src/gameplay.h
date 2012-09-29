@@ -45,7 +45,7 @@ const int invisibleMax = 5;
     void gameplayLoop();
 
     // Looks for vertical walls or clearings along 1 dimension of player
-    int searchForWall(int,CubeObj* [][maxHeight][maxDepth],int);
+    int* searchForWall(int,int [],CubeObj* [][maxHeight][maxDepth],int);
     void rotateToAngle(int,float,int);
     bool isVertSpace(CubeObj* [][maxHeight][maxDepth], int, int, int);
     

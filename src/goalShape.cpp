@@ -49,7 +49,6 @@ void GoalShape::updateVisuals() {
 }
 
 void GoalShape::updateColors() {
-    std::cout << "updating colors!" << std::endl;
   r1 = colorCurrentR + colorDarkness;
   g1 = colorCurrentG + colorDarkness;
   b1 = colorCurrentB + colorDarkness;
