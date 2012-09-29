@@ -287,9 +287,49 @@ void gameplayLoop() {
     for (int i=0; i<cubiorCount; i++) {
   	  if (changeLevel) { break; }
 	    if (cubiorPlayable[i]){
-        // Basic setup
-        camera[i].tick();
+        
+        // try to line camera up against a wall
+        int xWall[4];
+        int zWall[4];
+        searchForWall(i,xWall,permanentMap,0);
+        searchForWall(i,zWall,permanentMap,2);
+        cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
+        cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
+        // FIXME: I want this to be based on an "is any space or wall" bool
+        /*if (xWall != 0 || zWall != 0) {
+          cout << "atan is " << atan(zWall*1.0/xWall) << endl;
+          rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
+        }*/
+        if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
 
+          if (xWall[0] && !xWall[1]) { // near wall but no far wall
+            rotateToAngle(i,0,camera[i].groundDistToPlayer());
+          }
+          if (!xWall[0] && xWall[1]) { // far wall but no near wall
+            rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
+          }
+          if (zWall[0] && !zWall[1]) { // near wall but no far wall
+            rotateToAngle(i,1.0/2*M_PI,camera[i].groundDistToPlayer());
+          }
+          if (!zWall[0] && zWall[1]) { // far wall but no near wall
+            // to figure out which direction to rotate towards
+            int targetX = camera[i].getPermanentTarget()->getX();
+            int targetZ = camera[i].getPermanentTarget()->getZ();
+            float testAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+            // Then rotate in that direction
+            if (testAngle < M_PI/2.0) {
+              rotateToAngle(i,-0.99/2*M_PI,camera[i].groundDistToPlayer());
+            } else {
+              rotateToAngle(i,2.99/2*M_PI,camera[i].groundDistToPlayer());
+            }
+          }
+          camera[i].tick();
+        } else {
+          // if no perp angles to aim at, do normal stuff
+          // Basic setup
+          camera[i].tick();
+        }
+        
         // And bounce off walls if colliding
         cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
         // using cameraCube here since a lack thereof make camera's collision stop working 
@@ -305,21 +345,6 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
-        // Just before checking visibility,
-        // try to line camera up against a wall
-        // FIXME: May want to make this an alternative to normal procedure,
-        // rather than tacked on to the end
-        int xWall[4];
-        int zWall[4];
-        searchForWall(i,xWall,permanentMap,0);
-        searchForWall(i,zWall,permanentMap,2);
-        cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
-        cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
-        // FIXME: I want this to be based on an "is any space or wall" bool
-        /*if (xWall != 0 || zWall != 0) {
-          cout << "atan is " << atan(zWall*1.0/xWall) << endl;
-          rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
-        }*/
         //cout << "Check visibility"<<endl;
         ensurePlayerVisible(i);
         
@@ -355,21 +380,26 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
   int cX = getCollisionMapSlot(&cubior[player],0);
   int cY = getCollisionMapSlot(&cubior[player],1);
   int cZ = getCollisionMapSlot(&cubior[player],2);
-  // delta along cube radius
-  int dX = 0;
-  int dZ = 0;
+  // delta along cube radius, 1 and 2 for checking neighbors for walls
+  int dX = 0, dX1 = 0, dX2 = 0;
+  int dZ = 0, dZ1 = 0, dZ2 = 0;
   
   // Now check surroundings on X or Z axis
-  for (int i=0; i<wallCheckRadius; i++) {
+  for (int i=-1; i<wallCheckRadius; i++) {
     // depending on dimension, choose which axis to alter
-    if (dimension == 0) { dX = i; }
-    if (dimension == 2) { dZ = i; }
+    if (dimension == 0) { dX = i; dZ1 = -1; dZ2 = 1; }
+    if (dimension == 2) { dZ = i; dX1 = -1; dX2 = 1; }
     // check in front
-    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall());
+    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()) ||
+                (m[cX+dX+dX1][cY][cZ+dZ+dZ1] != NULL && m[cX+dX+dX1][cY][cZ+dZ+dZ1]->isVertWall()) ||
+                (m[cX+dX+dX2][cY][cZ+dZ+dZ2] != NULL && m[cX+dX+dX2][cY][cZ+dZ+dZ2]->isVertWall());
     // or for a lack behind
     frontSpace = (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ));
-    // check behind
-    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall());
+    // check behind // FIXME: Don't like this method of checking 1 and 2 neighbors,
+    // need an alternative to get it working with castle level as desired.
+    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()) ||
+                (m[cX-dX-dX1][cY][cZ-dZ-dZ1] != NULL && m[cX-dX-dX1][cY][cZ-dZ-dZ1]->isVertWall()) ||
+                (m[cX-dX-dX2][cY][cZ-dZ-dZ2] != NULL && m[cX-dX-dX2][cY][cZ-dZ-dZ2]->isVertWall());
     // or for a lack in front
     rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ));
   }
@@ -420,15 +450,26 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   int newZ = oldZ;
   
   // Angle that we will be moving away from, pivot point side
+  cout << "targetAngle is " << targetAngle << endl;
   float baseAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
-  baseAngle = camera[i].matchRangeOf(baseAngle, targetAngle);
+  cout << "baseAngle is " << baseAngle << endl;
+  //while (targetAngle < -M_PI/2) { targetAngle += M_PI*2; }
+  //while (targetAngle > M_PI*3.0/2) { targetAngle -= M_PI*2; }
+  //baseAngle = camera[i].matchRangeOf(baseAngle, targetAngle);
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
-  
+  cout << "baseAngle is " << baseAngle << endl;
   // rotate until player is visible or 180 from start
   // New pivot angle to go to
-  newAngle = baseAngle + (1-2*(baseAngle<targetAngle))*(M_PI*2.0/(winningRotations));
-
+  while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
+  while (targetAngle < baseAngle - M_PI) { baseAngle -= 2*M_PI; }
+  if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations))) {
+    newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations));
+  } else {
+    // too close, just make equal!
+    newAngle = targetAngle;
+  }
+  cout << "newAngle is " << newAngle << endl;
   // Set new intended pos for each turn
   // math is a little hackey, tried swapping cos and sin and adding M_PI
   // and the numbers looked better, and camera worked better
@@ -442,6 +483,7 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   camera[i].lookAtTarget();
   camera[i].updateCamArray();
   camera[i].updateMeans();
+  cout << "finalAngle is " << getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ) << endl;
 }    
     
 /*************
