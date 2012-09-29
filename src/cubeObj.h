@@ -81,6 +81,7 @@ class CubeObj {
     // These two check neighbor status and return if double neighbors in one or two dimensions respectively
     bool isColumn();
     bool isWall();
+    bool isVertWall();
     
     void setEdges(bool,bool,bool,bool,bool,bool);
     bool* getEdges();

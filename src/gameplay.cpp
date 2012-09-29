@@ -330,6 +330,98 @@ void gameplayLoop() {
   }
 }
 
+/*******************
+ * Check for Walls *
+ *******************/
+
+// Looks for vertical walls or clearings along 1 dimension of player
+int searchForWall(int player, CubeObj* m[][maxHeight][maxDepth], int dimension) {
+  bool rearWall = 0, frontWall = 0;
+  int cX = getCollisionMapSlot(&cubior[player],0);
+  int cY = getCollisionMapSlot(&cubior[player],1);
+  int cZ = getCollisionMapSlot(&cubior[player],2);
+  // delta along cube radius
+  int dX = 0;
+  int dZ = 0;
+  
+  // Now check surroundings on X or Z axis
+  for (int i=0; i<wallCheckRadius; i++) {
+    // depending on dimension, choose which axis to alter
+    if (dimension == 0) { dX = i; }
+    if (dimension == 2) { dZ = i; }
+    // check in front
+    if ((m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()) ||
+        (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ))){
+      frontWall = true;
+    }
+    // check behind
+    if ((m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()) ||
+        (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ))){
+      rearWall = true;
+    }
+  }
+  // then it reports on if any walls exist in front of or behind, or both/none
+  return frontWall - rearWall;
+}
+
+// Check if equiv of isVertWall, but all spaces empty
+bool isVertSpace(CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
+  // if not at an edge
+  if ((cX<maxWidth && cX>0) && (cY<maxHeight && cY>0) && (cZ<maxDepth && cZ>0)){
+    return ( (m[cX][cY][cZ] == NULL) // center space
+      && ((m[cX][cY+1][cZ] == NULL) && (m[cX][cY-1][cZ] == NULL)) // vert neighbors
+      && (  // some combo of horiz neighbors
+         ((m[cX+1][cY][cZ] == NULL) && (m[cX-1][cY][cZ] == NULL)) // x neighbors
+      || ((m[cX][cY][cZ+1] == NULL) && (m[cX][cY][cZ-1] == NULL)) // z neighbors
+      ));
+  } else {
+    // edge cases always count as clearings
+    // FIXME: haven't really thought this through too well, to be honest
+    return true;
+  }
+}
+// Move camera to new angle, for wall angles
+void rotateToAngle(int i, float targetAngle, int hyp) {
+  
+  // Pivot point for rotation
+  int targetX = camera[i].getPermanentTarget()->getX();
+  int targetZ = camera[i].getPermanentTarget()->getZ();
+  // Position we will move to on each turn
+  int oldX = camera[i].getX();
+  int oldY = camera[i].getY();
+  int oldZ = camera[i].getZ();
+  int newX = oldX;
+  int newZ = oldZ;
+  
+  // Angle that we will be moving away from, pivot point side
+  float baseAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+  baseAngle = camera[i].matchRangeOf(baseAngle, targetAngle);
+  // Angle we will be moving to, based on pivot
+  float newAngle = baseAngle;
+  
+  // rotate until player is visible or 180 from start
+  // New pivot angle to go to
+  newAngle = baseAngle + (1-2*(baseAngle<targetAngle))*(M_PI*2.0/(winningRotations));
+
+  // Set new intended pos for each turn
+  // math is a little hackey, tried swapping cos and sin and adding M_PI
+  // and the numbers looked better, and camera worked better
+  newX = targetX + hyp*cos(M_PI+newAngle);
+  newZ = targetZ + hyp*sin(M_PI+newAngle);
+
+  // Leaving camera cube in here just in case forgetting it would ruin something, not sure
+  // FIXME later by testing it with no camera cube step
+  cameraCube.setPos(newX,camera[i].getY(),newZ);
+  camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+  camera[i].lookAtTarget();
+  camera[i].updateCamArray();
+  camera[i].updateMeans();
+}    
+    
+/*************
+ * Check LOS *
+ *************/
+
 // This checks if the player is visible, and fixes invisible cases too
 void ensurePlayerVisible(int i) {
   //FIXME: Only need this cout for understanding range of angles or how they work

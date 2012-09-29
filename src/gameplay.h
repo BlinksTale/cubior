@@ -20,6 +20,7 @@ const bool rotateIfInvisible = true;
 const int mapEdge = 4;
 // How many angles to try when rotating back into view of player
 const float anglesToTry = 8;
+const int wallCheckRadius = 3;
 
 const int playableWidth = 100;
 const int playableHeight= 100;
@@ -43,6 +44,12 @@ const int invisibleMax = 5;
     void nextLevel();
     void gameplayLoop();
 
+    // Looks for vertical walls or clearings along 1 dimension of player
+    int searchForWall(int,CubeObj* [][maxHeight][maxDepth],int);
+    void rotateToAngle(int,float,int);
+    bool isVertSpace(CubeObj* [][maxHeight][maxDepth], int, int, int);
+    
+    // Check LOS between cam and player, then move to clear shot by a clear path
     void ensurePlayerVisible(int);
     bool playerVisible(int);
     void fixPlayerVisibility(int);

@@ -276,6 +276,12 @@ bool CubeObj::isWall() {
        ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
 }
 
+// If neighbors on both sides for two dimensions, one must be vertical (2 & 3)
+bool CubeObj::isVertWall() {
+  return ((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+       ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
+}
+
 // For being up against an edge of the map - used mostly in collision detection
 void CubeObj::setEdges(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   edges[0] = x1;
