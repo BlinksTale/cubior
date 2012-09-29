@@ -17,6 +17,7 @@ class GoalObj : public CubeObj {
     GoalObj();
     void collisionEffect(CubeObj*);
     bool getGlow();
+    void setGlow(bool);
 };
 
 #endif 

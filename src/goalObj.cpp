@@ -30,3 +30,4 @@ void GoalObj::collisionEffect(CubeObj* c) {
 }
 
 bool GoalObj::getGlow() { return glow; }
+void GoalObj::setGlow(bool b) { glow = b; }

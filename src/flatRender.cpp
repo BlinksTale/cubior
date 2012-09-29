@@ -488,7 +488,7 @@ void renderLoop() {
   }
   
   updateGoalGraphic();
-
+  
   if (timing) {
     gettimeofday(&tim, NULL);
     int dTime6 = (tim.tv_sec+(tim.tv_usec/1.0));
@@ -568,6 +568,7 @@ void initVisuals() {
   goalX = 0.0;
   goalX = 0.0;
   goalX = 0.0;
+  goalShape.setGlow(false);
   goalShape.initGoalVisuals();
   updateGoalGraphic();
 
@@ -633,6 +634,11 @@ void updateCubeGraphic(int n) {
 }
 
 void updateGoalGraphic() {
+  if (( getGoal()->getGlow() && !goalShape.getGlow()) ||
+      (!getGoal()->getGlow() &&  goalShape.getGlow())) { 
+    goalShape.setGlow(getGoal()->getGlow()); 
+  }
+  
   setGoalGraphic(getGoal()->getX(),getGoal()->getY(),getGoal()->getZ());
 }
 

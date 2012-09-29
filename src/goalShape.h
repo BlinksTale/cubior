@@ -12,7 +12,8 @@
 
 class GoalShape : public CubeShape {
   protected:
-    float r1,g1,b1,r2,g2,b2;
+    //float r1,g1,b1,r2,g2,b2;
+    bool glow;
 
     float colorDarkness;
     float colorDefaultA;
@@ -28,5 +29,7 @@ class GoalShape : public CubeShape {
     void updateVisuals();
     void updateColors();
     void drawGoal();
+    bool getGlow();
+    void setGlow(bool);
 };
 #endif

@@ -115,6 +115,8 @@ void gameplayStart(string levelToLoad) {
 
     // First wipe the current map
     wipeCurrentMap(permanentMap);
+    // And reset goal glow
+    goal.setGlow(false);
 
     // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad);
