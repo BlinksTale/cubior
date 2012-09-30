@@ -36,6 +36,13 @@ class CameraObj : public CubeObj {
     float camAngleX[camArraySize];
     float camAngleY[camArraySize];
     float camAngleZ[camArraySize];
+    bool lockedToPlayer;
+    bool lockedToPlayerX;
+    bool lockedToPlayerZ;
+    float lockedX;
+    float lockedY;
+    float lockedZ;
+    float lockedAngleY;
     
   public:
     CameraObj();
@@ -70,6 +77,7 @@ class CameraObj : public CubeObj {
     float followOne(float,int,int,int);
     float followBoth(float);
     void positionByAngles(int,int,int,int,float,int);
+    void maintainPosition();
     
     int getFarthestDist();
     int distToGoal();
@@ -94,6 +102,7 @@ class CameraObj : public CubeObj {
     float getAngleX();
     float getAngleY();
     float getAngleZ();
+    float getRadiansAngleY();
     float getMeanAngle(int);
     float getMeanAngleX();
     float getMeanAngleY();
@@ -130,6 +139,15 @@ class CameraObj : public CubeObj {
     bool getLOS();
     bool getVisibility();
     CubeObj* getPermanentTarget();
+    
+    // Find out if angle and pos locked to that of player
+    bool getLockedToPlayer();
+    bool getLockedToPlayerX();
+    bool getLockedToPlayerZ();
+    void resetLocks();
+    void setLockedToPlayer(bool);
+    void setLockedToPlayerX(bool);
+    void setLockedToPlayerZ(bool);
 };
 
 #endif 

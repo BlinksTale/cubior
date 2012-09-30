@@ -51,6 +51,9 @@ void CameraObj::resetPos() {
   backupFreedom = true;
   lastDistToIntended = 0;
   intendedStuckCount = 0;
+  lockedToPlayer = false;
+  lockedToPlayerX = false;
+  lockedToPlayerZ = false;
   
   //cout << "resetting array" << endl;
   for (int i=0; i<camArraySize; i++) {
@@ -124,7 +127,7 @@ void CameraObj::tick() {
     // make sure to update the item that's following the target
 	  tracker->tick();
     // then move the camera itself if free to do so
-    if (freedom && !foundIntendedPos) {
+    if (freedom && !foundIntendedPos && !lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) {
       //cout << "Normal loop! Freedom found, no intended pos" << endl;
       follow(
         tracker->getX(),
@@ -134,6 +137,27 @@ void CameraObj::tick() {
         permanentTarget->getGrounded(),
         4
       );
+    // Locked to player then? Keep up with them!
+    } else if (lockedToPlayer) {
+      cout << "all locked" << endl;
+      x = tracker->getX() + lockedX;
+      y = tracker->getY() + lockedY;
+      z = tracker->getZ() + lockedZ;
+      angleY = lockedAngleY;
+    // Locked to player X then? Keep up with them!
+    } else if (lockedToPlayerX) {
+      cout << "x locked" << endl;
+      x = tracker->getX() + lockedX;
+      y = tracker->getY() + lockedY;
+      z = tracker->getZ() + lockedZ;
+      angleY = lockedAngleY;
+    // Locked to player Z then? Keep up with them!
+    } else if (lockedToPlayerZ) {
+      cout << "z locked" << endl;
+      x = tracker->getX() + lockedX;
+      y = tracker->getY() + lockedY;
+      z = tracker->getZ() + lockedZ;
+      angleY = lockedAngleY;
     } else { // not free or have an intended pos
       //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
@@ -448,6 +472,15 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
 }
 
+// position by angles with no changes to anything current
+void CameraObj::maintainPosition() {
+  int a = tracker->getX();
+  int c = tracker->getZ();
+  int distToPlayer = groundDistTo(a,c);
+  int intendedDist = findIntendedDist(a,c);
+  positionByAngles(a,c,intendedDist,distToPlayer,angleY,1);
+}
+
 void CameraObj::lookAtTarget() {
   lookAtPlayer(
         tracker->getX(),
@@ -627,6 +660,7 @@ float CameraObj::getAngle(int s) {
 float CameraObj::getAngleX() { return angleX; }
 float CameraObj::getAngleY() { return angleY; }
 float CameraObj::getAngleZ() { return angleZ; }
+float CameraObj::getRadiansAngleY() { return ((270-(int)angleY)%360)*2.0*M_PI/360.0; }
 
 // Average angle of the last camArraySize positions
 float CameraObj::getMeanAngle(int s) {
@@ -664,3 +698,26 @@ void CameraObj::setLOS(bool b) {
 bool CameraObj::getLOS() { return los; }
 bool CameraObj::getVisibility() { return los; }
 CubeObj* CameraObj::getPermanentTarget() { return permanentTarget; }
+
+bool CameraObj::getLockedToPlayer() { return lockedToPlayer; }
+bool CameraObj::getLockedToPlayerX() { return lockedToPlayerX; }
+bool CameraObj::getLockedToPlayerZ() { return lockedToPlayerZ; }
+void CameraObj::setLockedToPlayer(bool b) { 
+  resetLocks();
+  lockedToPlayer = b;
+}
+void CameraObj::setLockedToPlayerX(bool b) { 
+  resetLocks();
+  lockedToPlayerX = b;
+}
+void CameraObj::setLockedToPlayerZ(bool b) { 
+  resetLocks();
+  lockedToPlayerZ = b;
+}
+// For any type of locking
+void CameraObj::resetLocks() {
+  lockedX = x - permanentTarget->getX();
+  lockedY = y - permanentTarget->getY();
+  lockedZ = z - permanentTarget->getZ();
+  lockedAngleY = angleY;
+}

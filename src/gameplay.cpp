@@ -300,35 +300,81 @@ void gameplayLoop() {
           cout << "atan is " << atan(zWall*1.0/xWall) << endl;
           rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
         }*/
+        
+        // Keep track of how often each direction is requested.
+        int xFar = 0, xNear = 0, zFar = 0, zNear = 0;
+        
+        // Look for walls
         if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
-
-          if (xWall[0] && !xWall[1]) { // near wall but no far wall
-            rotateToAngle(i,0,camera[i].groundDistToPlayer());
-          }
-          if (!xWall[0] && xWall[1]) { // far wall but no near wall
-            rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
-          }
-          if (zWall[0] && !zWall[1]) { // near wall but no far wall
-            rotateToAngle(i,1.0/2*M_PI,camera[i].groundDistToPlayer());
-          }
-          if (!zWall[0] && zWall[1]) { // far wall but no near wall
+          if (xWall[0] && !xWall[1]) { xNear++; } // near wall but no far wall
+          if (!xWall[0] && xWall[1]) { xFar++;  } // far wall but no near wall
+          if (zWall[0] && !zWall[1]) { zNear++; } // near wall but no far wall
+          if (!zWall[0] && zWall[1]) { zFar++;  } // far wall but no near wall
+        }
+        // No walls? Look for drops!
+        if (xWall[2] || xWall[3] || zWall[2] || zWall[3]) {
+          if (xWall[2]) { xNear++; } // far space
+          if (xWall[3]) { xFar++;  } // near space
+          if (zWall[2]) { zNear++; } // far space
+          if (zWall[3]) { zFar++;  } // near space
+        }
+        if (xNear || xFar || zNear || zFar) {
+          float targetAngle = 0;
+          //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
+          // xNear wins
+          if (xNear >= xFar && xNear >= zFar && xNear >= zNear) {
+            targetAngle = 0;
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+            } else if (!camera[i].getLockedToPlayerX()) {
+              camera[i].setLockedToPlayerX(true);
+            }
+          // xFar wins
+          } else if (xFar >= xNear && xFar >= zFar && xFar >= zNear) {
+            targetAngle = M_PI;
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+              rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
+            } else if (!camera[i].getLockedToPlayerX()) {
+              camera[i].setLockedToPlayerX(true);
+            }
+          } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
+          // zNear wins
+          if (zNear >= xFar && zNear >= zFar && zNear >= xNear) {
+            targetAngle = 1.0/2*M_PI;
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+            } else if (!camera[i].getLockedToPlayerZ()) {
+              camera[i].setLockedToPlayerZ(true); 
+            }
+          // zFar wins
+          } else if (zFar >= xFar && zFar >= xNear && zFar >= zNear) {
             // to figure out which direction to rotate towards
             int targetX = camera[i].getPermanentTarget()->getX();
             int targetZ = camera[i].getPermanentTarget()->getZ();
             float testAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
             // Then rotate in that direction
             if (testAngle < M_PI/2.0) {
-              rotateToAngle(i,-0.99/2*M_PI,camera[i].groundDistToPlayer());
+              targetAngle = -0.99/2*M_PI;
             } else {
-              rotateToAngle(i,2.99/2*M_PI,camera[i].groundDistToPlayer());
+              targetAngle = 2.99/2*M_PI;
             }
-          }
-          camera[i].tick();
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+            } else if (!camera[i].getLockedToPlayerZ()) {
+              camera[i].setLockedToPlayerZ(true);
+            }
+          } else if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
+          //cout << "targetAngle " << targetAngle << endl;
+          //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
+          //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
         } else {
-          // if no perp angles to aim at, do normal stuff
-          // Basic setup
-          camera[i].tick();
+          if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
+          if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
+          if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
         }
+        // Basic setup
+        camera[i].tick();
+        //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
         
         // And bounce off walls if colliding
         cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
@@ -381,25 +427,20 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
   int cY = getCollisionMapSlot(&cubior[player],1);
   int cZ = getCollisionMapSlot(&cubior[player],2);
   // delta along cube radius, 1 and 2 for checking neighbors for walls
-  int dX = 0, dX1 = 0, dX2 = 0;
-  int dZ = 0, dZ1 = 0, dZ2 = 0;
+  int dX = 0, dX1 = 0;
+  int dZ = 0, dZ1 = 0;
   
   // Now check surroundings on X or Z axis
-  for (int i=-1; i<wallCheckRadius; i++) {
+  for (int i=0; i<wallCheckRadius; i++) {
     // depending on dimension, choose which axis to alter
-    if (dimension == 0) { dX = i; dZ1 = -1; dZ2 = 1; }
-    if (dimension == 2) { dZ = i; dX1 = -1; dX2 = 1; }
+    if (dimension == 0) { dX = i; dZ1 = 1;}
+    if (dimension == 2) { dZ = i; dX1 = 1;}
     // check in front
-    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()) ||
-                (m[cX+dX+dX1][cY][cZ+dZ+dZ1] != NULL && m[cX+dX+dX1][cY][cZ+dZ+dZ1]->isVertWall()) ||
-                (m[cX+dX+dX2][cY][cZ+dZ+dZ2] != NULL && m[cX+dX+dX2][cY][cZ+dZ+dZ2]->isVertWall());
+    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall());
     // or for a lack behind
     frontSpace = (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ));
-    // check behind // FIXME: Don't like this method of checking 1 and 2 neighbors,
-    // need an alternative to get it working with castle level as desired.
-    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()) ||
-                (m[cX-dX-dX1][cY][cZ-dZ-dZ1] != NULL && m[cX-dX-dX1][cY][cZ-dZ-dZ1]->isVertWall()) ||
-                (m[cX-dX-dX2][cY][cZ-dZ-dZ2] != NULL && m[cX-dX-dX2][cY][cZ-dZ-dZ2]->isVertWall());
+    // check behind
+    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall());
     // or for a lack in front
     rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ));
   }
@@ -433,9 +474,10 @@ bool isVertSpace(CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
   } else {
     // edge cases always count as clearings
     // FIXME: haven't really thought this through too well, to be honest
-    return true;
+    return false;
   }
 }
+
 // Move camera to new angle, for wall angles
 void rotateToAngle(int i, float targetAngle, int hyp) {
   
