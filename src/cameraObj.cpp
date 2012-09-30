@@ -139,21 +139,18 @@ void CameraObj::tick() {
       );
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
-      cout << "all locked" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
       angleY = lockedAngleY;
     // Locked to player X then? Keep up with them!
     } else if (lockedToPlayerX) {
-      cout << "x locked" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
       angleY = lockedAngleY;
     // Locked to player Z then? Keep up with them!
     } else if (lockedToPlayerZ) {
-      cout << "z locked" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;

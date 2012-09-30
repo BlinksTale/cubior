@@ -492,15 +492,15 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   int newZ = oldZ;
   
   // Angle that we will be moving away from, pivot point side
-  cout << "targetAngle is " << targetAngle << endl;
+  //cout << "targetAngle is " << targetAngle << endl;
   float baseAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
-  cout << "baseAngle is " << baseAngle << endl;
+  //cout << "baseAngle is " << baseAngle << endl;
   //while (targetAngle < -M_PI/2) { targetAngle += M_PI*2; }
   //while (targetAngle > M_PI*3.0/2) { targetAngle -= M_PI*2; }
   //baseAngle = camera[i].matchRangeOf(baseAngle, targetAngle);
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
-  cout << "baseAngle is " << baseAngle << endl;
+  //cout << "baseAngle is " << baseAngle << endl;
   // rotate until player is visible or 180 from start
   // New pivot angle to go to
   while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
@@ -511,7 +511,7 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
     // too close, just make equal!
     newAngle = targetAngle;
   }
-  cout << "newAngle is " << newAngle << endl;
+  //cout << "newAngle is " << newAngle << endl;
   // Set new intended pos for each turn
   // math is a little hackey, tried swapping cos and sin and adding M_PI
   // and the numbers looked better, and camera worked better
@@ -525,7 +525,7 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   camera[i].lookAtTarget();
   camera[i].updateCamArray();
   camera[i].updateMeans();
-  cout << "finalAngle is " << getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ) << endl;
+  //cout << "finalAngle is " << getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ) << endl;
 }    
     
 /*************
