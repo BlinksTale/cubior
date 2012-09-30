@@ -393,8 +393,11 @@ void gameplayLoop() {
         }
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 
+        // If not in goal's range, ensure visibility
+        if (camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) {
         //cout << "Check visibility"<<endl;
-        ensurePlayerVisible(i);
+          ensurePlayerVisible(i);
+        }
         
       }
     }
