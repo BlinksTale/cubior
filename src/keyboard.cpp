@@ -94,12 +94,12 @@ void sendCommands() {
       
       // Then set movement angles based on cam angle if that's true
       //if (newUD && !oldUD[i]) {
-        sinUD[i] = ceil(sin((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
-        cosUD[i] = ceil(cos((int)(getCamera(i)->getAngleY())*PI/180)-0.5);
+        sinUD[i] = ceil(sin((int)(/*getCamera(i)->getAngleY()*/oldAngleY[i])*PI/180)-0.5);
+        cosUD[i] = ceil(cos((int)(/*getCamera(i)->getAngleY()*/oldAngleY[i])*PI/180)-0.5);
       //}
       //if (newLR && !oldLR[i]) {
-        sinLR[i] = ceil(sin((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
-        cosLR[i] = ceil(cos((360-(int)(getCamera(i)->getAngleY()))*PI/180)-0.5);
+        sinLR[i] = ceil(sin((360-(int)(/*getCamera(i)->getAngleY()*/oldAngleY[i]))*PI/180)-0.5);
+        cosLR[i] = ceil(cos((360-(int)(/*getCamera(i)->getAngleY()*/oldAngleY[i]))*PI/180)-0.5);
       //}
       
       if (upKey[i]) {

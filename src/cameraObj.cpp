@@ -128,7 +128,9 @@ void CameraObj::tick() {
     // make sure to update the item that's following the target
 	  tracker->tick();
     // then move the camera itself if free to do so
-    if (freedom && !foundIntendedPos && !lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) {
+    if (freedom && !foundIntendedPos &&
+      ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
+       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ))) {
       cout << "Option One" << endl;
       //cout << "Normal loop! Freedom found, no intended pos" << endl;
       follow(
