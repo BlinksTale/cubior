@@ -14,6 +14,7 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
+    bool wallState, intendedState, goalState, freeState;
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
     int currentCamSlot;
     
@@ -148,6 +149,10 @@ class CameraObj : public CubeObj {
     void setLockedToPlayer(bool);
     void setLockedToPlayerX(bool);
     void setLockedToPlayerZ(bool);
+    
+    // to get and force camera state info
+    int getState();
+    void setState(int);
 };
 
 #endif 

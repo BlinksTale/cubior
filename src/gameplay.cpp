@@ -318,21 +318,30 @@ void gameplayLoop() {
           if (zWall[2]) { zNear++; } // far space
           if (zWall[3]) { zFar++;  } // near space
         }
-        if (xNear || xFar || zNear || zFar) {
+        
+        cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear << xFar << zNear << zFar << endl;
+        // Do not try to adjust for walls if in goal range
+        if ((!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
+            (xNear || xFar || zNear || zFar)) {
+          cout << "Good!" << endl;
           float targetAngle = 0;
           //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
           // xNear wins
           if (xNear >= xFar && xNear >= zFar && xNear >= zNear) {
+            cout << "xNear" << endl;
             targetAngle = 0;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerX()) {
               camera[i].setLockedToPlayerX(true);
             }
           // xFar wins
           } else if (xFar >= xNear && xFar >= zFar && xFar >= zNear) {
+            cout << "xFar" << endl;
             targetAngle = M_PI;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerX()) {
               camera[i].setLockedToPlayerX(true);
@@ -340,15 +349,18 @@ void gameplayLoop() {
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           // zNear wins
           if (zNear >= xFar && zNear >= zFar && zNear >= xNear) {
+            cout << "zNear" << endl;
             //cout << "zNear chosen" << endl;
             targetAngle = 1.0/2*M_PI;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerZ()) {
               camera[i].setLockedToPlayerZ(true); 
             }
           // zFar wins
           } else if (zFar >= xFar && zFar >= xNear && zFar >= zNear) {
+            cout << "zFar" << endl;
             //cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
             int targetX = camera[i].getPermanentTarget()->getX();
@@ -356,11 +368,15 @@ void gameplayLoop() {
             float testAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
             // Then rotate in that direction
             if (testAngle < M_PI/2.0) {
-              targetAngle = -0.99/2*M_PI;
+              targetAngle = -0.999/2*M_PI;
             } else {
-              targetAngle = 2.99/2*M_PI;
+              targetAngle = 2.999/2*M_PI;
             }
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
+            // Put them in the same range
+            while (targetAngle < camera[i].getRadiansAngleY() - M_PI) { targetAngle += 2*M_PI; }
+            while (targetAngle > camera[i].getRadiansAngleY() + M_PI) { targetAngle -= 2*M_PI; }
+            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.07) {
+              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerZ()) {
               camera[i].setLockedToPlayerZ(true);
@@ -370,6 +386,7 @@ void gameplayLoop() {
           //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
           //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
         } else {
+          cout << "Nada" << endl;
           if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
           if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
@@ -512,8 +529,8 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   // New pivot angle to go to
   while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
   while (targetAngle < baseAngle - M_PI) { baseAngle -= 2*M_PI; }
-  if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations))) {
-    newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations));
+  if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations/2))) {
+    newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations/2));
   } else {
     // too close, just make equal!
     newAngle = targetAngle;

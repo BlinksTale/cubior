@@ -44,6 +44,11 @@ void CameraObj::resetPos() {
   angleY = 0;
   angleZ = 0;
   
+  wallState = false;
+  intendedState = false;
+  goalState = false;
+  freeState = true;
+  
   // start with no intended pos and full movement freedom
   foundIntendedPos = false;
   freedom = true;
@@ -675,7 +680,7 @@ float CameraObj::getRadiansAngleY() { return ((270-(int)angleY)%360)*2.0*M_PI/36
 float CameraObj::getMeanAngle(int s) {
   return s==0? meanAngleX : s==1? meanAngleY : meanAngleZ;
 }
-float CameraObj::getMeanAngleX() { return getMeanAngle(0); }
+float CameraObj::getMeanAngleX() { cout << getMeanAngle(0) << endl; return getMeanAngle(0); }
 float CameraObj::getMeanAngleY() { return getMeanAngle(1); }
 float CameraObj::getMeanAngleZ() { return getMeanAngle(2); }
 
@@ -730,4 +735,27 @@ void CameraObj::resetLocks() {
   lockedZ = z - permanentTarget->getZ();
   lockedY = lockedY < camHeight ? camHeight : lockedY;
   lockedAngleY = angleY;
+}
+
+// Give the camera's current state,
+// what it wants to do most of all.
+int CameraObj::getState() {
+  // This is also the priority order
+  if (goalState) { return 1; } // goal is most important
+  if (wallState) { return 3; } // second is walls
+  if (intendedState) { return 2; } // third visibility
+  if (freeState) { return 0; } // finally freedom
+}
+// Force cam to change states
+void CameraObj::setState(int i) {
+  goalState = false;
+  wallState = false;
+  intendedState = false;
+  freeState = false;
+  switch (i) {
+    case 1: goalState = 1; break;
+    case 3: wallState = 1; break;
+    case 2: intendedState = 1; break;
+    default: freeState = 1; break;
+  }
 }
