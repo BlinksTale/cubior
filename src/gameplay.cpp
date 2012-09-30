@@ -340,6 +340,7 @@ void gameplayLoop() {
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           // zNear wins
           if (zNear >= xFar && zNear >= zFar && zNear >= xNear) {
+            cout << "zNear chosen" << endl;
             targetAngle = 1.0/2*M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
@@ -348,6 +349,7 @@ void gameplayLoop() {
             }
           // zFar wins
           } else if (zFar >= xFar && zFar >= xNear && zFar >= zNear) {
+            cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
             int targetX = camera[i].getPermanentTarget()->getX();
             int targetZ = camera[i].getPermanentTarget()->getZ();
@@ -426,23 +428,25 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
   int cX = getCollisionMapSlot(&cubior[player],0);
   int cY = getCollisionMapSlot(&cubior[player],1);
   int cZ = getCollisionMapSlot(&cubior[player],2);
-  // delta along cube radius, 1 and 2 for checking neighbors for walls
-  int dX = 0, dX1 = 0;
-  int dZ = 0, dZ1 = 0;
+  cout << "Currently viewing from " << cX << ", " << cY << ", " << cZ << endl;
+  // delta along cube radius
+  int dX = 0, dZ = 0;
   
   // Now check surroundings on X or Z axis
   for (int i=0; i<wallCheckRadius; i++) {
     // depending on dimension, choose which axis to alter
-    if (dimension == 0) { dX = i; dZ1 = 1;}
-    if (dimension == 2) { dZ = i; dX1 = 1;}
+    if (dimension == 0) { dX = i;}
+    if (dimension == 2) { dZ = i;}
     // check in front
-    frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall());
+    if (!frontWall) { frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()); }
+    cout << "frontWall on " << dimension << " at " << cX+dX << ", " << cY << ", " << cZ+dZ << " is " << frontWall << " with existence as " << (m[cX+dX][cY][cZ+dZ] != NULL) << endl;
     // or for a lack behind
-    frontSpace = (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ));
+    if (!frontSpace) { frontSpace= (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ)); }
     // check behind
-    rearWall = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall());
+    if (!rearWall) { rearWall  = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()); }
+    cout << "rearWall  on " << dimension << " at " << cX-dX << ", " << cY << ", " << cZ-dZ << " is " << rearWall << " with existence as " << (m[cX-dX][cY][cZ-dZ] != NULL) << endl;
     // or for a lack in front
-    rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ));
+    if (!rearSpace) { rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ)); }
   }
   results[0] = frontWall;
   results[1] = rearWall;

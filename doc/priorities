@@ -1,5 +1,12 @@
-Current priorities as of 9/12/12:
-0. Walls not noticed when touching them for wall cam angles
+Current priorities as of 9/29/12:
+ESSENTIALS FOR DEMO TOMORROW:
+1. Get camera to not snag on doorway, make it jump towards player if stuck and > avg dist
+2. Make camera look between player and goal at appropriate zoom dist, currently just looks at goal sometimes (castle level?)
+3. Try to have player move in direction first told to move in, not changing w/ camera
+
+---
+Old but still worthy priorities
+
 0. Cam gets snagged on castle door. Figure this out.
 1. Adjust player movement based on camera angle more precisely
 
@@ -7,5 +14,9 @@ Current priorities as of 9/12/12:
       may be related to views tied to goal?
 ?. Move camera less, keep static more
 ?. Make camera line up perpendicular to walls
+
+??. Wouldn't it be cool if in locked mode, it tracked the last dir travelled,
+    and would point the camera so you could see further ahead in the dir you were
+    about to go in? (ala Mario World)
 
 ???. Using int for playerAngle in cameraObj, is this causing some of the player-movement issues?

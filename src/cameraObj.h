@@ -14,7 +14,7 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
-    static const int camArraySize = 12;
+    static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
     int currentCamSlot;
     
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;

@@ -120,6 +120,7 @@ void CameraObj::updateMeans() {
 }
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  
   //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
   //cout << "Start camera tick" << endl;
   // If you are following one target every frame,
@@ -716,5 +717,6 @@ void CameraObj::resetLocks() {
   lockedX = x - permanentTarget->getX();
   lockedY = y - permanentTarget->getY();
   lockedZ = z - permanentTarget->getZ();
+  lockedY = lockedY < camHeight ? camHeight : lockedY;
   lockedAngleY = angleY;
 }
