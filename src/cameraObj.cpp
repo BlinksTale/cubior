@@ -129,6 +129,7 @@ void CameraObj::tick() {
 	  tracker->tick();
     // then move the camera itself if free to do so
     if (freedom && !foundIntendedPos && !lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) {
+      cout << "Option One" << endl;
       //cout << "Normal loop! Freedom found, no intended pos" << endl;
       follow(
         tracker->getX(),
@@ -140,26 +141,31 @@ void CameraObj::tick() {
       );
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
+      cout << "Option Two" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
       angleY = lockedAngleY;
     // Locked to player X then? Keep up with them!
     } else if (lockedToPlayerX) {
+      cout << "Option Three" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
       angleY = lockedAngleY;
     // Locked to player Z then? Keep up with them!
     } else if (lockedToPlayerZ) {
+      cout << "Option Four" << endl;
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
       angleY = lockedAngleY;
     } else { // not free or have an intended pos
+      cout << "Option Five" << endl;
       //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
+        cout << "w/ intended pos found" << endl;
         /*
         cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
         cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
@@ -176,7 +182,7 @@ void CameraObj::tick() {
           //cout << "currentPos  " << x << ", " << y << ", " << z << endl;
           
           // If you get stuck trying to get to intended
-          if (lastDistToIntended == distToCube(&intendedPos)) {
+          if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
             // keep track of how long you've been stuck
             intendedStuckCount++;
             // if this is too long a stick, just jump!
@@ -184,11 +190,14 @@ void CameraObj::tick() {
               setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
               intendedStuckCount = 0; // and reset stuck count, of course
             }
-          } else if (intendedStuckCount > 0) {
-            intendedStuckCount = 0; // no stick? Reset stuck count
+          } else {
+            if (intendedStuckCount > 0) {
+              intendedStuckCount = 0; // no stick? Reset stuck count
+            }
+            // if you finally got free, update the lastDistToIntended
+            // finally, update how far you are from player
+            lastDistToIntended = distToCube(&intendedPos);
           }
-          // finally, update how far you are from player
-          lastDistToIntended = distToCube(&intendedPos);
         } else {
           //cout << "No need to move, already here" << endl;
           //cout << "currentPos  " << x << ", " << y << ", " << z << endl;

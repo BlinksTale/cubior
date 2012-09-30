@@ -82,12 +82,12 @@ int getLastPause() { return lastPause; }
 void sendCommands() {
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
-      //if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
+      if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
         oldAngleY[i] = getCamera(i)->getAngleY();
-        //directionsPressed[i] = true;
-      /*} else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
+        directionsPressed[i] = true;
+      } else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
         directionsPressed[i] = false;
-      }*/
+      }
       // First, record if any movement requested
       bool newUD = upKey[i] || downKey[i];
       bool newLR = leftKey[i] || rightKey[i];
@@ -124,12 +124,12 @@ void sendCommands() {
       getPlayer(i)->setInvincibility(superKey[i]);
       
       // Then make sure oldMovement is up to date
-      /*if (oldUD[i] != newUD) {
+      if (oldUD[i] != newUD) {
         oldUD[i] = newUD;
       }
       if (oldLR[i] != newLR) {
         oldLR[i] = newLR;
-      }*/
+      }
     }
   }
 }

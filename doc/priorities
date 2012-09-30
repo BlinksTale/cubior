@@ -1,8 +1,12 @@
 Current priorities as of 9/29/12:
 ESSENTIALS FOR DEMO TOMORROW:
+0. There is an upper bound to how high the camera can rotate before flipping over
+   Find what this number is, and do not allow angleX to pass it.
 1. Get camera to not snag on doorway, make it jump towards player if stuck and > avg dist
+   ^ problem is that it IS jumping. It does it, then gets kicked out. Probably jumping into a coll box
 2. Make camera look between player and goal at appropriate zoom dist, currently just looks at goal sometimes (castle level?)
 3. Try to have player move in direction first told to move in, not changing w/ camera
+4. Maybe have the initial camera drop not snag? Dunno why it does that now.
 
 ---
 Old but still worthy priorities

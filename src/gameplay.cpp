@@ -293,8 +293,8 @@ void gameplayLoop() {
         int zWall[4];
         searchForWall(i,xWall,permanentMap,0);
         searchForWall(i,zWall,permanentMap,2);
-        cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
-        cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
+        //cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
+        //cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
         // FIXME: I want this to be based on an "is any space or wall" bool
         /*if (xWall != 0 || zWall != 0) {
           cout << "atan is " << atan(zWall*1.0/xWall) << endl;
@@ -340,7 +340,7 @@ void gameplayLoop() {
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           // zNear wins
           if (zNear >= xFar && zNear >= zFar && zNear >= xNear) {
-            cout << "zNear chosen" << endl;
+            //cout << "zNear chosen" << endl;
             targetAngle = 1.0/2*M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.02) {
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
@@ -349,7 +349,7 @@ void gameplayLoop() {
             }
           // zFar wins
           } else if (zFar >= xFar && zFar >= xNear && zFar >= zNear) {
-            cout << "zFar chosen" << endl;
+            //cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
             int targetX = camera[i].getPermanentTarget()->getX();
             int targetZ = camera[i].getPermanentTarget()->getZ();
@@ -428,7 +428,7 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
   int cX = getCollisionMapSlot(&cubior[player],0);
   int cY = getCollisionMapSlot(&cubior[player],1);
   int cZ = getCollisionMapSlot(&cubior[player],2);
-  cout << "Currently viewing from " << cX << ", " << cY << ", " << cZ << endl;
+  //cout << "Currently viewing from " << cX << ", " << cY << ", " << cZ << endl;
   // delta along cube radius
   int dX = 0, dZ = 0;
   
@@ -439,12 +439,12 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
     if (dimension == 2) { dZ = i;}
     // check in front
     if (!frontWall) { frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()); }
-    cout << "frontWall on " << dimension << " at " << cX+dX << ", " << cY << ", " << cZ+dZ << " is " << frontWall << " with existence as " << (m[cX+dX][cY][cZ+dZ] != NULL) << endl;
+    //cout << "frontWall on " << dimension << " at " << cX+dX << ", " << cY << ", " << cZ+dZ << " is " << frontWall << " with existence as " << (m[cX+dX][cY][cZ+dZ] != NULL) << endl;
     // or for a lack behind
     if (!frontSpace) { frontSpace= (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ)); }
     // check behind
     if (!rearWall) { rearWall  = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()); }
-    cout << "rearWall  on " << dimension << " at " << cX-dX << ", " << cY << ", " << cZ-dZ << " is " << rearWall << " with existence as " << (m[cX-dX][cY][cZ-dZ] != NULL) << endl;
+    //cout << "rearWall  on " << dimension << " at " << cX-dX << ", " << cY << ", " << cZ-dZ << " is " << rearWall << " with existence as " << (m[cX-dX][cY][cZ-dZ] != NULL) << endl;
     // or for a lack in front
     if (!rearSpace) { rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ)); }
   }
@@ -642,10 +642,10 @@ void rotateToPlayer(int i) {
   float baseAngle = /*M_PI*3/2.0 - */ getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
   // Angle we will be moving to, based on pivot
   float newAngle = baseAngle;
-  cout << "oldX: " << oldX << ", oldX: " << oldZ << endl;
-  cout << "hyp: " << hyp << endl;
-  cout << "targetX: " << targetX << ", targetZ: " << targetZ << endl;
-  cout << "baseAngle, " << baseAngle << ", newAngle, " << newAngle << endl;
+  //cout << "oldX: " << oldX << ", oldX: " << oldZ << endl;
+  //cout << "hyp: " << hyp << endl;
+  //cout << "targetX: " << targetX << ", targetZ: " << targetZ << endl;
+  //cout << "baseAngle, " << baseAngle << ", newAngle, " << newAngle << endl;
   
   //cout << "START" << endl;
   // rotate until player is visible or 180 from start
@@ -654,13 +654,13 @@ void rotateToPlayer(int i) {
     // New pivot angle to go to
     newAngle = baseAngle + (M_PI*2.0/anglesToTry)*k/2.0*(1.0-2.0*(k%2));
     
-    cout << "newAngle, " << newAngle << endl;
+    //cout << "newAngle, " << newAngle << endl;
     // Set new intended pos for each turn
     // math is a little hackey, tried swapping cos and sin and adding M_PI
     // and the numbers looked better, and camera worked better
     newX = targetX + hyp*cos(M_PI+newAngle);
     newZ = targetZ + hyp*sin(M_PI+newAngle);
-    cout << "newX: " << newX << ", newZ: " << newZ << endl;
+    //cout << "newX: " << newX << ", newZ: " << newZ << endl;
     
     //cout << "Target " << targetX << ", " << targetZ << endl;
     //cout << "hyp is " << hyp << " w/ newX " << newX << " and newZ " << newZ << endl;
@@ -671,10 +671,13 @@ void rotateToPlayer(int i) {
     cameraCube.setPos(newX,camera[i].getY(),newZ);
     camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
     
-    // Once you see the player visible, remember it! If a clear shot to 
-    // the camera, use the position for sure.
+    // Once you see the player visible from an empty spot, remember it!
+    // If a clear shot to the camera, use the position for sure.
     // May need to fix this later, as requires setting cam pos every time
-    if (playerVisible(i)) {
+    int cX = getCollisionMapSlot(&cubior[i],0);
+    int cY = getCollisionMapSlot(&cubior[i],1);
+    int cZ = getCollisionMapSlot(&cubior[i],2);            
+    if (playerVisible(i) && permanentMap[cX][cY][cZ] == NULL) {
       // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
       // since the camera kind of jumps when it starts to readjust every angle
       //camera[i].tick();
@@ -737,7 +740,7 @@ void rotateToPlayer(int i) {
     
     camera[i].setIntendedPos(&intendedPos);
   }
-  cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
+  //cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
 }
 
 // Try to find an angle & rotate the camera to angle to see the player
