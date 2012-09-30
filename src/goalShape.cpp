@@ -65,6 +65,11 @@ void GoalShape::drawGoal(){//float r1, float g1, float b1, float colorDarkness) 
   // make sure emotions are on the same page
   updateVisuals();
 
+  
+  glDisable(GL_DEPTH_TEST); // disable depth test for "shadow goal"
+  drawSilhouette();
+  glEnable(GL_DEPTH_TEST); // Then return to normal stuff
+  
   // call on cubeShape's function, drawCube, to make a cube visual
   draw();
 }
