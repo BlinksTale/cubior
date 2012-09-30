@@ -58,6 +58,7 @@ int gravity = 2;
 
 // Changing game state variables
 bool gameplayRunning = true;
+int xFar[4], xNear[4], zFar[4], zNear[4]; // for detecting walls for wall angles/shots
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
@@ -301,33 +302,35 @@ void gameplayLoop() {
           rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
         }*/
         
-        // Keep track of how often each direction is requested.
-        int xFar = 0, xNear = 0, zFar = 0, zNear = 0;
-        
-        // Look for walls
-        if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
-          if (xWall[0] && !xWall[1]) { xNear++; } // near wall but no far wall
-          if (!xWall[0] && xWall[1]) { xFar++;  } // far wall but no near wall
-          if (zWall[0] && !zWall[1]) { zNear++; } // near wall but no far wall
-          if (!zWall[0] && zWall[1]) { zFar++;  } // far wall but no near wall
+        // Only look for new walls if not moving much
+        if (!cubior[i].isMovingQuickly()) {
+          // Keep track of how often each direction is requested.
+          xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
+
+          // Look for walls
+          if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
+            if (xWall[0] && !xWall[1]) { xNear[i]++; } // near wall but no far wall
+            if (!xWall[0] && xWall[1]) { xFar[i]++;  } // far wall but no near wall
+            if (zWall[0] && !zWall[1]) { zNear[i]++; } // near wall but no far wall
+            if (!zWall[0] && zWall[1]) { zFar[i]++;  } // far wall but no near wall
+          }
+          // No walls? Look for drops!
+          if (xWall[2] || xWall[3] || zWall[2] || zWall[3]) {
+            if (xWall[2]) { xNear[i]++; } // far space
+            if (xWall[3]) { xFar[i]++;  } // near space
+            if (zWall[2]) { zNear[i]++; } // far space
+            if (zWall[3]) { zFar[i]++;  } // near space
+          }
         }
-        // No walls? Look for drops!
-        if (xWall[2] || xWall[3] || zWall[2] || zWall[3]) {
-          if (xWall[2]) { xNear++; } // far space
-          if (xWall[3]) { xFar++;  } // near space
-          if (zWall[2]) { zNear++; } // far space
-          if (zWall[3]) { zFar++;  } // near space
-        }
-        
-        cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear << xFar << zNear << zFar << endl;
+        cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
         // Do not try to adjust for walls if in goal range
         if ((!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
-            (xNear || xFar || zNear || zFar)) {
+            (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
           cout << "Good!" << endl;
           float targetAngle = 0;
           //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
           // xNear wins
-          if (xNear >= xFar && xNear >= zFar && xNear >= zNear) {
+          if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
             cout << "xNear" << endl;
             targetAngle = 0;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
@@ -337,7 +340,7 @@ void gameplayLoop() {
               camera[i].setLockedToPlayerX(true);
             }
           // xFar wins
-          } else if (xFar >= xNear && xFar >= zFar && xFar >= zNear) {
+          } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
             cout << "xFar" << endl;
             targetAngle = M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
@@ -348,7 +351,7 @@ void gameplayLoop() {
             }
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           // zNear wins
-          if (zNear >= xFar && zNear >= zFar && zNear >= xNear) {
+          if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
             cout << "zNear" << endl;
             //cout << "zNear chosen" << endl;
             targetAngle = 1.0/2*M_PI;
@@ -359,7 +362,7 @@ void gameplayLoop() {
               camera[i].setLockedToPlayerZ(true); 
             }
           // zFar wins
-          } else if (zFar >= xFar && zFar >= xNear && zFar >= zNear) {
+          } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
             cout << "zFar" << endl;
             //cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
@@ -395,23 +398,26 @@ void gameplayLoop() {
         camera[i].tick();
         //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
         
-        // And bounce off walls if colliding
-        cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-        // using cameraCube here since a lack thereof make camera's collision stop working 
-        int cX = getCollisionMapSlot(&cameraCube,0);
-        int cY = getCollisionMapSlot(&cameraCube,1);
-        int cZ = getCollisionMapSlot(&cameraCube,2);
-        if (goodCollision) {
-          explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
-          explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
-        } else {
-          unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
-          unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
+        // So long as no intendedPos, try collision
+        if (!camera[i].getFoundIntendedPos()) {
+          // And bounce off walls if colliding
+          cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+          // using cameraCube here since a lack thereof make camera's collision stop working 
+          int cX = getCollisionMapSlot(&cameraCube,0);
+          int cY = getCollisionMapSlot(&cameraCube,1);
+          int cZ = getCollisionMapSlot(&cameraCube,2);
+          if (goodCollision) {
+            explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
+            explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
+          } else {
+            unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
+            unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
+          }
+          camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         }
-        camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
-
         // If not in goal's range, ensure visibility
-        if (camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) {
+        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) &&
+           (!xNear[i] && !xFar[i] && !zNear[i] && !zFar[i])) {
         //cout << "Check visibility"<<endl;
           ensurePlayerVisible(i);
         }

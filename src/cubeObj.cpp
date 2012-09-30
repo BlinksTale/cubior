@@ -122,6 +122,11 @@ void CubeObj::land() {
 bool CubeObj::isMoving() {
  return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
 }
+
+// isMoving is any movement bool
+bool CubeObj::isMovingQuickly() {
+ return !(momentumX < 10 && momentumZ < 10 && momentumX > -10 && momentumZ > -10);
+}
 // isPlayer returns whether just a normal block or a player
 bool CubeObj::isPlayer() {
   return playerStatus;

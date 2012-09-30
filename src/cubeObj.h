@@ -28,6 +28,7 @@ class CubeObj {
     void land();
     void freeze();
     bool isMoving();
+    bool isMovingQuickly();
     bool isPlayer();
     void jump(bool);
 

@@ -1,6 +1,6 @@
 Current priorities as of 9/29/12:
 ESSENTIALS FOR DEMO TOMORROW:
-000. I'm thinking... camera states. wallState, intendedState, goalState, freeState.
+000. Do NOT try to fix visibility if wall is found
 00. Door snag still exists. Option five w/ intended Pos Found.
 1. And what is that funkiness on the right front corner of the first pile in room 3?
      that's all in option one, so it must be that viewBoth isn't figuring out which side it's really on.
