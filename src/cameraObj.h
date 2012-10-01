@@ -158,6 +158,11 @@ class CameraObj : public CubeObj {
     void setLockedToPlayerX(bool);
     void setLockedToPlayerZ(bool);
     
+    // For making sure gameplay's wall angle finder
+    // doesn't screw up what we just fixed
+    bool getJustFixedVisibility() { return justFixedVisibility; }
+    void setJustFixedVisibility(bool b) { justFixedVisibility = b; }
+    
     // to get and force camera state info
     int getState();
     void setState(int);

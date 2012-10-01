@@ -231,6 +231,8 @@ void nextLevel() {
 }
 
 void gameplayLoop() {
+  cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
+        
   if (gameplayRunning && !winningShot) {
 	  
 	  // Only recognize a level change for one loop
@@ -289,6 +291,7 @@ void gameplayLoop() {
   	  if (changeLevel) { break; }
 	    if (cubiorPlayable[i]){
         
+        cout << "for-loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         // try to line camera up against a wall
         int xWall[4];
         int zWall[4];
@@ -302,8 +305,9 @@ void gameplayLoop() {
           rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
         }*/
         
-        cout << "grounded = " << cubior[i].getGrounded() << endl;
-        cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
+        cout << "for2loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+        //cout << "grounded = " << cubior[i].getGrounded() << endl;
+        //cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
         // Only look for new walls if not moving much
         if (!cubior[i].isMovingQuickly() && playerVisible(i) && cubior[i].getStillGrounded()) {
           // Keep track of how often each direction is requested.
@@ -324,14 +328,16 @@ void gameplayLoop() {
             if (zWall[3]) { zFar[i]++;  } // near space
           }
         }
+        cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
         // Do not try to adjust for walls if in goal range
         if (playerVisible(i) && (!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
-            (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
+            !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
           //cout << "Good!" << endl;
           float targetAngle = 0;
           //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
           // xNear wins
+          cout << "for4loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
           if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
             //cout << "xNear" << endl;
             targetAngle = 0;
@@ -343,6 +349,7 @@ void gameplayLoop() {
             }
           // xFar wins
           } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
+          cout << "for5loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
             //cout << "xFar" << endl;
             targetAngle = M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
@@ -352,6 +359,7 @@ void gameplayLoop() {
               camera[i].setLockedToPlayerX(true);
             }
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
+          cout << "for6loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
           // zNear wins
           if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
             //cout << "zNear" << endl;
@@ -365,6 +373,8 @@ void gameplayLoop() {
             }
           // zFar wins
           } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
+          cout << "for7loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+          cout << "It happens here" << endl;
             //cout << "zFar" << endl;
             //cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
@@ -387,18 +397,23 @@ void gameplayLoop() {
               camera[i].setLockedToPlayerZ(true);
             }
           } else if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
+          cout << "for8loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
           //cout << "targetAngle " << targetAngle << endl;
           //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
           //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
         } else {
+          cout << "for9loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
           //cout << "Nada" << endl;
           if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
           if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
+          cout << "for0loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         }
+        cout << "pre-tick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         // Basic setup
         camera[i].tick();
         //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
+        cout << "posttick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         
         // So long as no intendedPos, try collision
         if (!camera[i].getFoundIntendedPos()) {
@@ -444,6 +459,8 @@ void gameplayLoop() {
       nextLevel();
     }
   }
+  cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
+  
 }
 
 /*******************

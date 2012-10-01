@@ -1,5 +1,8 @@
 Current priorities as of 9/29/12:
 ESSENTIALS FOR DEMO TOMORROW:
+
+0V. So something outside the tick for cameraObj is messing with its position. What.
+
 000. If wall angle found, doesn't look for visible angle.
      Good, except for when you can't see the player... oi! Fixes issue of trying
      to find a new angle though overlapping with wall angle stuff.

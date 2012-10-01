@@ -131,7 +131,9 @@ void CameraObj::updateMeans() {
 }
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
-  
+  cout << "Start of tick,"<< endl;
+  cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
+        
   bool showData = true;
   
   //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
@@ -166,13 +168,15 @@ void CameraObj::tick() {
           4
         );
       } else {
+        // If you just fixed visibility, don't mess it up.
+        // Look at the player, but don't try changing directions
         lookAtPlayer(
-        tracker->getX(),
-        permanentTarget->getY(),
-        tracker->getZ(),
-        permanentTarget->getAngleY(),
-        permanentTarget->getGrounded(),
-        4);
+          tracker->getX(),
+          permanentTarget->getY(),
+          tracker->getZ(),
+          permanentTarget->getAngleY(),
+          permanentTarget->getGrounded(),
+          4);
       }
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
@@ -205,29 +209,29 @@ void CameraObj::tick() {
       }
     } else { // not free or have an intended pos
       if (showData) { cout << "Option Five" << endl; }
+      justFixedVisibility = true;
       //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
         //cout << "w/ intended pos found" << endl;
         // Make sure camera doesn't swing back and forth
-        float currentAngleDelta = angleY - lastAngleY;
-        lastAngleY = angleY;
+        //float currentAngleDelta = angleY - lastAngleY;
+        //lastAngleY = angleY;
 
         if (showData) { 
         cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
         cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
         cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
         cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
-        cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
+        //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
         }
         
         
         // If still not at the destination, and have not changed direction of movement
-        if (distToCube(&intendedPos) > camSpeed &&
+        if (distToCube(&intendedPos) > camSpeed) {/* &&
                 (currentAngleDelta >= 0 && lastAngleDelta >= -1) ||
-                (currentAngleDelta <= 0 && lastAngleDelta <= 1)
-          ) {
-          lastAngleDelta = currentAngleDelta;
+                (currentAngleDelta <= 0 && lastAngleDelta <= 1)) {
+          lastAngleDelta = currentAngleDelta;*/
           
           if (showData) { 
             cout << "Moving towards intended pos" << endl;
@@ -242,15 +246,19 @@ void CameraObj::tick() {
           
           // If you get stuck trying to get to intended
           if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
+            cout << "Fire1" << endl;
             // keep track of how long you've been stuck
             intendedStuckCount++;
             // if this is too long a stick, just jump!
             if (intendedStuckCount >= intendedStuckMax) {
+            cout << "Fire1a" << endl;
               setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
               intendedStuckCount = 0; // and reset stuck count, of course
             }
           } else {
+            cout << "Fire2" << endl;
             if (intendedStuckCount > 0) {
+            cout << "Fire2a" << endl;
               intendedStuckCount = 0; // no stick? Reset stuck count
             }
             // if you finally got free, update the lastDistToIntended
@@ -263,12 +271,16 @@ void CameraObj::tick() {
           x = intendedPos.getX();
           y = intendedPos.getY();
           z = intendedPos.getZ();
-          if (showData) { cout << "currentPos2 " << x << ", " << y << ", " << z << endl; }
+          if (showData) {
+            cout << "JUMP TO POS" << endl;
+            cout << "currentPos2 " << x << ", " << y << ", " << z << endl; 
+          }
           // You're there! Stop trying.
           foundIntendedPos = false;
           justFixedVisibility = true;
           justFixedX = permanentTarget->getX();
           justFixedZ = permanentTarget->getZ();
+          lastAngleDelta = 0;
           cout << "enable, justFixedVisibility = " << justFixedVisibility << endl;
           // currently disabled to try and find a technique without this
           //freedom = false;
@@ -285,9 +297,9 @@ void CameraObj::tick() {
         permanentTarget->getGrounded(),
         4);
       if (showData) { 
-      cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
-      cout << "currentPos  " << x << ", " << y << ", " << z << endl;
-      cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
+        cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
+        cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+        cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
       }
       // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
       /*positionByAngles(
@@ -309,6 +321,8 @@ void CameraObj::tick() {
   //cout << "to make camMeanY = " << getMeanY() << endl;
   //cout << "-----" << endl;
   
+  cout << "End of tick,"<< endl;
+  cout << "Ending currentPos  " << x << ", " << y << ", " << z << endl;
 }
 
 // Used to permanently set a target to always follow
