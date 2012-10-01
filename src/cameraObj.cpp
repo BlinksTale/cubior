@@ -131,10 +131,10 @@ void CameraObj::updateMeans() {
 }
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
-  cout << "Start of tick,"<< endl;
-  cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
+  //cout << "Start of tick,"<< endl;
+  //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
         
-  bool showData = true;
+  bool showData = false;
   
   //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
   //cout << "Start camera tick" << endl;
@@ -147,7 +147,7 @@ void CameraObj::tick() {
     if (justFixedVisibility && justFixedMaxDist <
             sqrt(pow(justFixedX-permanentTarget->getX(),2) + pow(justFixedZ-permanentTarget->getZ(),2))) {
       justFixedVisibility = false;
-      cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
+      //cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
     }
     
     // then move the camera itself if free to do so
@@ -246,19 +246,19 @@ void CameraObj::tick() {
           
           // If you get stuck trying to get to intended
           if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
-            cout << "Fire1" << endl;
+            //cout << "Fire1" << endl;
             // keep track of how long you've been stuck
             intendedStuckCount++;
             // if this is too long a stick, just jump!
             if (intendedStuckCount >= intendedStuckMax) {
-            cout << "Fire1a" << endl;
+            //cout << "Fire1a" << endl;
               setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
               intendedStuckCount = 0; // and reset stuck count, of course
             }
           } else {
-            cout << "Fire2" << endl;
+            //cout << "Fire2" << endl;
             if (intendedStuckCount > 0) {
-            cout << "Fire2a" << endl;
+            //cout << "Fire2a" << endl;
               intendedStuckCount = 0; // no stick? Reset stuck count
             }
             // if you finally got free, update the lastDistToIntended
@@ -281,7 +281,7 @@ void CameraObj::tick() {
           justFixedX = permanentTarget->getX();
           justFixedZ = permanentTarget->getZ();
           lastAngleDelta = 0;
-          cout << "enable, justFixedVisibility = " << justFixedVisibility << endl;
+          //cout << "enable, justFixedVisibility = " << justFixedVisibility << endl;
           // currently disabled to try and find a technique without this
           //freedom = false;
           if (showData) { cout << "intendedPos and freedom set to false" << endl; }
@@ -321,8 +321,8 @@ void CameraObj::tick() {
   //cout << "to make camMeanY = " << getMeanY() << endl;
   //cout << "-----" << endl;
   
-  cout << "End of tick,"<< endl;
-  cout << "Ending currentPos  " << x << ", " << y << ", " << z << endl;
+  //cout << "End of tick,"<< endl;
+  //cout << "Ending currentPos  " << x << ", " << y << ", " << z << endl;
 }
 
 // Used to permanently set a target to always follow

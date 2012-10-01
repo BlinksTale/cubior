@@ -27,5 +27,5 @@ void CubiorObj::setInvincibility(bool n) {
 
 int CubiorObj::getWidth() { return 100*(1+locked*1); }
 int CubiorObj::getHeight() { return 100*(1-locked*1); }
-int CubiorObj::getCubiorNum() { std::cout << "cubiorNum is " << cubiorNum << "!" << endl; return cubiorNum; }
-void CubiorObj::setCubiorNum(int n) { std::cout << "set cubiorNum to " << n << "!" << endl;  cubiorNum = n; }
+int CubiorObj::getCubiorNum() { return cubiorNum; }
+void CubiorObj::setCubiorNum(int n) { cubiorNum = n; }
