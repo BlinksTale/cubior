@@ -14,7 +14,7 @@ class CubeObj {
     int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ;
     int movementSpeed, movementDivision;
     bool collision, hasMaterial, playerStatus, newJump, loseMomentumOnLock;
-    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded;
+    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet;
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, gravity;
     int material;

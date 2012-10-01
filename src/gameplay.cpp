@@ -483,15 +483,23 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
     if (dimension == 0) { dX = i;}
     if (dimension == 2) { dZ = i;}
     // check in front
-    if (!frontWall) { frontWall = (m[cX+dX][cY][cZ+dZ] != NULL && m[cX+dX][cY][cZ+dZ]->isVertWall()); }
+    if (!frontWall && insideMap(cX+dX,cY,cZ+dZ)) { 
+      frontWall = ((m[cX+dX][cY][cZ+dZ] != NULL) && (m[cX+dX][cY][cZ+dZ]->isVertWall())); 
+    }
     //cout << "frontWall on " << dimension << " at " << cX+dX << ", " << cY << ", " << cZ+dZ << " is " << frontWall << " with existence as " << (m[cX+dX][cY][cZ+dZ] != NULL) << endl;
-    // or for a lack behind
-    if (!frontSpace) { frontSpace= (m[cX-dX][cY][cZ-dZ] == NULL && isVertSpace(m,cX-dX,cY,cZ-dZ)); }
-    // check behind
-    if (!rearWall) { rearWall  = (m[cX-dX][cY][cZ-dZ] != NULL && m[cX-dX][cY][cZ-dZ]->isVertWall()); }
+      // or for a lack behind
+    if (!frontSpace && insideMap(cX-dX,cY,cZ-dZ)) { 
+      frontSpace= ((m[cX-dX][cY][cZ-dZ] == NULL) && (isVertSpace(m,cX-dX,cY,cZ-dZ)));
+    }
+      // check behind
+    if (!rearWall && insideMap(cX-dX,cY,cZ-dZ)) { 
+      rearWall  = ((m[cX-dX][cY][cZ-dZ] != NULL) && (m[cX-dX][cY][cZ-dZ]->isVertWall())); 
+    }
     //cout << "rearWall  on " << dimension << " at " << cX-dX << ", " << cY << ", " << cZ-dZ << " is " << rearWall << " with existence as " << (m[cX-dX][cY][cZ-dZ] != NULL) << endl;
     // or for a lack in front
-    if (!rearSpace) { rearSpace = (m[cX+dX][cY][cZ+dZ] == NULL && isVertSpace(m,cX+dX,cY,cZ+dZ)); }
+    if (!rearSpace && insideMap(cX+dX,cY,cZ+dZ)) { 
+      rearSpace = ((m[cX+dX][cY][cZ+dZ] == NULL) && (isVertSpace(m,cX+dX,cY,cZ+dZ)));
+    }
   }
   results[0] = frontWall;
   results[1] = rearWall;
@@ -852,7 +860,8 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   while(cX != gX || cY != gY || cZ != gZ) {
     
     // Found something there? Make sure it has 2D of neighbors (is a real threat)
-    if (m[cX][cY][cZ] != NULL && m[cX][cY][cZ]->isWall()) {
+    if ((cX < maxWidth && cX >= 0 && cY < maxHeight && cY >= 0 && cZ < maxDepth && cZ >= 0) && 
+            m[cX][cY][cZ] != NULL && m[cX][cY][cZ]->isWall()) {
       if (showData) {
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
@@ -1016,13 +1025,19 @@ void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   // The top/bot order on these might be wrong, but it shouldn't really matter too much
   // since used to check if surrounded on a plane anyways
   c1->setNeighbors(
-    map[cX+1][cY][cZ] != 0,
-    map[cX-1][cY][cZ] != 0,
-    map[cX][cY+1][cZ] != 0,
-    map[cX][cY-1][cZ] != 0,
-    map[cX][cY][cZ+1] != 0,
-    map[cX][cY][cZ-1] != 0
+    insideMap(cX+1, cY, cZ) && map[cX+1][cY][cZ] != 0,
+    insideMap(cX-1, cY, cZ) && map[cX-1][cY][cZ] != 0,
+    insideMap(cX, cY+1, cZ) && map[cX][cY+1][cZ] != 0,
+    insideMap(cX, cY-1, cZ) && map[cX][cY-1][cZ] != 0,
+    insideMap(cX, cY, cZ+1) && map[cX][cY][cZ+1] != 0,
+    insideMap(cX, cY, cZ-1) && map[cX][cY][cZ-1] != 0
   );
+}
+
+// If a position is not
+bool insideMap(int a, int b, int c) {
+  return !(a < 0 || b < 0 || c < 0 || 
+          a >= maxWidth || b >= maxHeight || c >= maxDepth);
 }
 
 // Wipe current collision map to prep for repopulating it

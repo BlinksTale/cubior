@@ -60,6 +60,7 @@ CubeObj::CubeObj() {
   
   // World vars
   gravity = getGravity();
+  neighborsSet = false;
 }
 
 void CubeObj::tick() {
@@ -272,6 +273,7 @@ int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
+  neighborsSet = true;
   neighbors[0] = x1;
   neighbors[1] = x2;
   neighbors[2] = y1;
@@ -286,15 +288,17 @@ bool CubeObj::isColumn() {
 }
 // If neighbors on both sides for two dimensions
 bool CubeObj::isWall() {
-  return ((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+  return neighborsSet
+       &&((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
        ||((neighbors[0]&&neighbors[1])&&(neighbors[4]&&neighbors[5]))
        ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
 }
 
 // If neighbors on both sides for two dimensions, one must be vertical (2 & 3)
 bool CubeObj::isVertWall() {
-  return ((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
-       ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
+  return neighborsSet
+       &&(((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+       || ((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5])));
 }
 
 // For being up against an edge of the map - used mostly in collision detection

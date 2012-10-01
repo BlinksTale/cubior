@@ -48,6 +48,7 @@ const int invisibleMax = 5;
     int* searchForWall(int,int [],CubeObj* [][maxHeight][maxDepth],int);
     void rotateToAngle(int,float,int);
     bool isVertSpace(CubeObj* [][maxHeight][maxDepth], int, int, int);
+    bool insideMap(int,int,int); // lets you know if pos is OK for Macs
     
     // Check LOS between cam and player, then move to clear shot by a clear path
     void ensurePlayerVisible(int);
