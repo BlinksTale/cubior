@@ -43,6 +43,8 @@ void CameraObj::resetPos() {
   angleX = -45;
   angleY = 0;
   angleZ = 0;
+  lastAngleY = 0.0;
+  lastAngleDelta = 0.0;
   
   wallState = false;
   intendedState = false;
@@ -51,6 +53,7 @@ void CameraObj::resetPos() {
   
   // start with no intended pos and full movement freedom
   foundIntendedPos = false;
+  justFixedVisibility = false;
   freedom = true;
   visibleIntendedCount = 0;
   backupFreedom = true;
@@ -122,12 +125,14 @@ void CameraObj::updateMeans() {
   meanAngleX /= camArraySize;
   meanAngleY /= camArraySize;
   meanAngleZ /= camArraySize;
-  cout << "meanAngleX is " << meanAngleX << endl;
+  //cout << "meanAngleX is " << meanAngleX << endl;
   if (meanAngleX > 360) { meanAngleX = 360; }
   if (meanAngleX < 270)  { meanAngleX = 270;  }
 }
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  
+  bool showData = true;
   
   //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
   //cout << "Start camera tick" << endl;
@@ -135,23 +140,43 @@ void CameraObj::tick() {
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
+    
+    // And give freedom back if player moved away from just fixed location
+    if (justFixedVisibility && justFixedMaxDist <
+            sqrt(pow(justFixedX-permanentTarget->getX(),2) + pow(justFixedZ-permanentTarget->getZ(),2))) {
+      justFixedVisibility = false;
+      cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
+    }
+    
     // then move the camera itself if free to do so
     if (freedom && !foundIntendedPos &&
       ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
        (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ))) {
-      cout << "Option One" << endl;
-      //cout << "Normal loop! Freedom found, no intended pos" << endl;
-      follow(
+      if (showData) { cout << "Option One" << endl; }
+      
+      // As long as angle was not just recently modified, follow normally
+      if (!justFixedVisibility) {
+        //cout << "Normal loop! Freedom found, no intended pos" << endl;
+        follow(
+          tracker->getX(),
+          permanentTarget->getY(),
+          tracker->getZ(),
+          permanentTarget->getAngleY(),
+          permanentTarget->getGrounded(),
+          4
+        );
+      } else {
+        lookAtPlayer(
         tracker->getX(),
         permanentTarget->getY(),
         tracker->getZ(),
         permanentTarget->getAngleY(),
         permanentTarget->getGrounded(),
-        4
-      );
+        4);
+      }
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
-      cout << "Option Two" << endl;
+      if (showData) { cout << "Option Two" << endl; }
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
@@ -162,7 +187,7 @@ void CameraObj::tick() {
                 camSpeed); }
     // Locked to player X then? Keep up with them!
     } else if (lockedToPlayerX) {
-      cout << "Option Three" << endl;
+      if (showData) { cout << "Option Three" << endl; }
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
@@ -170,7 +195,7 @@ void CameraObj::tick() {
       if (groundDistToPlayer() > farthestDist) { changePosTowards(permanentTarget,camSpeed); }
     // Locked to player Z then? Keep up with them!
     } else if (lockedToPlayerZ) {
-      cout << "Option Four" << endl;
+      if (showData) { cout << "Option Four" << endl; }
       x = tracker->getX() + lockedX;
       y = tracker->getY() + lockedY;
       z = tracker->getZ() + lockedZ;
@@ -179,25 +204,41 @@ void CameraObj::tick() {
         changePosTowards(permanentTarget,camSpeed);
       }
     } else { // not free or have an intended pos
-      cout << "Option Five" << endl;
+      if (showData) { cout << "Option Five" << endl; }
       //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
       // if you do have a place to be or aren't allowed to move,
       if (foundIntendedPos) {
-        cout << "w/ intended pos found" << endl;
-        /*
+        //cout << "w/ intended pos found" << endl;
+        // Make sure camera doesn't swing back and forth
+        float currentAngleDelta = angleY - lastAngleY;
+        lastAngleY = angleY;
+
+        if (showData) { 
         cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
         cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
         cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
         cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
-        */
-        // If still not at the destination
-        if (distToCube(&intendedPos) > camSpeed) {
-          cout << "Moving towards intended pos" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+        cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
+        }
+        
+        
+        // If still not at the destination, and have not changed direction of movement
+        if (distToCube(&intendedPos) > camSpeed &&
+                (currentAngleDelta >= 0 && lastAngleDelta >= -1) ||
+                (currentAngleDelta <= 0 && lastAngleDelta <= 1)
+          ) {
+          lastAngleDelta = currentAngleDelta;
+          
+          if (showData) { 
+            cout << "Moving towards intended pos" << endl;
+            cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          }
           // Move towards it
           changePosTowards(&intendedPos,camSpeed);
-          cout << "Move success!" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          if (showData) { 
+            cout << "Move success!" << endl;
+            cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          }
           
           // If you get stuck trying to get to intended
           if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
@@ -217,17 +258,21 @@ void CameraObj::tick() {
             lastDistToIntended = distToCube(&intendedPos);
           }
         } else {
-          cout << "No need to move, already here" << endl;
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          //cout << "No need to move, already here" << endl;
+          if (showData) { cout << "currentPos1 " << x << ", " << y << ", " << z << endl; }
           x = intendedPos.getX();
           y = intendedPos.getY();
           z = intendedPos.getZ();
-          cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+          if (showData) { cout << "currentPos2 " << x << ", " << y << ", " << z << endl; }
           // You're there! Stop trying.
           foundIntendedPos = false;
+          justFixedVisibility = true;
+          justFixedX = permanentTarget->getX();
+          justFixedZ = permanentTarget->getZ();
+          cout << "enable, justFixedVisibility = " << justFixedVisibility << endl;
           // currently disabled to try and find a technique without this
           //freedom = false;
-          cout << "intendedPos and freedom set to false" << endl;
+          if (showData) { cout << "intendedPos and freedom set to false" << endl; }
         }
       }
       // No matter what, since you have a permanent target,
@@ -239,11 +284,11 @@ void CameraObj::tick() {
         permanentTarget->getAngleY(),
         permanentTarget->getGrounded(),
         4);
-      /*
+      if (showData) { 
       cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
       cout << "currentPos  " << x << ", " << y << ", " << z << endl;
       cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
-      */
+      }
       // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
       /*positionByAngles(
         tracker->getX(),
@@ -492,7 +537,6 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
     lookAtPlayer(a,b,c,playerAngle,landed,strictness);
   }
   /* Just figure out X & Z positions now */
-  
   // Finally, implement movement for the camera in its new facing direction
   positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
 }
@@ -691,7 +735,7 @@ float CameraObj::getRadiansAngleY() { return ((270-(int)angleY)%360)*2.0*M_PI/36
 float CameraObj::getMeanAngle(int s) {
   return s==0? meanAngleX : s==1? meanAngleY : meanAngleZ;
 }
-float CameraObj::getMeanAngleX() { cout << getMeanAngle(0) << endl; return getMeanAngle(0); }
+float CameraObj::getMeanAngleX() { return getMeanAngle(0); }
 float CameraObj::getMeanAngleY() { return getMeanAngle(1); }
 float CameraObj::getMeanAngleZ() { return getMeanAngle(2); }
 

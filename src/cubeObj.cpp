@@ -45,6 +45,7 @@ CubeObj::CubeObj() {
   jumpable = false;
   grounded = false;
   lastGrounded = false;
+  doubleLastGrounded = false;
   maxJump = 25 ;
   jumpSpeedRatio = 5 ;
 
@@ -86,7 +87,6 @@ void CubeObj::tick() {
       else if (momentumZ < 0) { momentumZ += friction; }
       else if (momentumZ != 0) { momentumZ = 0; }
     }
-    lastGrounded = grounded;
     
     calculateDiff();
 
@@ -110,12 +110,22 @@ void CubeObj::calculateDiff() {
 // Apply gravity!
 void CubeObj::fall() {
   momentumY -= gravity;
+  doubleLastGrounded = lastGrounded;
+  lastGrounded = grounded;
   grounded = false;
+  //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
 }
 
 // Act as if you landed on ground
 void CubeObj::land() {
-  momentumY = 0; lockable = true; grounded = true; jumpable = true;
+  momentumY = 0;
+  lockable = true;
+  
+  doubleLastGrounded = lastGrounded;
+  lastGrounded = grounded;
+  grounded = true;
+  //cout << "land lG is " << lastGrounded << " and g is " << grounded << endl;
+  jumpable = true;
 }
 
 // isMoving is any movement bool
@@ -163,8 +173,8 @@ bool CubeObj::getPermalock() { return permalocked; }
 
 // and for Grounding
 bool CubeObj::getGrounded() { return grounded; }
-bool CubeObj::getStillGrounded() { return lastGrounded && grounded; }
-bool CubeObj::getNotGrounded() { return !lastGrounded && !grounded; }
+bool CubeObj::getStillGrounded() { return lastGrounded || grounded || doubleLastGrounded; }
+bool CubeObj::getNotGrounded() { return !lastGrounded && !grounded && !doubleLastGrounded; }
 bool CubeObj::getLanded() { return grounded; }
 
 // Set is absolute positioning

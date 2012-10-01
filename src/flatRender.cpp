@@ -248,7 +248,7 @@ void displayFor(int player) {
   cout << "truth: " << 1.0*cameraPointer[player]->getY() << " vs mean: " << 1.0*cameraPointer[player]->getMeanY() <<endl;
   cout << "truth: " << 1.0*cameraPointer[player]->getZ() << " vs mean: " << 1.0*cameraPointer[player]->getMeanZ() <<endl <<endl;
 */glRotatef(-1.0*cameraPointer[player]->getMeanAngleX(),1.0,0.0,0.0);
-    cout << "===== " << 180-1.0*cameraPointer[player]->getMeanAngleX() << endl;
+    //cout << "===== " << 180-1.0*cameraPointer[player]->getMeanAngleX() << endl;
   glRotatef(-1.0*cameraPointer[player]->getMeanAngleY(),0.0,1.0,0.0);
   glRotatef(-1.0*cameraPointer[player]->getMeanAngleZ(),0.0,0.0,1.0);
   glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());

@@ -15,6 +15,8 @@ class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
     bool wallState, intendedState, goalState, freeState;
+    // Would love to have this higher/smoother, but doesn't keep up with player
+    // when following along a wall angle.
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
     int currentCamSlot;
     
@@ -44,6 +46,12 @@ class CameraObj : public CubeObj {
     float lockedY;
     float lockedZ;
     float lockedAngleY;
+    float lastAngleY;
+    float lastAngleDelta;
+    bool justFixedVisibility;
+    int justFixedX;
+    int justFixedZ;
+    static const int justFixedMaxDist = 100;
     
   public:
     CameraObj();

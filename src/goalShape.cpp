@@ -34,7 +34,7 @@ void GoalShape::initGoalVisuals() {
 void GoalShape::updateVisuals() {
 
   if (glow) {
-    std::cout << "increasing colors!" << std::endl;
+    //std::cout << "increasing colors!" << std::endl;
     colorCurrentR += 0.005;
     colorCurrentG += 0.005;
     colorCurrentB += 0.005;

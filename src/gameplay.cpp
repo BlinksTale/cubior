@@ -302,8 +302,10 @@ void gameplayLoop() {
           rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
         }*/
         
+        cout << "grounded = " << cubior[i].getGrounded() << endl;
+        cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
         // Only look for new walls if not moving much
-        if (!cubior[i].isMovingQuickly()) {
+        if (!cubior[i].isMovingQuickly() && playerVisible(i) && cubior[i].getStillGrounded()) {
           // Keep track of how often each direction is requested.
           xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
 
@@ -322,29 +324,29 @@ void gameplayLoop() {
             if (zWall[3]) { zFar[i]++;  } // near space
           }
         }
-        cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
+        //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
         // Do not try to adjust for walls if in goal range
-        if ((!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
+        if (playerVisible(i) && (!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
             (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
-          cout << "Good!" << endl;
+          //cout << "Good!" << endl;
           float targetAngle = 0;
           //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
           // xNear wins
           if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
-            cout << "xNear" << endl;
+            //cout << "xNear" << endl;
             targetAngle = 0;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerX()) {
               camera[i].setLockedToPlayerX(true);
             }
           // xFar wins
           } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
-            cout << "xFar" << endl;
+            //cout << "xFar" << endl;
             targetAngle = M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerX()) {
               camera[i].setLockedToPlayerX(true);
@@ -352,18 +354,18 @@ void gameplayLoop() {
           } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           // zNear wins
           if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
-            cout << "zNear" << endl;
+            //cout << "zNear" << endl;
             //cout << "zNear chosen" << endl;
             targetAngle = 1.0/2*M_PI;
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerZ()) {
               camera[i].setLockedToPlayerZ(true); 
             }
           // zFar wins
           } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
-            cout << "zFar" << endl;
+            //cout << "zFar" << endl;
             //cout << "zFar chosen" << endl;
             // to figure out which direction to rotate towards
             int targetX = camera[i].getPermanentTarget()->getX();
@@ -379,7 +381,7 @@ void gameplayLoop() {
             while (targetAngle < camera[i].getRadiansAngleY() - M_PI) { targetAngle += 2*M_PI; }
             while (targetAngle > camera[i].getRadiansAngleY() + M_PI) { targetAngle -= 2*M_PI; }
             if (abs(targetAngle - camera[i].getRadiansAngleY())>0.07) {
-              cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
               rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
             } else if (!camera[i].getLockedToPlayerZ()) {
               camera[i].setLockedToPlayerZ(true);
@@ -389,7 +391,7 @@ void gameplayLoop() {
           //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
           //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
         } else {
-          cout << "Nada" << endl;
+          //cout << "Nada" << endl;
           if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
           if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
           if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
@@ -416,8 +418,8 @@ void gameplayLoop() {
           camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         }
         // If not in goal's range, ensure visibility
-        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) &&
-           (!xNear[i] && !xFar[i] && !zNear[i] && !zFar[i])) {
+        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){// &&
+           //(!xNear[i] && !xFar[i] && !zNear[i] && !zFar[i])) {
         //cout << "Check visibility"<<endl;
           ensurePlayerVisible(i);
         }
