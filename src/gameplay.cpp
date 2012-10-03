@@ -52,7 +52,6 @@ static int rotationSpeed = 10;
 int maxJump = 25;
 int maxSpeed = 20;
 int maxCameraHeight = 2000;
-int friction = 1;
 
 int gravity = 2;
 

@@ -32,14 +32,14 @@ CubeObj::CubeObj() {
   diffZ = 0;
 
   // Movement vars
-  movementSpeed =     1;
   movementDivision = 10;
   momentumX = 0 ;
   momentumY = 0 ;
   momentumZ = 0 ;
 
   maxSpeed = 20 ;
-  friction = 1  ;
+  friction =  2 ;
+  movementSpeed = friction;
 
   // Jumping vars
   jumpable = false;
