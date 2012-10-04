@@ -855,6 +855,12 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
     cout << "Currently viewing [" << cX << ", " << cY << ", " << cZ << "]" << endl;
   }
   
+  // If too far to tell, just pretend we're visible
+  // don't make the camera spin before we're even in range.
+  if (cX < 0 || cX > maxWidth || cY < 0 || cY > maxHeight || cZ < 0 || cZ > maxDepth) {
+    return true;
+  }
+  
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
     

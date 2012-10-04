@@ -160,6 +160,9 @@ void initSfx(int argc, char** argv) {
   createSfx("./sfx/Menu-Game/Leave 5.wav",menuExitSource);
   createSfx("./sfx/Menu-Game/Error 3.wav",errorSource);
   
+  // And finally, tweak volume for those that are too loud
+	alSourcef(jumpSource[2], AL_GAIN, 0.4);
+	alSourcef(jumpSource[3], AL_GAIN, 0.4);
 }
 
 // Main loop for sound effects, called once per cycle
