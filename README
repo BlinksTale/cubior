@@ -9,3 +9,8 @@ Play Instructions: Player 1 can use the Arrow Keys to move and press Z or > to j
 Wiimote Mac Instructions (requires bluetooth): Download Darwiin, copy the application four times. Open one copy for every Wii remote. Under Darwiin > Preferences set the inputs to your liking (D-pad usually represents the movement directions, 1 and 2 represent the jump button) in four different profiles for the four different players. The profiles work between the different copies of the application, so (in this order) connect all four Wii remotes to their respective copies of the running application, then set the profiles appropriately (I also suggest changing the LED to reflect which player it is), then start playing Cubior!
 
 Wiimote Windows Instructions (requires bluetooth): Download GlovePie and make a script which translates Wiimote keypresses into the appropriate keyboard keys, similar to the Mac instructions but with a bit more programming.
+
+Linux Users will need to install the following packages: (list of dependencies)
+    OpenGL: sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+    OpenAL: sudo apt-get install libopenal0a libopenal-dev
+    ALUT:   sudo apt-get install libalut0 libalut-dev

@@ -5,6 +5,7 @@
  * 2d Visuals for cubior
  */
 #include "flatRender.h"
+#include "sfx.h"
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
@@ -459,6 +460,8 @@ void renderLoop() {
   }
   
   gameplayLoop();
+  
+  sfxLoop();
 
   if (timing) {
     gettimeofday(&tim, NULL);
@@ -581,6 +584,9 @@ void initFlat(int argc, char** argv) {
   // Setup all-cubes-of-any-form visuals 
   initVisuals();
 
+  // Then do the same for sound effects
+  initSfx(argc, argv);
+  
   // standard initialization
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
