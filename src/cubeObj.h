@@ -18,6 +18,7 @@ class CubeObj {
     int maxSpeed, friction;
     int maxJump, jumpSpeedRatio, gravity;
     int material;
+    bool jumping, lastJumping;
   public:
     CubeObj();
 
@@ -42,6 +43,7 @@ class CubeObj {
     bool getStillGrounded();
     bool getNotGrounded();
     bool getLanded();
+    bool justJumped();
 
     void setPos(int,int,int);
     void setX(int);

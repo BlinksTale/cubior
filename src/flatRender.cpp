@@ -31,7 +31,7 @@ int windowWidth = 640;
 int windowHeight = 480;
 int oldWindowWidth = windowWidth;
 int oldWindowHeight = windowHeight;
-bool fullscreen = true;
+bool fullscreen = false;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 

@@ -121,6 +121,7 @@ void CubeObj::fall() {
 void CubeObj::land() {
   momentumY = 0;
   lockable = true;
+  jumping = false;
   
   doubleLastGrounded = lastGrounded;
   lastGrounded = grounded;
@@ -154,7 +155,7 @@ void CubeObj::jump(bool n) {
     // To start a new jump off the ground
     //if (newJump) { newJump = false; jumpable = true; }
     // To keep an old jump flying
-    if (n && momentumY < maxJump) { moveY(jumpSpeedRatio*10); } else { jumpable = false; }
+    if (n && momentumY < maxJump) { jumping = true; moveY(jumpSpeedRatio*10); } else { jumpable = false; }
   }
   
 }
@@ -177,6 +178,11 @@ bool CubeObj::getGrounded() { return grounded; }
 bool CubeObj::getStillGrounded() { return lastGrounded || grounded || doubleLastGrounded; }
 bool CubeObj::getNotGrounded() { return !lastGrounded && !grounded && !doubleLastGrounded; }
 bool CubeObj::getLanded() { return grounded; }
+bool CubeObj::justJumped() {
+  bool result = jumping && !lastJumping;
+  lastJumping = jumping;
+  return result;
+}
 
 // Set is absolute positioning
 void CubeObj::setX(int n) { x = n; }

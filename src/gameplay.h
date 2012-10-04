@@ -84,6 +84,7 @@ const int invisibleMax = 5;
     const int getCubiorCount();
     bool getCubiorPlayable(int);
     void setCubiorPlayable(int,bool);
+    bool getCubiorJustJumped(int);
     const int getMaxCubeCount();
     int getCubeCount();
     CameraObj* getCamera();

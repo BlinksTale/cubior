@@ -1098,6 +1098,7 @@ void setCubiorPlayable(int i, bool b) {
   resetCubior(i);
   cubiorPlayable[i] = b;
 }
+bool getCubiorJustJumped(int i) { return cubior[i].justJumped(); }
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }

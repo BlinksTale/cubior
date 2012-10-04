@@ -21,6 +21,11 @@
   void sfxLoop();
   void playTestSfx();
   void playJumpSfx();
+  void playExitSfx();
+  void playBumpSfx();
+  void playMenuEnterSfx();
+  void playMenuExitSfx();
+  void playErrorSfx();
   void createSfx(const char*, ALuint);
   void playSfx(ALuint);
 
