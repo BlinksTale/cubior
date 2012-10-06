@@ -369,36 +369,88 @@ void CubeShape::drawShadow() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
 
-    // Actual shadow volume stuff
-    glPushMatrix();
-    glScalef(1.0,100.0,1.0);
-    glTranslatef(0.0,-0.505,0.0);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+    
+    glCullFace(GL_FRONT);
+		glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+		glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+    drawShadowVolume();
+    
+		glCullFace(GL_BACK);
+		glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+		glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+    drawShadowVolume();
 
-    //glScalef(0.99,0.99,0.99);
-    // These code blocks modified from work on songho.ca
-    // activate and specify pointer to vertex array
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+    
+		glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
+		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		fillScreenWithShadow();
+		glDisable(GL_STENCIL_TEST);
 
-    // draw first half, range is 6 - 0 + 1 = 7 vertices used
-    for (int i=0; i<6; i++) {
-      if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-        glColor4f(0.125,0.125,0.125,0.5);
-        // 0 to 3 means we only have four vertices used for each face
-        // 6 is the total points we create though from those four.
-        // indices+6*i is where we are looking, which face in indices
-
-        // used to be DrawRangeElements, but Windows didn't like that. Using drawElements now... is this more inefficient?
-        //??glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
-          glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
-      }
-    }
-
-    // deactivate vertex arrays after drawing
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glPopMatrix();
     glDisable( GL_BLEND );
   }
+}
+
+// 100% copied from draw_shadow for testing purposes
+// full permission to copy this though, according to Josh Beam:
+// http://joshbeam.com/articles/stenciled_shadow_volumes_in_opengl/
+void CubeShape::fillScreenWithShadow() {
+  glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, 1, 1, 0, 0, 1);
+	glDisable(GL_DEPTH_TEST);
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+	glBegin(GL_QUADS);
+		glVertex2i(0, 0);
+		glVertex2i(0, 1);
+		glVertex2i(1, 1);
+		glVertex2i(1, 0);
+	glEnd();
+
+	glEnable(GL_DEPTH_TEST);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
+// Shadow volume shape, represents where shadow will fall
+void CubeShape::drawShadowVolume() {
+  // Actual shadow volume stuff
+  glPushMatrix();
+  glScalef(1.0,100.0,1.0);
+  glTranslatef(0.0,-0.505,0.0);
+
+  //glScalef(0.9995,1.0,0.9995);
+  // These code blocks modified from work on songho.ca
+  // activate and specify pointer to vertex array
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  // draw first half, range is 6 - 0 + 1 = 7 vertices used
+  for (int i=0; i<6; i++) {
+    if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+      glColor4f(0.125,0.125,0.125,0.5);
+      // 0 to 3 means we only have four vertices used for each face
+      // 6 is the total points we create though from those four.
+      // indices+6*i is where we are looking, which face in indices
+
+      // used to be DrawRangeElements, but Windows didn't like that. Using drawElements now... is this more inefficient?
+      //??glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
+    }
+  }
+
+  // deactivate vertex arrays after drawing
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glPopMatrix();
 }
 
 // Only have a shadow if no lower neighbor

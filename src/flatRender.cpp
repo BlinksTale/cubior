@@ -387,7 +387,7 @@ void drawCube(int n) {
   if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   cubeShape[n].draw();
-  cubeShape[n].drawShadow();
+  //cubeShape[n].drawShadow();
 
   if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
@@ -592,7 +592,7 @@ void initFlat(int argc, char** argv) {
   
   // standard initialization
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB);
+  glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGB | GLUT_STENCIL);
     
   // setup & create window
   glutInitWindowPosition(0,0);
