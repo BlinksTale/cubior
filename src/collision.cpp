@@ -101,8 +101,20 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
 //    balanceMomentum(c1,c2,1);
     // then in case either one lands...
-    if (diffY < 0) { c1->land(); if (!c1Locked) { c1->changeY(1); } } // extra 1 of movement since landing caused sticking before
-    if (diffY > 0) { c2->land(); if (!c2Locked) { c2->changeY(1); } }
+    if (diffY < 0) {
+      c1->land();
+      if (c2->isPlayer()) {
+        c1->landOn(c2);
+      }
+      if (!c1Locked) { c1->changeY(1); } // extra 1 of movement since landing caused sticking before
+    }
+    if (diffY > 0) {
+      c2->land();
+      if (!c2Locked) { c2->changeY(1); }
+      if (c1->isPlayer()) {
+        c2->landOn(c1);
+      }
+    }
   } else if
     (diffZ != 0 && (abs(diffZ) < abs(diffX) || diffX == 0)) {
     if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }

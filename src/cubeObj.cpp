@@ -57,6 +57,7 @@ CubeObj::CubeObj() {
 
   // Collision vars
   collision = false;
+  landedOn = NULL;
   
   // World vars
   gravity = getGravity();
@@ -69,6 +70,14 @@ void CubeObj::tick() {
 
     if (collision) { setCollision(false); }
 
+    // If on another player, move relative to where you were on them first
+    // (since they may have moved, and brought you with them)
+    if (landedOn != NULL) {
+      x = landedOn->getX()+landedOnX;
+      //y = landedOn->getY()+landedOnY;
+      z = landedOn->getZ()+landedOnZ;
+    }
+    
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
@@ -77,7 +86,7 @@ void CubeObj::tick() {
     // Then move by that momentum
     x += momentumX; 
     y += momentumY;
-    z += momentumZ; 
+    z += momentumZ;
 
     // apply friction if on the ground
     if (grounded && (momentumX != 0 || momentumZ != 0)) {
@@ -90,12 +99,20 @@ void CubeObj::tick() {
     }
     
     calculateDiff();
+    
 
   // Can lose all momentum on locking if bool is set
   } else if (isMoving() && loseMomentumOnLock) { freeze(); }
 
   // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
+  
+  // And at the end, update your relation to the landedOn
+  if (landedOn != NULL) {
+    landedOnX = x-landedOn->getX();
+    landedOnY = y-landedOn->getY();
+    landedOnZ = z-landedOn->getZ();
+  }
 }
 
 void CubeObj::calculateDiff() {
@@ -115,6 +132,7 @@ void CubeObj::fall() {
   lastGrounded = grounded;
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
+  if (getNotGrounded()) { landedOn = NULL; } // not on a player anymore!
 }
 
 // Act as if you landed on ground
@@ -127,7 +145,14 @@ void CubeObj::land() {
   lastGrounded = grounded;
   grounded = true;
   //cout << "land lG is " << lastGrounded << " and g is " << grounded << endl;
-  jumpable = true;
+}
+
+// to also land on another player
+void CubeObj::landOn(CubeObj* c) {
+  landedOn = c;
+  landedOnX = x-landedOn->getX();
+  landedOnY = y-landedOn->getY();
+  landedOnZ = z-landedOn->getZ();
 }
 
 // isMoving is any movement bool
@@ -149,13 +174,24 @@ void CubeObj::jump(bool n) {
   // Straight up, need to have landed and not tried to jump again before new jump
   //if (!n && this->getStillGrounded()) { newJump = true; }
   
+  // If grounded, can jump again
+  if (!n && getStillGrounded()) {
+    jumpable = true;
+  }
+  
   //cout << "So jumpable is " << jumpable << " and newJump is " << newJump << " and getStillGrounded is " << this->getGrounded() << endl;
   // Try to jump!
   if (jumpable) {// || (getStillGrounded() && newJump)) {
+    cout << "Ready to jump!" << endl;
     // To start a new jump off the ground
     //if (newJump) { newJump = false; jumpable = true; }
     // To keep an old jump flying
-    if (n && momentumY < maxJump) { jumping = true; moveY(jumpSpeedRatio*10); } else { jumpable = false; }
+    if (n && momentumY < maxJump) {
+      jumping = true; moveY(jumpSpeedRatio*10);
+    } else if (!getStillGrounded()) {
+      // if not grounded, can't jump again!
+      jumpable = false;
+    }
   }
   
 }
@@ -176,7 +212,7 @@ bool CubeObj::getPermalock() { return permalocked; }
 // and for Grounding
 bool CubeObj::getGrounded() { return grounded; }
 bool CubeObj::getStillGrounded() { return lastGrounded || grounded || doubleLastGrounded; }
-bool CubeObj::getNotGrounded() { return !lastGrounded && !grounded && !doubleLastGrounded; }
+bool CubeObj::getNotGrounded() { return !getStillGrounded(); }
 bool CubeObj::getLanded() { return grounded; }
 bool CubeObj::justJumped() {
   bool result = jumping && !lastJumping;
