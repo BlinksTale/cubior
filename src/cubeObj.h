@@ -12,7 +12,7 @@ class CubeObj {
   protected:
     bool neighbors[6],edges[6];
     int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ,
-        landedOnX, landedOnY, landedOnZ;
+        landedOnX, landedOnY, landedOnZ, landedOnCount;
     int movementSpeed, movementDivision;
     bool collision, hasMaterial, playerStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet;
@@ -30,6 +30,7 @@ class CubeObj {
     void fall();
     void land();
     void landOn(CubeObj*);
+    int getLandedOnCount();
     void freeze();
     bool isMoving();
     bool isMovingQuickly();

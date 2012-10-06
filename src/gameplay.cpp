@@ -238,12 +238,16 @@ void gameplayLoop() {
 	  if (changeLevel) { changeLevel = false; }
 	  
     wipeCurrentMap(collisionMap);
-    // Run main tick loop for all Cubiors...
-    for (int i = 0; i<cubiorCount; i++) {
-      if (cubiorPlayable[i]) {
-        cubior[i].tick();
-        keepInBounds(&cubior[i]);
-        addToCollisionMap(&cubior[i], collisionMap);
+    
+    // For players, start with one with lowest landedOnCount
+    for(int landedOnNum = 0; landedOnNum < cubiorCount; landedOnNum++) {
+      // Run main tick loop for all Cubiors...
+      for (int i = 0; i<cubiorCount; i++) {
+        if (cubiorPlayable[i] && cubior[i].getLandedOnCount() == landedOnNum) {
+          cubior[i].tick();
+          keepInBounds(&cubior[i]);
+          addToCollisionMap(&cubior[i], collisionMap);
+        }
       }
     }
   	// and the goal

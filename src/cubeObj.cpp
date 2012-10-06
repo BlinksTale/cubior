@@ -58,6 +58,7 @@ CubeObj::CubeObj() {
   // Collision vars
   collision = false;
   landedOn = NULL;
+  landedOnCount = 0;
   
   // World vars
   gravity = getGravity();
@@ -132,7 +133,10 @@ void CubeObj::fall() {
   lastGrounded = grounded;
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
-  if (getNotGrounded()) { landedOn = NULL; } // not on a player anymore!
+  if (getNotGrounded()) {
+    landedOn = NULL;
+    landedOnCount = 0;
+  } // not on a player anymore!
 }
 
 // Act as if you landed on ground
@@ -150,9 +154,14 @@ void CubeObj::land() {
 // to also land on another player
 void CubeObj::landOn(CubeObj* c) {
   landedOn = c;
+  landedOnCount = c->getLandedOnCount() + 1;
   landedOnX = x-landedOn->getX();
   landedOnY = y-landedOn->getY();
   landedOnZ = z-landedOn->getZ();
+}
+
+int CubeObj::getLandedOnCount() {
+  return landedOnCount;
 }
 
 // isMoving is any movement bool
