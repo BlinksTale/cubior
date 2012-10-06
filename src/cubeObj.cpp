@@ -191,7 +191,6 @@ void CubeObj::jump(bool n) {
   //cout << "So jumpable is " << jumpable << " and newJump is " << newJump << " and getStillGrounded is " << this->getGrounded() << endl;
   // Try to jump!
   if (jumpable) {// || (getStillGrounded() && newJump)) {
-    cout << "Ready to jump!" << endl;
     // To start a new jump off the ground
     //if (newJump) { newJump = false; jumpable = true; }
     // To keep an old jump flying
@@ -371,4 +370,3 @@ int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and 
 int CubeObj::getMaterial() { return material; }
 // Set the material, for coloring
 void CubeObj::setMaterial(int s) { material = s; }
-

@@ -107,6 +107,12 @@ void CubiorShape::updateCubiorColors(int n) {
   b2 = colorCurrentB;
 }
 
+void CubiorShape::drawCubiorSilhouette() {
+  glDisable(GL_DEPTH_TEST); // disable depth test for "shadow cubior"
+  drawSilhouette();
+  glEnable(GL_DEPTH_TEST); // Then return to normal stuff
+}
+
 void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorDarkness) {
 
   
@@ -120,10 +126,6 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   bool hit = getPlayer(n)->getCollision();
   bool fly = getPlayer(n)->getNotGrounded();
   float gaspValue = 0.075;
-
-  glDisable(GL_DEPTH_TEST); // disable depth test for "shadow cubior"
-  drawSilhouette();
-  glEnable(GL_DEPTH_TEST); // Then return to normal stuff
   
   // call on cubeShape's function, drawCube, to make a cube visual
   draw();

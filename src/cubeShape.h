@@ -24,7 +24,6 @@ class CubeShape {
     virtual void drawSilhouette();
     virtual void drawShadow();
     virtual void drawShadowVolume();
-    virtual void fillScreenWithShadow();
     virtual bool hasShadow();
 };
 

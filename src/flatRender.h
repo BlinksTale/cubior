@@ -11,9 +11,15 @@
     void displayFor(int); // individual views
     void initVisuals();
     void initFlat(int, char**);
+    void fillScreenWithShadow();
+    void calcPlayer(int);
     void drawPlayer(int);
+    void drawPlayerSilhouette(int);
+    void drawPlayerShadow(int);
     void drawCube(int);
+    void drawCubeShadow(int);
     void drawGoal();
+    void drawGoalShadow();
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();

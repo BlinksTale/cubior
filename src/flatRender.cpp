@@ -61,7 +61,7 @@ CubeShape cubeShape[maxCubeNum];
 static GLfloat cubeX[maxCubeNum];
 static GLfloat cubeY[maxCubeNum];
 static GLfloat cubeZ[maxCubeNum];
-static GLfloat cubeCollision[maxCubeNum];
+static bool cubeCollision[maxCubeNum];
 
 // time stuff
 bool timing = false;
@@ -276,7 +276,7 @@ void displayFor(int player) {
     int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawPlayer time: %d\n",c4-c3);
   }
-
+  
   // Only try block culling if looking from close to the ground
   //truth
   if (cameraPointer[player]->getMeanY() < playerY[player]+2000) {
@@ -300,7 +300,7 @@ void displayFor(int player) {
       drawCube(i);
     }
   }
-
+  
 
   if (timing) {
     gettimeofday(&tim, NULL);
@@ -308,8 +308,6 @@ void displayFor(int player) {
     printf("drawCube time: %d\n",c5-c4);
   }
   
-  drawGoal();
-
   if (timing) {
     gettimeofday(&tim, NULL);
     int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
@@ -317,8 +315,37 @@ void displayFor(int player) {
   }
 
   // Draw player as last thing before HUD
+  for (int i=0; i<cubiorNum; i++) { calcPlayer(i); drawPlayerSilhouette(i); }
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
   
+  // I lied, draw goal last since likely higher than player,
+  // and this shows shadow secondarily
+  drawGoal();
+  
+  // Then draw all shadows in order of height!
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
+
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+    
+    for (int i=0; i<cubeNum; i++) { drawCubeShadow(i); } // disabled for now, works okay everywhere but castle
+    for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
+    drawGoalShadow();
+
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+    
+		glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
+		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		fillScreenWithShadow();
+		glDisable(GL_STENCIL_TEST);
+
+    glDisable( GL_BLEND );
+    // end of shadow stuff
+
+
   // Print pause menu
   if (getGameplayRunning()) {
       int n, a=cameraPointer[player]->getMeanAngleX(); //truth
@@ -348,17 +375,49 @@ void displayFor(int player) {
   
 }
 
-void drawPlayer(int n) {
+// 100% copied from draw_shadow for testing purposes
+// full permission to copy this though, according to Josh Beam:
+// http://joshbeam.com/articles/stenciled_shadow_volumes_in_opengl/
+void fillScreenWithShadow() {
+  glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(0, 1, 1, 0, 0, 1);
+	glDisable(GL_DEPTH_TEST);
+
+	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+	glBegin(GL_QUADS);
+		glVertex2i(0, 0);
+		glVertex2i(0, 1);
+		glVertex2i(1, 1);
+		glVertex2i(1, 0);
+	glEnd();
+
+	glEnable(GL_DEPTH_TEST);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+}
+
+// Figure out new stats for drawings before doing any drawings
+void calcPlayer(int n) {
   if (getCubiorPlayable(n)) {
-    glPushMatrix();
-    // Move player
-    glTranslatef(playerX[n], playerY[n], playerZ[n]);
     // Then animate player rotation
     if (changeX[n] > 2.0 || changeX[n] < -2.0 || changeZ[n] > 2.0 || changeZ[n] < -2.0) {
       playerAngleDivisor[n] = ((changeZ[n] != 0.0) ? changeZ[n] : 1.0);
       playerAngleNumerator[n] = changeX[n];
       lastChangeZ[n] = changeZ[n];
     }
+  }
+}
+
+void drawPlayer(int n) {
+  if (getCubiorPlayable(n)) {
+    glPushMatrix();
+    // Move player
+    glTranslatef(playerX[n], playerY[n], playerZ[n]);
     if (lastChangeZ[n] < 0.0) {
       glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
     } else {
@@ -367,6 +426,37 @@ void drawPlayer(int n) {
     // And make player bigger
     glScalef(100.0,100.0,100.0);
     cubiorShape[n].drawCubior(n);
+    //cubiorShape[n].drawShadow();
+    glPopMatrix();
+  }
+}
+
+void drawPlayerSilhouette(int n) {
+  if (getCubiorPlayable(n)) {
+    glPushMatrix();
+    glTranslatef(playerX[n], playerY[n], playerZ[n]);
+    if (lastChangeZ[n] < 0.0) {
+      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
+    } else {
+      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
+    }
+    glScalef(100.0,100.0,100.0);
+    cubiorShape[n].drawCubiorSilhouette();
+    glPopMatrix();
+  }
+}
+
+// Same as drawPlayer, but shadows separately
+void drawPlayerShadow(int n) {
+  if (getCubiorPlayable(n)) {
+    glPushMatrix();
+    glTranslatef(playerX[n], playerY[n], playerZ[n]);
+    if (lastChangeZ[n] < 0.0) {
+      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
+    } else {
+      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
+    }
+    glScalef(100.0,100.0,100.0);
     cubiorShape[n].drawShadow();
     glPopMatrix();
   }
@@ -386,8 +476,8 @@ void drawCube(int n) {
 
   if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
-  cubeShape[n].draw();
   //cubeShape[n].drawShadow();
+  cubeShape[n].draw();
 
   if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
@@ -396,14 +486,25 @@ void drawCube(int n) {
   if (timing) { gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   
-if (timing && c4-c1 > 200) {
-  printf(" %dth....drawCube number start....\n", n);
-  printf("prep time: %d\n",c2-c1);
-  printf("draw time: %d\n",c3-c2);
-  printf("popMatrix time: %d\n",c4-c3);
-  printf("drawCube nested time: %d\n",c4-c1);
-  printf(".....drawCube end.....\n");
+  if (timing && c4-c1 > 200) {
+    printf(" %dth....drawCube number start....\n", n);
+    printf("prep time: %d\n",c2-c1);
+    printf("draw time: %d\n",c3-c2);
+    printf("popMatrix time: %d\n",c4-c3);
+    printf("drawCube nested time: %d\n",c4-c1);
+    printf(".....drawCube end.....\n");
+  }
 }
+
+// Same as drawCube, but shadows separately
+void drawCubeShadow(int n) {
+  if (cubeShape[n].hasShadow()) {
+    glPushMatrix();
+    glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
+    glScalef(100.0,100.0,100.0);
+    cubeShape[n].drawShadow();
+    glPopMatrix();
+  }
 }
 
 void drawGoal() {
@@ -414,6 +515,15 @@ void drawGoal() {
   // And make player bigger
   glScalef(100.0,100.0,100.0);
   goalShape.drawGoal();
+  //goalShape.drawShadow();
+  glPopMatrix();
+}
+
+// Same as drawGoal, but shadows separately
+void drawGoalShadow() {
+  glPushMatrix();
+  glTranslatef(goalX, goalY, goalZ);
+  glScalef(100.0,100.0,100.0);
   goalShape.drawShadow();
   glPopMatrix();
 }
