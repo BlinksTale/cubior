@@ -1143,3 +1143,7 @@ float getAngleBetween(int a, int b, int x, int y) {
 void switchFullscreen() {
   toggleFullscreen();
 }
+
+void switchLevelShadows() {
+  toggleLevelShadows();
+}

@@ -32,5 +32,6 @@
     void printString(char*,int,int,int);
     bool getTiming();
     void toggleFullscreen();
+    void toggleLevelShadows();
 
 #endif 

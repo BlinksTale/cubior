@@ -8,6 +8,7 @@
 #define KEYBOARD
  
     void playerFullscreen(bool);
+    void playerLevelShadows(bool);
     void playerPause(int, bool);
     int getLastPause();
 
