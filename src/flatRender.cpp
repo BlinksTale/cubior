@@ -367,6 +367,7 @@ void drawPlayer(int n) {
     // And make player bigger
     glScalef(100.0,100.0,100.0);
     cubiorShape[n].drawCubior(n);
+    cubiorShape[n].drawShadow();
     glPopMatrix();
   }
 }
@@ -386,6 +387,7 @@ void drawCube(int n) {
   if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   cubeShape[n].draw();
+  cubeShape[n].drawShadow();
 
   if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
@@ -412,6 +414,7 @@ void drawGoal() {
   // And make player bigger
   glScalef(100.0,100.0,100.0);
   goalShape.drawGoal();
+  goalShape.drawShadow();
   glPopMatrix();
 }
 // Leftover Toal Code:

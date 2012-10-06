@@ -84,6 +84,9 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   g3 = nG2 - altDark;
   b3 = nB2 - altDark;
   
+  // default shadow status is no
+  defaultHasShadow = false;
+  
   /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
   std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
   std::cout << "rbg3: " << r3 << ", " << g3 << ", " << b3 << std::endl << std::endl;
@@ -356,4 +359,49 @@ void CubeShape::setNeighbors(bool newNeighbors[6]) {
   for (int i=0; i< 6; i++) {
   neighbors[i] = newNeighbors[i];
   }
+}
+
+// using a hackey shadow volumes technique, create our
+// own tall cube beneath main cube shadow volumes.
+void CubeShape::drawShadow() {
+  if (hasShadow() || defaultHasShadow) {
+    // For now, we'll just draw a tall silhouette
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
+
+    // Actual shadow volume stuff
+    glPushMatrix();
+    glScalef(1.0,100.0,1.0);
+    glTranslatef(0.0,-0.505,0.0);
+
+    //glScalef(0.99,0.99,0.99);
+    // These code blocks modified from work on songho.ca
+    // activate and specify pointer to vertex array
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+    // draw first half, range is 6 - 0 + 1 = 7 vertices used
+    for (int i=0; i<6; i++) {
+      if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+        glColor4f(0.125,0.125,0.125,0.5);
+        // 0 to 3 means we only have four vertices used for each face
+        // 6 is the total points we create though from those four.
+        // indices+6*i is where we are looking, which face in indices
+
+        // used to be DrawRangeElements, but Windows didn't like that. Using drawElements now... is this more inefficient?
+        //??glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
+          glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
+      }
+    }
+
+    // deactivate vertex arrays after drawing
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glPopMatrix();
+    glDisable( GL_BLEND );
+  }
+}
+
+// Only have a shadow if no lower neighbor
+bool CubeShape::hasShadow() {
+  return !neighbors[3]; // It's either 2 or 3, those are the y ones
 }

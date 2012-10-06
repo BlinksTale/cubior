@@ -29,6 +29,9 @@ void GoalShape::initGoalVisuals() {
   glow = false;
   updateColors();
   initVisuals(r1,g1,b1,r1,g1,b1,colorDarkness,false,false);
+  
+  // fix default shadow status since goal
+  defaultHasShadow = true;
 }
 
 void GoalShape::updateVisuals() {
