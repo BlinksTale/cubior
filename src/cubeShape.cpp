@@ -49,7 +49,7 @@ GLfloat vertices[] = {  0.5, 0.5, 0.5, // 0 - front upper left
 // index array of vertex array for glDrawElements() & glDrawRangeElement()
 GLubyte indices[]  = { // counterclockwise draws forward
                        // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-                       // Left
+                       // Leftv
                        6, 4, 2, // left lower rear
                        2, 4, 0, // left upper front
                        // Right
@@ -61,7 +61,9 @@ GLubyte indices[]  = { // counterclockwise draws forward
                        // Bottom
                        3, 7, 2, // lower front right
                        6, 2, 7, // lower rear left
-                       // Front
+
+                      // 0,0,0,0,0,0,
+                      // 0,0,0,0,0,0,                       // Front
                        0, 1, 2, // front upper left  
                        2, 1, 3, // front lower right 
                        // Back
@@ -330,6 +332,7 @@ void CubeShape::drawSilhouette() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable( GL_BLEND );
   glPushMatrix();
+  //glScalef(1.1,1.1,1.1);
   //glScalef(0.99,0.99,0.99);
   // These code blocks modified from work on songho.ca
   // activate and specify pointer to vertex array
@@ -358,7 +361,7 @@ void CubeShape::drawSilhouette() {
 
 void CubeShape::setNeighbors(bool newNeighbors[6]) { 
   for (int i=0; i< 6; i++) {
-  neighbors[i] = newNeighbors[i];
+    neighbors[i] = newNeighbors[i];
   }
   //shadowState = !neighbors[2]; // It's either 2 or 3, those are the y ones
 }

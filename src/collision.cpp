@@ -178,6 +178,12 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
 	if (c1 != NULL && c2 != NULL) {
 		if (between(c1,c2)) {
 		  bounce(c1,c2);
+      if (c1->getLandedOnCount() > 0) {
+        c1->updateLandedOnPos();
+      }
+      if (c2->getLandedOnCount() > 0) {
+        c2->updateLandedOnPos();
+      }
 	    //balanceMomentum(c1,c2);
 		}
 	}

@@ -1152,10 +1152,10 @@ void switchLevelShadows() {
 bool getShadow(int i) {
   int slotY = getCollisionMapSlot(&cube[i],1);
   // no shadow if 0th spot or neighbor beneath
-  if (slotY!=0 && !(cube[i].getNeighbors())[2]) {
+  cout << "Empty neighbor status is " << !((cube[i].getNeighbors())[2]) << endl;
+  if (slotY!=0 && !((cube[i].getNeighbors())[3])) {//permanentMap[slotX][slotY-1][slotZ] == NULL) {
     int slotX = getCollisionMapSlot(&cube[i],0);
     int slotZ = getCollisionMapSlot(&cube[i],2);
-    
     // Check all inbetween slots
     for (int j=slotY-2; j>=0; j--) {
       if (permanentMap[slotX][j][slotZ] != NULL) {

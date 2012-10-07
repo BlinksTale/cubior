@@ -109,11 +109,7 @@ void CubeObj::tick() {
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
   
   // And at the end, update your relation to the landedOn
-  if (landedOn != NULL) {
-    landedOnX = x-landedOn->getX();
-    landedOnY = y-landedOn->getY();
-    landedOnZ = z-landedOn->getZ();
-  }
+    updateLandedOnPos();
 }
 
 void CubeObj::calculateDiff() {
@@ -133,7 +129,10 @@ void CubeObj::fall() {
   lastGrounded = grounded;
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
-  if (getNotGrounded()) {
+  if (getNotGrounded() && landedOn != NULL) {
+    momentumX = landedOn->getMomentumX();
+    //momentumY += landedOn->getMomentumY();
+    momentumZ = landedOn->getMomentumZ();
     landedOn = NULL;
     landedOnCount = 0;
   } // not on a player anymore!
@@ -155,9 +154,16 @@ void CubeObj::land() {
 void CubeObj::landOn(CubeObj* c) {
   landedOn = c;
   landedOnCount = c->getLandedOnCount() + 1;
-  landedOnX = x-landedOn->getX();
-  landedOnY = y-landedOn->getY();
-  landedOnZ = z-landedOn->getZ();
+  updateLandedOnPos();
+}
+
+// Update relation between you and moving thing you landed on
+void CubeObj::updateLandedOnPos() {
+  if (landedOn != NULL) {
+    landedOnX = x-landedOn->getX();
+    landedOnY = y-landedOn->getY();
+    landedOnZ = z-landedOn->getZ();
+  }
 }
 
 int CubeObj::getLandedOnCount() {

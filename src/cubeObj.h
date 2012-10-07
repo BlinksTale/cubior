@@ -30,6 +30,7 @@ class CubeObj {
     void fall();
     void land();
     void landOn(CubeObj*);
+    void updateLandedOnPos();
     int getLandedOnCount();
     void freeze();
     bool isMoving();

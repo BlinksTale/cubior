@@ -1,23 +1,19 @@
-Current priorities as of 9/29/12:
-ESSENTIALS FOR DEMO TOMORROW:
+Current priorities as of 10/7/12:
+
+V0. Huge error, there are a set of blocks on the far Z side where if one player
+    collides into another on the ground floor, they'll fall through the blocks.
+    This is what the daughters of the alumni were reporting at the LMU showing
+V. If collision, reset your X/Z that give relation to player you are standing on
 
 0V. Looks like wall angle shots are messing things up again: don't let the
     camera rotate while you're jumping!
 
-000. If wall angle found, doesn't look for visible angle.
-     Good, except for when you can't see the player... oi! Fixes issue of trying
-     to find a new angle though overlapping with wall angle stuff.
-     Better yet would be to not try wall angle stuff until we have a visible angle?
-     Did this, seems to work!
-00. Door snag still exists. Option five w/ intended Pos Found.
 1. And what is that funkiness on the right front corner of the first pile in room 3?
      that's all in option one, so it must be that viewBoth isn't figuring out which side it's really on.
 2. There is an upper bound to how high the camera can rotate before flipping over
    Find what this number is, and do not allow angleX to pass it. STILL NEED TO DO THIS, STILL AN ISSUE.
 3. Make camera look between player and goal at appropriate zoom dist, currently just looks at goal sometimes (castle level?)
-4. Maybe have the initial camera drop not snag? Dunno why it does that now.
-
-?. Why doesn't wall angle work for top right rear castle wall?
+4. Maybe have the initial camera drop not snag? Dunno why it does that now. CONFUSES PLAYERS
 
 ---
 Old but still worthy priorities
