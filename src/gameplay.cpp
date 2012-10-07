@@ -1143,3 +1143,25 @@ float getAngleBetween(int a, int b, int x, int y) {
 void switchFullscreen() {
   toggleFullscreen();
 }
+
+// Find if cube n is the last down (no shadow)
+bool getShadow(int i) {
+  int slotY = getCollisionMapSlot(&cube[i],1);
+  // no shadow if 0th spot or neighbor beneath
+  if (slotY!=0 && !(cube[i].getNeighbors())[2]) {
+    int slotX = getCollisionMapSlot(&cube[i],0);
+    int slotZ = getCollisionMapSlot(&cube[i],2);
+    
+    // Check all inbetween slots
+    for (int j=slotY-2; j>=0; j--) {
+      if (permanentMap[slotX][j][slotZ] != NULL) {
+        // Found somebody else! You are NOT the last cube down
+        cout << "You are NOT the last cube down" << endl;
+        return true;
+      }      
+    }
+  }
+  // So no other cubes were found!
+  cout << "No other cubes were found!" << endl;
+  return false;
+}

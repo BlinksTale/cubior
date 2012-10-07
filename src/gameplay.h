@@ -108,6 +108,6 @@ const int invisibleMax = 5;
     float getAngleBetween(int,int,int,int);
     void switchFullscreen();
     
-    bool isRockBottom(CubeObj*);
+    bool getShadow(int);
     
 #endif 

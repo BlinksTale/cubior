@@ -345,7 +345,6 @@ void displayFor(int player) {
     glDisable( GL_BLEND );
     // end of shadow stuff
 
-
   // Print pause menu
   if (getGameplayRunning()) {
       int n, a=cameraPointer[player]->getMeanAngleX(); //truth
@@ -679,7 +678,13 @@ void initVisuals() {
       cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     }
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
+    cubeShape[i].setShadow(getShadow(i));
   }
+  cout << "--- That's all the cubes! ---" << endl;
+  cout << "--- That's all the cubes! ---" << endl;
+  cout << "--- That's all the cubes! ---" << endl;
+  cout << "--- That's all the cubes! ---" << endl;
+  cout << "--- That's all the cubes! ---" << endl;
 
   // Initialize Goal Visual Vals
   goalX = 0.0;

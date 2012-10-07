@@ -11,7 +11,7 @@ class CubeShape {
   
   protected:
     bool alternatingSpot, midFloor; // for tile color and sides drawn
-    bool defaultHasShadow; // true later for players and goals
+    bool defaultHasShadow, shadowState; // default is true later for player/goal
     bool neighbors[6]; // points to neighbors array of cubeObj
     float altDark;
     float r1,g1,b1,r2,b2,g2,r3,g3,b3;
@@ -25,6 +25,7 @@ class CubeShape {
     virtual void drawShadow();
     virtual void drawShadowVolume();
     virtual bool hasShadow();
+    virtual void setShadow(bool);
 };
 
 #endif

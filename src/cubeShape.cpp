@@ -86,7 +86,8 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   
   // default shadow status is no
   defaultHasShadow = false;
-  
+  shadowState = false;
+   
   /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
   std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
   std::cout << "rbg3: " << r3 << ", " << g3 << ", " << b3 << std::endl << std::endl;
@@ -359,22 +360,24 @@ void CubeShape::setNeighbors(bool newNeighbors[6]) {
   for (int i=0; i< 6; i++) {
   neighbors[i] = newNeighbors[i];
   }
+  //shadowState = !neighbors[2]; // It's either 2 or 3, those are the y ones
 }
 
 // using a hackey shadow volumes technique, create our
 // own tall cube beneath main cube shadow volumes.
 void CubeShape::drawShadow() {
-  glCullFace(GL_FRONT);
-  glStencilFunc(GL_ALWAYS, 0x0, 0xff);
-  glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
-  drawShadowVolume();
+  if (hasShadow()) {
+    glCullFace(GL_FRONT);
+    glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+    glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+    drawShadowVolume();
 
-  glCullFace(GL_BACK);
-  glStencilFunc(GL_ALWAYS, 0x0, 0xff);
-  glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
-  drawShadowVolume();
+    glCullFace(GL_BACK);
+    glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+    glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+    drawShadowVolume();
+  }
 }
-
 
 
 // Shadow volume shape, represents where shadow will fall
@@ -399,10 +402,10 @@ void CubeShape::drawShadowVolume() {
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, vertices);
 
+  glColor4f(0.125,0.125,0.125,0.5);
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
   for (int i=0; i<6; i++) {
     //if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-      glColor4f(0.125,0.125,0.125,0.5);
       // 0 to 3 means we only have four vertices used for each face
       // 6 is the total points we create though from those four.
       // indices+6*i is where we are looking, which face in indices
@@ -412,7 +415,6 @@ void CubeShape::drawShadowVolume() {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
     //}
   }
-
   // deactivate vertex arrays after drawing
   glDisableClientState(GL_VERTEX_ARRAY);
   glPopMatrix();
@@ -420,5 +422,9 @@ void CubeShape::drawShadowVolume() {
 
 // Only have a shadow if no lower neighbor
 bool CubeShape::hasShadow() {
-  return !neighbors[2]; // It's either 2 or 3, those are the y ones
+  return (shadowState || defaultHasShadow);
+}
+
+void CubeShape::setShadow(bool b) {
+  shadowState = b;
 }
