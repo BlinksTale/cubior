@@ -5,7 +5,7 @@
  * 2d Visuals for cubior
  */
 #include "flatRender.h"
-#include "sfx.h"
+//#include "sfx.h"
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
@@ -31,7 +31,7 @@ int windowWidth = 640;
 int windowHeight = 480;
 int oldWindowWidth = windowWidth;
 int oldWindowHeight = windowHeight;
-bool fullscreen = false;
+bool fullscreen = true;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
@@ -40,6 +40,7 @@ const int cubiorNum = cubiorCount;
 const int maxCubeNum = maxCubeCount;// 9 + playableWidth*playableDepth;
 int cubeNum;
 char pausedText[50];
+bool levelShadows = true;
 
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
@@ -497,7 +498,7 @@ void drawCube(int n) {
 
 // Same as drawCube, but shadows separately
 void drawCubeShadow(int n) {
-  if (cubeShape[n].hasShadow()) {
+  if (cubeShape[n].hasShadow() && levelShadows) {
     glPushMatrix();
     glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
     glScalef(100.0,100.0,100.0);
@@ -573,7 +574,7 @@ void renderLoop() {
   
   gameplayLoop();
   
-  sfxLoop();
+  //sfxLoop();
 
   if (timing) {
     gettimeofday(&tim, NULL);
@@ -698,7 +699,7 @@ void initFlat(int argc, char** argv) {
   initVisuals();
 
   // Then do the same for sound effects
-  initSfx(argc, argv);
+  //initSfx(argc, argv);
   
   // standard initialization
   glutInit(&argc, argv);
@@ -818,4 +819,9 @@ void toggleFullscreen() {
     glutReshapeWindow(oldWindowWidth,oldWindowHeight);
     glutSetCursor(GLUT_CURSOR_INHERIT);
   }
+}
+
+// Switch on/off fullscreen mode (from/to windowed)
+void toggleLevelShadows() {
+  levelShadows = !levelShadows;
 }

@@ -36,6 +36,7 @@ bool superKey[playerCount];
 bool pauseKey[playerCount];
 bool joinKey[playerCount];
 bool fullscreenKey;
+bool levelShadowsKey;
 bool nextLevelKey;
 int lastPause = -1; // Last player to pause
 
@@ -54,6 +55,14 @@ void playerFullscreen(bool newBool) {
     switchFullscreen();
   }
   fullscreenKey = newBool;
+}
+
+// Level shadows can be anyone too
+void playerLevelShadows(bool newBool) {
+  if (!levelShadowsKey && newBool) { // newly pressing Enter
+    switchLevelShadows();
+  }
+  levelShadowsKey = newBool;
 }
 
 // Pause tied to player who paused
@@ -146,6 +155,7 @@ void handleInput(unsigned char key, bool newBool) {
   switch(key) {
     // SYSTEM CONTROLS
     case '0': playerFullscreen(newBool); break;//enableGoodCollision(); break;
+    case '9': playerLevelShadows(newBool); break;
     //case '9': disableGoodCollision(); break;
     case 13 : // Press Enter to pause from p1
     case '5': playerPause(0,newBool); break;

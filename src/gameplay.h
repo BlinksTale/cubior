@@ -107,6 +107,7 @@ const int invisibleMax = 5;
     
     float getAngleBetween(int,int,int,int);
     void switchFullscreen();
+    void switchLevelShadows();
     
     bool getShadow(int);
     
