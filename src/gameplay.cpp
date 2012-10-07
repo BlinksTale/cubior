@@ -644,6 +644,12 @@ bool playerVisible(int i) {
   return  camera[i].getLOS();
 }
 
+// Gives player non-visibility
+bool cubeVisible(int i, int j) {
+  // Must check LOS first, or getLOS will not be updated
+  return getCameraToCubeLOS(&camera[i],&cube[j],permanentMap);
+}
+
 // We know the player is not visible, so fix it!
 void fixPlayerVisibility(int i) {
   if (rotateIfInvisible) {
@@ -936,15 +942,24 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
   // checking each slot along that line, and returning false if there is an
   // occupation before the player is reached.
 
-  /*cout << "matched with [" << gX << ", " << gY << ", " << gZ << "]" << endl;
-  cout << "THUS IT MUST BE SUCH THAT IT IS VISIBLE" << endl;
-  */
-  //cout << "camera currently at " << (c->getX()) << ", " << (c->getY()) << ", " << (c->getZ()) << endl;
+  CubeObj tracker;
+  tracker.setPos(c->getX(), c->getY(), c->getZ());
+  c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
+}
+
+// Tells Camera if it can see a specific cube or not, sets up Line of Sight
+bool getCameraToCubeLOS(CameraObj* c, CubeObj* d, CubeObj* m[][maxHeight][maxDepth]) {
+
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+
   CubeObj tracker;
   tracker.setPos(c->getX(), c->getY(), c->getZ());
   // FIXME: Feeling rusty, do I need to delete tracker again to avoid a mem leak, or is containment in function ample?
   
-  c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
+  return checkPathVisibility(&tracker,d,m);
 }
 
 // No checkAndBounce if out of bounds
@@ -1152,7 +1167,6 @@ void switchLevelShadows() {
 bool getShadow(int i) {
   int slotY = getCollisionMapSlot(&cube[i],1);
   // no shadow if 0th spot or neighbor beneath
-  cout << "Empty neighbor status is " << !((cube[i].getNeighbors())[2]) << endl;
   if (slotY!=0 && !((cube[i].getNeighbors())[3])) {//permanentMap[slotX][slotY-1][slotZ] == NULL) {
     int slotX = getCollisionMapSlot(&cube[i],0);
     int slotZ = getCollisionMapSlot(&cube[i],2);

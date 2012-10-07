@@ -3,7 +3,6 @@ Current priorities as of 10/7/12:
 V0. Huge error, there are a set of blocks on the far Z side where if one player
     collides into another on the ground floor, they'll fall through the blocks.
     This is what the daughters of the alumni were reporting at the LMU showing
-V. If collision, reset your X/Z that give relation to player you are standing on
 
 0V. Looks like wall angle shots are messing things up again: don't let the
     camera rotate while you're jumping!

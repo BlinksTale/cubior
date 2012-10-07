@@ -89,6 +89,9 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   // default shadow status is no
   defaultHasShadow = false;
   shadowState = false;
+  
+  // extra wall culling
+  aboveCam = false;
    
   /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
   std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
@@ -110,6 +113,10 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
           glColor3f(r1,g1,b1); // for the top verticies*/
   //for (int i=0; i<24; i++) {
   //}
+}
+
+void CubeShape::setAboveCam(bool b) {
+  aboveCam = b;
 }
 
 void CubeShape::updateVisuals() {
@@ -278,7 +285,10 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
 
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
   for (int i=0; i<6; i++) {
-    if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+    //std::cout << "aboveCam " << aboveCam << " w/ i " << i << std::endl;
+    if ((!useNeighbors || !neighbors[i]) // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+       // Plot twist! When the castle gets 17fps on average, this line below bumps it up to 20!
+       && ((i!=3 || aboveCam)&&(i!=2 || !aboveCam))) { // camera can't see top/bot of what's above/below it
       /*switch(i) {
         case 2: // top        
           glColor3f(r3,g3,b3);

@@ -72,6 +72,8 @@ int lastTime2 = 0;
 int lastTime3 = 0;
 int lastTime4 = 0;
 int lastTime5 = 0;
+int lastClock = clock();
+int averageDiff = 0;
 
 // Goal object's visual
 GoalShape goalShape;
@@ -82,9 +84,19 @@ static GLfloat goalZ;
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
 
+int getFPS() {
+  int newClock = clock();
+  int newDiff = newClock - lastClock;
+  lastClock = newClock;
+  averageDiff = averageDiff*0.9 + newDiff*0.1;
+  return CLOCKS_PER_SEC/averageDiff; // wtf xD so lazy FIXME
+}
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
 
+  cout << "FPS: " << getFPS() << endl;
+  
   int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
   
   if (timing) {
@@ -292,7 +304,11 @@ void displayFor(int player) {
       
       if ((deltaX*camFacingX<backwardsDist)
         &&(deltaZ*camFacingZ<backwardsDist)) {
-        drawCube(i);
+        // Commented out because it was ridiculously laggy
+        //if (cubeVisible(player,i)) { // using gameplay.cpp's visibilty check here
+        cubeShape[i].setAboveCam(cubeY[i]-cameraPointer[player]->getMeanY()>0);
+          drawCube(i);
+        //}
       }
     }
   // So if far away, just draw cubes normally

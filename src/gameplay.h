@@ -53,6 +53,7 @@ const int invisibleMax = 5;
     // Check LOS between cam and player, then move to clear shot by a clear path
     void ensurePlayerVisible(int);
     bool playerVisible(int);
+    bool cubeVisible(int,int);
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
     void rotateToPlayer(int);
@@ -62,6 +63,7 @@ const int invisibleMax = 5;
     bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);
     bool checkPathVisibility(CubeObj*, CubeObj*, CubeObj* [][maxHeight][maxDepth]);
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
+    bool getCameraToCubeLOS(CameraObj*, CubeObj*, CubeObj*[][maxHeight][maxDepth]);
     
     // Collision
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
