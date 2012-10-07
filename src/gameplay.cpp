@@ -1144,6 +1144,10 @@ void switchFullscreen() {
   toggleFullscreen();
 }
 
+void switchLevelShadows() {
+  toggleLevelShadows();
+}
+
 // Find if cube n is the last down (no shadow)
 bool getShadow(int i) {
   int slotY = getCollisionMapSlot(&cube[i],1);
