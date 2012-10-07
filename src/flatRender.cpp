@@ -680,11 +680,6 @@ void initVisuals() {
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
     cubeShape[i].setShadow(getShadow(i));
   }
-  cout << "--- That's all the cubes! ---" << endl;
-  cout << "--- That's all the cubes! ---" << endl;
-  cout << "--- That's all the cubes! ---" << endl;
-  cout << "--- That's all the cubes! ---" << endl;
-  cout << "--- That's all the cubes! ---" << endl;
 
   // Initialize Goal Visual Vals
   goalX = 0.0;

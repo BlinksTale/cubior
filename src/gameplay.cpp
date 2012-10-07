@@ -1156,12 +1156,10 @@ bool getShadow(int i) {
     for (int j=slotY-2; j>=0; j--) {
       if (permanentMap[slotX][j][slotZ] != NULL) {
         // Found somebody else! You are NOT the last cube down
-        cout << "You are NOT the last cube down" << endl;
         return true;
       }      
     }
   }
   // So no other cubes were found!
-  cout << "No other cubes were found!" << endl;
   return false;
 }
