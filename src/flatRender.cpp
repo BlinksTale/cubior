@@ -32,6 +32,7 @@ int windowHeight = 480;
 int oldWindowWidth = windowWidth;
 int oldWindowHeight = windowHeight;
 bool fullscreen = true;
+bool drawOutlines = false;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
@@ -297,6 +298,20 @@ void displayFor(int player) {
     int camAngleNow = ((int)cameraPointer[player]->getMeanAngleY() + 720 + 180 - 45) % 360;
     int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
     int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
+    
+    if (drawOutlines) {
+      for (int i=0; i<cubeNum; i++) {
+        // Only draw if it's in the range the camera will see
+        int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
+        int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
+
+        if ((deltaX*camFacingX<backwardsDist)
+          &&(deltaZ*camFacingZ<backwardsDist)) {
+          drawCubeOutline(i);
+        }
+      }
+    }
+    
     for (int i=0; i<cubeNum; i++) {
       // Only draw if it's in the range the camera will see
       int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
@@ -313,6 +328,11 @@ void displayFor(int player) {
     }
   // So if far away, just draw cubes normally
   } else {
+    if (drawOutlines) {
+      for (int i=0; i<cubeNum; i++) {
+        drawCubeOutline(i);
+      }
+    }
     for (int i=0; i<cubeNum; i++) {
       drawCube(i);
     }
@@ -332,35 +352,20 @@ void displayFor(int player) {
   }
 
   // Draw player as last thing before HUD
-  for (int i=0; i<cubiorNum; i++) { calcPlayer(i); drawPlayerSilhouette(i); }
+  for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
+  if (drawOutlines) {
+    for (int i=0; i<cubiorNum; i++) { drawPlayerOutline(i); }
+  }
+  for (int i=0; i<cubiorNum; i++) { drawPlayerSilhouette(i); }
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
   
   // I lied, draw goal last since likely higher than player,
   // and this shows shadow secondarily
+  if (drawOutlines) { drawGoalOutline(); }
   drawGoal();
   
   // Then draw all shadows in order of height!
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable( GL_BLEND );
-
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_STENCIL_TEST);
-    
-    for (int i=0; i<cubeNum; i++) { drawCubeShadow(i); } // disabled for now, works okay everywhere but castle
-    for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
-    drawGoalShadow();
-
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-    
-		glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-		fillScreenWithShadow();
-		glDisable(GL_STENCIL_TEST);
-
-    glDisable( GL_BLEND );
-    // end of shadow stuff
+  drawAllShadows();
 
   // Print pause menu
   if (getGameplayRunning()) {
@@ -389,6 +394,31 @@ void displayFor(int player) {
     printf("&&&&&& DISPLAYFOR CUBIOR END &&&&&&&&\n");
   }
   
+}
+
+// Give shadows to everything!
+void drawAllShadows() {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable( GL_BLEND );
+
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glDepthMask(GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+    
+    for (int i=0; i<cubeNum; i++) { drawCubeShadow(i); }
+    for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
+    drawGoalShadow();
+
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glDepthMask(GL_TRUE);
+    
+		glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
+		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		fillScreenWithShadow();
+		glDisable(GL_STENCIL_TEST);
+
+    glDisable( GL_BLEND );
+    // end of shadow stuff
 }
 
 // 100% copied from draw_shadow for testing purposes
@@ -429,52 +459,55 @@ void calcPlayer(int n) {
   }
 }
 
+void playerPreDraw(int n) {
+  glPushMatrix();
+  // Move player
+  glTranslatef(playerX[n], playerY[n], playerZ[n]);
+  if (lastChangeZ[n] < 0.0) {
+    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
+  } else {
+    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
+  }
+  // And make player bigger
+  glScalef(100.0,100.0,100.0);
+}
+
+void playerPostDraw(int n) {
+  glPopMatrix();
+}
+  
 void drawPlayer(int n) {
   if (getCubiorPlayable(n)) {
-    glPushMatrix();
-    // Move player
-    glTranslatef(playerX[n], playerY[n], playerZ[n]);
-    if (lastChangeZ[n] < 0.0) {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
-    } else {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
-    }
-    // And make player bigger
-    glScalef(100.0,100.0,100.0);
+    playerPreDraw(n);
     cubiorShape[n].drawCubior(n);
-    //cubiorShape[n].drawShadow();
-    glPopMatrix();
+    playerPostDraw(n);
   }
 }
 
 void drawPlayerSilhouette(int n) {
   if (getCubiorPlayable(n)) {
-    glPushMatrix();
-    glTranslatef(playerX[n], playerY[n], playerZ[n]);
-    if (lastChangeZ[n] < 0.0) {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
-    } else {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
-    }
-    glScalef(100.0,100.0,100.0);
+    playerPreDraw(n);
     cubiorShape[n].drawCubiorSilhouette();
-    glPopMatrix();
+    playerPostDraw(n);
   }
 }
 
 // Same as drawPlayer, but shadows separately
 void drawPlayerShadow(int n) {
   if (getCubiorPlayable(n)) {
-    glPushMatrix();
-    glTranslatef(playerX[n], playerY[n], playerZ[n]);
-    if (lastChangeZ[n] < 0.0) {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
-    } else {
-      glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
-    }
-    glScalef(100.0,100.0,100.0);
+    playerPreDraw(n);
     cubiorShape[n].drawShadow();
-    glPopMatrix();
+    playerPostDraw(n);
+  }
+}
+
+
+// Same as drawPlayer, but shadows separately
+void drawPlayerOutline(int n) {
+  if (getCubiorPlayable(n)) {
+    playerPreDraw(n);
+    cubiorShape[n].drawOutline();
+    playerPostDraw(n);
   }
 }
 
@@ -523,6 +556,15 @@ void drawCubeShadow(int n) {
   }
 }
 
+// Same as drawCube, but just an outline
+void drawCubeOutline(int n) {
+  glPushMatrix();
+  glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
+  glScalef(100.0,100.0,100.0);
+  cubeShape[n].drawOutline();
+  glPopMatrix();
+}
+
 void drawGoal() {
   glPushMatrix();
   // Move player
@@ -543,6 +585,16 @@ void drawGoalShadow() {
   goalShape.drawShadow();
   glPopMatrix();
 }
+
+// Same as drawGoal, but shadows separately
+void drawGoalOutline() {
+  glPushMatrix();
+  glTranslatef(goalX, goalY, goalZ);
+  glScalef(100.0,100.0,100.0);
+  goalShape.drawOutline();
+  glPopMatrix();
+}
+
 // Leftover Toal Code:
 // Handles the window reshape event by first ensuring that the viewport fills
 // the entire drawing surface.  Then we use a simple orthographic projection
@@ -839,5 +891,7 @@ void toggleFullscreen() {
 
 // Switch on/off fullscreen mode (from/to windowed)
 void toggleLevelShadows() {
-  levelShadows = !levelShadows;
+  //levelShadows = !levelShadows;
+  // HIJACKED FOR OUTLINES! MUAHAHAA
+  drawOutlines = !drawOutlines;
 }

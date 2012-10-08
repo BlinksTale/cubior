@@ -369,6 +369,39 @@ void CubeShape::drawSilhouette() {
   glDisable( GL_BLEND );
 }
 
+// Cell-shading-like outline!
+void CubeShape::drawOutline() {
+  glDisable(GL_DEPTH_TEST); // disable depth test for "shadow cubior"
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable( GL_BLEND );
+  drawOutlineVolume();
+  glDisable( GL_BLEND );
+  glEnable(GL_DEPTH_TEST); // Then return to normal stuff
+}
+
+void CubeShape::drawOutlineVolume() {
+  glPushMatrix();
+  glScalef(1.1,1.1,1.1);
+  // These code blocks modified from work on songho.ca
+  // activate and specify pointer to vertex array
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  // draw first half, range is 6 - 0 + 1 = 7 vertices used
+  for (int i=0; i<6; i++) {
+    if (!useNeighbors || !neighbors[i]) { // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+      glColor4f(0,0,0,1);
+      // used to be DrawRangeElements, but Windows didn't like that. Using drawElements now... is this more inefficient?
+      //??glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
+    }
+  }
+
+  // deactivate vertex arrays after drawing
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glPopMatrix();
+}
+
 void CubeShape::setNeighbors(bool newNeighbors[6]) { 
   for (int i=0; i< 6; i++) {
     neighbors[i] = newNeighbors[i];

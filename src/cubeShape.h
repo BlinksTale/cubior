@@ -23,6 +23,8 @@ class CubeShape {
     virtual void updateVisuals();
     virtual void draw();
     virtual void drawSilhouette();
+    virtual void drawOutline();
+    virtual void drawOutlineVolume();
     virtual void drawShadow();
     virtual void drawShadowVolume();
     virtual bool hasShadow();
