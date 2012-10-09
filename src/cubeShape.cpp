@@ -17,7 +17,7 @@
 #include <algorithm> // for std::copy for colors
 #include <stdio.h> // for pauseText
 #include <time.h> // for printing timestamps
-#include <sys/time.h> // for linux time
+//#include <sys/time.h> // for linux time
 
 // Copied from songho.ca example on vertex arrays
 // http://www.songho.ca/opengl/gl_vertexarray.html
@@ -125,7 +125,7 @@ void CubeShape::updateVisuals() {
 
 void CubeShape::draw() {
 
-struct timeval tim;
+//struct timeval tim;
 /*
   int c1,c2,c3,c4,c5,c6,c7,c8,c9;
   if (getTiming()) { gettimeofday(&tim, NULL); c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }

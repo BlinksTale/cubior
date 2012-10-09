@@ -9,9 +9,9 @@
  */
 
 // Definitely need AL and ALUT stuff
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alut.h>
+//#include <AL/al.h>
+//#include <AL/alc.h>
+//#include <AL/alut.h>
 #include <cstdio> // for argv and argc
 
 
@@ -35,7 +35,7 @@
 #include <string> // for loading a level by var passed
 
 // Sfx to use later, test for now, so named "source"
-ALuint testSource, exitSource, bumpSource, errorSource,
+/*ALuint testSource, exitSource, bumpSource, errorSource,
         menuEnterSource, menuExitSource;
 ALuint jumpSource[4];
   
@@ -135,7 +135,7 @@ void initSfx(int argc, char** argv) {
      playtesting/level design are my current targets, so I don't think we'll be
      seeing health any time soon.
    */
-  
+  /*
   // Load sfx from file
   // Not sure why, but can't put alGenSources into createSfx and have it work
   // sound will not play if that's the case
@@ -215,4 +215,4 @@ void playSfx(ALuint sfx) {
   int error = alGetError();
   if (error)
       printf("%s\n", alutGetErrorString(error));
-}
+}*/

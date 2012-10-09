@@ -8,6 +8,8 @@
 #include "cameraObj.h"
 #include "gameplay.h"
 #include "trackerObj.h"
+
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -145,7 +147,7 @@ void CameraObj::tick() {
     
     // And give freedom back if player moved away from just fixed location
     if (justFixedVisibility && justFixedMaxDist <
-            sqrt(pow(justFixedX-permanentTarget->getX(),2) + pow(justFixedZ-permanentTarget->getZ(),2))) {
+            sqrt((double)(pow((double)(justFixedX-permanentTarget->getX()),(double)(2)) + pow((double)(justFixedZ-permanentTarget->getZ()),(double)(2))))) {
       justFixedVisibility = false;
       //cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
     }
@@ -355,7 +357,7 @@ int CameraObj::getFarthestDist() {
 int CameraObj::distToGoal() {
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
-  return sqrt(deltaX*deltaX + deltaZ*deltaZ);
+  return sqrt((double)(deltaX*deltaX + deltaZ*deltaZ));
 }
 
 // Find how close player is to camera
@@ -363,7 +365,7 @@ int CameraObj::distToPlayer() {
   int deltaX = x-permanentTargetGoal->getX();
   int deltaY = y-permanentTargetGoal->getY();
   int deltaZ = z-permanentTargetGoal->getZ();
-  return sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+  return sqrt((double)(sqrt((double)(deltaX*deltaX + deltaZ*deltaZ))*sqrt((double)(deltaX*deltaX + deltaZ*deltaZ))+deltaY*deltaY));
 }
 
 // Find how high player is to camera
@@ -385,7 +387,7 @@ int CameraObj::groundDistTo(int a, int c) {
   int deltaX = x-a;
   int deltaZ = z-c;
   //cout << "We have deltaX " << deltaX << " and deltaZ " << deltaZ << endl;
-  int result = sqrt(deltaX*deltaX + deltaZ*deltaZ);
+  int result = sqrt((double)(deltaX*deltaX + deltaZ*deltaZ));
   //cout << "With result " << result << endl;
   return result;
 }
@@ -616,8 +618,8 @@ void CameraObj::positionByAngles(int a, int c, int intendedDist, int distToPlaye
   
   // This will be a bit tricky, need to determine if new dist is smaller than old
   // when backup freedom is disabled
-  int newDist = sqrt(pow(zToBe-permanentTarget->getZ(),2)+pow(xToBe-permanentTarget->getX(),2));
-  int oldDist = sqrt(pow(z-permanentTarget->getZ(),2)+pow(x-permanentTarget->getX(),2));
+  int newDist = sqrt(pow((double)(zToBe-permanentTarget->getZ()),(double)(2))+pow((double)(xToBe-permanentTarget->getX()),(double)(2)));
+  int oldDist = sqrt(pow((double)(z-permanentTarget->getZ()),(double)(2))+pow((double)(x-permanentTarget->getX()),(double)(2)));
   bool newDistSmaller = newDist < oldDist;
   
   if (backupFreedom || newDistSmaller) {

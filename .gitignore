@@ -2,3 +2,10 @@
 .cproject
 .project
 nbproject/
+Cubior.*
+nbproject
+.DS_Store
+cubior
+Debug/
+Release/
+ipch/

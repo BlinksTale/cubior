@@ -13,6 +13,9 @@
 #include "collision.h"
 #include "mapReader.h"
 #include "flatRender.h"
+
+#define _USE_MATH_DEFINES
+#include <math.h> // for M_PI
 #include <cmath> // for trig stuff with getAngleBetween
 #include <iostream>
 #include <cstdio>

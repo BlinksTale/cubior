@@ -249,7 +249,7 @@ int CubeObj::distToCube(CubeObj* cube) {
   int deltaY = y-cube->getY();
   int deltaZ = z-cube->getZ();
   //cout << "  deltas are " << deltaX << "," << deltaY << "," << deltaZ << endl;
-  int theSqrt = sqrt(sqrt(deltaX*deltaX + deltaZ*deltaZ)*sqrt(deltaX*deltaX + deltaZ*deltaZ)+deltaY*deltaY);
+  int theSqrt = sqrt((double)(sqrt((double)(deltaX*deltaX + deltaZ*deltaZ))*sqrt((double)(deltaX*deltaX + deltaZ*deltaZ))+deltaY*deltaY));
   //cout << "  the sqrt is " << theSqrt << endl;
   return theSqrt;
 }
@@ -275,8 +275,8 @@ void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
   //cout << "at (" << n << ", " << o << ", " << p << ")" << endl;
 
   // Find ultimate hyp and ratio
-  float hypXZ  = sqrt(n*n + p*p);
-  float hypXYZ = sqrt(hypXZ*hypXZ + o*o);
+  float hypXZ  = sqrt((double)(n*n + p*p));
+  float hypXYZ = sqrt((double)(hypXZ*hypXZ + o*o));
   double ratio = delta*(-1.0)/hypXYZ;
   //cout << "Finding hypXZ as " << hypXZ << " and hypXYZ as " << hypXYZ << " and ratio as " << ratio << endl;
 

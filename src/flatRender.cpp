@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <stdio.h> // for pauseText
 #include <time.h> // for printing timestamps
-#include <sys/time.h> // for linux time
+//#include <sys/time.h> // for linux time
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
@@ -67,7 +67,7 @@ static bool cubeCollision[maxCubeNum];
 
 // time stuff
 bool timing = false;
-struct timeval tim;
+//struct timeval tim;
 int lastTime1 = 0;
 int lastTime2 = 0;
 int lastTime3 = 0;
@@ -98,14 +98,14 @@ void display() {
 
   cout << "FPS: " << getFPS() << endl;
   
-  int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
-  
+  //int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
+  /*
   if (timing) {
     printf("------------\n");
     gettimeofday(&tim, NULL);
     int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
     lastTime2 = dTime1;
-  }
+  }*/
   
   glScissor(0,0,windowWidth,windowHeight);
   glViewport(0,0,windowWidth,windowHeight);
@@ -114,21 +114,21 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime2 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("preppingScreen time: %d\n",dTime2-dTime1);
-  }
+  }*/
   
   // Draw all playing Cubior views
   for (int i=0; i<getCubiorCount(); i++) {
     if (getCubiorPlayable(i)) {
-      int cT1, cT2, cT3, cT4, cT5;
+      /*int cT1, cT2, cT3, cT4, cT5;
       if (timing) {
       printf("=====CUBIOR DRAW BEGIN=======\n");
       gettimeofday(&tim, NULL);
       int cT1 = (tim.tv_sec+(tim.tv_usec/1.0));
-      }
+      }*/
       
       int w=i%2;
       int h=i>1?1:0;
@@ -140,11 +140,11 @@ void display() {
       int viewW = windowWidth*1/2;
       int viewH = windowHeight*1/2;
 
-      if (timing) {
+      /*if (timing) {
           gettimeofday(&tim, NULL);
           int cT2 = (tim.tv_sec+(tim.tv_usec/1.0));
           printf("prep Cubior time: %d\n",cT2-cT1);
-      }
+      }*/
   
       // Now fill in empty space
       if (!getCubiorPlayable(altX)
@@ -172,72 +172,72 @@ void display() {
         setPerspective(1,1);
       }
 
-      if (timing) {
+      /*if (timing) {
           gettimeofday(&tim, NULL);
           int cT3 = (tim.tv_sec+(tim.tv_usec/1.0));
           printf("splitscreen fill time: %d\n",cT3-cT2);
-      }
+      }*/
   
       // Draw some player i
       glScissor(posX,posY,viewW,viewH);
 
-      if (timing) {
+      /*if (timing) {
           gettimeofday(&tim, NULL);
           int cT4 = (tim.tv_sec+(tim.tv_usec/1.0));
           printf("scissor time: %d\n",cT4-cT3);
-      }
+      }*/
   
       glViewport(posX, posY, viewW, viewH);
 
-      if (timing) {
+      /*if (timing) {
           gettimeofday(&tim, NULL);
           int cT5 = (tim.tv_sec+(tim.tv_usec/1.0));
           printf("viewport time: %d\n",cT5-cT4);
-      }
+      }*/
       displayFor(i);
 
-      if (timing) {
+      /*if (timing) {
           gettimeofday(&tim, NULL);
           int cT6 = (tim.tv_sec+(tim.tv_usec/1.0));
           printf("displayFor time: %d\n",cT6-cT5);
-      }
+      }*/
       
     }
     
-    if (timing) {
+    /*if (timing) {
       printf("======CUBIOR DRAW END========\n");
-    }
+    }*/
   }
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawCubiors time: %d\n",dTime3-dTime2);
-  }
+  }*/
   
   // End with a quick flush, to draw faster
   glFlush();
   glutSwapBuffers(); // because using double buffer, must swap buffers
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime4 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("totalDrawTime() time: %d\n",dTime4-dTime1);
     printf("------------\n");
-  }
+  }*/
 
 }
 
 void displayFor(int player) {
   
   // Timing vars
-  int c1,c2,c3,c4,c5;
+  /*int c1,c2,c3,c4,c5;
   if (timing) {
     printf("&&&&& DISPLAYFOR CUBIOR BEGIN &&&&&&&\n");
 
     gettimeofday(&tim, NULL);
     int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
-  }
+  }*/
   
   // Paint background cyan to neon blue
   glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f);
@@ -246,11 +246,11 @@ void displayFor(int player) {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c2 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("prep time: %d\n",c2-c1);
-  }
+  }*/
   
   // Zoom camera out, then pull back and up to see cubes
   glScalef(0.001,0.001,0.001);
@@ -278,18 +278,18 @@ void displayFor(int player) {
     0,1,0
   );
 */
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("moveCam time: %d\n",c3-c2);
-  }
+  }*/
 
   // Yeah, so, drawPlayer was here - moved to do silhouette though
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawPlayer time: %d\n",c4-c3);
-  }
+  }*/
   
   // Only try block culling if looking from close to the ground
   //truth
@@ -339,17 +339,17 @@ void displayFor(int player) {
   }
   
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c5 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawCube time: %d\n",c5-c4);
-  }
+  }*/
   
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawGoal time: %d\n",c6-c5);
-  }
+  }*/
 
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
@@ -387,12 +387,12 @@ void displayFor(int player) {
   // Commented out so that these values can easily be displayed again if necessary 
   // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int c7 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("drawFor nested time: %d\n",c7-c1);
     printf("&&&&&& DISPLAYFOR CUBIOR END &&&&&&&&\n");
-  }
+  }*/
   
 }
 
@@ -514,7 +514,7 @@ void drawPlayerOutline(int n) {
 void drawCube(int n) {
 
   int c1,c2,c3,c4,c5;
-  if (timing) { gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+  //if (timing) { gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   glPushMatrix();
   // Move player
@@ -523,26 +523,26 @@ void drawCube(int n) {
   // And make player bigger
   glScalef(100.0,100.0,100.0);
 
-  if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+  //if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   //cubeShape[n].drawShadow();
   cubeShape[n].draw();
 
-  if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+  //if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   glPopMatrix();
 
-  if (timing) { gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+  //if (timing) { gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
   
-  if (timing && c4-c1 > 200) {
+  /*if (timing && c4-c1 > 200) {
     printf(" %dth....drawCube number start....\n", n);
     printf("prep time: %d\n",c2-c1);
     printf("draw time: %d\n",c3-c2);
     printf("popMatrix time: %d\n",c4-c3);
     printf("drawCube nested time: %d\n",c4-c1);
     printf(".....drawCube end.....\n");
-  }
+  }*/
 }
 
 // Same as drawCube, but shadows separately
@@ -625,40 +625,40 @@ void renderLoop() {
   // for lag info
   int dTime1,dTime2,dTime3,dTime4,dTime5,dTime6;
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("restOfGame time: %d\n",dTime1-lastTime1);
     lastTime1 = dTime1;
-  }
+  }*/
   
   sendCommands();
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime2 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("sendCommands() time: %d\n",dTime2-dTime1);
-  }
+  }*/
   
   gameplayLoop();
   
   //sfxLoop();
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("gameplayLoop() time: %d\n",dTime3-dTime2);
-  }
+  }*/
   
   for (int i=0; i<cubiorNum; i++) {
     updatePlayerGraphic(i);
   }
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime4 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("updatePlayerGraphic() time: %d\n",dTime4-dTime3);
-  }
+  }*/
   
   // FIXME: Wait, we should totally not need to update this every loop
   // the cubes are all static. Leave them that way.
@@ -666,28 +666,28 @@ void renderLoop() {
     updateCubeGraphic(i);
   }*/
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime5 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("updateCubeGraphic() time: %d\n",dTime5-dTime4);
-  }
+  }*/
   
   updateGoalGraphic();
   
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime6 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("updateGoalGraphic() time: %d\n",dTime6-dTime5);
-  }
+  }*/
   
   glutPostRedisplay();
 
-  if (timing) {
+  /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime7 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("glutPostRedisplay() time: %d\n",dTime7-dTime6);
     printf("renderLoop() time: %d\n",dTime7-dTime1);
-  }
+  }*/
 }
 
 void timerRenderLoop(int v) {

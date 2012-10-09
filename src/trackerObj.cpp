@@ -24,7 +24,7 @@ void TrackerObj::tick() {
   if (target) {
     int xDiff = target->getX()-x;
     int zDiff = target->getZ()-z;
-    int distToTarget = sqrt(xDiff*xDiff+zDiff*zDiff);
+    int distToTarget = sqrt((double)(xDiff*xDiff+zDiff*zDiff));
     chasing = distToTarget > followDist;
     if (chasing) {
       x+=(xDiff*(distToTarget-followDist)/distToTarget);

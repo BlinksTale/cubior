@@ -13,7 +13,7 @@
 #include "../src/collision.h"
 using namespace std;
 
-string truth(bool n) { return n ? "true" : "false"; }
+/*string truth(bool n) { return n ? "true" : "false"; }
 
 void setPos(CubeObj* c1, int a, int b, int c) {
   cout << "Set CubeObj to " << a << "," << b << "," << c << "\n";
@@ -71,14 +71,14 @@ int main(int argc, char** argv) {
       Collision::bounce(&cubior, &cube[j]);
       cout << "Bounce: ";
       prtPos(&cubior);
-    }*/
+    }
     Collision::checkAndBounce(&cubior, &cube[j]);
     cout << "\n";
     }
   }
-
+  
   cout << "---All tests returned---\n\n";
   return 0;
-}
+}*/
 
 
