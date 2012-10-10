@@ -18,7 +18,7 @@ endif
 AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o #bin/sfx.o
 
 all: bin/cubior.o bin/cubiorTest.o
-	g++ $(AllFiles) bin/cubior.o $(Graphics) $(Audio) -o bin/cubior && g++ $(AllFiles) bin/cubiorTest.o $(Graphics) $(Audio) -o bin/cubiorTest && bin/$(Exe)
+	g++ $(AllFiles) bin/cubior.o $(Graphics) $(Audio) -o bin/cubior && bin/$(Exe)
 
 bin/cubiorTest.o: bin/gameplay.o bin/visuals.o bin/cubior.o
 	g++ -c test/cubiorTest.cpp -o bin/cubiorTest.o
