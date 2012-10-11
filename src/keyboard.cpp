@@ -5,9 +5,12 @@
  * keyboard for cubior
  */
 
+#include "keyboard.h"
 #include <iostream>
 #include <math.h>
 #include "gameplay.h"
+
+#include <SFML/Graphics.hpp> // joystick support
 
 using namespace std;
 
@@ -23,9 +26,20 @@ const int playerCount = 4;
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
 const bool superEnabled = false;
+int altFrame = 0;
+int altMax = 5;
 
 bool directionsPressed[playerCount]; // whether movement has started for this player
 int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
+
+// For all input merged
+bool upInput[playerCount];
+bool downInput[playerCount];
+bool leftInput[playerCount];
+bool rightInput[playerCount];
+bool jumpInput[playerCount];
+
+// For Keyboards
 bool upKey[playerCount];
 bool downKey[playerCount];
 bool leftKey[playerCount];
@@ -35,6 +49,18 @@ bool lockKey[playerCount];
 bool superKey[playerCount];
 bool pauseKey[playerCount];
 bool joinKey[playerCount];
+
+// For Joysticks
+bool upButton[playerCount];
+bool downButton[playerCount];
+bool leftButton[playerCount];
+bool rightButton[playerCount];
+bool jumpButton[playerCount];
+bool lockButton[playerCount];
+bool superButton[playerCount];
+bool pauseButton[playerCount];
+bool joinButton[playerCount];
+
 bool fullscreenKey;
 bool levelShadowsKey;
 bool nextLevelKey;
@@ -45,6 +71,7 @@ bool oldUD[playerCount];
 bool oldLR[playerCount];
 int sinUD[playerCount], cosUD[playerCount], sinLR[playerCount], cosLR[playerCount];
     
+// Not using these much anymore, scrap them?
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
@@ -89,17 +116,26 @@ int getLastPause() { return lastPause; }
 
 // Once per loop, send off the commands from these inputs
 void sendCommands() {
+  // joystick support, ALWAYS update its input
+  sf::Joystick::update(); 
+
+  // Update each joystick's info before sending commands
+  for (int i=0; i < 4; i++) {
+	  joystickCommands(i);
+      mergeInput(i); // then stick it and key inputs together
+  }
+  // Then get to those commands being issued!
   if (getGameplayRunning()) {
     for (int i = 0; i<playerCount; i++) {
-      if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i])) {
+      if (!directionsPressed[i] && (upInput[i] || downInput[i] || leftInput[i] || rightInput[i])) {
         oldAngleY[i] = getCamera(i)->getAngleY();
         directionsPressed[i] = true;
-      } else if (directionsPressed[i] && !upKey[i] && !downKey[i] && !leftKey[i] && !rightKey[i]) {
+      } else if (directionsPressed[i] && !upInput[i] && !downInput[i] && !leftInput[i] && !rightInput[i]) {
         directionsPressed[i] = false;
       }
       // First, record if any movement requested
-      bool newUD = upKey[i] || downKey[i];
-      bool newLR = leftKey[i] || rightKey[i];
+      bool newUD = upInput[i] || downInput[i];
+      bool newLR = leftInput[i] || rightInput[i];
       
       // Then set movement angles based on cam angle if that's true
       //if (newUD && !oldUD[i]) {
@@ -111,24 +147,24 @@ void sendCommands() {
         cosLR[i] = ceil(cos((360-(int)(/*getCamera(i)->getAngleY()*/oldAngleY[i]))*PI/180)-0.5);
       //}
       
-      if (upKey[i]) {
+      if (upInput[i]) {
         // careful! If you cast as int before multiplying by ten, it rounds to zero
         getPlayer(i)->moveZ((int)(cosUD[i]*(-10)));
         getPlayer(i)->moveX((int)(sinUD[i]*(-10)));
       }
-      if (downKey[i]) {
+      if (downInput[i]) {
         getPlayer(i)->moveZ((int)(cosUD[i]*( 10)));
         getPlayer(i)->moveX((int)(sinUD[i]*( 10)));
       }
-      if (leftKey[i]) {
+      if (leftInput[i]) {
         getPlayer(i)->moveZ((int)(sinLR[i]*(-10)));
         getPlayer(i)->moveX((int)(cosLR[i]*(-10)));
       }
-      if (rightKey[i]) {
+      if (rightInput[i]) {
         getPlayer(i)->moveZ((int)(sinLR[i]*( 10)));
         getPlayer(i)->moveX((int)(cosLR[i]*( 10)));
       }
-      getPlayer(i)->jump(jumpKey[i]);
+      getPlayer(i)->jump(jumpInput[i]);
       getPlayer(i)->setLock(lockKey[i]);
       getPlayer(i)->setInvincibility(superKey[i]);
       
@@ -141,6 +177,59 @@ void sendCommands() {
       }
     }
   }
+}
+
+// Given a player num, returns joystick num
+int joystickNum(int i) {
+  // Please note... I don't understand the order either,
+  // but until I make player order based on joining order,
+  // this works.
+  switch(i) {
+	case 0: // Player 1
+	  return 1;
+	case 1: // Player 2
+	  return 2;
+	case 2: // Player 3
+	  return 0;
+	case 3: // Player 4
+	  return 3;
+	default:
+	  return 1;
+  }
+}
+
+// Figure out all joystick input translations to key presses, for now
+void joystickCommands(int i) {
+  int joystick = joystickNum(i);
+  // Accept any not-start-or-select button for jumping
+  jumpButton[i] = 0;
+  for (int b=0; b<8; b++) {
+	if (b != 6 && b != 7) {
+	  jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
+	} else if (b == 6) { // Join
+	  playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
+	} else if (b == 7) { // Pause
+	  playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
+	}
+  }
+
+  // Convert (for now) joystick to direction buttons
+  upButton[i]   = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y) <-50;
+  downButton[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y) > 50;
+  leftButton[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X) <-50;
+  rightButton[i]= sf::Joystick::getAxisPosition(joystick,sf::Joystick::X) > 50;
+
+}
+
+// Combine buttons and keys under one input system
+void mergeInput(int i) {
+	// Only covering stuff really used here
+	// join and pause handled seperately
+	upInput[i] = upButton[i] || upKey[i];
+	downInput[i] = downButton[i] || downKey[i];
+	leftInput[i] = leftButton[i] || leftKey[i];
+	rightInput[i] = rightButton[i] || rightKey[i];
+	jumpInput[i] = jumpButton[i] || jumpKey[i];
 }
 
 // Quick jump to next level
@@ -232,8 +321,10 @@ void handleSpecialInput(int key, bool newBool) {
 void specialInputDown(int key, int x, int y) { handleSpecialInput(key, true); }
 void specialInputUp(int key, int x, int y)   { handleSpecialInput(key, false); }
 
+/* No need now that we use SFML instead of OpenGL for this
 void handleJoystickInput(int button, bool b) {
   cout << "It was called for " << button << "!\n";
 }
 
 void joystickDown(unsigned int button, int x, int y, int z) { handleJoystickInput(button, true); }
+*/

@@ -16,11 +16,13 @@
     void inputUp(unsigned char, int, int);
     void handleInput(unsigned char, bool);
     void sendCommands();
+    void joystickCommands(int);
+    void mergeInput(int);
     void specialInputDown(int, int, int);
     void specialInputUp(int, int, int);
     void handleSpecialInput(int, bool);
-    void joystickDown(unsigned int, int, int, int);
-    void handleJoystickInput(unsigned int, bool);
+    //void joystickDown(unsigned int, int, int, int);
+    //void handleJoystickInput(unsigned int, bool);
 
     void setJump(int, bool);
     void setLock(int, bool);

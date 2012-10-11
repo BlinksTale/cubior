@@ -795,8 +795,10 @@ void initFlat(int argc, char** argv) {
   glutKeyboardUpFunc(inputUp);
   glutSpecialFunc(specialInputDown);
   glutSpecialUpFunc(specialInputUp);
-  glutJoystickFunc(joystickDown, 300);
-  glutForceJoystickFunc(); // makes joystick button presses get recognized
+  // no need for this limited function,
+  // SFML handles up to eight joysticks
+  //glutJoystickFunc(joystickDown, 300);
+  //glutForceJoystickFunc(); // makes joystick button presses get recognized
 
   // Use display for refreshing visuals
   glutReshapeFunc(reshape);
