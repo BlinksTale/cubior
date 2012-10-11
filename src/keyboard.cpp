@@ -51,6 +51,8 @@ bool pauseKey[playerCount];
 bool joinKey[playerCount];
 
 // For Joysticks
+int joyX[playerCount];
+int joyY[playerCount];
 bool upButton[playerCount];
 bool downButton[playerCount];
 bool leftButton[playerCount];
@@ -148,21 +150,29 @@ void sendCommands() {
       //}
       
       if (upInput[i]) {
+		float upRatio = 1.0;
         // careful! If you cast as int before multiplying by ten, it rounds to zero
-        getPlayer(i)->moveZ((int)(cosUD[i]*(-10)));
-        getPlayer(i)->moveX((int)(sinUD[i]*(-10)));
+		if (upButton[i]) { upRatio = (joyY[i]-50)/-100.0; }
+        getPlayer(i)->moveZ((int)(cosUD[i]*(-10)*upRatio));
+        getPlayer(i)->moveX((int)(sinUD[i]*(-10)*upRatio));
       }
       if (downInput[i]) {
-        getPlayer(i)->moveZ((int)(cosUD[i]*( 10)));
-        getPlayer(i)->moveX((int)(sinUD[i]*( 10)));
+		float downRatio = 1.0;
+		if (downButton[i]) { downRatio = (joyY[i]+50)/100.0; }
+        getPlayer(i)->moveZ((int)(cosUD[i]*( 10)*downRatio));
+        getPlayer(i)->moveX((int)(sinUD[i]*( 10)*downRatio));
       }
       if (leftInput[i]) {
-        getPlayer(i)->moveZ((int)(sinLR[i]*(-10)));
-        getPlayer(i)->moveX((int)(cosLR[i]*(-10)));
+		float leftRatio = 1.0;
+		if (leftButton[i]) { leftRatio = (joyX[i]-50)/-100.0; }
+        getPlayer(i)->moveZ((int)(sinLR[i]*(-10)*leftRatio));
+        getPlayer(i)->moveX((int)(cosLR[i]*(-10)*leftRatio));
       }
       if (rightInput[i]) {
-        getPlayer(i)->moveZ((int)(sinLR[i]*( 10)));
-        getPlayer(i)->moveX((int)(cosLR[i]*( 10)));
+		float rightRatio = 1.0;
+		if (rightButton[i]) { rightRatio = (joyX[i]+50)/100.0; }
+        getPlayer(i)->moveZ((int)(sinLR[i]*( 10)*rightRatio));
+        getPlayer(i)->moveX((int)(cosLR[i]*( 10)*rightRatio));
       }
       getPlayer(i)->jump(jumpInput[i]);
       getPlayer(i)->setLock(lockKey[i]);
@@ -214,10 +224,12 @@ void joystickCommands(int i) {
   }
 
   // Convert (for now) joystick to direction buttons
-  upButton[i]   = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y) <-50;
-  downButton[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y) > 50;
-  leftButton[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X) <-50;
-  rightButton[i]= sf::Joystick::getAxisPosition(joystick,sf::Joystick::X) > 50;
+  joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
+  joyY[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
+  upButton[i]   = joyY[i] <-25;
+  downButton[i] = joyY[i] > 25;
+  leftButton[i] = joyX[i] <-25;
+  rightButton[i]= joyX[i] > 25;
 
 }
 
