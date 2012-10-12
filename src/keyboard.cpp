@@ -136,8 +136,8 @@ void sendCommands() {
 	if (getGameplayRunning()) {
 		for (int i = 0; i<playerCount; i++) {
 		  if (i==0) {
-        cout << "joyX " << joyX[i] << endl;
-        cout << "joyY " << joyY[i] << endl;
+        //cout << "joyX " << joyX[i] << endl;
+        //cout << "joyY " << joyY[i] << endl;
       }
       if (independentMovement) {
         if (!directionsPressed[i] && (upInput[i] || downInput[i] || leftInput[i] || rightInput[i])) {

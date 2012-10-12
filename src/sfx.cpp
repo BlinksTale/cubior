@@ -181,8 +181,8 @@ void initSfx(int argc, char** argv) {
   // Load sounds into buffers
   testBuffer.loadFromFile("./sfx/Jump/Jump 3.wav");
   exitBuffer.loadFromFile("./sfx/Menu-Game/Leave 8.wav");
-  menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
-  menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
+  menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
+  menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
   errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
   jumpBuffer[0].loadFromFile("./sfx/Jump/Jump 2.wav");
   jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3.wav");
@@ -202,7 +202,10 @@ void initSfx(int argc, char** argv) {
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
+    bumpSound[i].setVolume(35);
   }
+  jumpSound[2].setVolume(65);
+  jumpSound[3].setVolume(65);
 }
 
 // Main loop for sound effects, called once per cycle

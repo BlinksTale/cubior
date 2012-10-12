@@ -104,7 +104,6 @@ int getFPS() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-
   //cout << "FPS: " << getFPS() << endl;
   
   //int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
@@ -131,6 +130,7 @@ void display() {
   
   // Draw all playing Cubior views
   for (int i=0; i<getCubiorCount(); i++) {
+    
     if (getCubiorPlayable(i)) {
       /*int cT1, cT2, cT3, cT4, cT5;
       if (timing) {
@@ -237,71 +237,26 @@ void display() {
 
 }
 
+// Draw an entire player's screen
 void displayFor(int player) {
-  
-  // Timing vars
-  /*int c1,c2,c3,c4,c5;
-  if (timing) {
-    printf("&&&&& DISPLAYFOR CUBIOR BEGIN &&&&&&&\n");
-
-    gettimeofday(&tim, NULL);
-    int c1 = (tim.tv_sec+(tim.tv_usec/1.0));
-  }*/
   
   // Paint background cyan to neon blue
   glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f);
-
+  
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c2 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("prep time: %d\n",c2-c1);
-  }*/
   
-  // Zoom camera out, then pull back and up to see cubes
+  // Zoom camera out,
   glScalef(0.001,0.001,0.001);
-  // old cam position
-  //glTranslatef(0,-165,-1550); // better closeup from 0, -100, -1100
-  // temp cam position glTranslatef(-playerX[0],-playerY[0]-200,-playerZ[0]-1000);
-  
   // Set camera angle and pos, based off averages
-/*  cout << "truth: " << 1.0*cameraPointer[player]->getX() << " vs mean: " << 1.0*cameraPointer[player]->getMeanX() <<endl;
-  cout << "truth: " << 1.0*cameraPointer[player]->getY() << " vs mean: " << 1.0*cameraPointer[player]->getMeanY() <<endl;
-  cout << "truth: " << 1.0*cameraPointer[player]->getZ() << " vs mean: " << 1.0*cameraPointer[player]->getMeanZ() <<endl <<endl;
-*/glRotatef(-1.0*cameraPointer[player]->getMeanAngleX(),1.0,0.0,0.0);
-    //cout << "===== " << 180-1.0*cameraPointer[player]->getMeanAngleX() << endl;
+  glRotatef(-1.0*cameraPointer[player]->getMeanAngleX(),1.0,0.0,0.0);
   glRotatef(-1.0*cameraPointer[player]->getMeanAngleY(),0.0,1.0,0.0);
   glRotatef(-1.0*cameraPointer[player]->getMeanAngleZ(),0.0,0.0,1.0);
+  // then pull back and up to see cubes
   glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());
-
-/*  gluLookAt(
-    1*cameraPointer[player]->getX(),
-    1*cameraPointer[player]->getY(),
-    1*cameraPointer[player]->getZ(),
-    playerX[player],
-    playerY[player],
-    playerZ[player],
-    0,1,0
-  );
-*/
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c3 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("moveCam time: %d\n",c3-c2);
-  }*/
-
-  // Yeah, so, drawPlayer was here - moved to do silhouette though
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c4 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("drawPlayer time: %d\n",c4-c3);
-  }*/
   
   // Only try block culling if looking from close to the ground
-  //truth
   if (cameraPointer[player]->getMeanY() < playerY[player]+2000) {
     int backwardsDist = 500;
     int camAngleNow = ((int)cameraPointer[player]->getMeanAngleY() + 720 + 180 - 45) % 360;
@@ -328,10 +283,7 @@ void displayFor(int player) {
       
       if ((deltaX*camFacingX<backwardsDist)
         &&(deltaZ*camFacingZ<backwardsDist)) {
-        // Commented out because it was ridiculously laggy
-        //if (cubeVisible(player,i)) { // using gameplay.cpp's visibilty check here
         drawCube(i,player);
-        //}
       }
     }
   // So if far away, just draw cubes normally
@@ -345,20 +297,6 @@ void displayFor(int player) {
       drawCube(i,player);
     }
   }
-  
-
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c5 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("drawCube time: %d\n",c5-c4);
-  }*/
-  
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c6 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("drawGoal time: %d\n",c6-c5);
-  }*/
-
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
   if (drawOutlines) {
@@ -374,11 +312,10 @@ void displayFor(int player) {
   
   // Then draw all shadows in order of height!
   drawAllShadows();
-
+  
   // Print pause menu
   if (getGameplayRunning()) {
       int n, a=cameraPointer[player]->getMeanAngleX(); //truth
-      n=sprintf(pausedText, "AngleX %d ", a);
       // Commented out so that these values can easily be displayed again if necessary 
       // printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
       // printString("RUNNING",playerX[player],playerY[player]+250,playerZ[player]);
@@ -394,13 +331,6 @@ void displayFor(int player) {
   // And player stats (wip/temp)
   // Commented out so that these values can easily be displayed again if necessary 
   // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
-
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int c7 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("drawFor nested time: %d\n",c7-c1);
-    printf("&&&&&& DISPLAYFOR CUBIOR END &&&&&&&&\n");
-  }*/
   
 }
 
@@ -416,7 +346,7 @@ void drawAllShadows() {
     for (int i=0; i<cubeNum; i++) { drawCubeShadow(i); }
     for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
     drawGoalShadow();
-
+    
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 		glDepthMask(GL_TRUE);
     
@@ -460,10 +390,6 @@ void calcPlayer(int n) {
   if (getCubiorPlayable(n)) {
     // Then animate player rotation
     // new way
-	if (n==0) {
-	  cout << "meanChangeZ " << meanChangeZ[n] << endl;
-	  cout << "meanChangeX " << meanChangeX[n] << endl;
-	}
 	//if (sqrt(pow((float)(changeX[n]),2) + pow((float)(changeZ[n]),2)) >= sqrt(pow((float)(lastChangeX[n]),2) + pow((float)(lastChangeZ[n]),2))) {
 	  // old way
 	float changeMin = 5.0;
@@ -482,7 +408,6 @@ void playerPreDraw(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
-  
   // Find new angle
   float oldAngle = playerRotationMean(n);
   float newAngle = oldAngle;
@@ -497,7 +422,7 @@ void playerPreDraw(int n) {
   playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
   // Then move to next slot
   currentPlayerRotation[n]++;
-  if (currentPlayerRotation[n] > maxPlayerRotations) {
+  if (currentPlayerRotation[n] >= maxPlayerRotations) {
 	  currentPlayerRotation[n] = 0;
   }
   // Finally, apply rotation
