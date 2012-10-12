@@ -21,7 +21,7 @@
     void drawPlayerSilhouette(int);
     void drawPlayerShadow(int);
     void drawPlayerOutline(int);
-    void drawCube(int);
+    void drawCube(int,int);
     void drawCubeShadow(int);
     void drawCubeOutline(int);
     void drawGoal();

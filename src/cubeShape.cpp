@@ -286,9 +286,9 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
   for (int i=0; i<6; i++) {
     //std::cout << "aboveCam " << aboveCam << " w/ i " << i << std::endl;
-    if ((!useNeighbors || !neighbors[i]) // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+    if ((!useNeighbors) || ((!neighbors[i]) // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
        // Plot twist! When the castle gets 17fps on average, this line below bumps it up to 20!
-       && ((i!=3 || aboveCam)&&(i!=2 || !aboveCam))) { // camera can't see top/bot of what's above/below it
+       && (i!=3 || aboveCam) && (i!=2 || !aboveCam))) { // camera can't see top/bot of what's above/below it
       /*switch(i) {
         case 2: // top        
           glColor3f(r3,g3,b3);

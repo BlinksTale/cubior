@@ -330,8 +330,7 @@ void displayFor(int player) {
         &&(deltaZ*camFacingZ<backwardsDist)) {
         // Commented out because it was ridiculously laggy
         //if (cubeVisible(player,i)) { // using gameplay.cpp's visibilty check here
-        cubeShape[i].setAboveCam(cubeY[i]-cameraPointer[player]->getMeanY()>0);
-          drawCube(i);
+        drawCube(i,player);
         //}
       }
     }
@@ -343,7 +342,7 @@ void displayFor(int player) {
       }
     }
     for (int i=0; i<cubeNum; i++) {
-      drawCube(i);
+      drawCube(i,player);
     }
   }
   
@@ -559,8 +558,10 @@ void drawPlayerOutline(int n) {
   }
 }
 
-void drawCube(int n) {
-
+void drawCube(int n, int player) {
+  // ALWAYS start by setting abovecam stat
+  cubeShape[n].setAboveCam(cubeY[n]-cameraPointer[player]->getMeanY()>0);
+          
   int c1,c2,c3,c4,c5;
   //if (timing) { gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
 
