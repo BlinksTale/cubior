@@ -15,6 +15,7 @@
     void calcPlayer(int);
     void drawAllShadows();
     void preDrawPlayer(int);
+    float playerRotationMean(int);
     void postDrawPlayer(int);
     void drawPlayer(int);
     void drawPlayerSilhouette(int);

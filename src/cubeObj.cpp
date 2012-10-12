@@ -19,6 +19,7 @@ CubeObj::CubeObj() {
   
   // usually not a player
   playerStatus = false;
+  toldToMove = false;
 
   // Pos vars
   x =    0;
@@ -39,7 +40,7 @@ CubeObj::CubeObj() {
 
   maxSpeed = 20 ;
   friction =  2 ;
-  movementSpeed = friction;
+  movementSpeed = friction/2;
 
   // Jumping vars
   jumpable = false;
@@ -90,14 +91,18 @@ void CubeObj::tick() {
     z += momentumZ;
 
     // apply friction if on the ground
-    if (grounded && (momentumX != 0 || momentumZ != 0)) {
-      if (momentumX > 0) { momentumX -= friction; }
-      else if (momentumX < 0) { momentumX += friction; }
-      else if (momentumX != 0) { momentumX = 0; }
-      if (momentumZ > 0) { momentumZ -= friction; }
-      else if (momentumZ < 0) { momentumZ += friction; }
-      else if (momentumZ != 0) { momentumZ = 0; }
-    }
+	if (!toldToMove) {
+      if (grounded && (momentumX != 0 || momentumZ != 0)) {
+        if (momentumX > 0) { momentumX -= friction; }
+        else if (momentumX < 0) { momentumX += friction; }
+        else if (momentumX != 0) { momentumX = 0; }
+        if (momentumZ > 0) { momentumZ -= friction; }
+        else if (momentumZ < 0) { momentumZ += friction; }
+        else if (momentumZ != 0) { momentumZ = 0; }
+      }
+	} else {
+	  toldToMove = false;
+	}
     
     calculateDiff();
     
@@ -304,9 +309,9 @@ void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivi
 void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
-void CubeObj::moveX(int n) { momentumX += n * movementSpeed / movementDivision; }
-void CubeObj::moveY(int n) { momentumY += n * movementSpeed / movementDivision; }
-void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed / movementDivision; }
+void CubeObj::moveX(int n) { momentumX += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveY(int n) { momentumY += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
 void CubeObj::movePos(int n, int o, int p) {
   momentumX += n * movementSpeed / movementDivision;
   momentumY += o * movementSpeed / movementDivision;

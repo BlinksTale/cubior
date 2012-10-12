@@ -12,6 +12,9 @@
 #include "goalShape.h"
 #include "cubiorShape.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h> // for M_PI
+
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
 #else
@@ -46,6 +49,9 @@ bool levelShadows = true;
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
 static float playerAngleDivisor[cubiorNum];
+const int maxPlayerRotations = 5;
+int currentPlayerRotation[cubiorNum];
+float playerRotationAngle[cubiorNum][maxPlayerRotations];
 
 // pos of cubiors while they move
 CubiorShape cubiorShape[cubiorNum];
@@ -55,7 +61,10 @@ static GLfloat playerZ[cubiorNum];
 static GLfloat changeX[cubiorNum];
 static GLfloat changeY[cubiorNum];
 static GLfloat changeZ[cubiorNum];
+static GLfloat lastChangeX[cubiorNum];
 static GLfloat lastChangeZ[cubiorNum];
+static GLfloat meanChangeX[cubiorNum];
+static GLfloat meanChangeZ[cubiorNum];
 
 // pos of cube obstacles
 //static int cubesTotal = 1;
@@ -96,7 +105,7 @@ int getFPS() {
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
 
-  cout << "FPS: " << getFPS() << endl;
+  //cout << "FPS: " << getFPS() << endl;
   
   //int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
   /*
@@ -451,11 +460,22 @@ void fillScreenWithShadow() {
 void calcPlayer(int n) {
   if (getCubiorPlayable(n)) {
     // Then animate player rotation
-    if (changeX[n] > 2.0 || changeX[n] < -2.0 || changeZ[n] > 2.0 || changeZ[n] < -2.0) {
-      playerAngleDivisor[n] = ((changeZ[n] != 0.0) ? changeZ[n] : 1.0);
-      playerAngleNumerator[n] = changeX[n];
-      lastChangeZ[n] = changeZ[n];
+    // new way
+	if (n==0) {
+	  cout << "meanChangeZ " << meanChangeZ[n] << endl;
+	  cout << "meanChangeX " << meanChangeX[n] << endl;
+	}
+	//if (sqrt(pow((float)(changeX[n]),2) + pow((float)(changeZ[n]),2)) >= sqrt(pow((float)(lastChangeX[n]),2) + pow((float)(lastChangeZ[n]),2))) {
+	  // old way
+	float changeMin = 5.0;
+	// Only an issue for changeZ = -20 to changeZ = 0. Not sure why.
+    if (meanChangeX[n] > changeMin || meanChangeX[n] < -changeMin || meanChangeZ[n] > changeMin || meanChangeZ[n] < -changeMin) {
+      playerAngleDivisor[n] = ((meanChangeZ[n] != 0.0) ? meanChangeZ[n] : 0.01);
+      playerAngleNumerator[n] = meanChangeX[n];
     }
+    lastChangeZ[n] = meanChangeZ[n];
+  //cout << "numerat is " << playerAngleNumerator[n] << endl;
+  //cout << "divisor is " << playerAngleDivisor[n] << endl;
   }
 }
 
@@ -463,13 +483,41 @@ void playerPreDraw(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
+  
+  // Find new angle
+  float oldAngle = playerRotationMean(n);
+  float newAngle = oldAngle;
   if (lastChangeZ[n] < 0.0) {
-    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180,0.0,1.0,0.0);
+	newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180;
   } else {
-    glRotatef(atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0,0.0,1.0,0.0);
+    newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0;
   }
+  // Then modify it to match current mean
+  while (newAngle > oldAngle + 180) { newAngle -= 2*180; }
+  while (newAngle < oldAngle - 180) { newAngle += 2*180; }
+  playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
+  // Then move to next slot
+  currentPlayerRotation[n]++;
+  if (currentPlayerRotation[n] > maxPlayerRotations) {
+	  currentPlayerRotation[n] = 0;
+  }
+  // Finally, apply rotation
+  float avg = playerRotationMean(n);
+  //cout << "newAngle is " << newAngle << endl;
+  //cout << "avg is " << avg << endl;
+  glRotatef(newAngle,0.0,1.0,0.0);
+  
   // And make player bigger
   glScalef(100.0,100.0,100.0);
+}
+
+// like angle mean, puts together all 
+float playerRotationMean(int n) {
+	float sumOfAngles = 0;
+	for (int i=0; i<maxPlayerRotations; i++) {
+		sumOfAngles += playerRotationAngle[n][i];
+	}
+	return (sumOfAngles*1.0/maxPlayerRotations);
 }
 
 void playerPostDraw(int n) {
@@ -834,12 +882,32 @@ void updateGoalGraphic() {
 }
 
 void setPlayerGraphic(int n, int x, int y, int z) {
-  changeX[n] = x - playerX[n];
-  changeY[n] = y - playerY[n];
-  changeZ[n] = z - playerZ[n];
-  playerX[n] = x;
-  playerY[n] = y;
-  playerZ[n] = z;
+  if (abs(x-playerX[n]) > 2) {
+    changeX[n] = x - playerX[n];
+    playerX[n] = x;
+  } else if (changeX[n] != 0) {
+	  changeX[n] = 0;
+  }
+  if (abs(y-playerY[n]) > 2) {
+    changeY[n] = y - playerY[n];
+    playerY[n] = y;
+  } else if (changeY[n] != 0) {
+	  changeY[n] = 0;
+  }
+  if (abs(z-playerZ[n]) > 2) {
+    changeZ[n] = z - playerZ[n];
+    playerZ[n] = z;
+  } else if (abs(changeZ[n]) > 0.001) {
+	  if (changeZ[n] > 0.0) {
+        changeZ[n] = 0.001;
+	  } else {
+	    changeZ[n] = -0.001;
+	  }
+  }
+  // Finally, update the means
+  float meanChangeRatio = 0.75;
+  meanChangeX[n] = meanChangeRatio*meanChangeX[n] + (1.0-meanChangeRatio)*changeX[n];
+  meanChangeZ[n] = meanChangeRatio*meanChangeZ[n] + (1.0-meanChangeRatio)*changeZ[n];
 }
 
 void setCubeGraphic(int n, int x, int y, int z, bool b) {

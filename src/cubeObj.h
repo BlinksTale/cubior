@@ -10,7 +10,7 @@
 
 class CubeObj {
   protected:
-    bool neighbors[6],edges[6];
+    bool neighbors[6],edges[6],toldToMove;
     int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     int movementSpeed, movementDivision;
