@@ -103,9 +103,11 @@ void playerPause(int p, bool newBool) {
 		if (!getGameplayRunning()) {
 			if (lastPause == p || lastPause == -1) {
 				startGameplay();
+        setJustUnpaused(true);
 			}
 		} else {
 			stopGameplay();
+      setJustPaused(true);
 			lastPause = p;
 		}
 	}
@@ -200,7 +202,7 @@ void sendCommands() {
 				if (joyX[i] != 0 && joyY[i] != 0) {
 					// Then apply joystick ratio vals
 					ratio = sqrt((float)(pow((float)joyX[i],2)+pow((float)joyY[i],2)));
-					if (ratio < 20) {
+					if (ratio < 20) { // This feels really good at 20... I recommend not altering it!
 						ratio = 0;
 					}
 					// Or it means no buttons...
@@ -268,10 +270,11 @@ void joystickCommands(int i) {
 	// Convert (for now) joystick to direction buttons
 	joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
 	joyY[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
-	upButton[i]   = joyY[i] <-25;
-	downButton[i] = joyY[i] > 25;
-	leftButton[i] = joyX[i] <-25;
-	rightButton[i]= joyX[i] > 25;
+  // was at 20 for limits, 15 seems fine too (want more flexibility somewhere for turning)
+	upButton[i]   = joyY[i] <-15;
+	downButton[i] = joyY[i] > 15;
+	leftButton[i] = joyX[i] <-15;
+	rightButton[i]= joyX[i] > 15;
 
 }
 

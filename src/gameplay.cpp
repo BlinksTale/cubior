@@ -58,6 +58,11 @@ int maxCameraHeight = 2000;
 
 int gravity = 2;
 
+// Sfx Trigger Vars
+bool justExited = false;
+bool justPaused = false;
+bool justUnpaused = false;
+
 // Changing game state variables
 bool gameplayRunning = true;
 int xFar[4], xNear[4], zFar[4], zNear[4]; // for detecting walls for wall angles/shots
@@ -1126,7 +1131,17 @@ void setCubiorPlayable(int i, bool b) {
   resetCubior(i);
   cubiorPlayable[i] = b;
 }
+
+// Sfx triggers
 bool getCubiorJustJumped(int i) { return cubior[i].justJumped(); }
+bool getCubiorJustBumped(int i) { return cubior[i].justBumped(); }
+bool getJustExited() { return justExited; }
+bool getJustPaused() { return justPaused; }
+bool getJustUnpaused() { return justUnpaused; }
+void setJustExited(bool b) { justExited = b; }
+void setJustPaused(bool b) { justPaused = b; }
+void setJustUnpaused(bool b) { justUnpaused = b; }
+
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }
 CameraObj* getCamera() { return &camera[0]; }

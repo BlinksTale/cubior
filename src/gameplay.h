@@ -86,7 +86,18 @@ const int invisibleMax = 5;
     const int getCubiorCount();
     bool getCubiorPlayable(int);
     void setCubiorPlayable(int,bool);
+    
+    // Sfx triggers
     bool getCubiorJustJumped(int);
+    bool getCubiorJustBumped(int);
+    bool getJustExited();
+    bool getJustPaused();
+    bool getJustUnpaused();
+    // And setters for sfx triggers
+    void setJustExited(bool);
+    void setJustPaused(bool);
+    void setJustUnpaused(bool);
+    
     const int getMaxCubeCount();
     int getCubeCount();
     CameraObj* getCamera();

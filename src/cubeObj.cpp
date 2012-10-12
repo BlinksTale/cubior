@@ -70,7 +70,9 @@ void CubeObj::tick() {
   // don't move if frozen
   if (!locked && !permalocked) {
 
-    if (collision) { setCollision(false); }
+    if (collision) {
+      setCollision(false);
+    }
 
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
@@ -135,9 +137,9 @@ void CubeObj::fall() {
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
   if (getNotGrounded() && landedOn != NULL) {
-    momentumX = landedOn->getMomentumX();
+    momentumX += landedOn->getMomentumX();
     //momentumY += landedOn->getMomentumY();
-    momentumZ = landedOn->getMomentumZ();
+    momentumZ += landedOn->getMomentumZ();
     landedOn = NULL;
     landedOnCount = 0;
   } // not on a player anymore!
@@ -236,6 +238,11 @@ bool CubeObj::getLanded() { return grounded; }
 bool CubeObj::justJumped() {
   bool result = jumping && !lastJumping;
   lastJumping = jumping;
+  return result;
+}
+bool CubeObj::justBumped() {
+  bool result = collision && !lastCollision;
+  lastCollision = collision;
   return result;
 }
 

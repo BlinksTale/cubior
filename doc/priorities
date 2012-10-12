@@ -1,5 +1,9 @@
 Current priorities as of 10/7/12:
 
+V000. Players flip back and forth erradically sitting on top of each other. Fix this
+
+V00. Multiplayer blocks caps and bottoms are culled based on P1 cam pos, fix this!
+
 V0. Huge error, there are a set of blocks on the far Z side where if one player
     collides into another on the ground floor, they'll fall through the blocks.
     This is what the daughters of the alumni were reporting at the LMU showing

@@ -13,14 +13,16 @@
 //#include <AL/alc.h>
 //#include <AL/alut.h>
 #include <cstdio> // for argv and argc
+#include <SFML/Audio.hpp> // for sound manipulation
 
 #include "gameplay.h"
 //#include "flatRender.h" // pretending I don't need this for now
 
-  /*void initSfx(int, char**);
+
+  void initSfx(int, char**);
   void sfxLoop();
   void playTestSfx();
-  void playJumpSfx();
+  /*void playJumpSfx();
   void playExitSfx();
   void playBumpSfx();
   void playMenuEnterSfx();

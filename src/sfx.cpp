@@ -13,7 +13,7 @@
 //#include <AL/alc.h>
 //#include <AL/alut.h>
 #include <cstdio> // for argv and argc
-
+#include <SFML/Audio.hpp> // for sound manipulation
 
 #include "sfx.h"
 #include "gameplay.h"
@@ -34,16 +34,26 @@
 #include <stdlib.h> // for NULL
 #include <string> // for loading a level by var passed
 
+// Buffer Vars (hold song data)
+sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
+  menuEnterBuffer, menuExitBuffer;
+sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
+
+// Sound Vars (play what's in buffer)
+sf::Sound testSound, exitSound, errorSound,
+  menuEnterSound, menuExitSound;
+sf::Sound jumpSound[4], bumpSound[4];
+
 // Sfx to use later, test for now, so named "source"
 /*ALuint testSource, exitSource, bumpSource, errorSource,
         menuEnterSource, menuExitSource;
 ALuint jumpSource[4];
-  
+  */
 // Setup for sound effects
 void initSfx(int argc, char** argv) {
   
   // Initialize like in GLUT
-  alutInit(&argc, argv);
+  //alutInit(&argc, argv);
   
   // Load test sound
   /*ALuint testBuffer = alutCreateBufferFromFile("./sfx/Jump/Jump 3.wav");
@@ -162,20 +172,64 @@ void initSfx(int argc, char** argv) {
   
   // And finally, tweak volume for those that are too loud
 	alSourcef(jumpSource[2], AL_GAIN, 0.4);
-	alSourcef(jumpSource[3], AL_GAIN, 0.4);
+	alSourcef(jumpSource[3], AL_GAIN, 0.4);*/
+
+  /*************/
+  /* SFML Init */
+  /*************/
+
+  // Load sounds into buffers
+  testBuffer.loadFromFile("./sfx/Jump/Jump 3.wav");
+  exitBuffer.loadFromFile("./sfx/Menu-Game/Leave 8.wav");
+  menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
+  menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
+  errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
+  jumpBuffer[0].loadFromFile("./sfx/Jump/Jump 2.wav");
+  jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3.wav");
+  jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9.wav");
+  jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10.wav");
+  bumpBuffer[0].loadFromFile("./sfx/Collision/Hit 6.wav");
+  bumpBuffer[1].loadFromFile("./sfx/Collision/Hit 6.wav");
+  bumpBuffer[2].loadFromFile("./sfx/Collision/Hit 6.wav");
+  bumpBuffer[3].loadFromFile("./sfx/Collision/Hit 6.wav");
+
+  // And setup sound players
+  testSound.setBuffer(testBuffer);
+  exitSound.setBuffer(exitBuffer);
+  menuEnterSound.setBuffer(menuEnterBuffer);
+  menuExitSound.setBuffer(menuExitBuffer);
+  errorSound.setBuffer(errorBuffer);
+  for (int i=0; i<4; i++) {
+    jumpSound[i].setBuffer(jumpBuffer[i]);
+    bumpSound[i].setBuffer(bumpBuffer[i]);
+  }
 }
 
 // Main loop for sound effects, called once per cycle
 void sfxLoop() {
   // Jumping SFX
   for (int i=0; i<cubiorCount; i++) {
-    if (getCubiorJustJumped(i)) { playSfx(jumpSource[i]); }
+    if (getCubiorJustJumped(i)) { jumpSound[i].play(); }
+    if (getCubiorJustBumped(i)) {
+      bumpSound[i].play();
+    }
+  }
+  if (getJustExited()) { 
+    exitSound.play(); 
+    setJustExited(false);
+  }
+  if (getJustPaused()) {
+    menuEnterSound.play();
+    setJustPaused(false);
+  }
+  if (getJustUnpaused()){
+    menuExitSound.play(); 
+    setJustUnpaused(false);
   }
 }
-
 // Specific sound effects
-void playTestSfx() {
-  playSfx(testSource);
+/*void playTestSfx() {
+  testSound.play();
 }
 void playJumpSfx(int i) {
   playSfx(jumpSource[i]);
