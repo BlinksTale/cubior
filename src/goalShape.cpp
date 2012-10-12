@@ -38,9 +38,9 @@ void GoalShape::updateVisuals() {
 
   if (glow) {
     //std::cout << "increasing colors!" << std::endl;
-    colorCurrentR += 0.005;
-    colorCurrentG += 0.005;
-    colorCurrentB += 0.005;
+    colorCurrentR += 0.08;
+    colorCurrentG += 0.08;
+    colorCurrentB += 0.08;
     if (colorDarkness > 0) {
       colorDarkness -= 0.0025;
     } else {

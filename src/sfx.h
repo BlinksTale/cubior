@@ -8,16 +8,10 @@
 #ifndef SFX
 #define	SFX
 
-// Definitely need AL and ALUT stuff
-//#include <AL/al.h>
-//#include <AL/alc.h>
-//#include <AL/alut.h>
 #include <cstdio> // for argv and argc
 #include <SFML/Audio.hpp> // for sound manipulation
 
 #include "gameplay.h"
-//#include "flatRender.h" // pretending I don't need this for now
-
 
   void initSfx(int, char**);
   void sfxLoop();
@@ -27,8 +21,6 @@
   void playBumpSfx();
   void playMenuEnterSfx();
   void playMenuExitSfx();
-  void playErrorSfx();
-  void createSfx(const char*, ALuint);
-  void playSfx(ALuint);*/
+  void playErrorSfx();*/
 
 #endif

@@ -3,29 +3,13 @@
  * by Brian Handy
  * 10/03/12
  * Sfx class for 3d platformer
- * 
- * Sfx basics learned from online tutorial:
- * http://goanna.cs.rmit.edu.au/~gl/teaching/Interactive3D/courseware/tutorial9.html
  */
 
-// Definitely need AL and ALUT stuff
-//#include <AL/al.h>
-//#include <AL/alc.h>
-//#include <AL/alut.h>
 #include <cstdio> // for argv and argc
 #include <SFML/Audio.hpp> // for sound manipulation
 
 #include "sfx.h"
 #include "gameplay.h"
-// Not sure if I need any of these,
-// but assuming so since this file
-// should mimick gameplay.cpp
-#include "cameraObj.h"
-#include "cubeObj.h"
-#include "goalObj.h"
-#include "cubiorObj.h"
-#include "collision.h"
-#include "flatRender.h"
 
 // Again, not sure on these either (gameplay copies)
 #include <cmath> // for trig stuff with getAngleBetween
@@ -44,23 +28,9 @@ sf::Sound testSound, exitSound, errorSound,
   menuEnterSound, menuExitSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
-// Sfx to use later, test for now, so named "source"
-/*ALuint testSource, exitSource, bumpSource, errorSource,
-        menuEnterSource, menuExitSource;
-ALuint jumpSource[4];
-  */
 // Setup for sound effects
 void initSfx(int argc, char** argv) {
   
-  // Initialize like in GLUT
-  //alutInit(&argc, argv);
-  
-  // Load test sound
-  /*ALuint testBuffer = alutCreateBufferFromFile("./sfx/Jump/Jump 3.wav");
-  // Create source
-  alSourcei(testSource, AL_BUFFER, testBuffer);
-  alSourcei(testSource, AL_LOOPING, AL_TRUE); // AL_TRUE would make it loop
-  */
   /* My thoughts on the Rolando Nadal SFX so far
 
      I checked them all out - way more than I was expecting for a first batch!
@@ -145,34 +115,6 @@ void initSfx(int argc, char** argv) {
      playtesting/level design are my current targets, so I don't think we'll be
      seeing health any time soon.
    */
-  /*
-  // Load sfx from file
-  // Not sure why, but can't put alGenSources into createSfx and have it work
-  // sound will not play if that's the case
-  alGenSources(1, &testSource);
-  for (int i=0; i<4; i++) {
-    alGenSources(1, &(jumpSource[i]));
-  }
-  alGenSources(1, &exitSource);
-  alGenSources(1, &bumpSource);
-  alGenSources(1, &menuEnterSource);
-  alGenSources(1, &menuExitSource);
-  alGenSources(1, &errorSource);
-  createSfx("./sfx/Jump/Jump 3.wav",testSource);
-  createSfx("./sfx/Jump/Jump 2.wav",jumpSource[0]); // 2 or 3 so far. 6?
-  createSfx("./sfx/Jump/Jump 3.wav",jumpSource[1]); // 2 or 3 so far. 6?
-  createSfx("./sfx/Jump/Jump 9.wav",jumpSource[2]); // 2 or 3 so far. 6?
-  createSfx("./sfx/Jump/Jump 10.wav",jumpSource[3]); // 2 or 3 so far. 6?
-    // 9 and 10 good for sad cubes
-  createSfx("./sfx/Menu-Game/Leave 8.wav",exitSource); // draw this one out
-  createSfx("./sfx/Collision/Hit 6.wav",bumpSource);
-  createSfx("./sfx/Menu-Game/Leave 3.wav",menuEnterSource);
-  createSfx("./sfx/Menu-Game/Leave 5.wav",menuExitSource);
-  createSfx("./sfx/Menu-Game/Error 3.wav",errorSource);
-  
-  // And finally, tweak volume for those that are too loud
-	alSourcef(jumpSource[2], AL_GAIN, 0.4);
-	alSourcef(jumpSource[3], AL_GAIN, 0.4);*/
 
   /*************/
   /* SFML Init */
@@ -188,10 +130,10 @@ void initSfx(int argc, char** argv) {
   jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3.wav");
   jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9.wav");
   jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10.wav");
-  bumpBuffer[0].loadFromFile("./sfx/Collision/Hit 6.wav");
-  bumpBuffer[1].loadFromFile("./sfx/Collision/Hit 6.wav");
-  bumpBuffer[2].loadFromFile("./sfx/Collision/Hit 6.wav");
-  bumpBuffer[3].loadFromFile("./sfx/Collision/Hit 6.wav");
+  bumpBuffer[0].loadFromFile("./sfx/Collision/Hit 1.wav");
+  bumpBuffer[1].loadFromFile("./sfx/Collision/Hit 4.wav");
+  bumpBuffer[2].loadFromFile("./sfx/Collision/Hit 6.wav"); // Original one true bump
+  bumpBuffer[3].loadFromFile("./sfx/Collision/Hit 14.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
@@ -217,14 +159,17 @@ void sfxLoop() {
       bumpSound[i].play();
     }
   }
+  // Win Level
   if (getJustExited()) { 
     exitSound.play(); 
     setJustExited(false);
   }
+  // Open Pause
   if (getJustPaused()) {
     menuEnterSound.play();
     setJustPaused(false);
   }
+  // Close Pause
   if (getJustUnpaused()){
     menuExitSound.play(); 
     setJustUnpaused(false);
@@ -251,25 +196,4 @@ void playMenuExitSfx() {
 }
 void playErrorSfx() {
   playSfx(errorSource);
-}
-
-
-// Take in any source and create a sfx
-void createSfx(const char* file, ALuint sfx) {
-  
-  ALuint buffer = alutCreateBufferFromFile(file);
-  // Create Sfx Source
-  //alGenSources(1, &sfx);
-  alSourcei(sfx, AL_BUFFER, buffer);
-  alSourcei(sfx, AL_LOOPING, AL_FALSE); // AL_TRUE would make it loop
-}
-
-// Take in any source and play the sfx
-void playSfx(ALuint sfx) {
-  // Play the sound effect! (yes, that one)
-  alSourcePlay(sfx);
-  // Then check for errors
-  int error = alGetError();
-  if (error)
-      printf("%s\n", alutGetErrorString(error));
 }*/

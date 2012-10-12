@@ -6,6 +6,7 @@
  */
 #include "flatRender.h"
 #include "sfx.h"
+#include "music.h"
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
@@ -617,6 +618,8 @@ void renderLoop() {
   gameplayLoop();
   
   sfxLoop();
+  
+  musicLoop();
 
   /*if (timing) {
     gettimeofday(&tim, NULL);
@@ -740,8 +743,9 @@ void initFlat(int argc, char** argv) {
   // Setup all-cubes-of-any-form visuals 
   initVisuals();
 
-  // Then do the same for sound effects
+  // Then do the same for all audio
   initSfx(argc, argv);
+  initMusic(argc, argv);
   
   // standard initialization
   glutInit(&argc, argv);

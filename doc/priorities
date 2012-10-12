@@ -1,5 +1,8 @@
 Current priorities as of 10/7/12:
 
+V0V. Weirdness when player pauses while touching goal. Pausing should take priority.
+     Weirdness also transfers into next level?
+
 V000. Players flip back and forth erradically sitting on top of each other. Fix this
 
 V00. Multiplayer blocks caps and bottoms are culled based on P1 cam pos, fix this!

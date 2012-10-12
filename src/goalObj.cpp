@@ -26,6 +26,9 @@ void GoalObj::collisionEffect(CubeObj* c) {
     CubiorObj* temp = (CubiorObj*)c;
     int theNum = temp->getCubiorNum();
     nextLevelCountdown(theNum);
+
+    // And play sound
+    setJustExited(true);
   }
 }
 
