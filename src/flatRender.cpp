@@ -105,7 +105,7 @@ int getFPS() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  //cout << "FPS: " << getFPS() << endl;
+  cout << "FPS: " << getFPS() << endl;
   
   //int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
   /*
@@ -312,7 +312,7 @@ void displayFor(int player) {
   drawGoal();
   
   // Then draw all shadows in order of height!
-  drawAllShadows();
+  drawAllShadows(player);
   
   // Print pause menu
   if (getGameplayRunning()) {
@@ -336,7 +336,7 @@ void displayFor(int player) {
 }
 
 // Give shadows to everything!
-void drawAllShadows() {
+void drawAllShadows(int player) {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable( GL_BLEND );
 
@@ -344,7 +344,13 @@ void drawAllShadows() {
 		glDepthMask(GL_FALSE);
 		glEnable(GL_STENCIL_TEST);
     
-    for (int i=0; i<cubeNum; i++) { drawCubeShadow(i); }
+    for (int i=0; i<cubeNum; i++) {
+      // cubeWithinPlayerRange demonstrates noticeable improvements,
+      // castle level with 4player, sfx and music went from 7fps to 12.
+      if (cubeWithinPlayerRange(i,player)) {
+        drawCubeShadow(i); 
+      }
+    }
     for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
     drawGoalShadow();
     
@@ -518,6 +524,16 @@ void drawCube(int n, int player) {
     printf("drawCube nested time: %d\n",c4-c1);
     printf(".....drawCube end.....\n");
   }*/
+}
+
+// Gives whether cube is close enough to draw shadow
+bool cubeWithinPlayerRange(int n, int player) {
+  int playerRange = 3000;
+  return (
+    (abs(cubeX[n] - playerX[player]) < playerRange) &&
+    (abs(cubeY[n] - playerY[player]) < playerRange) &&
+    (abs(cubeZ[n] - playerZ[player]) < playerRange)
+    );
 }
 
 // Same as drawCube, but shadows separately
@@ -744,6 +760,7 @@ void initFlat(int argc, char** argv) {
   initVisuals();
 
   // Then do the same for all audio
+  // NOTE: Commenting out audio has no effect on lag.
   initSfx(argc, argv);
   initMusic(argc, argv);
   

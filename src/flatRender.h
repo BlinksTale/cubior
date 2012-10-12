@@ -13,7 +13,7 @@
     void initFlat(int, char**);
     void fillScreenWithShadow();
     void calcPlayer(int);
-    void drawAllShadows();
+    void drawAllShadows(int);
     void preDrawPlayer(int);
     float playerRotationMean(int);
     void postDrawPlayer(int);
@@ -22,6 +22,7 @@
     void drawPlayerShadow(int);
     void drawPlayerOutline(int);
     void drawCube(int,int);
+    bool cubeWithinPlayerRange(int,int);
     void drawCubeShadow(int);
     void drawCubeOutline(int);
     void drawGoal();
