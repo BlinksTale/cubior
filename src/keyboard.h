@@ -23,6 +23,8 @@
     void handleSpecialInput(int, bool);
     //void joystickDown(unsigned int, int, int, int);
     //void handleJoystickInput(unsigned int, bool);
+    void nextLevelPressed(bool);
+    void lastLevelPressed(bool);
 
     void setJump(int, bool);
     void setLock(int, bool);

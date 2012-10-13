@@ -69,6 +69,7 @@ bool joinButton[playerCount];
 bool fullscreenKey;
 bool levelShadowsKey;
 bool nextLevelKey;
+bool lastLevelKey;
 int lastPause = -1; // Last player to pause
 
 // keep track of angles for dir movement
@@ -296,6 +297,14 @@ void nextLevelPressed(bool b) {
 	}
 	nextLevelKey = b;
 }
+
+// Quick jump to last level
+void lastLevelPressed(bool b) {
+	if (!lastLevelKey && b) {
+		lastLevel();
+	}
+	lastLevelKey = b;
+}
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
 	switch(key) {
@@ -314,6 +323,7 @@ void handleInput(unsigned char key, bool newBool) {
 	case '4': playerJoin(3,newBool); break;
 		// Shift + '=' to jump ahead a level
 	case '+': nextLevelPressed(newBool); break;
+	case '_': lastLevelPressed(newBool); break;
 
 		// OLD PLAYER 1 CONTROLS 
 	case 'c': case 'C': setSuper(0,newBool); break;

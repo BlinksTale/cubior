@@ -32,6 +32,7 @@ void GoalShape::initGoalVisuals() {
   
   // fix default shadow status since goal
   defaultHasShadow = true;
+  directionalCulling = false;
 }
 
 void GoalShape::updateVisuals() {

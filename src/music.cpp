@@ -21,6 +21,8 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
+bool mute = true;
+bool lastMute = mute;
 
 // Setup for sound effects
 void initMusic(int argc, char** argv) {
@@ -33,11 +35,27 @@ void initMusic(int argc, char** argv) {
   music.setVolume(70);
 
   // And setup sound players
-  music.play();
+  if (!mute) { music.play(); }
 
 }
 
 // Main loop for sound effects, called once per cycle
 void musicLoop() {
+  // Just unmuted? Play!
+  if (!mute && lastMute) {
+    music.play();
+  }
 
+  // Finally, if needed, update lastMute
+  if (lastMute != mute) {
+    lastMute = mute;
+  }
+}
+
+void setMute(bool b) {
+  mute = b;
+}
+
+void toggleMute() {
+  mute = !mute;
 }

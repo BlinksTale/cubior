@@ -220,15 +220,23 @@ void nextLevelCountdown(int i) {
 
 // To load the next level
 void nextLevel() {
-  
+  loadLevel((currentLevel + 1) % totalLevels);
+}
+// To load the last level
+void lastLevel() {
+  loadLevel((currentLevel - 1 + totalLevels) % totalLevels);
+}
+
+// Moving to any level number
+void loadLevel(int levelNum) {
   // Finally moving on, reset the winner
   winner = -1;
   winningShot = false;
   
   // Set next level number
   changeLevel = true;
-  currentLevel = (currentLevel + 1) % totalLevels;
-
+  currentLevel = levelNum;
+  
   // Then load the appropriate level
   int n;
   char buffer[100];
@@ -1125,8 +1133,17 @@ CubiorObj* getPlayer(int i) { return &cubior[i]; }
 CubeObj* getCube() { return &cube[0]; }
 CubeObj* getCube(int i) { return &cube[i]; }
 GoalObj* getGoal() { return &goal; }
+// Total Cubiors that can be played
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
+// How many are in play total
+int getCubiorsPlayable() {
+  int results = 0;
+  for (int i=0; i<cubiorCount; i++) {
+    if (cubiorPlayable[i]) { results++; }
+  }
+  return results;
+}
 void setCubiorPlayable(int i, bool b) {
   resetCubior(i);
   cubiorPlayable[i] = b;

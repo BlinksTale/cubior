@@ -1,5 +1,8 @@
 Current priorities as of 10/7/12:
 
+VV. Somewhere between swap and time since last frame is a big lag source, 1/5 of the lag.
+    Other 4/5 are for display for player.
+
 V0V. Weirdness when player pauses while touching goal. Pausing should take priority.
      Weirdness also transfers into next level?
 

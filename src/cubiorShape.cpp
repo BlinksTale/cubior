@@ -65,6 +65,7 @@ void CubiorShape::initCubiorVisuals(int n) {
 
   // fix default shadow status since player
   defaultHasShadow = true;
+  directionalCulling = false;
 }
 
 void CubiorShape::updateCubiorVisuals(int n) {

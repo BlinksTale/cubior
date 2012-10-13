@@ -42,4 +42,8 @@
     void toggleFullscreen();
     void toggleLevelShadows();
 
+    // Time keeping
+    int getFPS();
+    int getTimePassed();
+
 #endif 

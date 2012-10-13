@@ -42,6 +42,8 @@ const int invisibleMax = 5;
     void gameplayStart(string);
     void nextLevelCountdown(int);
     void nextLevel();
+    void lastLevel();
+    void loadLevel(int);
     void gameplayLoop();
 
     // Looks for vertical walls or clearings along 1 dimension of player
@@ -85,6 +87,7 @@ const int invisibleMax = 5;
     CubeObj* getCube(int);
     const int getCubiorCount();
     bool getCubiorPlayable(int);
+    int getCubiorsPlayable();
     void setCubiorPlayable(int,bool);
     
     // Sfx triggers

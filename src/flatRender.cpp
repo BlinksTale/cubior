@@ -29,14 +29,16 @@
 #include <time.h> // for printing timestamps
 //#include <sys/time.h> // for linux time
 
+// Starting values that change often in testing
+bool fullscreen = false;
+bool drawOutlines = false;
+
 // Intended Frames Per Second do not change
 static const int FPS = 60;
 int windowWidth = 640;
 int windowHeight = 480;
 int oldWindowWidth = windowWidth;
 int oldWindowHeight = windowHeight;
-bool fullscreen = true;
-bool drawOutlines = false;
 // Whether to wait for idle to refresh, or force w/ timer
 static const bool refreshOnIdle = false; // works better, otherwise hangs when PC busy
 
@@ -84,6 +86,7 @@ int lastTime3 = 0;
 int lastTime4 = 0;
 int lastTime5 = 0;
 int lastClock = clock();
+int lastFrame = lastClock;
 int averageDiff = 0;
 
 // Goal object's visual
@@ -97,24 +100,24 @@ CameraObj* cameraPointer[cubiorNum];
 
 int getFPS() {
   int newClock = clock();
-  int newDiff = newClock - lastClock;
-  lastClock = newClock;
+  int newDiff = newClock - lastFrame;
+  lastFrame = newClock;
   averageDiff = averageDiff*0.9 + newDiff*0.1;
   return CLOCKS_PER_SEC/averageDiff; // wtf xD so lazy FIXME
 }
 
+// Time since last called
+int getTimePassed() {
+  int newClock = clock();
+  int newDiff = newClock - lastClock;
+  lastClock = newClock;
+  return newDiff;
+}
+
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  cout << "FPS: " << getFPS() << endl;
-  
-  //int dTime1, dTime2, dTtime3, dTime4, dTime5, dTime6;
-  /*
-  if (timing) {
-    printf("------------\n");
-    gettimeofday(&tim, NULL);
-    int dTime1 = (tim.tv_sec+(tim.tv_usec/1.0));
-    lastTime2 = dTime1;
-  }*/
+  cout << "FPS: \t" << getFPS() << endl;
+  //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);
   glViewport(0,0,windowWidth,windowHeight);
@@ -123,22 +126,15 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int dTime2 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("preppingScreen time: %d\n",dTime2-dTime1);
-  }*/
   
+  int cubiorsPlayable = getCubiorsPlayable();
+  
+  //cout << "Before the loop calls:  " << getTimePassed() << endl;
   // Draw all playing Cubior views
   for (int i=0; i<getCubiorCount(); i++) {
     
     if (getCubiorPlayable(i)) {
-      /*int cT1, cT2, cT3, cT4, cT5;
-      if (timing) {
-      printf("=====CUBIOR DRAW BEGIN=======\n");
-      gettimeofday(&tim, NULL);
-      int cT1 = (tim.tv_sec+(tim.tv_usec/1.0));
-      }*/
+      //cout << "To setup player " << i << ": \t" << getTimePassed() << endl;
       
       int w=i%2;
       int h=i>1?1:0;
@@ -149,24 +145,23 @@ void display() {
       int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
       int viewW = windowWidth*1/2;
       int viewH = windowHeight*1/2;
-
-      /*if (timing) {
-          gettimeofday(&tim, NULL);
-          int cT2 = (tim.tv_sec+(tim.tv_usec/1.0));
-          printf("prep Cubior time: %d\n",cT2-cT1);
-      }*/
   
-      // Now fill in empty space
-      if (!getCubiorPlayable(altX)
-        &&!getCubiorPlayable(altY)
-        &&!getCubiorPlayable(altXY)) {
+      //cout << "To init player " << i << ": \t" << getTimePassed() << endl;
 
+      // Now fill in empty space
+      //if (!getCubiorPlayable(altX)
+      //  &&!getCubiorPlayable(altY)
+      //  &&!getCubiorPlayable(altXY)) {
+      if (cubiorsPlayable == 1) {
         // All alone? Fill all the screen space!
         viewW *= 2;
         viewH *= 2;
         posX = 0;
         posY = 0;
         setPerspective(2,2);
+      } else if (cubiorsPlayable == 4) {
+        // Quick exit for 4player mode, run faster!
+        setPerspective(1,1);
       } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
         // Space Vertically? Fill the height
         viewH *= 2;
@@ -181,71 +176,44 @@ void display() {
         // Nothing abnormal! As you were
         setPerspective(1,1);
       }
+      //cout << "To fill space " << i << ": \t" << getTimePassed() << endl;
 
-      /*if (timing) {
-          gettimeofday(&tim, NULL);
-          int cT3 = (tim.tv_sec+(tim.tv_usec/1.0));
-          printf("splitscreen fill time: %d\n",cT3-cT2);
-      }*/
-  
       // Draw some player i
       glScissor(posX,posY,viewW,viewH);
+      //cout << "To scissor for " << i << ": \t" << getTimePassed() << endl;
+      
+      glViewport(posX, posY, viewW, viewH); // was 12 lag compared to normal 1 for player 0?
+      // might need some efficiency cleanup, FIXME
+      //cout << "To viewport for " << i << ": \t" << getTimePassed() << endl;
+      //cout << "All before disp " << i << ": \t" << getTimePassed() << endl;
 
-      /*if (timing) {
-          gettimeofday(&tim, NULL);
-          int cT4 = (tim.tv_sec+(tim.tv_usec/1.0));
-          printf("scissor time: %d\n",cT4-cT3);
-      }*/
-  
-      glViewport(posX, posY, viewW, viewH);
-
-      /*if (timing) {
-          gettimeofday(&tim, NULL);
-          int cT5 = (tim.tv_sec+(tim.tv_usec/1.0));
-          printf("viewport time: %d\n",cT5-cT4);
-      }*/
       displayFor(i);
-
-      /*if (timing) {
-          gettimeofday(&tim, NULL);
-          int cT6 = (tim.tv_sec+(tim.tv_usec/1.0));
-          printf("displayFor time: %d\n",cT6-cT5);
-      }*/
+      //cout << "To display for " << i << ": \t" << getTimePassed() << endl;
       
     }
-    
-    /*if (timing) {
-      printf("======CUBIOR DRAW END========\n");
-    }*/
   }
-
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("drawCubiors time: %d\n",dTime3-dTime2);
-  }*/
   
-  // End with a quick flush, to draw faster
-  glFlush();
-  glutSwapBuffers(); // because using double buffer, must swap buffers
+  //cout << "Player loop ended: \t" << getTimePassed() << endl;
 
-  /*if (timing) {
-    gettimeofday(&tim, NULL);
-    int dTime4 = (tim.tv_sec+(tim.tv_usec/1.0));
-    printf("totalDrawTime() time: %d\n",dTime4-dTime1);
-    printf("------------\n");
-  }*/
+  // End with a quick flush, to draw faster
+  // EDIT: No need for flush! This is only for when graphics card is on other side of the networks
+  //glFlush();
+  //cout << "Flush: \t\t\t" << getTimePassed() << endl;
+  glutSwapBuffers(); // because using double buffer, must swap buffers
+  //cout << "Swap: \t\t\t" << getTimePassed() << endl;
+  //cout << "End: \t\t\t" << getTimePassed() << endl;
 
 }
 
 // Draw an entire player's screen
 void displayFor(int player) {
+  //cout << "Display for " << player << ":    \t\t" << getTimePassed() << endl;
   
   // Paint background cyan to neon blue
-  glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f);
+  glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f); // do this here to allow black borders
   
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glMatrixMode(GL_MODELVIEW);
+  glMatrixMode(GL_MODELVIEW); // must set this here to undo silhouette's effects later
   glLoadIdentity();
   
   // Zoom camera out,
@@ -257,13 +225,16 @@ void displayFor(int player) {
   // then pull back and up to see cubes
   glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());
   
+  //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
   // Only try block culling if looking from close to the ground
   if (cameraPointer[player]->getMeanY() < playerY[player]+2000) {
+    //cout << "Near dist " << player << ":     \t\t" << getTimePassed() << endl;
     int backwardsDist = 500;
     int camAngleNow = ((int)cameraPointer[player]->getMeanAngleY() + 720 + 180 - 45) % 360;
     int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
     int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
     
+    //cout << "Setup it " << player << ":     \t\t" << getTimePassed() << endl;
     if (drawOutlines) {
       for (int i=0; i<cubeNum; i++) {
         // Only draw if it's in the range the camera will see
@@ -276,28 +247,37 @@ void displayFor(int player) {
         }
       }
     }
+    //cout << "Outlines " << player << ":      \t\t" << getTimePassed() << endl;
     
     for (int i=0; i<cubeNum; i++) {
+      //cout << "Start draw " << player << ":      \t\t\t" << getTimePassed() << endl;
       // Only draw if it's in the range the camera will see
-      int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
-      int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
+      //int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
+      //int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
       
-      if ((deltaX*camFacingX<backwardsDist)
-        &&(deltaZ*camFacingZ<backwardsDist)) {
+      //cout << "Mid draw " << player << ":      \t\t\t" << getTimePassed() << endl;
+      //if ((deltaX*camFacingX<backwardsDist)
+      //  &&(deltaZ*camFacingZ<backwardsDist)) {
         drawCube(i,player);
-      }
+      //}
+      //cout << "End draw " << player << ":      \t\t\t" << getTimePassed() << endl;
     }
+    //cout << "Draw cubes " << player << ":    \t\t" << getTimePassed() << endl;
   // So if far away, just draw cubes normally
   } else {
+    //cout << "Far away " << player << ":     \t\t" << getTimePassed() << endl;
     if (drawOutlines) {
       for (int i=0; i<cubeNum; i++) {
         drawCubeOutline(i);
       }
     }
+    //cout << "Outlines " << player << ":     \t\t" << getTimePassed() << endl;
     for (int i=0; i<cubeNum; i++) {
       drawCube(i,player);
     }
+    //cout << "Draw cubes " << player << ":     \t\t" << getTimePassed() << endl;
   }
+  //cout << "Middle half " << player << ":  \t\t" << getTimePassed() << endl;
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
   if (drawOutlines) {
@@ -306,6 +286,7 @@ void displayFor(int player) {
   for (int i=0; i<cubiorNum; i++) { drawPlayerSilhouette(i); }
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
   
+  //cout << "Last half " << player << ":     \t\t" << getTimePassed() << endl;
   // I lied, draw goal last since likely higher than player,
   // and this shows shadow secondarily
   if (drawOutlines) { drawGoalOutline(); }
@@ -333,6 +314,7 @@ void displayFor(int player) {
   // Commented out so that these values can easily be displayed again if necessary 
   // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
   
+  //cout << "Ending half " << player << ":  \t\t" << getTimePassed() << endl;
 }
 
 // Give shadows to everything!
@@ -491,39 +473,25 @@ void drawPlayerOutline(int n) {
 }
 
 void drawCube(int n, int player) {
-  // ALWAYS start by setting abovecam stat
-  cubeShape[n].setAboveCam(cubeY[n]-cameraPointer[player]->getMeanY()>0);
-          
-  int c1,c2,c3,c4,c5;
-  //if (timing) { gettimeofday(&tim, NULL); int c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-  glPushMatrix();
-  // Move player
-  glTranslatef(cubeX[n], cubeY[n], cubeZ[n]);
+  // ALWAYS start by setting relations to cam
+  // lets you skip drawing faces on opposite side from you
+  cubeShape[n].setRelationToCam(
+    cubeX[n]-cameraPointer[player]->getMeanX()>0,
+    cubeY[n]-cameraPointer[player]->getMeanY()>0,
+    cubeZ[n]-cameraPointer[player]->getMeanZ()>0
+    );
   
-  // And make player bigger
-  glScalef(100.0,100.0,100.0);
+  glPushMatrix();
 
-  //if (timing) { gettimeofday(&tim, NULL); int c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
+  // Position cube
+  glTranslated(cubeX[n], cubeY[n], cubeZ[n]);
+  
+  // And make cube bigger
+  glScaled(100,100,100);
 
-  //cubeShape[n].drawShadow();
   cubeShape[n].draw();
 
-  //if (timing) { gettimeofday(&tim, NULL); int c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
   glPopMatrix();
-
-  //if (timing) { gettimeofday(&tim, NULL); int c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-  
-  /*if (timing && c4-c1 > 200) {
-    printf(" %dth....drawCube number start....\n", n);
-    printf("prep time: %d\n",c2-c1);
-    printf("draw time: %d\n",c3-c2);
-    printf("popMatrix time: %d\n",c4-c3);
-    printf("drawCube nested time: %d\n",c4-c1);
-    printf(".....drawCube end.....\n");
-  }*/
 }
 
 // Gives whether cube is close enough to draw shadow

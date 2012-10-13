@@ -91,7 +91,10 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   shadowState = false;
   
   // extra wall culling
+  directionalCulling = true;
+  leftCam = false;
   aboveCam = false;
+  behindCam = false;
    
   /*std::cout << "rbg1: " << r1 << ", " << g1 << ", " << b1 << std::endl;
   std::cout << "rbg2: " << r2 << ", " << g2 << ", " << b2 << std::endl;
@@ -115,8 +118,10 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   //}
 }
 
-void CubeShape::setAboveCam(bool b) {
+void CubeShape::setRelationToCam(bool a, bool b, bool c) {
+  leftCam = a;
   aboveCam = b;
+  behindCam = c;
 }
 
 void CubeShape::updateVisuals() {
@@ -124,143 +129,7 @@ void CubeShape::updateVisuals() {
 }
 
 void CubeShape::draw() {
-
-//struct timeval tim;
-/*
-  int c1,c2,c3,c4,c5,c6,c7,c8,c9;
-  if (getTiming()) { gettimeofday(&tim, NULL); c1 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-  // make sure visuals are on the same page
-  updateVisuals();
-
-  if (getTiming()) { gettimeofday(&tim, NULL); c2 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-
-
-  if (getTiming()) { gettimeofday(&tim, NULL); c3 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-  if (!useNeighbors || !neighbors[5]) { // 5 must be back since 4 is front
-    // Draw Cubior, the cube!
-    // Back
-    glBegin(GL_TRIANGLES);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2);
-    glVertex3f( 0.5,-0.5,-0.5);
-    glColor3f(r1-0.2,g1-0.2,b1-0.2);
-    glVertex3f( 0.5, 0.5,-0.5);
-    glVertex3f(-0.5, 0.5,-0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f(-0.5, 0.5,-0.5);
-    glColor3f(r2-0.2,g2-0.2,b2-0.2);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glVertex3f( 0.5,-0.5,-0.5);
-    glEnd();
-
-    if (getTiming()) { gettimeofday(&tim, NULL); c4 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-}
-    if (!useNeighbors || !neighbors[3]) { // 3 is bottom since 2 is top
-    // Bottom
-    glColor3f(r2,g2,b2);
-    glBegin(GL_TRIANGLES);
-    glVertex3f(-0.5,-0.5, 0.5);
-    glVertex3f( 0.5,-0.5, 0.5);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f( 0.5,-0.5, 0.5);
-    glVertex3f( 0.5,-0.5,-0.5);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
-
-    if (getTiming()) { gettimeofday(&tim, NULL); c5 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-}
-    if (!useNeighbors || !neighbors[4]) { // 4 is front side
-    // Front
-    glBegin(GL_TRIANGLES);
-    glColor3f(r2,g2,b2); // can't guarantee it will exist above, since bottom may not be drawn
-    glVertex3f( 0.5,-0.5,0.5);
-    glVertex3f(-0.5,-0.5,0.5);
-    glColor3f(r1,g1,b1);
-    glVertex3f( 0.5, 0.5,0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f(-0.5, 0.5,0.5);
-    glVertex3f( 0.5, 0.5,0.5);
-    glColor3f(r2,g2,b2);
-    glVertex3f(-0.5,-0.5,0.5);
-    glEnd();
-
-    if (getTiming()) { gettimeofday(&tim, NULL); c6 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-}
-    if (!useNeighbors || !neighbors[0]) { // 0 is left
-    // Left
-    glBegin(GL_TRIANGLES);
-    glColor3f(r2,g2,b2);
-    glVertex3f( 0.5,-0.5,-0.5);
-    glVertex3f( 0.5,-0.5, 0.5);
-    glColor3f(r1,g1,b1);
-    glVertex3f( 0.5, 0.5,-0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f( 0.5, 0.5, 0.5);
-    glVertex3f( 0.5, 0.5,-0.5);
-    glColor3f(r2,g2,b2);
-    glVertex3f( 0.5,-0.5, 0.5);
-    glEnd();
-
-    if (getTiming()) { gettimeofday(&tim, NULL); c7 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-}
-    if (!useNeighbors || !neighbors[1]) { // 1 is right
-    // Right
-    glBegin(GL_TRIANGLES);
-    glColor3f(r2,g2,b2);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glColor3f(r1,g1,b1);
-    glVertex3f(-0.5, 0.5,-0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glColor3f(r2,g2,b2);
-    glVertex3f(-0.5,-0.5, 0.5);
-    glVertex3f(-0.5,-0.5,-0.5);
-    glEnd();
-
-    if (getTiming()) { gettimeofday(&tim, NULL); c8 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-}
-    if (!useNeighbors || !neighbors[2]) { // 2 is above
-    // Top
-    glColor3f(r3,g3,b3);
-    glBegin(GL_TRIANGLES);
-    glVertex3f( 0.5, 0.5,-0.5);
-    glVertex3f( 0.5, 0.5, 0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glEnd();
-    glBegin(GL_TRIANGLES);
-    glVertex3f( 0.5, 0.5,-0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glVertex3f(-0.5, 0.5,-0.5);
-    glEnd();
-}
-    if (getTiming()) { gettimeofday(&tim, NULL); c9 = (tim.tv_sec+(tim.tv_usec/1.0)); }
-
-if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
-  printf("INSIDE...\n");
-  printf("update Visuals: %d\n",c2-c1);
-  printf("set colors: %d\n",c3-c2);
-  printf("back: %d\n",c4-c3);
-  printf("bottom: %d\n",c5-c4);
-  printf("front: %d\n",c6-c5);
-  printf("left: %d\n",c7-c6);
-  printf("right: %d\n",c8-c7);
-  printf("top: %d\n",c9-c8);
-  printf("total: %d\n",c9-c1);
-}
-*/
-
+  
   // Did not want to have to make an array every draw,
   // but otherwise all the arrays meld into one,
   // and all turn the last color submitted -
@@ -276,31 +145,33 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
                       }; 
 
   // These code blocks modified from work on songho.ca
-  // don't need this if using color array glColor3f(r3,g3,b3);
   glEnableClientState(GL_COLOR_ARRAY);
   // activate and specify pointer to vertex array
   glEnableClientState(GL_VERTEX_ARRAY);
   glColorPointer(3, GL_FLOAT, 0, newColors);
   glVertexPointer(3, GL_FLOAT, 0, vertices);
 
-  // draw first half, range is 6 - 0 + 1 = 7 vertices used
+  // Draw faces
   for (int i=0; i<6; i++) {
-    //std::cout << "aboveCam " << aboveCam << " w/ i " << i << std::endl;
-    if ((!useNeighbors) || ((!neighbors[i]) // 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
-       // Plot twist! When the castle gets 17fps on average, this line below bumps it up to 20!
-       && (i!=3 || aboveCam) && (i!=2 || !aboveCam))) { // camera can't see top/bot of what's above/below it
-      /*switch(i) {
-        case 2: // top        
-          glColor3f(r3,g3,b3);
-          break;
-        case 5: // back         
-          glColor3f(r2-0.2,g2-0.2,b2-0.2);
-          break;
-        default:    
-          glColor3f(r1,g1,b1); // for the top verticies
-          //glColor3f(r2,g2,b2); // for the bottom verticies
-          break;
-      }*/
+    if (
+         (!useNeighbors) // either don't use neighbors, and draw everything!
+         || // or...
+         ( // if you do use neighbors, 
+           (!neighbors[i]) // If you don't have THIS neighbor
+           && // and...
+           ( // either
+             (!directionalCulling) // you don't use directional culling
+             || // or...
+             ( // You do, and...
+               (i!=0 ||   !leftCam) && (i!=1 || leftCam)   // camera can't see left/right of what's to the left/right of it
+            && (i!=2 ||  !aboveCam) && (i!=3 || aboveCam)  // camera can't see top/bot of what's above/below it
+            && (i!=4 || !behindCam) && (i!=5 || behindCam) // camera can't see back/front of what's in front of/behind it
+             // Get rid of faces on other side from you
+             // Each dimension recovers about 3fps
+             )
+           )
+         )
+       ) { // So draw that face!
       
       // Top is special
       if (i==2) {
@@ -309,11 +180,8 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
         // use a special color
         glColor3f(r3,g3,b3);
       }
-        // 0 to 3 means we only have four vertices used for each face
-        // 6 is the total points we create though from those four.
-        // indices+6*i is where we are looking, which face in indices
 
-       // Trying new drawElements approach
+      // Trying new drawElements approach
       // used to be DrawRangeElements, but Windows didn't like that. Using drawElements now... is this more inefficient?
       //glDrawRangeElements(GL_TRIANGLES, 0, 3, 6, GL_UNSIGNED_BYTE, indices+6*i);
       glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, indices+6*i);
@@ -325,11 +193,6 @@ if (getTiming() && 100<(c9-c1)) {//(c9 - c1 > 100) {
       }
     }
   }
-  // draw first half, range is 6 - 0 + 1 = 7 vertices used
-  //glDrawRangeElements(GL_TRIANGLES, 0, 6, 18, GL_UNSIGNED_BYTE, indices);
-
-  // draw second half, range is 7 - 1 + 1 = 7 vertices used
-  //glDrawRangeElements(GL_TRIANGLES, 1, 7, 18, GL_UNSIGNED_BYTE, indices+18);
 
   // deactivate vertex arrays after drawing
   glDisableClientState(GL_VERTEX_ARRAY);
