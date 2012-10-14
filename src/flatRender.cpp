@@ -132,7 +132,7 @@ int getTimePassed() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  //cout << "FPS: \t" << getFPS() << endl;
+  cout << "FPS: \t" << getFPS() << endl;
   //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);
@@ -724,10 +724,11 @@ void initVisuals() {
       }
       // Alright, now find that face. There are 36 indices per cube, so 36*988 cubes = 35568 indices total
       for (int face=0; face<6; face++) {
-        if (cubeShape[i].hasFace(face)) {
+        if (cubeShape[i].hasFace(face) && face != 2) {
           // Add all 6 indices for that face
           for (int vertex=0; vertex<6; vertex++) {
             // in the index for that face + that vertex, put the index from that face and vertex for that cube
+            // the 8 at the end is since we are using all 8 vertices every time
             superIndices[facesVisible*6+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8;
           }
           // And remember that we've added a face
@@ -759,7 +760,8 @@ void initVisuals() {
       }
       // Get indices // INDICES ARE... NOT ALWAYS WORKING?
       for (int vertex=0; vertex<6; vertex++) {
-        topIndices[topFacesVisible*6+vertex] = tempTopIndices[vertex] + topFacesVisible*6;
+        // the 4 at the end is because we only use four vertices total for every face
+        topIndices[topFacesVisible*6+vertex] = tempTopIndices[vertex] + topFacesVisible*4;
         //cout << "Now topIndices[" << topFacesVisible*6+vertex << "] holds " << topIndices[topFacesVisible*6+vertex] << endl;
       }
       topFacesVisible++;
