@@ -1,20 +1,18 @@
 Current priorities as of 10/7/12:
 
-VV. Somewhere between swap and time since last frame is a big lag source, 1/5 of the lag.
-    Other 4/5 are for display for player.
+V. On the sixth level transition, you fall through the floor (when using Shift + Plus or Shift + Minus)
+     Same effect when going through levels normally, since going into room 6 will break the game (using goals even!)
 
-V0V. Weirdness when player pauses while touching goal. Pausing should take priority.
+0V. Weirdness when player pauses while touching goal. Pausing should take priority.
      Weirdness also transfers into next level?
 
-V000. Players flip back and forth erradically sitting on top of each other. Fix this
+000. Players flip back and forth erradically sitting on top of each other. Fix this
 
-V00. Multiplayer blocks caps and bottoms are culled based on P1 cam pos, fix this!
-
-V0. Huge error, there are a set of blocks on the far Z side where if one player
+00. Huge error, there are a set of blocks on the far Z side where if one player
     collides into another on the ground floor, they'll fall through the blocks.
     This is what the daughters of the alumni were reporting at the LMU showing
 
-0V. Looks like wall angle shots are messing things up again: don't let the
+0. Looks like wall angle shots are messing things up again: don't let the
     camera rotate while you're jumping!
 
 1. And what is that funkiness on the right front corner of the first pile in room 3?

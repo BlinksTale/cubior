@@ -120,14 +120,15 @@ void resetCubior(int i) {
 // Load in a level and set it up
 void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
-
     // First wipe the current map
     wipeCurrentMap(permanentMap);
     // And reset goal glow
     goal.setGlow(false);
 
     // Then read in a new map
-    levelMap = MapReader::readMap(levelToLoad);
+    delete levelMap; // aaand now this works! Earlier it broke everything, but no more!
+    // and thus the memory leak was vanquished, and it was good.
+    levelMap = MapReader::readMap(levelToLoad); // now load that level!
     currentMapWidth = levelMap->getWidth();
     currentMapHeight= levelMap->getHeight();
     currentMapDepth = levelMap->getDepth();
@@ -175,7 +176,7 @@ void gameplayStart(string levelToLoad) {
     
     // Then the goal
     goal.setPos(000,levelMap->getGoalHeight(),levelMap->getGoalDepth());
-
+    
     // Then populate permamap
     // ... with permanent Cubes
     for (int i = 0; i<cubeCount; i++) {
