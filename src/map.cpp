@@ -32,7 +32,21 @@ void Map::addCube(CubeObj* cube, int w, int h, int d) {
 }
 
 void Map::removeCubeAt(int w, int h, int d) {
-  map[w][h][d] = 0;
+  delete map[w][h][d];
+}
+
+void Map::wipeMap() {
+  // Have some size first
+  if (width>0 && height>0 && depth>0) {
+    // Then delete contents in all slots
+    for (int w=0; w<width; w++) {
+      for (int h=0; h<height; h++) {
+        for (int d=0; d<depth; d++) {
+          removeCubeAt(w,h,d);
+        }
+      }
+    }
+  }
 }
 
 void Map::setWidth(int n) { width = n; }

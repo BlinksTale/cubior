@@ -13,6 +13,7 @@
 #include "collision.h"
 #include "mapReader.h"
 #include "flatRender.h"
+#include "music.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -125,9 +126,11 @@ void gameplayStart(string levelToLoad) {
     // And reset goal glow
     goal.setGlow(false);
 
-    // Then read in a new map
+    // First, get rid of any old map data
+    levelMap->wipeMap();
     delete levelMap; // aaand now this works! Earlier it broke everything, but no more!
     // and thus the memory leak was vanquished, and it was good.
+    // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad); // now load that level!
     currentMapWidth = levelMap->getWidth();
     currentMapHeight= levelMap->getHeight();
@@ -1087,6 +1090,8 @@ void wipeCurrentMap(CubeObj* map[][maxHeight][maxDepth]){
   for (int b=0; b<currentMapHeight;b++) {
   for (int c=0; c<currentMapDepth; c++) {
     if (map[a][b][c] != NULL) {
+      // FIXME: Can't delete this? Memory leak caused because of it?
+      //delete map[a][b][c];
       map[a][b][c] = NULL;
     }
   } } }
@@ -1198,7 +1203,9 @@ void switchFullscreen() {
 }
 
 void switchLevelShadows() {
-  toggleLevelShadows();
+  //toggleLevelShadows();
+  // HIJACKED! Used for songs atm for Rolando demo
+  nextSong();
 }
 
 // Find if cube n is the last down (no shadow)

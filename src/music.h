@@ -18,6 +18,8 @@
 
   void initMusic(int, char**);
   void musicLoop();
+  void playSong(int);
+  void nextSong();
   void setMute(bool);
   void toggleMute();
 

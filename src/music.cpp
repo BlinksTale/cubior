@@ -21,22 +21,29 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = true;
+bool mute = false;
 bool lastMute = mute;
+
+// List of songs
+string songs[] = { "./music/Waterflame_MakeARunForIt.ogg",
+                   "./music/Waterflame_Cats.ogg",
+                   "./music/Waterflame_Orange.ogg"};
+int songCount = 3;
+int currentSong = 0;
 
 // Setup for sound effects
 void initMusic(int argc, char** argv) {
-  
+  playSong(currentSong);
+}
+
+void playSong(int i) {
   // Load sounds into buffers
-  music.openFromFile("./music/Waterflame_Orange.ogg");
-  //music.openFromFile("./music/Waterflame_MakeARunForIt.ogg");
-  //music.openFromFile("./music/Waterflame_Cats.ogg");
+  music.openFromFile(songs[i]);
   music.setLoop(true);
   music.setVolume(70);
-
+  
   // And setup sound players
   if (!mute) { music.play(); }
-
 }
 
 // Main loop for sound effects, called once per cycle
@@ -58,4 +65,20 @@ void setMute(bool b) {
 
 void toggleMute() {
   mute = !mute;
+}
+
+void nextSong() {
+  // Push song up past song count, but if already there, loop
+  if (currentSong == songCount) {
+    currentSong = 0;
+  } else {
+    currentSong++;
+  }
+  // If past song count (or equal to it) play no music
+  // Otherwise, start the next song!
+  if (currentSong == songCount) {
+    music.stop();
+  } else {
+    playSong(currentSong);
+  }
 }
