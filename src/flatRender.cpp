@@ -711,7 +711,7 @@ void initVisuals() {
     cubeShape[i].permanentPosition(cubeX[i], cubeY[i], cubeZ[i]);
     
     // If even one face is visible, include the cube's vertices
-    if (true) {//cubeShape[i].hasVisibleFace()) {
+    if (cubeShape[i].hasVisibleFace()) {
       //cout << "Now on cube " << i << " with cubesVisible = " << cubesVisible << endl;
       // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
       for (int vertex=0; vertex<24; vertex++) {
@@ -725,7 +725,7 @@ void initVisuals() {
       }
       // Alright, now find that face. There are 36 indices per cube, so 36*988 cubes = 35568 indices total
       for (int face=0; face<6; face++) {
-        if (true) {//cubeShape[i].hasFace(face)) {
+        if (cubeShape[i].hasFace(face)) {
           // Add all 6 indices for that face
           for (int vertex=0; vertex<6; vertex++) {
             // in the index for that face + that vertex, put the index from that face and vertex for that cube
