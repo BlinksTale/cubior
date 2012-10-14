@@ -1085,7 +1085,9 @@ void wipeCurrentMap(CubeObj* map[][maxHeight][maxDepth]){
   for (int a=0; a<currentMapWidth; a++) {
   for (int b=0; b<currentMapHeight;b++) {
   for (int c=0; c<currentMapDepth; c++) {
-     map[a][b][c] = NULL;
+    if (map[a][b][c] != NULL) {
+      map[a][b][c] = NULL;
+    }
   } } }
 }
 

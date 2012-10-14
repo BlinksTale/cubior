@@ -61,15 +61,25 @@ GLubyte indices[]  = { // counterclockwise draws forward
                        // Bottom
                        3, 7, 2, // lower front right
                        6, 2, 7, // lower rear left
-
-                      // 0,0,0,0,0,0,
-                      // 0,0,0,0,0,0,                       // Front
+                       // Front
                        0, 1, 2, // front upper left  
                        2, 1, 3, // front lower right 
                        // Back
                        4, 6, 5, // rear upper left
                        7, 5, 6 // rear lower right
                      }; 
+
+GLubyte CubeShape::getIndex(int i) {
+  return indices[i];
+}
+
+GLfloat CubeShape::getVertex(int i) {
+  return myVertices[i];
+}
+
+GLfloat CubeShape::getColor(int i) {
+  return myColors[i];
+}
 
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarkness, bool alt, bool mid) {
   midFloor = mid;
@@ -85,11 +95,30 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   r3 = nR2 - altDark;
   g3 = nG2 - altDark;
   b3 = nB2 - altDark;
+
+  // Did not want to have to make an array every draw,
+  // but otherwise all the arrays meld into one,
+  // and all turn the last color submitted -
+  // red for the goal. So here we are!
+  GLfloat newColors[] = { r1, g1, b1, // front top left
+                        r1, g1, b1, // front top right
+                        r2, g2, b2, // front bottom left
+                        r2, g2, b2, // front bottom right
+                        r1, g1, b1, // back top left
+                        r1, g1, b1, // back top right
+                        r2, g2, b2, // back bottom left
+                        r2, g2, b2  // back bottom right
+                      }; 
+
+  for (int i=0; i<24; i++) {
+    myColors[i] = newColors[i];
+  }
   
   // default shadow status is no
   defaultHasShadow = false;
   shadowState = false;
-  
+  hasShadowResult = (shadowState || defaultHasShadow);
+
   // extra wall culling
   directionalCulling = true;
   leftCam = false;
@@ -116,6 +145,9 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
           glColor3f(r1,g1,b1); // for the top verticies*/
   //for (int i=0; i<24; i++) {
   //}
+  for (int i=0; i<24; i++) {
+    myVertices[i] = vertices[i];
+  }
 }
 
 void CubeShape::setRelationToCam(bool a, bool b, bool c) {
@@ -130,29 +162,28 @@ void CubeShape::updateVisuals() {
 
 void CubeShape::draw() {
   
-  // Did not want to have to make an array every draw,
-  // but otherwise all the arrays meld into one,
-  // and all turn the last color submitted -
-  // red for the goal. So here we are!
-  GLfloat newColors[] = { r1, g1, b1, // front top left
-                        r1, g1, b1, // front top right
-                        r2, g2, b2, // front bottom left
-                        r2, g2, b2, // front bottom right
-                        r1, g1, b1, // back top left
-                        r1, g1, b1, // back top right
-                        r2, g2, b2, // back bottom left
-                        r2, g2, b2  // back bottom right
-                      }; 
+  // specify pointer to vertex array
+  glColorPointer(3, GL_FLOAT, 0, myColors);
+  glVertexPointer(3, GL_FLOAT, 0, myVertices);
+  
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
+}
 
-  // These code blocks modified from work on songho.ca
-  glEnableClientState(GL_COLOR_ARRAY);
-  // activate and specify pointer to vertex array
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glColorPointer(3, GL_FLOAT, 0, newColors);
-  glVertexPointer(3, GL_FLOAT, 0, vertices);
+// This lets you skip transforms for unmoving objects later, and scaling!
+void CubeShape::permanentPosition(int x, int y, int z) {
+  for (int i=0; i<8; i++) {
 
-  // Draw faces
-  for (int i=0; i<6; i++) {
+    //std::cout << " Just merged " << vertices[i*3+0]*100 << ", " << vertices[i*3+1]*100 << ", " << vertices[i*3+2]*100;
+    //std::cout << " with " << x << ", " << y << ", " << z;
+    myVertices[i*3+0] = vertices[i*3+0]*100+x;//(vertices[i*3+0] + x);
+    myVertices[i*3+1] = vertices[i*3+1]*100+y;//(vertices[i*3+1] + y);
+    myVertices[i*3+2] = vertices[i*3+2]*100+z;//(vertices[i*3+2] + z);
+    //std::cout << " to get " << myVertices[i*3+0] << ", " << myVertices[i*3+1] << ", " << myVertices[i*3+2] << std::endl;
+  }
+}
+
+// OLD Draw faces TECHNIQUE KEPT AROUND JUST IN CASE
+  /*for (int i=0; i<6; i++) {
     if (
          (!useNeighbors) // either don't use neighbors, and draw everything!
          || // or...
@@ -192,13 +223,8 @@ void CubeShape::draw() {
         glEnableClientState(GL_COLOR_ARRAY);
       }
     }
-  }
-
-  // deactivate vertex arrays after drawing
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_COLOR_ARRAY);
-}
-
+  }*/
+  
 // Grabs your rgb1 colors and makes a dark version of yourself
 // Perfect for walking behind walls, but player identification
 void CubeShape::drawSilhouette() {
@@ -247,7 +273,7 @@ void CubeShape::drawOutlineVolume() {
   glScalef(1.1,1.1,1.1);
   // These code blocks modified from work on songho.ca
   // activate and specify pointer to vertex array
-  glEnableClientState(GL_VERTEX_ARRAY);
+  //glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, 0, vertices);
 
   // draw first half, range is 6 - 0 + 1 = 7 vertices used
@@ -261,7 +287,7 @@ void CubeShape::drawOutlineVolume() {
   }
 
   // deactivate vertex arrays after drawing
-  glDisableClientState(GL_VERTEX_ARRAY);
+  //glDisableClientState(GL_VERTEX_ARRAY);
   glPopMatrix();
 }
 
@@ -331,9 +357,22 @@ void CubeShape::drawShadowVolume() {
 
 // Only have a shadow if no lower neighbor
 bool CubeShape::hasShadow() {
-  return (shadowState || defaultHasShadow);
+  return hasShadowResult;
+}
+
+bool CubeShape::hasFace(int i) {
+  return !neighbors[i];
+}
+
+bool CubeShape::hasVisibleFace() {
+  bool result;
+  for (int i=0; i<6; i++) {
+    result = result || (!neighbors[i]);
+  }
+  return result;
 }
 
 void CubeShape::setShadow(bool b) {
   shadowState = b;
+  hasShadowResult = (shadowState || defaultHasShadow);
 }

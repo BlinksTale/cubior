@@ -21,6 +21,7 @@
     void drawPlayerSilhouette(int);
     void drawPlayerShadow(int);
     void drawPlayerOutline(int);
+    void drawAllCubes(int);
     void drawCube(int,int);
     bool cubeWithinPlayerRange(int,int);
     void drawCubeShadow(int);

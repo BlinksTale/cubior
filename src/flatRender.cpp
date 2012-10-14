@@ -49,6 +49,10 @@ int cubeNum;
 char pausedText[50];
 bool levelShadows = true;
 
+// Map drawing stuff for faster drawing
+const int cubesCovered = 11000;//maxCubeCount;
+GLuint betterIndices[36*cubesCovered];
+
 // angle of cubior while he rotates
 static float playerAngleNumerator[cubiorNum];
 static float playerAngleDivisor[cubiorNum];
@@ -94,6 +98,17 @@ GoalShape goalShape;
 static GLfloat goalX;
 static GLfloat goalY;
 static GLfloat goalZ;
+
+// All vertices and indices for permanent cube shapes
+int cubesVisible = 0; // how many cubes we'll reference
+int facesVisible = 0; // how many cube faces we'll actually draw
+GLuint superIndices[maxCubeCount*24];
+GLfloat superVertices[maxCubeCount*24];
+GLfloat superColors[maxCubeCount*24];
+
+GLfloat topIndices[maxCubeCount*6];
+GLfloat topVertices[maxCubeCount*6];
+GLfloat topColors[maxCubeCount*6];
 
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
@@ -226,57 +241,8 @@ void displayFor(int player) {
   glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());
   
   //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
-  // Only try block culling if looking from close to the ground
-  if (cameraPointer[player]->getMeanY() < playerY[player]+2000) {
-    //cout << "Near dist " << player << ":     \t\t" << getTimePassed() << endl;
-    int backwardsDist = 500;
-    int camAngleNow = ((int)cameraPointer[player]->getMeanAngleY() + 720 + 180 - 45) % 360;
-    int camFacingX = (camAngleNow < 180 || camAngleNow > 270)*(1)+(-1)*(camAngleNow > 90 || camAngleNow < 0);
-    int camFacingZ = (camAngleNow > 270 && camAngleNow < 360)*(-1)+(1)*(camAngleNow < 180 && camAngleNow > 90);
-    
-    //cout << "Setup it " << player << ":     \t\t" << getTimePassed() << endl;
-    if (drawOutlines) {
-      for (int i=0; i<cubeNum; i++) {
-        // Only draw if it's in the range the camera will see
-        int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
-        int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
+  drawAllCubes(player);
 
-        if ((deltaX*camFacingX<backwardsDist)
-          &&(deltaZ*camFacingZ<backwardsDist)) {
-          drawCubeOutline(i);
-        }
-      }
-    }
-    //cout << "Outlines " << player << ":      \t\t" << getTimePassed() << endl;
-    
-    for (int i=0; i<cubeNum; i++) {
-      //cout << "Start draw " << player << ":      \t\t\t" << getTimePassed() << endl;
-      // Only draw if it's in the range the camera will see
-      //int deltaX = cameraPointer[player]->getMeanX() - cubeX[i];
-      //int deltaZ = -cameraPointer[player]->getMeanZ() + cubeZ[i]; // Oddly, must be negated to work
-      
-      //cout << "Mid draw " << player << ":      \t\t\t" << getTimePassed() << endl;
-      //if ((deltaX*camFacingX<backwardsDist)
-      //  &&(deltaZ*camFacingZ<backwardsDist)) {
-        drawCube(i,player);
-      //}
-      //cout << "End draw " << player << ":      \t\t\t" << getTimePassed() << endl;
-    }
-    //cout << "Draw cubes " << player << ":    \t\t" << getTimePassed() << endl;
-  // So if far away, just draw cubes normally
-  } else {
-    //cout << "Far away " << player << ":     \t\t" << getTimePassed() << endl;
-    if (drawOutlines) {
-      for (int i=0; i<cubeNum; i++) {
-        drawCubeOutline(i);
-      }
-    }
-    //cout << "Outlines " << player << ":     \t\t" << getTimePassed() << endl;
-    for (int i=0; i<cubeNum; i++) {
-      drawCube(i,player);
-    }
-    //cout << "Draw cubes " << player << ":     \t\t" << getTimePassed() << endl;
-  }
   //cout << "Middle half " << player << ":  \t\t" << getTimePassed() << endl;
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
@@ -284,13 +250,25 @@ void displayFor(int player) {
     for (int i=0; i<cubiorNum; i++) { drawPlayerOutline(i); }
   }
   for (int i=0; i<cubiorNum; i++) { drawPlayerSilhouette(i); }
+    // These code blocks modified from work on songho.ca
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
   for (int i=0; i<cubiorNum; i++) { drawPlayer(i); }
+    // deactivate vertex arrays after drawing
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
   
   //cout << "Last half " << player << ":     \t\t" << getTimePassed() << endl;
   // I lied, draw goal last since likely higher than player,
   // and this shows shadow secondarily
   if (drawOutlines) { drawGoalOutline(); }
+    // These code blocks modified from work on songho.ca
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
   drawGoal();
+    // deactivate vertex arrays after drawing
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
   
   // Then draw all shadows in order of height!
   drawAllShadows(player);
@@ -472,36 +450,53 @@ void drawPlayerOutline(int n) {
   }
 }
 
+// Call drawCube for as many times as there are cubes
+void drawAllCubes(int player) {
+  
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_INDEX_ARRAY);
+    
+    // specify pointer to vertex array
+    glColorPointer(3, GL_FLOAT, 0, superColors);
+    glVertexPointer(3, GL_FLOAT, 0, superVertices);
+
+    glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
+  
+    // Yeah, this one still has problems, even though some forum member recommended it more
+    // http://www.gamedev.net/topic/562194-gldrawelementsarrays-crash/
+    //glIndexPointer(GL_UNSIGNED_INT, 0, superIndices);
+    //glDrawArrays(GL_TRIANGLES, 0, 36*cubesCovered);
+    //glDisableClientState(GL_INDEX_ARRAY);
+  
+    // deactivate vertex arrays after drawing
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+}
+
 void drawCube(int n, int player) {
   // ALWAYS start by setting relations to cam
   // lets you skip drawing faces on opposite side from you
-  cubeShape[n].setRelationToCam(
+  /*cubeShape[n].setRelationToCam(
     cubeX[n]-cameraPointer[player]->getMeanX()>0,
     cubeY[n]-cameraPointer[player]->getMeanY()>0,
     cubeZ[n]-cameraPointer[player]->getMeanZ()>0
-    );
-  
-  glPushMatrix();
-
-  // Position cube
-  glTranslated(cubeX[n], cubeY[n], cubeZ[n]);
-  
-  // And make cube bigger
-  glScaled(100,100,100);
-
+    );*/
   cubeShape[n].draw();
-
-  glPopMatrix();
 }
 
 // Gives whether cube is close enough to draw shadow
 bool cubeWithinPlayerRange(int n, int player) {
   int playerRange = 3000;
-  return (
-    (abs(cubeX[n] - playerX[player]) < playerRange) &&
-    (abs(cubeY[n] - playerY[player]) < playerRange) &&
-    (abs(cubeZ[n] - playerZ[player]) < playerRange)
-    );
+  // This is getting higher lag reports on AMD Code Analyst,
+  // but not sure how to improve on it.
+  int deltaX = abs(cubeX[n] - playerX[player]);
+  int deltaY = abs(cubeY[n] - playerY[player]);
+  int deltaZ = abs(cubeZ[n] - playerZ[player]);
+  bool outtaX = (deltaX < playerRange);
+  bool outtaY = (deltaY < playerRange);
+  bool outtaZ = (deltaZ < playerRange);
+  return (outtaX && outtaY && outtaZ);
 }
 
 // Same as drawCube, but shadows separately
@@ -677,6 +672,10 @@ void initVisuals() {
 
   // Get the Cube count
   cubeNum = getCubeCount();
+  
+  //Reset!
+  cubesVisible = 0;
+  facesVisible = 0;
 
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
@@ -709,7 +708,49 @@ void initVisuals() {
     }
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
     cubeShape[i].setShadow(getShadow(i));
+    cubeShape[i].permanentPosition(cubeX[i], cubeY[i], cubeZ[i]);
+    
+    // If even one face is visible, include the cube's vertices
+    if (true) {//cubeShape[i].hasVisibleFace()) {
+      //cout << "Now on cube " << i << " with cubesVisible = " << cubesVisible << endl;
+      // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
+      for (int vertex=0; vertex<24; vertex++) {
+        if (vertex<6) { topVertices[cubesVisible*6+vertex] = cubeShape[i].getVertex(vertex); }
+        if (vertex<6) { topColors[cubesVisible*6+vertex] = cubeShape[i].getColor(vertex); }
+        superVertices[cubesVisible*24+vertex] = cubeShape[i].getVertex(vertex);
+        superColors[cubesVisible*24+vertex] = cubeShape[i].getColor(vertex);
+      //cout << "cubesVisible = " << cubesVisible << " so we are looking at slot " << cubesVisible*24 << " + " << vertex << " = " << cubesVisible*24+vertex << endl;
+      //cout << "cubeShape[" << i << "].getVertex(" << vertex << ") = " <<  cubeShape[i].getVertex(vertex) << endl;
+      //cout << "superVertex " << cubesVisible*24+vertex << " = " << superVertices[cubesVisible*24+vertex] << endl;
+      }
+      // Alright, now find that face. There are 36 indices per cube, so 36*988 cubes = 35568 indices total
+      for (int face=0; face<6; face++) {
+        if (true) {//cubeShape[i].hasFace(face)) {
+          // Add all 6 indices for that face
+          for (int vertex=0; vertex<6; vertex++) {
+            // in the index for that face + that vertex, put the index from that face and vertex for that cube
+            superIndices[facesVisible*6+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8;
+            if (face==0) { topIndices[facesVisible+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8; } // not sure if I should keep cubesVisible*8 or not
+            //cout << "facesVisible = " << facesVisible << endl;
+            //cout << "superIndex[" << facesVisible*6+vertex << "] just set to " << cubeShape[i].getIndex(face*6+vertex) + cubesVisible*24;
+            //cout << " which is " << superVertices[superIndices[facesVisible*6+vertex]*3+0] << ", "  << superVertices[superIndices[facesVisible*6+vertex]*3+1] << ", "  << superVertices[superIndices[facesVisible*6+vertex]*3+2] << endl;
+          }
+          // And remember that we've added a face
+          facesVisible++;
+        }
+      }
+      // And remember the cube we added too
+      cubesVisible++;
+    }
   }
+  /*
+  for (int i=0; i<1+988*24; i++) {
+    cout << "superVertex[" << i << "] is " << superVertices[i] << endl;
+  }
+  for (int i=0; i<36*988+1; i++) {
+    cout << "superIndex[" << i << "] is " << superIndices[i]; // what's stored in superIndices[i] only uses 8 spots but jumps by 36 every new cube
+    cout << " which points to " << superVertices[superIndices[i]*3+0] << ", "  << superVertices[superIndices[i]*3+1] << ", "  << superVertices[superIndices[i]*3+2] << endl;
+  }*/
 
   // Initialize Goal Visual Vals
   goalX = 0.0;
