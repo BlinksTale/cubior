@@ -269,13 +269,7 @@ void displayFor(int player) {
   // I lied, draw goal last since likely higher than player,
   // and this shows shadow secondarily
   if (drawOutlines) { drawGoalOutline(); }
-    // These code blocks modified from work on songho.ca
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
   drawGoal();
-    // deactivate vertex arrays after drawing
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
   
   // Then draw all shadows in order of height!
   drawAllShadows(player);
@@ -314,6 +308,7 @@ void drawAllShadows(int player) {
     for (int i=0; i<cubeNum; i++) {
       // cubeWithinPlayerRange demonstrates noticeable improvements,
       // castle level with 4player, sfx and music went from 7fps to 12.
+      // now goes from 24 to 35fps! Wow!
       if (cubeWithinPlayerRange(i,player)) {
         drawCubeShadow(i); 
       }

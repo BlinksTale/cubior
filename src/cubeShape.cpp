@@ -100,10 +100,7 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   g3 = nG2 - altDark;
   b3 = nB2 - altDark;
 
-  // Did not want to have to make an array every draw,
-  // but otherwise all the arrays meld into one,
-  // and all turn the last color submitted -
-  // red for the goal. So here we are!
+  // Can just make a new array and transfer contents into myColors
   GLfloat newColors[] = { r1, g1, b1, // front top left
                         r1, g1, b1, // front top right
                         r2, g2, b2, // front bottom left
@@ -125,9 +122,7 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   }
 
   // default shadow status is no
-  defaultHasShadow = false;
   shadowState = false;
-  hasShadowResult = (shadowState || defaultHasShadow);
 
   // extra wall culling
   directionalCulling = true;
@@ -167,7 +162,29 @@ void CubeShape::setRelationToCam(bool a, bool b, bool c) {
 }
 
 void CubeShape::updateVisuals() {
-  // This handles colors and face smile for Cubiors, but nothing for Cubes yet
+  // Make sure colors are up to date!
+
+  // Can just make a new array and transfer contents into myColors
+  GLfloat newColors[] = { r1, g1, b1, // front top left
+                        r1, g1, b1, // front top right
+                        r2, g2, b2, // front bottom left
+                        r2, g2, b2, // front bottom right
+                        r1, g1, b1, // back top left
+                        r1, g1, b1, // back top right
+                        r2, g2, b2, // back bottom left
+                        r2, g2, b2  // back bottom right
+                      }; 
+
+  for (int i=0; i<24; i++) {
+    myColors[i] = newColors[i];
+  }
+  
+  // And assign top colors
+  GLfloat newTopColors[] = { r3, g3, b3, r3, g3, b3, r3, g3, b3, r3, g3, b3 }; // all top corners
+  for (int i=0; i<12; i++) {
+    topColors[i] = newTopColors[i];
+  }
+
 }
 
 void CubeShape::draw() {
@@ -311,7 +328,7 @@ void CubeShape::setNeighbors(bool newNeighbors[6]) {
 // using a hackey shadow volumes technique, create our
 // own tall cube beneath main cube shadow volumes.
 void CubeShape::drawShadow() {
-  if (hasShadow()) {
+  if (shadowState) {
     glCullFace(GL_FRONT);
     glStencilFunc(GL_ALWAYS, 0x0, 0xff);
     glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
@@ -367,7 +384,7 @@ void CubeShape::drawShadowVolume() {
 
 // Only have a shadow if no lower neighbor
 bool CubeShape::hasShadow() {
-  return hasShadowResult;
+  return shadowState;
 }
 
 bool CubeShape::hasFace(int i) {
@@ -375,7 +392,7 @@ bool CubeShape::hasFace(int i) {
 }
 
 bool CubeShape::hasVisibleFace() {
-  bool result;
+  bool result = false;
   for (int i=0; i<6; i++) {
     result = result || (!neighbors[i]);
   }
@@ -384,5 +401,4 @@ bool CubeShape::hasVisibleFace() {
 
 void CubeShape::setShadow(bool b) {
   shadowState = b;
-  hasShadowResult = (shadowState || defaultHasShadow);
 }

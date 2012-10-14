@@ -17,7 +17,7 @@ class CubeShape {
   
   protected:
     bool alternatingSpot, midFloor; // for tile color and sides drawn
-    bool defaultHasShadow, shadowState, hasShadowResult; // default is true later for player/goal
+    bool shadowState; // default is true later for player/goal
     bool directionalCulling, aboveCam, behindCam, leftCam; // extra face culling stuff
     bool neighbors[6]; // points to neighbors array of cubeObj
     float altDark;
