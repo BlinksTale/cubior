@@ -103,6 +103,9 @@ static GLfloat goalZ;
 int cubesVisible = 0; // how many cubes we'll reference
 int facesVisible = 0; // how many cube faces we'll actually draw
 int topFacesVisible = 0; // how many cube top faces we'll draw
+int shadowsVisible = 0; // how many shadows to draw
+
+// merger of all unmoving cube shapes to fit in one draw call
 GLuint superIndices[maxCubeCount*24];
 GLfloat superVertices[maxCubeCount*24];
 GLfloat superColors[maxCubeCount*24];
@@ -116,6 +119,11 @@ GLfloat topColors[maxCubeCount*24];
 GLuint ultimateIndices[maxCubeCount*24*2];
 GLfloat ultimateVertices[maxCubeCount*24*2];
 GLfloat ultimateColors[maxCubeCount*24*2];
+
+// Finally, an attempt to share this with the shadow world
+GLuint shadowIndices[maxCubeCount*24];
+GLfloat shadowVertices[maxCubeCount*24];
+GLfloat shadowColors[maxCubeCount*24];
 
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
@@ -305,6 +313,38 @@ void drawAllShadows(int player) {
 		glDepthMask(GL_FALSE);
 		glEnable(GL_STENCIL_TEST);
     
+    if (levelShadows) {
+    
+      glEnableClientState(GL_COLOR_ARRAY);
+      glEnableClientState(GL_VERTEX_ARRAY);
+      
+      // specify pointer to vertex array
+      glColorPointer(3, GL_FLOAT, 0, shadowColors);
+      glVertexPointer(3, GL_FLOAT, 0, shadowVertices);
+      
+      glPushMatrix();
+      //glScalef(0.99,100.0,0.99);
+      //glTranslatef(0.0,-50.505,0.0);
+      
+      glCullFace(GL_FRONT);
+      glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+      glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
+      glDrawElements(GL_TRIANGLES, 36*shadowsVisible, GL_UNSIGNED_INT, shadowIndices);
+
+      glCullFace(GL_BACK);
+      glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+      glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
+      glDrawElements(GL_TRIANGLES, 36*shadowsVisible, GL_UNSIGNED_INT, shadowIndices);
+      
+      glPopMatrix();
+
+      // deactivate vertex arrays after drawing
+      glDisableClientState(GL_VERTEX_ARRAY);
+      glDisableClientState(GL_COLOR_ARRAY);
+    
+    }
+
+    /*
     for (int i=0; i<cubeNum; i++) {
       // cubeWithinPlayerRange demonstrates noticeable improvements,
       // castle level with 4player, sfx and music went from 7fps to 12.
@@ -312,7 +352,8 @@ void drawAllShadows(int player) {
       if (cubeWithinPlayerRange(i,player)) {
         drawCubeShadow(i); 
       }
-    }
+    }*/
+
     for (int i=0; i<cubiorNum; i++) { drawPlayerShadow(i); }
     drawGoalShadow();
     
@@ -687,6 +728,7 @@ void initVisuals() {
   cubesVisible = 0;
   facesVisible = 0;
   topFacesVisible = 0;
+  shadowsVisible = 0;
 
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
@@ -714,8 +756,8 @@ void initVisuals() {
       cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     }
     cubeShape[i].setNeighbors(getCube(i)->getNeighbors());
-    cubeShape[i].setShadow(getShadow(i));
     cubeShape[i].permanentPosition(cubeX[i], cubeY[i], cubeZ[i]);
+    cubeShape[i].setShadow(getShadow(i));
     
     // If even one face is visible, include the cube's vertices
     if (cubeShape[i].hasVisibleFace()) {
@@ -743,6 +785,9 @@ void initVisuals() {
       // And remember the cube we added too
       cubesVisible++;
     }
+
+
+    // temp set of indices for only top faces
     GLuint tempTopIndices[]  = { // counterclockwise draws forward
                        // Top
                        2, 1, 0, // upper front left
@@ -771,6 +816,24 @@ void initVisuals() {
       }
       topFacesVisible++;
     }
+
+    // Finally, if it has a shadow, remember that too
+    if (cubeShape[i].hasShadow()) {
+      // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
+      for (int vertex=0; vertex<24; vertex++) {
+        shadowVertices[shadowsVisible*24+vertex] = cubeShape[i].getShadowVertex(vertex); // apply scale (*) then transforms (+) here later
+        shadowColors[shadowsVisible*24+vertex] = 0; // No color! It's a shadow! :D
+      }
+      // Now add all indices, 36 per cube (6 per face, 6 faces
+      for (int vertex=0; vertex<36; vertex++) {
+          // in the index for that face + that vertex, put the index from that face and vertex for that cube
+          // the 8 at the end is since we are using all 8 vertices every time
+          shadowIndices[shadowsVisible*36+vertex] = cubeShape[i].getIndex(vertex) + shadowsVisible*8; // only 8 vertices/cube!
+      }
+      // And remember the cube we added too
+      shadowsVisible++;
+    }
+
   }
 
   // Now transfer everything!

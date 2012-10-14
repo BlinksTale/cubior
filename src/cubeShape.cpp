@@ -39,6 +39,22 @@ GLfloat vertices[] = {  0.5, 0.5, 0.5, // 0 - front upper left
                        -0.5,-0.5,-0.5  // 7 - rear lower right
                      };
 
+float sV = 0.45; // shadow vertex
+float nV = 0.55; // neighbor vertex
+float mV = 100.0; // max vertex
+
+GLfloat shadowVerts[] = {
+                        sV, sV, sV, // 0 - front upper left
+                       -sV, sV, sV, // 1 - front upper right
+                        sV,-mV, sV, // 2 - front lower left
+                       -sV,-mV, sV, // 3 - front lower right
+                        sV, sV,-sV, // 4 - rear upper left
+                       -sV, sV,-sV, // 5 - rear upper right
+                        sV,-mV,-sV, // 6 - rear lower left
+                       -sV,-mV,-sV  // 7 - rear lower right
+                     };
+
+
 // color array, modified from songho.ca code
 /*GLfloat colors[]    = { 1, 1, 1,   1, 1, 0,   1, 0, 0,   1, 0, 1,   // v0,v1,v2,v3 (front)
                         0, 0, 1,   0, 0, 0,   0, 1, 0,   0, 1, 1 }; // v4,v7,v6,v5 (back)
@@ -83,6 +99,10 @@ GLfloat CubeShape::getColor(int i) {
 
 GLfloat CubeShape::getTopColor(int i) {
   return topColors[i];
+}
+
+GLfloat CubeShape::getShadowVertex(int i) {
+  return shadowVerts[i]*100 + ((i%3==0)? permanentX : (i%3==1)? permanentY : permanentZ);
 }
 
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarkness, bool alt, bool mid) {
@@ -152,6 +172,7 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   //}
   for (int i=0; i<24; i++) {
     myVertices[i] = vertices[i];
+    //myShadowVertices[i] = vertices[i];
   }
 }
 
@@ -198,13 +219,19 @@ void CubeShape::draw() {
 
 // This lets you skip transforms for unmoving objects later, and scaling!
 void CubeShape::permanentPosition(int x, int y, int z) {
+  permanentX = x;
+  permanentY = y;
+  permanentZ = z;
   for (int i=0; i<8; i++) {
 
     //std::cout << " Just merged " << vertices[i*3+0]*100 << ", " << vertices[i*3+1]*100 << ", " << vertices[i*3+2]*100;
     //std::cout << " with " << x << ", " << y << ", " << z;
-    myVertices[i*3+0] = vertices[i*3+0]*100+x;//(vertices[i*3+0] + x);
-    myVertices[i*3+1] = vertices[i*3+1]*100+y;//(vertices[i*3+1] + y);
-    myVertices[i*3+2] = vertices[i*3+2]*100+z;//(vertices[i*3+2] + z);
+    myVertices[i*3+0] = vertices[i*3+0]*100+x;
+    myVertices[i*3+1] = vertices[i*3+1]*100+y;
+    myVertices[i*3+2] = vertices[i*3+2]*100+z;
+    //myShadowVertices[i*3+0] = shadowVerts[i*3+0]*100+x;
+    //myShadowVertices[i*3+1] = shadowVerts[i*3+1]*100+y;
+    //myShadowVertices[i*3+2] = shadowVerts[i*3+2]*100+z;
     //std::cout << " to get " << myVertices[i*3+0] << ", " << myVertices[i*3+1] << ", " << myVertices[i*3+2] << std::endl;
   }
 }
@@ -401,4 +428,56 @@ bool CubeShape::hasVisibleFace() {
 
 void CubeShape::setShadow(bool b) {
   shadowState = b;
+
+  if (shadowState) {
+    // So if you set your neighbors, update shadows to reflect this!
+    // if no neighbor, absolutely must reset shadowVerts to sV, or it doesn't work
+    // Can't explain why it doesn't worked, but confirmed to not work otherwise.
+    // Not a big loss though, just a hair longer on loading... so, nothing
+    // Neighbors: 0 left, 1 right, 2 top, 3 bot, 4 front, 5 rear
+    if (neighbors[0] == 1) { // left
+      shadowVerts[0*3+0] = nV;
+      shadowVerts[2*3+0] = nV;
+      shadowVerts[4*3+0] = nV;
+      shadowVerts[6*3+0] = nV;
+    } else { // shadow verts instead of neighbor verts
+      shadowVerts[0*3+0] = sV;
+      shadowVerts[2*3+0] = sV;
+      shadowVerts[4*3+0] = sV;
+      shadowVerts[6*3+0] = sV;
+    }
+    if (neighbors[1] == 1) { // right
+      shadowVerts[1*3+0] =-nV;
+      shadowVerts[3*3+0] =-nV;
+      shadowVerts[5*3+0] =-nV;
+      shadowVerts[7*3+0] =-nV;
+    } else { // shadow verts instead of neighbor verts
+      shadowVerts[1*3+0] =-sV;
+      shadowVerts[3*3+0] =-sV;
+      shadowVerts[5*3+0] =-sV;
+      shadowVerts[7*3+0] =-sV;
+    }
+    if (neighbors[4]) { // front
+      shadowVerts[0*3+2] = nV;
+      shadowVerts[1*3+2] = nV;
+      shadowVerts[2*3+2] = nV;
+      shadowVerts[3*3+2] = nV;
+    } else { // shadow verts instead of neighbor verts
+      shadowVerts[0*3+2] = sV;
+      shadowVerts[1*3+2] = sV;
+      shadowVerts[2*3+2] = sV;
+      shadowVerts[3*3+2] = sV;
+    }
+    if (neighbors[5]) { // rear
+      shadowVerts[4*3+2] =-nV;
+      shadowVerts[5*3+2] =-nV;
+      shadowVerts[6*3+2] =-nV;
+      shadowVerts[7*3+2] =-nV;
+    } else { // shadow verts instead of neighbor verts
+      shadowVerts[4*3+2] =-sV;
+      shadowVerts[5*3+2] =-sV;
+      shadowVerts[6*3+2] =-sV;
+      shadowVerts[7*3+2] =-sV;
+    }
+  }
 }
