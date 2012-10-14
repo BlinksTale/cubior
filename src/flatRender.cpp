@@ -107,9 +107,15 @@ GLuint superIndices[maxCubeCount*24];
 GLfloat superVertices[maxCubeCount*24];
 GLfloat superColors[maxCubeCount*24];
 
+// Give top of tiles a different color
 GLuint topIndices[maxCubeCount*24];
 GLfloat topVertices[maxCubeCount*24];
 GLfloat topColors[maxCubeCount*24];
+
+// Now merge the two together for one giant amazing draw call!
+GLuint ultimateIndices[maxCubeCount*24*2];
+GLfloat ultimateVertices[maxCubeCount*24*2];
+GLfloat ultimateColors[maxCubeCount*24*2];
 
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
@@ -459,13 +465,17 @@ void drawAllCubes(int player) {
     //glEnableClientState(GL_INDEX_ARRAY);
     
     // specify pointer to vertex array
-    glColorPointer(3, GL_FLOAT, 0, superColors);
+    /*glColorPointer(3, GL_FLOAT, 0, superColors);
     glVertexPointer(3, GL_FLOAT, 0, superVertices);
     glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
-
+    
     glColorPointer(3, GL_FLOAT, 0, topColors);
     glVertexPointer(3, GL_FLOAT, 0, topVertices);
     glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    */
+    glColorPointer(3, GL_FLOAT, 0, ultimateColors);
+    glVertexPointer(3, GL_FLOAT, 0, ultimateVertices);
+    glDrawElements(GL_TRIANGLES, 6*facesVisible+6*topFacesVisible, GL_UNSIGNED_INT, ultimateIndices);
     //supposed to work version glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
 
     // Yeah, this one still has problems, even though some forum member recommended it more
@@ -765,6 +775,33 @@ void initVisuals() {
         //cout << "Now topIndices[" << topFacesVisible*6+vertex << "] holds " << topIndices[topFacesVisible*6+vertex] << endl;
       }
       topFacesVisible++;
+    }
+  }
+
+  // Now transfer everything!
+  // First, normal vertices and colors
+  for (int i=0; i<cubesVisible; i++) {
+    for (int vertex=0; vertex<24; vertex++) {
+      ultimateVertices[i*24+vertex] = superVertices[i*24+vertex];
+      ultimateColors[i*24+vertex] = superColors[i*24+vertex];
+    }
+  }
+  for (int i=0; i<facesVisible; i++) {
+    for (int vertex=0; vertex<6; vertex++) {
+      // in the index for that face + that vertex, put the index from that face and vertex for that cube
+      ultimateIndices[i*6+vertex] = superIndices[i*6+vertex];
+    }
+  }
+  // And add top vertices, colors and faces
+  for (int i=0; i<topFacesVisible; i++) {
+    for (int vertex=0; vertex<12; vertex++) {
+      // top vertices live in cupeShape's 0-5 and 12-17 vertices, so add 6 to vertex for second half
+      ultimateVertices[cubesVisible*24+i*12+vertex] = topVertices[i*12+vertex];
+      ultimateColors[cubesVisible*24+i*12+vertex] = topColors[i*12+vertex];
+    }
+    for (int vertex=0; vertex<6; vertex++) {
+      // the 4 at the end is because we only use four vertices total for every face
+      ultimateIndices[facesVisible*6+i*6+vertex] = topIndices[i*6+vertex] + cubesVisible*8;
     }
   }
 
