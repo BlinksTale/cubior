@@ -465,18 +465,18 @@ void drawAllCubes(int player) {
     //glEnableClientState(GL_INDEX_ARRAY);
     
     // specify pointer to vertex array
-    /*glColorPointer(3, GL_FLOAT, 0, superColors);
+    glColorPointer(3, GL_FLOAT, 0, superColors);
     glVertexPointer(3, GL_FLOAT, 0, superVertices);
     glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
     
     glColorPointer(3, GL_FLOAT, 0, topColors);
     glVertexPointer(3, GL_FLOAT, 0, topVertices);
     glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
-    */
-    glColorPointer(3, GL_FLOAT, 0, ultimateColors);
+    
+    /*glColorPointer(3, GL_FLOAT, 0, ultimateColors);
     glVertexPointer(3, GL_FLOAT, 0, ultimateVertices);
     glDrawElements(GL_TRIANGLES, 6*facesVisible+6*topFacesVisible, GL_UNSIGNED_INT, ultimateIndices);
-    //supposed to work version glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    *///supposed to work version glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
 
     // Yeah, this one still has problems, even though some forum member recommended it more
     // http://www.gamedev.net/topic/562194-gldrawelementsarrays-crash/
