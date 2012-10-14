@@ -102,13 +102,14 @@ static GLfloat goalZ;
 // All vertices and indices for permanent cube shapes
 int cubesVisible = 0; // how many cubes we'll reference
 int facesVisible = 0; // how many cube faces we'll actually draw
+int topFacesVisible = 0; // how many cube top faces we'll draw
 GLuint superIndices[maxCubeCount*24];
 GLfloat superVertices[maxCubeCount*24];
 GLfloat superColors[maxCubeCount*24];
 
-GLfloat topIndices[maxCubeCount*6];
-GLfloat topVertices[maxCubeCount*6];
-GLfloat topColors[maxCubeCount*6];
+GLuint topIndices[maxCubeCount*24];
+GLfloat topVertices[maxCubeCount*24];
+GLfloat topColors[maxCubeCount*24];
 
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
@@ -131,7 +132,7 @@ int getTimePassed() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  cout << "FPS: \t" << getFPS() << endl;
+  //cout << "FPS: \t" << getFPS() << endl;
   //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);
@@ -455,14 +456,18 @@ void drawAllCubes(int player) {
   
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_INDEX_ARRAY);
+    //glEnableClientState(GL_INDEX_ARRAY);
     
     // specify pointer to vertex array
     glColorPointer(3, GL_FLOAT, 0, superColors);
     glVertexPointer(3, GL_FLOAT, 0, superVertices);
-
     glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
-  
+
+    glColorPointer(3, GL_FLOAT, 0, topColors);
+    glVertexPointer(3, GL_FLOAT, 0, topVertices);
+    glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    //supposed to work version glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+
     // Yeah, this one still has problems, even though some forum member recommended it more
     // http://www.gamedev.net/topic/562194-gldrawelementsarrays-crash/
     //glIndexPointer(GL_UNSIGNED_INT, 0, superIndices);
@@ -676,13 +681,10 @@ void initVisuals() {
   //Reset!
   cubesVisible = 0;
   facesVisible = 0;
+  topFacesVisible = 0;
 
   // Initialize Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
-    /* May not need this, updateCubeGraphic does the work
-    cubeX[i] = 0.0;
-    cubeY[i] = 0.0;
-    cubeZ[i] = 0.0;*/
     cubeCollision[i] = false;
     updateCubeGraphic(i);
     int altSize = 400;
@@ -715,13 +717,10 @@ void initVisuals() {
       //cout << "Now on cube " << i << " with cubesVisible = " << cubesVisible << endl;
       // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
       for (int vertex=0; vertex<24; vertex++) {
-        if (vertex<6) { topVertices[cubesVisible*6+vertex] = cubeShape[i].getVertex(vertex); }
-        if (vertex<6) { topColors[cubesVisible*6+vertex] = cubeShape[i].getColor(vertex); }
+        //if (vertex<18 && vertex>11) { topVertices[cubesVisible*6+vertex] = cubeShape[i].getVertex(vertex); }
+        //if (vertex<18 && vertex>11) { topColors[cubesVisible*6+vertex] = cubeShape[i].getColor(vertex); }
         superVertices[cubesVisible*24+vertex] = cubeShape[i].getVertex(vertex);
         superColors[cubesVisible*24+vertex] = cubeShape[i].getColor(vertex);
-      //cout << "cubesVisible = " << cubesVisible << " so we are looking at slot " << cubesVisible*24 << " + " << vertex << " = " << cubesVisible*24+vertex << endl;
-      //cout << "cubeShape[" << i << "].getVertex(" << vertex << ") = " <<  cubeShape[i].getVertex(vertex) << endl;
-      //cout << "superVertex " << cubesVisible*24+vertex << " = " << superVertices[cubesVisible*24+vertex] << endl;
       }
       // Alright, now find that face. There are 36 indices per cube, so 36*988 cubes = 35568 indices total
       for (int face=0; face<6; face++) {
@@ -730,10 +729,6 @@ void initVisuals() {
           for (int vertex=0; vertex<6; vertex++) {
             // in the index for that face + that vertex, put the index from that face and vertex for that cube
             superIndices[facesVisible*6+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8;
-            if (face==0) { topIndices[facesVisible+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8; } // not sure if I should keep cubesVisible*8 or not
-            //cout << "facesVisible = " << facesVisible << endl;
-            //cout << "superIndex[" << facesVisible*6+vertex << "] just set to " << cubeShape[i].getIndex(face*6+vertex) + cubesVisible*24;
-            //cout << " which is " << superVertices[superIndices[facesVisible*6+vertex]*3+0] << ", "  << superVertices[superIndices[facesVisible*6+vertex]*3+1] << ", "  << superVertices[superIndices[facesVisible*6+vertex]*3+2] << endl;
           }
           // And remember that we've added a face
           facesVisible++;
@@ -742,7 +737,35 @@ void initVisuals() {
       // And remember the cube we added too
       cubesVisible++;
     }
+    GLuint tempTopIndices[]  = { // counterclockwise draws forward
+                       // Top
+                       2, 1, 0, // upper front left
+                       2, 3, 1, // upper rear right
+                     }; 
+
+    // Now do the same for top faces
+    if (cubeShape[i].hasFace(2)) { // top face exists?
+      // Get vertices // VERTICES ARE... MOSTLY WORKING
+      for (int vertex=0; vertex<12; vertex++) {
+        // top vertices live in cupeShape's 0-5 and 12-17 vertices, so add 6 to vertex for second half
+        topVertices[topFacesVisible*12+vertex] = cubeShape[i].getVertex(vertex + (vertex < 6 ? 0 : 6));
+        //cout << "Now topVertices[" << topFacesVisible*12+vertex << "] holds " << topVertices[topFacesVisible*12+vertex] << endl;
+      }
+      // Get colors // COLORS ARE WORKING
+      for (int color=0; color<12; color++) {
+        // matching colors are all called with getTopColor
+        topColors[topFacesVisible*12+color] = cubeShape[i].getTopColor(color);
+        //cout << "Now topColors[" << topFacesVisible*12+color << "] holds " << topColors[color] << endl;
+      }
+      // Get indices // INDICES ARE... NOT ALWAYS WORKING?
+      for (int vertex=0; vertex<6; vertex++) {
+        topIndices[topFacesVisible*6+vertex] = tempTopIndices[vertex] + topFacesVisible*6;
+        //cout << "Now topIndices[" << topFacesVisible*6+vertex << "] holds " << topIndices[topFacesVisible*6+vertex] << endl;
+      }
+      topFacesVisible++;
+    }
   }
+
   /*
   for (int i=0; i<1+988*24; i++) {
     cout << "superVertex[" << i << "] is " << superVertices[i] << endl;

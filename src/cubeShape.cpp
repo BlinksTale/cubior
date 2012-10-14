@@ -81,6 +81,10 @@ GLfloat CubeShape::getColor(int i) {
   return myColors[i];
 }
 
+GLfloat CubeShape::getTopColor(int i) {
+  return topColors[i];
+}
+
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarkness, bool alt, bool mid) {
   midFloor = mid;
   alternatingSpot = alt;
@@ -114,6 +118,12 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
     myColors[i] = newColors[i];
   }
   
+  // And assign top colors
+  GLfloat newTopColors[] = { r3, g3, b3, r3, g3, b3, r3, g3, b3, r3, g3, b3 }; // all top corners
+  for (int i=0; i<12; i++) {
+    topColors[i] = newTopColors[i];
+  }
+
   // default shadow status is no
   defaultHasShadow = false;
   shadowState = false;

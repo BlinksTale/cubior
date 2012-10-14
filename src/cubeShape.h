@@ -23,11 +23,12 @@ class CubeShape {
     float altDark;
     float r1,g1,b1,r2,b2,g2,r3,g3,b3;
     const static bool useNeighbors = true;
-    GLfloat myVertices[24], myColors[24];
+    GLfloat myVertices[24], myColors[24], topColors[12];
   public:
     virtual GLubyte getIndex(int);
     virtual GLfloat getVertex(int);
     virtual GLfloat getColor(int);
+    virtual GLfloat getTopColor(int);
     virtual void initVisuals(float,float,float,float,float,float,float,bool,bool);
     void setNeighbors(bool[6]);
     virtual void updateVisuals();
