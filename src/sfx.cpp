@@ -144,7 +144,7 @@ void initSfx(int argc, char** argv) {
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
-    bumpSound[i].setVolume(35);
+    bumpSound[i].setVolume(75);
   }
   jumpSound[2].setVolume(65);
   jumpSound[3].setVolume(65);
@@ -156,6 +156,7 @@ void sfxLoop() {
   for (int i=0; i<cubiorCount; i++) {
     if (getCubiorJustJumped(i)) { jumpSound[i].play(); }
     if (getCubiorJustBumped(i)) {
+      cout << "JUST BUMPEEEEEEEEEEEEEEEEEEEEED" << endl;
       bumpSound[i].play();
     }
   }
