@@ -440,9 +440,18 @@ float CameraObj::angleToGoal() {
 
 // Ground angle to goal from player/permanentTarget
 float CameraObj::angleBetweenPlayerAndGoal() {
+  // NEW WAY that never really got to be working
+  float result = getAngleBetween(permanentTargetGoal->getX(),permanentTargetGoal->getZ(),permanentTarget->getX(),permanentTarget->getZ())*360/(2*M_PI);
+  result -= 90;
+  result = -result;
+  // NEWDELETEME: cout << "RESULT IS " << result << endl;
+  //return result;*/
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
-  return deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
+  float oldResult = deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
+  // NEWDELETEME: cout << "OLDULT IS " << oldResult << endl;
+  // NEWDELETEME: cout << "GETCAM IS " << getAngleY() << endl;
+  return oldResult;
 }
 
 // Look at the point halfway between the player and their goal
@@ -593,6 +602,7 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   }
   /* Just figure out X & Z positions now */
   // Finally, implement movement for the camera in its new facing direction
+  // NEWDELETEME: cout << "YEP, HERE WITH ANGLEY = " << angleY << endl;
   positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
 }
 
@@ -645,6 +655,7 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     // Then update the final angles themselves
     angleY = matchRangeOf(angleY, angleYToBe);
     angleY += -(angleY-angleYToBe)/strictness;
+    // NEWDELETEME: cout << "ANGLEY IS " << angleY << endl;
     angleX += -(angleX-angleXToBe)/strictness;
     angleZ = 0; // Generally, don't want to change this - causes disorientation
 }
@@ -652,9 +663,13 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
 // Final step of follow, adjust position to match camera angles
 void CameraObj::positionByAngles(int a, int c, int intendedDist, int distToPlayer, float angleY, int strictness) {
   int viewingDist = (intendedDist + 3*distToPlayer)/4;
-  int xToBe = a+viewingDist*sin(angleY*2*3.14159/360);
-  int zToBe = c+viewingDist*cos(angleY*2*3.14159/360);
-  
+  // NEWDELETEME: cout << "NOW ANGLEY IS " << angleY << " FOR VIEWINGDIST " << viewingDist << endl;
+  // NEWDELETEME: cout << "SO ANGLEY*2*M_PI/360 = " << angleY*2*M_PI/360.0 << endl;
+  // NEWDELETEME: cout << "GIVING SIN " << sin(angleY*2*M_PI/360.0) << " AND COS " << cos(angleY*2*M_PI/360.0) << endl;
+  int xToBe = a+viewingDist*sin(angleY*2*M_PI/360.0);
+  int zToBe = c+viewingDist*cos(angleY*2*M_PI/360.0);
+  // NEWDELETEME: cout << "GIVING US " << xToBe << " BY " << zToBe << " FROM " << a << " BY " << c << endl;
+
   // This will be a bit tricky, need to determine if new dist is smaller than old
   // when backup freedom is disabled
   int newDist = sqrt(pow((double)(zToBe-permanentTarget->getZ()),(double)(2))+pow((double)(xToBe-permanentTarget->getX()),(double)(2)));
@@ -717,6 +732,7 @@ float CameraObj::followBoth(float oldYToBe) {
     }
   }
   
+  cout << "ANGLEYTOBE IS " << angleYToBe << endl;
   return angleYToBe;
 }
 // See if y1 within delta of y2

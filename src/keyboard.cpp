@@ -29,7 +29,7 @@ const int playerCount = 4;
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
 const bool superEnabled = false;
-bool independentMovement = false; // move separately from camera angle after start of movement
+bool independentMovement = true; // move separately from camera angle after start of movement
 int altFrame = 0;
 int altMax = 5;
 
@@ -167,6 +167,8 @@ void sendCommands() {
         // or current camera angle
         cameraRad = (getCamera(i)->getAngleY())*PI/180;
       }
+
+      // NEWDELETEME: cout << "CAMERARAD is " << cameraRad << endl;
 			// CAMERA:   up = 0,     right = -PI/2 or 3/2*PI, down = PI,              left = PI/2
 			//float joyAngle = atan((float)joyY[i]/joyX[i]) - (joyX[i] < 0 ? M_PI : 0);
 			// JOYSTICK: up = -PI/2, right = 0,               down = PI/2 or -3/2*PI, left = -PI
@@ -240,9 +242,15 @@ void sendCommands() {
        * BOTH TIME AGAIN *
        *******************/
 
+      // player to goal angle
+      // vs current dir
+      // vs angle of last movement if needed
+
 			// Alright! Any movement? Apply it!
 			if (ratio != 0) {
-        cout << "joyAngle (" << joyAngle << ") + cameraRad (" << cameraRad << ") = " << joyAngle + cameraRad << endl;
+        // NEWDELETEME: cout << "joyAngle (" << joyAngle << ") + cameraRad (" << cameraRad << ") = " << joyAngle + cameraRad << endl;
+        // NEWDELETEME: cout << "sent moveZ " << -cos(joyAngle+cameraRad)*ratio/5.0 << endl;
+        // NEWDELETEME: cout << "sent moveX " << -sin(joyAngle+cameraRad)*ratio/5.0 << endl;
 				getPlayer(i)->moveZ(-cos(joyAngle+cameraRad)*ratio/5.0);
         getPlayer(i)->moveX(-sin(joyAngle+cameraRad)*ratio/5.0);
       }

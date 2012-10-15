@@ -17,14 +17,14 @@ using namespace std;
 CubeObj::CubeObj() {
   
   // Friction for all techniques
-  newFriction = 0.5;
+  newFriction = 2.35;
   friction =  2 ;
   direction = 0.0;
   strength = 0.0;
 
   // And movement limits & ratios
-  maxSpeed = 20 ;
-  movementSpeed = friction/2;
+  maxSpeed = 25 ;
+  movementSpeed = 0.3;
 
   // material default
   material = 0;
@@ -56,6 +56,7 @@ CubeObj::CubeObj() {
   lastGrounded = false;
   doubleLastGrounded = false;
   maxJump = 25 ;
+  jumpSpeed = 1;
   jumpSpeedRatio = 5 ;
 
   // Locking vars
@@ -409,9 +410,20 @@ void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivi
 void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
-void CubeObj::moveX(float n) { momentumX += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
-void CubeObj::moveY(float n) { momentumY += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
-void CubeObj::moveZ(float n) { momentumZ += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveX(float n) {
+  momentumX += n * movementSpeed / movementDivision;
+  // NEWDELETEME: cout << "momentumX = " << momentumX << endl;
+  toldToMove = (n != 0);
+}
+void CubeObj::moveY(float n) {
+  momentumY += n * jumpSpeed / movementDivision;
+  toldToMove = (n != 0);
+}
+void CubeObj::moveZ(float n) {
+  momentumZ += n * movementSpeed / movementDivision;
+  // NEWDELETEME: cout << "momentumZ += " << n << " * " << movementSpeed << " / " << movementDivision << " = " << n*movementSpeed << " / " << movementDivision << " = " << momentumZ << endl;
+  toldToMove = (n != 0);
+}
 void CubeObj::movePos(int n, int o, int p) {
   momentumX += n * movementSpeed / movementDivision;
   momentumY += o * movementSpeed / movementDivision;

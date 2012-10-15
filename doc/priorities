@@ -1,5 +1,9 @@
 Current priorities as of 10/7/12:
 
+V0. Maybe we need a lock on the camera to the goal's plane while within view both area
+    this way, players without independentMovement could still not get turned around
+	when pursuing the goal itself
+
 V. On the sixth level transition, you fall through the floor (when using Shift + Plus or Shift + Minus)
      Same effect when going through levels normally, since going into room 6 will break the game (using goals even!)
 

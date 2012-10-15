@@ -11,13 +11,13 @@
 class CubeObj {
   protected:
     bool neighbors[6],edges[6],toldToMove;
-    int x, y, z, momentumX, momentumY, momentumZ, diffX, diffY, diffZ, oldX, oldY, oldZ,
+    float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
+    int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
-    int movementSpeed, movementDivision;
     bool hasMaterial, playerStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet;
     int maxSpeed, friction;
-    int maxJump, jumpSpeedRatio, gravity;
+    int maxJump, jumpSpeed, jumpSpeedRatio, gravity;
     int material;
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;

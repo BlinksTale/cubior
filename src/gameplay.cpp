@@ -257,6 +257,7 @@ void loadLevel(int levelNum) {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
+  // NEWDELETEME: cout << "player to goal angle = " << getAngleBetween(cubior[0].getX(),cubior[0].getZ(),goal.getX(),goal.getZ()) << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
         
   if (gameplayRunning && !winningShot) {
