@@ -1,20 +1,13 @@
 Current priorities as of 10/7/12:
 
-V0. Maybe we need a lock on the camera to the goal's plane while within view both area
+0V. Follow both's choose angle flips around on room 2/3, second green room
+
+000. Maybe we need a lock on the camera to the goal's plane while within view both area
     this way, players without independentMovement could still not get turned around
 	when pursuing the goal itself
 
-V. On the sixth level transition, you fall through the floor (when using Shift + Plus or Shift + Minus)
-     Same effect when going through levels normally, since going into room 6 will break the game (using goals even!)
-
-0V. Weirdness when player pauses while touching goal. Pausing should take priority.
+00. Weirdness when player pauses while touching goal. Pausing should take priority.
      Weirdness also transfers into next level?
-
-000. Players flip back and forth erradically sitting on top of each other. Fix this
-
-00. Huge error, there are a set of blocks on the far Z side where if one player
-    collides into another on the ground floor, they'll fall through the blocks.
-    This is what the daughters of the alumni were reporting at the LMU showing
 
 0. Looks like wall angle shots are messing things up again: don't let the
     camera rotate while you're jumping!

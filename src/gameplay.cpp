@@ -68,6 +68,7 @@ bool justUnpaused = false;
 // Changing game state variables
 bool gameplayRunning = true;
 int xFar[4], xNear[4], zFar[4], zNear[4]; // for detecting walls for wall angles/shots
+bool lastPlayerVisible[4]; // last time player visibility was reported
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
@@ -77,11 +78,11 @@ int getEdge(int dimension, int neg) {
 void keepInBounds(CubeObj* c1) {
     // The bounds are one fewer than the size of the grid
     // this makes checking collision in all directions from a cube never go out of bounds
-    if (c1->getX()< getEdge(currentMapWidth,-1)){c1->setX(getEdge(currentMapWidth,-1));}
+    if (c1->getX()<=getEdge(currentMapWidth,-1)){c1->setX(getEdge(currentMapWidth,-1)+1);} // adding +1 here fixed edge problem
     if (c1->getX()>=getEdge(currentMapWidth,1)){c1->setX(getEdge(currentMapWidth,1));}
-    if (c1->getY()<getEdge(currentMapHeight,-1)){c1->setY(getEdge(currentMapHeight,-1));}
+    if (c1->getY()<=getEdge(currentMapHeight,-1)){c1->setY(getEdge(currentMapHeight,-1)+1);}
     if (c1->getY()>=getEdge(currentMapHeight,1)){c1->setY(getEdge(currentMapHeight,1));}
-    if (c1->getZ()< getEdge(currentMapDepth,-1)){c1->setZ(getEdge(currentMapDepth,-1));}
+    if (c1->getZ()<=getEdge(currentMapDepth,-1)){c1->setZ(getEdge(currentMapDepth,-1)+1);}
     if (c1->getZ()>=getEdge(currentMapDepth,1)){c1->setZ(getEdge(currentMapDepth,1));}
 }
 
@@ -669,7 +670,13 @@ bool playerVisible(int i) {
   checkCameraLOS(&camera[i],permanentMap);
   // then return the newly updated results
   bool result = camera[i].getLOS();
+  lastPlayerVisible[i] = result;
   return  result;
+}
+
+// Gives last result for playerVisible
+bool getLastPlayerVisible(int i) {
+  return lastPlayerVisible[i];
 }
 
 // Gives player non-visibility
@@ -1193,6 +1200,9 @@ void disableGoodCollision() { goodCollision = false; }
 void  stopGameplay() { gameplayRunning = false; }
 void startGameplay() { gameplayRunning = true; }
 bool getGameplayRunning() { return gameplayRunning; }
+int getMapWidth()   { return levelMap->getWidth() ; }
+int getMapHeight()   { return levelMap->getHeight() ; }
+int getMapDepth()   { return levelMap->getDepth() ; }
 float getMapRed()   { return levelMap->getRed(); }
 float getMapGreen() { return levelMap->getGreen(); }
 float getMapBlue()  { return levelMap->getBlue(); }

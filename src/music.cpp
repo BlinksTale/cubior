@@ -21,7 +21,7 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = true;
+bool mute = false;
 bool lastMute = mute;
 
 // List of songs

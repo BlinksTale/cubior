@@ -451,7 +451,7 @@ float CameraObj::angleBetweenPlayerAndGoal() {
   float oldResult = deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
   // NEWDELETEME: cout << "OLDULT IS " << oldResult << endl;
   // NEWDELETEME: cout << "GETCAM IS " << getAngleY() << endl;
-  return oldResult;
+  return result;//oldResult;
 }
 
 // Look at the point halfway between the player and their goal
@@ -515,7 +515,7 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
 
 // When camera starts following both, decide from which angle
 float CameraObj::findFollowingBothSide(float angleYToBe, float angleY) {
-  float atg = angleToGoal();
+  float atg = angleBetweenPlayerAndGoal();//angleToGoal();
   angleY = matchRangeOf(angleY,atg);
   float angleDiff = atg - angleY;
   return angleDiff > 0 ? -1 : 1;
@@ -732,7 +732,6 @@ float CameraObj::followBoth(float oldYToBe) {
     }
   }
   
-  cout << "ANGLEYTOBE IS " << angleYToBe << endl;
   return angleYToBe;
 }
 // See if y1 within delta of y2

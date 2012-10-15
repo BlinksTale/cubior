@@ -30,6 +30,7 @@
 //#include <sys/time.h> // for linux time
 
 // Starting values that change often in testing
+bool printFPS = false;
 bool fullscreen = false;
 bool drawOutlines = false;
 
@@ -147,7 +148,7 @@ int getTimePassed() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  //cout << "FPS: \t" << getFPS() << endl;
+  if (printFPS) { cout << "FPS: \t" << getFPS() << endl; }
   //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);

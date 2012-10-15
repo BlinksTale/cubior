@@ -55,6 +55,7 @@ const int invisibleMax = 5;
     // Check LOS between cam and player, then move to clear shot by a clear path
     void ensurePlayerVisible(int);
     bool playerVisible(int);
+    bool getLastPlayerVisible(int);
     bool cubeVisible(int,int);
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
@@ -117,6 +118,10 @@ const int invisibleMax = 5;
     void stopGameplay();
     void startGameplay();
     bool getGameplayRunning();
+    // Map Values
+    int getMapWidth();
+    int getMapHeight();
+    int getMapDepth();
     float getMapRed();
     float getMapGreen();
     float getMapBlue();

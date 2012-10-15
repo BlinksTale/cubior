@@ -28,6 +28,9 @@ sf::Sound testSound, exitSound, errorSound,
   menuEnterSound, menuExitSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
+// Sound muffling variables
+bool sfxLastPlayerVisible[4];
+
 // Setup for sound effects
 void initSfx(int argc, char** argv) {
   
@@ -152,8 +155,31 @@ void initSfx(int argc, char** argv) {
 
 // Main loop for sound effects, called once per cycle
 void sfxLoop() {
-  // Jumping SFX
+
+  // Unique changes and sounds for all players
   for (int i=0; i<cubiorCount; i++) {
+    // Adjust volume if visibility changed
+    if (getLastPlayerVisible(i) != sfxLastPlayerVisible[i]) {
+      sfxLastPlayerVisible[i] = getLastPlayerVisible(i);
+      // Newly visible
+      if (sfxLastPlayerVisible[i]) {
+        bumpSound[i].setVolume(75);
+        if (i>=2) {
+          jumpSound[i].setVolume(65);
+        } else {
+          jumpSound[i].setVolume(100);
+        }
+      } else {
+        // Newly hidden, half volume
+        bumpSound[i].setVolume(25);
+        if (i>=2) {
+          jumpSound[i].setVolume(21);
+        } else {
+          jumpSound[i].setVolume(33);
+        }
+      }
+    }
+    // Jumping SFX
     if (getCubiorJustJumped(i)) { jumpSound[i].play(); }
     if (getCubiorJustBumped(i)) {
       bumpSound[i].play();

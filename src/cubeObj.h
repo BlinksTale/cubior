@@ -97,6 +97,8 @@ class CubeObj {
     void setEdges(bool,bool,bool,bool,bool,bool);
     bool* getEdges();
     void setCollision(bool);
+    void applyCollisionMomentumX();
+    void applyCollisionMomentumZ();
     bool getCollision();
     virtual int getWidth();
     virtual int getHeight();

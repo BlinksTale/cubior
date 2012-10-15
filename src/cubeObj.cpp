@@ -485,6 +485,8 @@ void CubeObj::setEdges(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
 }
 bool* CubeObj::getEdges() { return edges; }
 void CubeObj::setCollision(bool b) { collision = b; }
+void CubeObj::applyCollisionMomentumX() { momentumX *= 0.95; }
+void CubeObj::applyCollisionMomentumZ() { momentumZ *= 0.95; }
 bool CubeObj::getCollision() { return collision; }
 
 int CubeObj::getWidth() { return 100*(1); }
