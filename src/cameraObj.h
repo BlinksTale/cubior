@@ -14,6 +14,8 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
+    static const bool showData = false;
+
     bool wallState, intendedState, goalState, freeState;
     // Would love to have this higher/smoother, but doesn't keep up with player
     // when following along a wall angle.
@@ -60,6 +62,14 @@ class CameraObj : public CubeObj {
     void updateCamArray();
     void updateMeans();
     
+    void updateJustFixedVisibility(); // ensure we do start moving again if needed
+    bool freeMovementState(); // returns if Option 1 or not
+    void applyFreeMovement();
+    void applyLockedToPlayer();
+    void applyLockedToPlayerX();
+    void applyLockedToPlayerZ();
+    void applyIntendedPos();
+
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
     bool goalWithinJumpRange();

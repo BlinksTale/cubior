@@ -38,6 +38,7 @@ int currentMapDepth;
 int cubeCount;
 int currentLevel = 0;
 bool changeLevel = false;
+bool firstTimeStarting = true;
 int invisibleCount = 0;
 float winAngle;
 int winner = -1;
@@ -127,8 +128,12 @@ void gameplayStart(string levelToLoad) {
     goal.setGlow(false);
 
     // First, get rid of any old map data
-    levelMap->wipeMap();
-    delete levelMap; // aaand now this works! Earlier it broke everything, but no more!
+    if (!firstTimeStarting) {
+      levelMap->wipeMap();
+      delete levelMap; // aaand now this works! Earlier it broke everything, but no more!
+    } else {
+      firstTimeStarting = false;
+    }
     // and thus the memory leak was vanquished, and it was good.
     // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad); // now load that level!
@@ -249,7 +254,11 @@ void loadLevel(int levelNum) {
   initVisuals();
 }
 
+// gameplayTick(), basically, or if it were an object, gameplay::tick()
+// the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
+  //cout << "player at " << cubior[0].getX() << ", " << cubior[0].getY() << ", " << cubior[0].getZ() << "\t with ";
+  //cout << "momentum " << cubior[0].getMomentumX() << ", " << cubior[0].getMomentumY() << ", " << cubior[0].getMomentumZ() << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
         
   if (gameplayRunning && !winningShot) {
@@ -661,7 +670,8 @@ bool playerVisible(int i) {
   // Must check LOS first, or getLOS will not be updated
   checkCameraLOS(&camera[i],permanentMap);
   // then return the newly updated results
-  return  camera[i].getLOS();
+  bool result = camera[i].getLOS();
+  return  result;
 }
 
 // Gives player non-visibility
@@ -887,7 +897,10 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   
   // If too far to tell, just pretend we're visible
   // don't make the camera spin before we're even in range.
-  if (cX < 0 || cX > maxWidth || cY < 0 || cY > maxHeight || cZ < 0 || cZ > maxDepth) {
+  //if (cX < 0 || cX > maxWidth || cY < 0 || cY > maxHeight || cZ < 0 || cZ > maxDepth) {
+
+  // if still dropping in, just say "Yes, they're visible"
+  if (cY > maxHeight) {
     return true;
   }
   

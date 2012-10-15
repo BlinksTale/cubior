@@ -131,200 +131,239 @@ void CameraObj::updateMeans() {
   if (meanAngleX > 360) { meanAngleX = 360; }
   if (meanAngleX < 270)  { meanAngleX = 270;  }
 }
+
+void CameraObj::updateJustFixedVisibility() {
+  if (justFixedVisibility && justFixedMaxDist <
+        sqrt((double)(pow((double)(justFixedX-permanentTarget->getX()),(double)(2)) + pow((double)(justFixedZ-permanentTarget->getZ()),(double)(2))))) {
+  justFixedVisibility = false;
+  //cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
+  }
+}
+
+// To use first camera style, nothing else must be required of it
+bool CameraObj::freeMovementState() {
+  return freedom && !foundIntendedPos &&
+      ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
+       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ));
+}
+
+// First camera movement style, freely follow player
+// by casually catching up to them
+void CameraObj::applyFreeMovement() {
+  if (showData) { cout << "Option One" << endl; }
+      
+  // As long as angle was not just recently modified, follow normally
+  if (!justFixedVisibility) {
+    //cout << "Normal loop! Freedom found, no intended pos" << endl;
+    follow(
+      tracker->getX(),
+      permanentTarget->getY(),
+      tracker->getZ(),
+      permanentTarget->getAngleY(),
+      permanentTarget->getGrounded(),
+      4
+    );
+  } else {
+    // If you just fixed visibility, don't mess it up.
+    // Look at the player, but don't try changing directions
+    // FIXME: Odd, but this doesn't work! Camera is looking... elsewhere?
+    lookAtPlayer(
+      permanentTarget->getX(), // was tracker, changed since trying desperately to look at cubior
+      permanentTarget->getY(),
+      permanentTarget->getZ(), // was tracker, changed since trying desperately to look at cubior
+      permanentTarget->getAngleY(),
+      permanentTarget->getGrounded(),
+      4);
+  }
+}
+
+// Second camera movement style, locks its position
+// in relation to the player
+void CameraObj::applyLockedToPlayer() {
+  if (showData) { cout << "Option Two" << endl; }
+  x = tracker->getX() + lockedX;
+  y = tracker->getY() + lockedY;
+  z = tracker->getZ() + lockedZ;
+  angleY = lockedAngleY;
+  if (groundDistToPlayer() > farthestDist) {
+    changePosTowards(
+            permanentTarget,
+            camSpeed); }
+}
+
+// Third camera movement style, locks its position
+// in relation to the player's X axis alone
+void CameraObj::applyLockedToPlayerX() {
+  if (showData) { cout << "Option Three" << endl; }
+  x = tracker->getX() + lockedX;
+  y = tracker->getY() + lockedY;
+  z = tracker->getZ() + lockedZ;
+  angleY = lockedAngleY;
+  if (groundDistToPlayer() > farthestDist) { changePosTowards(permanentTarget,camSpeed); }
+}
+
+// Fourth camera movement style, locks its position
+// in relation to the player's Z axis alone
+void CameraObj::applyLockedToPlayerZ() {
+  if (showData) { cout << "Option Four" << endl; }
+  x = tracker->getX() + lockedX;
+  y = tracker->getY() + lockedY;
+  z = tracker->getZ() + lockedZ;
+  angleY = lockedAngleY;
+  if (groundDistToPlayer() > farthestDist) {
+    changePosTowards(permanentTarget,camSpeed);
+  }
+}
+
+// Fifth camera movement style moves towards some exact
+// intendedPos, stopping and confirming justFixed upon arrival
+void CameraObj::applyIntendedPos() {
+  if (showData) { cout << "Option Five" << endl; }
+  justFixedVisibility = true;
+  //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
+  // if you do have a place to be or aren't allowed to move,
+  if (foundIntendedPos) {
+    //cout << "w/ intended pos found" << endl;
+    // Make sure camera doesn't swing back and forth
+    //float currentAngleDelta = angleY - lastAngleY;
+    //lastAngleY = angleY;
+
+    if (showData) { 
+    cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
+    cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
+    cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
+    cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
+    //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
+    }
+        
+        
+    // If still not at the destination, and have not changed direction of movement
+    if (distToCube(&intendedPos) > camSpeed) {/* &&
+            (currentAngleDelta >= 0 && lastAngleDelta >= -1) ||
+            (currentAngleDelta <= 0 && lastAngleDelta <= 1)) {
+      lastAngleDelta = currentAngleDelta;*/
+          
+      if (showData) { 
+        cout << "Moving towards intended pos" << endl;
+        cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+      }
+      // Move towards it
+      changePosTowards(&intendedPos,camSpeed);
+      if (showData) { 
+        cout << "Move success!" << endl;
+        cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+      }
+          
+      // If you get stuck trying to get to intended
+      if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
+        //cout << "Fire1" << endl;
+        // keep track of how long you've been stuck
+        intendedStuckCount++;
+        // if this is too long a stick, just jump!
+        if (intendedStuckCount >= intendedStuckMax) {
+        //cout << "Fire1a" << endl;
+          setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
+          intendedStuckCount = 0; // and reset stuck count, of course
+        }
+      } else {
+        if (intendedStuckCount > 0) {
+          intendedStuckCount = 0; // no stick? Reset stuck count
+        }
+        // if you finally got free, update the lastDistToIntended
+        // finally, update how far you are from player
+        lastDistToIntended = distToCube(&intendedPos);
+      }
+    } else {
+      //cout << "No need to move, already here" << endl;
+      if (showData) { cout << "currentPos1 " << x << ", " << y << ", " << z << endl; }
+      x = intendedPos.getX();
+      y = intendedPos.getY();
+      z = intendedPos.getZ();
+      if (showData) {
+        cout << "JUMP TO POS" << endl;
+        cout << "currentPos2 " << x << ", " << y << ", " << z << endl; 
+      }
+      // You're there! Stop trying.
+      foundIntendedPos = false;
+      justFixedVisibility = true;
+      justFixedX = permanentTarget->getX();
+      justFixedZ = permanentTarget->getZ();
+      lastAngleDelta = 0;
+      // currently disabled to try and find a technique without this
+      //freedom = false;
+      if (showData) { cout << "intendedPos and freedom set to false" << endl; }
+    }
+  }
+  // No matter what, since you have a permanent target,
+  // always look at the player still
+  lookAtPlayer(
+    tracker->getX(),
+    permanentTarget->getY(),
+    tracker->getZ(),
+    permanentTarget->getAngleY(),
+    permanentTarget->getGrounded(),
+    4);
+  if (showData) { 
+    cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
+    cout << "currentPos  " << x << ", " << y << ", " << z << endl;
+    cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
+  }
+  // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
+  /*positionByAngles(
+    tracker->getX(),
+    tracker->getZ(),
+    100,
+    groundDistToPlayer(),
+    permanentTarget->getAngleY(),
+    4);*/
+}
+
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
-        
-  bool showData = false;
-  
-  //cout << "camX " << x << " vs camMeanX " << getMeanX() << endl;
-  //cout << "Start camera tick" << endl;
+
   // If you are following one target every frame,
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
     
     // And give freedom back if player moved away from just fixed location
-    if (justFixedVisibility && justFixedMaxDist <
-            sqrt((double)(pow((double)(justFixedX-permanentTarget->getX()),(double)(2)) + pow((double)(justFixedZ-permanentTarget->getZ()),(double)(2))))) {
-      justFixedVisibility = false;
-      //cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
-    }
+    updateJustFixedVisibility();
     
     // then move the camera itself if free to do so
-    if (freedom && !foundIntendedPos &&
-      ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
-       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ))) {
-      if (showData) { cout << "Option One" << endl; }
-      
-      // As long as angle was not just recently modified, follow normally
-      if (!justFixedVisibility) {
-        //cout << "Normal loop! Freedom found, no intended pos" << endl;
-        follow(
-          tracker->getX(),
-          permanentTarget->getY(),
-          tracker->getZ(),
-          permanentTarget->getAngleY(),
-          permanentTarget->getGrounded(),
-          4
-        );
-      } else {
-        // If you just fixed visibility, don't mess it up.
-        // Look at the player, but don't try changing directions
-        lookAtPlayer(
-          tracker->getX(),
-          permanentTarget->getY(),
-          tracker->getZ(),
-          permanentTarget->getAngleY(),
-          permanentTarget->getGrounded(),
-          4);
-      }
+    if (freeMovementState()) {
+      applyFreeMovement();
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
-      if (showData) { cout << "Option Two" << endl; }
-      x = tracker->getX() + lockedX;
-      y = tracker->getY() + lockedY;
-      z = tracker->getZ() + lockedZ;
-      angleY = lockedAngleY;
-      if (groundDistToPlayer() > farthestDist) {
-        changePosTowards(
-                permanentTarget,
-                camSpeed); }
+      applyLockedToPlayer();
     // Locked to player X then? Keep up with them!
     } else if (lockedToPlayerX) {
-      if (showData) { cout << "Option Three" << endl; }
-      x = tracker->getX() + lockedX;
-      y = tracker->getY() + lockedY;
-      z = tracker->getZ() + lockedZ;
-      angleY = lockedAngleY;
-      if (groundDistToPlayer() > farthestDist) { changePosTowards(permanentTarget,camSpeed); }
+      applyLockedToPlayerX();
     // Locked to player Z then? Keep up with them!
     } else if (lockedToPlayerZ) {
-      if (showData) { cout << "Option Four" << endl; }
-      x = tracker->getX() + lockedX;
-      y = tracker->getY() + lockedY;
-      z = tracker->getZ() + lockedZ;
-      angleY = lockedAngleY;
-      if (groundDistToPlayer() > farthestDist) {
-        changePosTowards(permanentTarget,camSpeed);
-      }
+      applyLockedToPlayerZ();
     } else { // not free or have an intended pos
-      if (showData) { cout << "Option Five" << endl; }
-      justFixedVisibility = true;
-      //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
-      // if you do have a place to be or aren't allowed to move,
-      if (foundIntendedPos) {
-        //cout << "w/ intended pos found" << endl;
-        // Make sure camera doesn't swing back and forth
-        //float currentAngleDelta = angleY - lastAngleY;
-        //lastAngleY = angleY;
+      applyIntendedPos();
+    } // END OF OPTION FIVE
 
-        if (showData) { 
-        cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
-        cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
-        cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
-        cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
-        //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
-        }
-        
-        
-        // If still not at the destination, and have not changed direction of movement
-        if (distToCube(&intendedPos) > camSpeed) {/* &&
-                (currentAngleDelta >= 0 && lastAngleDelta >= -1) ||
-                (currentAngleDelta <= 0 && lastAngleDelta <= 1)) {
-          lastAngleDelta = currentAngleDelta;*/
-          
-          if (showData) { 
-            cout << "Moving towards intended pos" << endl;
-            cout << "currentPos  " << x << ", " << y << ", " << z << endl;
-          }
-          // Move towards it
-          changePosTowards(&intendedPos,camSpeed);
-          if (showData) { 
-            cout << "Move success!" << endl;
-            cout << "currentPos  " << x << ", " << y << ", " << z << endl;
-          }
-          
-          // If you get stuck trying to get to intended
-          if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
-            //cout << "Fire1" << endl;
-            // keep track of how long you've been stuck
-            intendedStuckCount++;
-            // if this is too long a stick, just jump!
-            if (intendedStuckCount >= intendedStuckMax) {
-            //cout << "Fire1a" << endl;
-              setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
-              intendedStuckCount = 0; // and reset stuck count, of course
-            }
-          } else {
-            //cout << "Fire2" << endl;
-            if (intendedStuckCount > 0) {
-            //cout << "Fire2a" << endl;
-              intendedStuckCount = 0; // no stick? Reset stuck count
-            }
-            // if you finally got free, update the lastDistToIntended
-            // finally, update how far you are from player
-            lastDistToIntended = distToCube(&intendedPos);
-          }
-        } else {
-          //cout << "No need to move, already here" << endl;
-          if (showData) { cout << "currentPos1 " << x << ", " << y << ", " << z << endl; }
-          x = intendedPos.getX();
-          y = intendedPos.getY();
-          z = intendedPos.getZ();
-          if (showData) {
-            cout << "JUMP TO POS" << endl;
-            cout << "currentPos2 " << x << ", " << y << ", " << z << endl; 
-          }
-          // You're there! Stop trying.
-          foundIntendedPos = false;
-          justFixedVisibility = true;
-          justFixedX = permanentTarget->getX();
-          justFixedZ = permanentTarget->getZ();
-          lastAngleDelta = 0;
-          //cout << "enable, justFixedVisibility = " << justFixedVisibility << endl;
-          // currently disabled to try and find a technique without this
-          //freedom = false;
-          if (showData) { cout << "intendedPos and freedom set to false" << endl; }
-        }
-      }
-      // No matter what, since you have a permanent target,
-      // always look at the player still
-      lookAtPlayer(
-        tracker->getX(),
-        permanentTarget->getY(),
-        tracker->getZ(),
-        permanentTarget->getAngleY(),
-        permanentTarget->getGrounded(),
-        4);
-      if (showData) { 
-        cout << "intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
-        cout << "currentPos  " << x << ", " << y << ", " << z << endl;
-        cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
-      }
-      // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
-      /*positionByAngles(
-        tracker->getX(),
-        tracker->getZ(),
-        100,
-        groundDistToPlayer(),
-        permanentTarget->getAngleY(),
-        4);*/
-    }
+
+    // Ultimatum Look at player no matter what
+    // Probably don't want to do this, but seeing if it fixes second green level problem
+    // was Tracker for X/Z, didn't work, trying permanentTarget now
+    // Still no luck! What is going on?
+    /*lookAtPlayer(
+    permanentTarget->getX(),
+    permanentTarget->getY(),
+    permanentTarget->getZ(),
+    permanentTarget->getAngleY(),
+    permanentTarget->getGrounded(),
+    4);*/
+
   }
   //cout << "End camera tick" << endl;
   updateCamArray();
   updateMeans();
-  //cout << "current camPosY[] = " << endl;
-  //for (int i=0; i<camArraySize; i++) {
-    //cout << "[" << camPosY[i] << "]" << endl;
-  //}
-  //cout << "to make camMeanY = " << getMeanY() << endl;
-  //cout << "-----" << endl;
-  
-  //cout << "End of tick,"<< endl;
-  //cout << "Ending currentPos  " << x << ", " << y << ", " << z << endl;
 }
 
 // Used to permanently set a target to always follow
@@ -577,7 +616,6 @@ void CameraObj::lookAtTarget() {
 }
 // Bare basics of any normal tick/update: look at the player
 void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, int strictness) {
-  
     int num = 10, den = 11; 
     /* Vertical aiming segment */
     float targetY = findTargetY(b, landed);
@@ -591,7 +629,8 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     float angleYToBe = ((c-z<=0?0:180)+deltasToDegrees(a-x,c-z));
 
     // Figure out follow-just-the-player mode
-    if (!followingBoth) {
+    // can do this if you just fixed visibility too
+    if (!followingBoth || justFixedVisibility) {
       // Only point the way the player faces if you're moving
       //cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
