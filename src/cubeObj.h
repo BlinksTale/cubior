@@ -21,6 +21,8 @@ class CubeObj {
     int material;
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;
+    float landedOnDirectionDiff;
+    float newFriction, strength, direction; // for use with new friction technique
   public:
     CubeObj();
 
@@ -30,7 +32,7 @@ class CubeObj {
     void fall();
     void land();
     void landOn(CubeObj*);
-    void updateLandedOnPos();
+    bool updateLandedOnPos();
     int getLandedOnCount();
     void freeze();
     bool isMoving();
@@ -70,9 +72,9 @@ class CubeObj {
     void setMomentumZ(int);
     
     void movePos(int,int,int);
-    void moveX(int);
-    void moveY(int);
-    void moveZ(int);
+    void moveX(float);
+    void moveY(float);
+    void moveZ(float);
 
     int get(int);
     int getX();
@@ -101,6 +103,9 @@ class CubeObj {
     virtual int getSize(int);
     int getMaterial();
     void setMaterial(int);
+
+    float getStrength();
+    float getDirection();
 };
 
 #endif 

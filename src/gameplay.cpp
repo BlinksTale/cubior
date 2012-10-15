@@ -257,8 +257,6 @@ void loadLevel(int levelNum) {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
-  //cout << "player at " << cubior[0].getX() << ", " << cubior[0].getY() << ", " << cubior[0].getZ() << "\t with ";
-  //cout << "momentum " << cubior[0].getMomentumX() << ", " << cubior[0].getMomentumY() << ", " << cubior[0].getMomentumZ() << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
         
   if (gameplayRunning && !winningShot) {
@@ -267,7 +265,7 @@ void gameplayLoop() {
 	  if (changeLevel) { changeLevel = false; }
 	  
     wipeCurrentMap(collisionMap);
-    
+
     // For players, start with one with lowest landedOnCount
     for(int landedOnNum = 0; landedOnNum < cubiorCount; landedOnNum++) {
       // Run main tick loop for all Cubiors...
@@ -282,7 +280,6 @@ void gameplayLoop() {
   	// and the goal
     goal.tick();
     addToCollisionMap(&goal, collisionMap);
-	  
 
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
@@ -492,7 +489,7 @@ void gameplayLoop() {
     }
   }
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
-  
+
 }
 
 /*******************

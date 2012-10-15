@@ -24,6 +24,7 @@ using namespace std;
 
 #define PI 3.14159265
 
+int deadzoneRadius = 20; // This feels really good at 20... I recommend not altering it!
 const int playerCount = 4;
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
@@ -136,25 +137,34 @@ void sendCommands() {
 	// Then get to those commands being issued!
 	if (getGameplayRunning()) {
 		for (int i = 0; i<playerCount; i++) {
-		  if (i==0) {
-        //cout << "joyX " << joyX[i] << endl;
-        //cout << "joyY " << joyY[i] << endl;
-      }
+      // First, if joystick has some form of movement (outside deadzone)
+      float joystickDist = sqrt((float)(pow((float)joyX[i],2)+pow((float)joyY[i],2)));
+		  bool joyMovement = joystickDist > deadzoneRadius;
+
+      // If moving seperately from camera
       if (independentMovement) {
-        if (!directionsPressed[i] && (upInput[i] || downInput[i] || leftInput[i] || rightInput[i])) {
+        // And actually, y'know, moving
+        if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i] || joyMovement)) {
+          // And we weren't previously, and get some keys or joystick movement
+          // then update oldAngle and confirm that we're doing something
 				  oldAngleY[i] = getCamera(i)->getAngleY();
 				  directionsPressed[i] = true;
-			  } else if (directionsPressed[i] && !upInput[i] && !downInput[i] && !leftInput[i] && !rightInput[i]) {
+			  } else if (directionsPressed[i] && !upInput[i] && !downInput[i] && !leftInput[i] && !rightInput[i] && !joyMovement) {
+          // Otherwise, if NOTHING is happening, set it to false again
 				  directionsPressed[i] = false;
         }
       }
+
 			// First, record if any movement requested
 			bool newUD = upInput[i] || downInput[i];
 			bool newLR = leftInput[i] || rightInput[i];
 			float cameraRad;
+      // And set basis for our angles
       if (independentMovement) {
+        // base on starting camera angle
         cameraRad = (oldAngleY[i])*PI/180;
       } else {
+        // or current camera angle
         cameraRad = (getCamera(i)->getAngleY())*PI/180;
       }
 			// CAMERA:   up = 0,     right = -PI/2 or 3/2*PI, down = PI,              left = PI/2
@@ -170,6 +180,11 @@ void sendCommands() {
 
 			// Keys to a direction
 			if (upKey[i]||downKey[i]||leftKey[i]||rightKey[i]) {
+        
+        /***********************
+         * KEYBOARD INPUT TIME *
+         ***********************/
+
 				if (upKey[i] && !downKey[i]) {
 					if (leftKey[i] && !rightKey[i]) {
 						joyAngle =  M_PI/4; // up left
@@ -198,12 +213,20 @@ void sendCommands() {
 				// And pressing keys = reset joystick/disable it
 				joyX[i]=0;
 				joyY[i]=0;
+
+      // No keys pressed? Well then, sounds like it's time for...
 			} else {
+        
+        /***********************
+     <===* JOYSTICK INPUT TIME *===}--o
+         ***********************/
+
 				// No directional key presses means joystick!
 				if (joyX[i] != 0 && joyY[i] != 0) {
 					// Then apply joystick ratio vals
-					ratio = sqrt((float)(pow((float)joyX[i],2)+pow((float)joyY[i],2)));
-					if (ratio < 20) { // This feels really good at 20... I recommend not altering it!
+					ratio = joystickDist;
+          // This ONLY affects joystick control sensitivity
+					if (ratio < deadzoneRadius) { 
 						ratio = 0;
 					}
 					// Or it means no buttons...
@@ -212,11 +235,17 @@ void sendCommands() {
 					ratio = 0;
 				}
 			}
+
+      /*******************
+       * BOTH TIME AGAIN *
+       *******************/
+
 			// Alright! Any movement? Apply it!
 			if (ratio != 0) {
+        cout << "joyAngle (" << joyAngle << ") + cameraRad (" << cameraRad << ") = " << joyAngle + cameraRad << endl;
 				getPlayer(i)->moveZ(-cos(joyAngle+cameraRad)*ratio/5.0);
-				getPlayer(i)->moveX(-sin(joyAngle+cameraRad)*ratio/5.0);
-			}
+        getPlayer(i)->moveX(-sin(joyAngle+cameraRad)*ratio/5.0);
+      }
 
 			// Finally, handle other keys
 			getPlayer(i)->jump(jumpInput[i]);

@@ -72,6 +72,7 @@ static GLfloat lastChangeX[cubiorNum];
 static GLfloat lastChangeZ[cubiorNum];
 static GLfloat meanChangeX[cubiorNum];
 static GLfloat meanChangeZ[cubiorNum];
+static GLfloat playerDirection[cubiorNum];
 
 // pos of cube obstacles
 //static int cubesTotal = 1;
@@ -146,7 +147,7 @@ int getTimePassed() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  cout << "FPS: \t" << getFPS() << endl;
+  //cout << "FPS: \t" << getFPS() << endl;
   //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);
@@ -411,6 +412,36 @@ void calcPlayer(int n) {
     lastChangeZ[n] = meanChangeZ[n];
   //cout << "numerat is " << playerAngleNumerator[n] << endl;
   //cout << "divisor is " << playerAngleDivisor[n] << endl;
+  
+    // FINALLY, update player angle, but only once!
+    // Find new angle
+    float oldAngle = playerRotationMean(n);
+    float newAngle = oldAngle;
+    // Only if an increase or equal amount of change do we alter direction
+    /*if (abs(changeZ[n]-lastChangeZ[n])>=0 || abs(changeX[n]-lastChangeX[n])>=0) {
+      if (lastChangeZ[n] < 0.0) {
+	    newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180;
+      } else {
+        newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0;
+      }
+      // Then modify it to match current mean
+      while (newAngle > oldAngle + 180) { newAngle -= 2*180; }
+      while (newAngle < oldAngle - 180) { newAngle += 2*180; }
+    }*/
+    // OLD WAY ABOVE
+    // NEW WAY BELOW
+    if (newAngle != playerDirection[n]) {
+      newAngle = playerDirection[n];
+      // Then modify it to match current mean
+      while (newAngle > oldAngle + 180) { newAngle -= 2*180; }
+      while (newAngle < oldAngle - 180) { newAngle += 2*180; }
+    }
+    playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
+    // Then move to next slot
+    currentPlayerRotation[n]++;
+    if (currentPlayerRotation[n] >= maxPlayerRotations) {
+	    currentPlayerRotation[n] = 0;
+    }
   }
 }
 
@@ -418,28 +449,12 @@ void playerPreDraw(int n) {
   glPushMatrix();
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
-  // Find new angle
-  float oldAngle = playerRotationMean(n);
-  float newAngle = oldAngle;
-  if (lastChangeZ[n] < 0.0) {
-	newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180;
-  } else {
-    newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0;
-  }
-  // Then modify it to match current mean
-  while (newAngle > oldAngle + 180) { newAngle -= 2*180; }
-  while (newAngle < oldAngle - 180) { newAngle += 2*180; }
-  playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
-  // Then move to next slot
-  currentPlayerRotation[n]++;
-  if (currentPlayerRotation[n] >= maxPlayerRotations) {
-	  currentPlayerRotation[n] = 0;
-  }
+  
   // Finally, apply rotation
   float avg = playerRotationMean(n);
   //cout << "newAngle is " << newAngle << endl;
   //cout << "avg is " << avg << endl;
-  glRotatef(newAngle,0.0,1.0,0.0);
+  glRotatef(avg,0.0,1.0,0.0);
   
   // And make player bigger
   glScalef(100.0,100.0,100.0);
@@ -716,6 +731,7 @@ void initVisuals() {
     changeX[i] = 0.0;
     changeY[i] = 0.0;
     changeZ[i] = 0.0;
+    playerDirection[i] = 0.0;
     lastChangeZ[i] = 0.0;
     cubiorShape[i].initCubiorVisuals(i);
     updatePlayerGraphic(i);
@@ -940,6 +956,8 @@ void initFlat(int argc, char** argv) {
 
 void updatePlayerGraphic(int n) {
   setPlayerGraphic(n,getPlayer(n)->getX(),getPlayer(n)->getY(),getPlayer(n)->getZ());
+  // Then set rotation stuff
+  playerDirection[n] = (360*(getPlayer(n)->getDirection())/(2*M_PI));
   //setPlayerGraphic(n,getCube(0)->getX(),getCube(0)->getY(),getCube(0)->getZ());
   //setPlayerGraphic(2000,0,-1000,0);
 }

@@ -156,7 +156,6 @@ void sfxLoop() {
   for (int i=0; i<cubiorCount; i++) {
     if (getCubiorJustJumped(i)) { jumpSound[i].play(); }
     if (getCubiorJustBumped(i)) {
-      cout << "JUST BUMPEEEEEEEEEEEEEEEEEEEEED" << endl;
       bumpSound[i].play();
     }
   }

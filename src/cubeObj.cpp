@@ -10,10 +10,22 @@
 
 #include <iostream>
 #include <cmath> // for atan
+#define _USE_MATH_DEFINES // for M_PI
+#include <math.h> // for M_PI
 using namespace std;
 
 CubeObj::CubeObj() {
   
+  // Friction for all techniques
+  newFriction = 0.5;
+  friction =  2 ;
+  direction = 0.0;
+  strength = 0.0;
+
+  // And movement limits & ratios
+  maxSpeed = 20 ;
+  movementSpeed = friction/2;
+
   // material default
   material = 0;
   
@@ -37,11 +49,7 @@ CubeObj::CubeObj() {
   momentumX = 0 ;
   momentumY = 0 ;
   momentumZ = 0 ;
-
-  maxSpeed = 20 ;
-  friction =  2 ;
-  movementSpeed = friction/2;
-
+  
   // Jumping vars
   jumpable = false;
   grounded = false;
@@ -67,12 +75,19 @@ CubeObj::CubeObj() {
 }
 
 void CubeObj::tick() {
+  //cout << "Bgn Strength:  " << strength << " and Direction: " << direction << endl;
+  //cout << "TICK CALLED";
+  //if (toldToMove) { cout << " and TOLD TO MOVE" << endl; }
+  //cout << endl;
   // don't move if frozen
+  //cout << "OneB_01 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
   if (!locked && !permalocked) {
 
     if (collision) {
       setCollision(false);
     }
+    //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
@@ -81,6 +96,7 @@ void CubeObj::tick() {
       //y = landedOn->getY()+landedOnY;
       z = landedOn->getZ()+landedOnZ;
     }
+    //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
     
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
@@ -91,32 +107,93 @@ void CubeObj::tick() {
     x += momentumX; 
     y += momentumY;
     z += momentumZ;
+    //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
     // apply friction if on the ground
-	if (!toldToMove) {
+  	if (!toldToMove) {
       if (grounded && (momentumX != 0 || momentumZ != 0)) {
-        if (momentumX > 0) { momentumX -= friction; }
-        else if (momentumX < 0) { momentumX += friction; }
+        // OLD WAY
+        /*if (momentumX > friction) { momentumX -= friction; }
+        else if (momentumX <-friction) { momentumX += friction; }
         else if (momentumX != 0) { momentumX = 0; }
-        if (momentumZ > 0) { momentumZ -= friction; }
-        else if (momentumZ < 0) { momentumZ += friction; }
-        else if (momentumZ != 0) { momentumZ = 0; }
+        if (momentumZ > friction) { momentumZ -= friction; }
+        else if (momentumZ < -friction) { momentumZ += friction; }
+        else if (momentumZ != 0) { momentumZ = 0; }*/
+        // NEW WAY
+        // change x/z into dir and str, then apply friction omnidirectionally/in proportion
+        // and convert back to apply to momentum
+        float dir = atan(momentumX*1.0/momentumZ);
+        if (momentumZ < 0) { dir += M_PI; }
+        float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
+        if (str > newFriction) { str -= newFriction; }
+        else if (str != 0.0) { str = 0.0; }
+        // Now update direction... maybe, if str was strong enough
+        if (str >= newFriction) {
+          direction = dir;
+        }
+        // and always update strength
+        if (strength != str) {
+          strength = str;
+        }
+        // then lastly, transfer back to momentumX and Z
+        momentumX = sin(direction)*strength;
+        momentumZ = cos(direction)*strength;
       }
-	} else {
-	  toldToMove = false;
-	}
+      //cout << "OneB_04a player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
+	  } else {
+	    toldToMove = false;
+    
+      // And since moving, update your direction!
+      float dir = atan(momentumX*1.0/momentumZ);
+      if (momentumZ < 0) { dir += M_PI; }
+      float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
+      // Now update direction... maybe, if str was strong enough
+      if (str >= newFriction) {
+        direction = dir;
+      }
+      // and always update strength
+      if (strength != str) {
+        strength = str;
+      }
+      //cout << "OneB_04b player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
+	  }
     
     calculateDiff();
-    
+
+    //cout << "OneB_05 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
   // Can lose all momentum on locking if bool is set
   } else if (isMoving() && loseMomentumOnLock) { freeze(); }
 
+  //cout << "OneB_06 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
   // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
   
+  //cout << "OneB_07 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
   // And at the end, update your relation to the landedOn
-    updateLandedOnPos();
+  if (updateLandedOnPos()) {
+    // Any changes? Also update your directional diff
+    landedOnDirectionDiff = direction - landedOn->getDirection();
+  }
+
+  //cout << "OneB_08 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+
+  //cout << "End Strength:  " << strength << " and Direction: " << direction << endl;
+}
+
+float CubeObj::getStrength() {
+  return strength;
+}
+float CubeObj::getDirection() {
+  float result = direction;
+  if (getLandedOnCount()>0) {
+    result = landedOn->getDirection() + landedOnDirectionDiff;
+  }
+  return result;
 }
 
 void CubeObj::calculateDiff() {
@@ -140,8 +217,10 @@ void CubeObj::fall() {
     momentumX += landedOn->getMomentumX();
     //momentumY += landedOn->getMomentumY();
     momentumZ += landedOn->getMomentumZ();
+    direction = landedOn->getDirection() + landedOnDirectionDiff;
     landedOn = NULL;
     landedOnCount = 0;
+    landedOnDirectionDiff = 0.0;
   } // not on a player anymore!
 }
 
@@ -159,18 +238,32 @@ void CubeObj::land() {
 
 // to also land on another player
 void CubeObj::landOn(CubeObj* c) {
-  landedOn = c;
-  landedOnCount = c->getLandedOnCount() + 1;
-  updateLandedOnPos();
+  if (landedOn != c) {
+    landedOn = c;
+    landedOnCount = c->getLandedOnCount() + 1;
+    landedOnDirectionDiff = direction - landedOn->getDirection();
+    updateLandedOnPos();
+  }
 }
 
 // Update relation between you and moving thing you landed on
-void CubeObj::updateLandedOnPos() {
+bool CubeObj::updateLandedOnPos() {
+  bool result = false;
   if (landedOn != NULL) {
-    landedOnX = x-landedOn->getX();
-    landedOnY = y-landedOn->getY();
-    landedOnZ = z-landedOn->getZ();
+    if (landedOnX != x-landedOn->getX()) {
+      landedOnX = x-landedOn->getX();
+      result = true;
+    }
+    if (landedOnY != y-landedOn->getY()) {
+      landedOnY = y-landedOn->getY();
+      result = true;
+    }
+    if (landedOnZ != z-landedOn->getZ()) {
+      landedOnZ = z-landedOn->getZ();
+      result = true;
+    }
   }
+  return result;
 }
 
 int CubeObj::getLandedOnCount() {
@@ -316,9 +409,9 @@ void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivi
 void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
-void CubeObj::moveX(int n) { momentumX += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
-void CubeObj::moveY(int n) { momentumY += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
-void CubeObj::moveZ(int n) { momentumZ += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveX(float n) { momentumX += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveY(float n) { momentumY += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
+void CubeObj::moveZ(float n) { momentumZ += n * movementSpeed / movementDivision; toldToMove = (n != 0); }
 void CubeObj::movePos(int n, int o, int p) {
   momentumX += n * movementSpeed / movementDivision;
   momentumY += o * movementSpeed / movementDivision;
