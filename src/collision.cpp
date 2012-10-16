@@ -85,20 +85,20 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   bool* c2e = c2->getEdges();
   bool* c2n = c2->getNeighbors();
 
-  /*if (diffX != 0 || diffY != 0 || diffZ != 0) {
-    cout << "DIFFS FOR " << c1 << " AND " << c2 << " ARE " << diffX << ", " << diffY << ", " << diffZ << endl;
-  }*/
+  //if (diffX != 0 || diffY != 0 || diffZ != 0) {
+  //  cout << "DIFFS FOR " << c1 << " AND " << c2 << " ARE " << diffX << ", " << diffY << ", " << diffZ << endl;
+  //}
 
   // Only change one dimension at a time, the lowest that isn't zero
   if (
-      diffY != 0 &&
+      diffY != 0 &&// ((diffY > 0 && !c1e[2] && !c2e[3]) || (diffY < 0 && !c2e[2] && !c1e[3])) &&
     // Normal case: just make sure you aren't comparing in a dimension with no difference
     ((
         ((abs(diffY) < abs(diffX)) || diffX == 0)
       &&
         ((abs(diffY) < abs(diffZ)) || diffZ == 0)
     // Crazy case: other block is an edge block with neighbors
-    ) || ( // Even if you're not the smallest
+    /*) || ( // Even if you're not the smallest
         ( // If it's going to go off an edge and you're the second smallest
           (c1e[1] && diffX < 0 && abs(diffX) <= abs(diffZ) && abs(diffY) <= abs(diffZ))
         ||
@@ -107,19 +107,19 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
           (c1e[5] && diffZ < 0 && abs(diffZ) <= abs(diffX) && abs(diffY) <= abs(diffX))
         ||
           (c2e[5] && diffZ > 0 && abs(diffZ) <= abs(diffX) && abs(diffY) <= abs(diffX))
-        )) // c1 has X or Z edges
+        ) // c1 has X or Z edges
     //  ) || (
     //    (c2e[0] || c2e[1] || c2e[4] || c2e[5]) // c2 has X or Z edges
     ) || ( // last alternative, x and z have neighbors/edges, so we must use Y
-      (!c1Locked && (c2e[0] || c2n[0]) && (c2e[1] || c2n[1]) && (c2e[4] || c2n[4]) && (c2e[5] || c2n[5]))
+      (!c1Locked && (c2e[0] || c2n[0]) && (c2e[1] || c2n[1]) && (c2e[4] || c2n[4]) && (c2e[5] || c2n[5]) && abs(diffY) <= abs(diffX) && abs(diffY) <= abs(diffZ))
       ||
-      (!c2Locked && (c1e[0] || c1n[0]) && (c1e[1] || c1n[1]) && (c1e[4] || c1n[4]) && (c1e[5] || c1n[5]))
-    )
+      (!c2Locked && (c1e[0] || c1n[0]) && (c1e[1] || c1n[1]) && (c1e[4] || c1n[4]) && (c1e[5] || c1n[5]) && abs(diffY) <= abs(diffX) && abs(diffY) <= abs(diffZ))
+    */))
   ) {
     //cout << "CHOSE y DIFF " << diffY << endl;
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
-//    balanceMomentum(c1,c2,1);
+    // balanceMomentum(c1,c2,1);
     // then in case either one lands...
     if (diffY < 0) {
       c1->land();
@@ -138,17 +138,21 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   } else if
     (
         diffZ != 0
-      &&
+      && //((diffZ > 0 && !c1e[4] && !c2e[5]) || (diffZ < 0 && !c2e[4] && !c1e[5])) && 
       (
         (
           abs(diffZ) < abs(diffX) || diffX == 0
-        ) || ( // Even if you're not the smallest
+        /*) || ( // Even if you're not the smallest
           ( // If it's going to go off an edge and you're the second smallest
             // choose that route instead!
             (c1e[1] && diffX < 0)
           ||
             (c2e[1] && diffX > 0)
-          )
+          ||
+            (c2e[0] && diffX > 0)
+          ||
+            (c2e[0] && diffX > 0)
+          )*/
         )
       )
     ) {
@@ -160,7 +164,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   c1->applyCollisionMomentumZ();
   c2->applyCollisionMomentumZ();
 //    balanceMomentum(c1,c2,2);
-  } else if (diffX != 0) {
+  } else if (diffX != 0) {// && ((diffX > 0 && !c1e[0] && !c2e[1]) || (diffX < 0 && !c2e[0] && !c1e[1]))) {
     //cout << "CHOSE x DIFF " << diffX << endl;
     if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
@@ -168,7 +172,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   c2->setCollision(true);
   c1->applyCollisionMomentumX();
   c2->applyCollisionMomentumX();
-//    balanceMomentum(c1,c2,0);
+  // balanceMomentum(c1,c2,0);
   }
 }
 
@@ -216,16 +220,20 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
-	if (c1 != NULL && c2 != NULL) {
-		if (between(c1,c2)) {
-		  bounce(c1,c2);
-      if (c1->getLandedOnCount() > 0) {
-        c1->updateLandedOnPos();
-      }
-      if (c2->getLandedOnCount() > 0) {
-        c2->updateLandedOnPos();
-      }
-	    //balanceMomentum(c1,c2);
-		}
+  if (c1 != NULL && c2 != NULL) {
+    // Now make sure it's not a cam checking against invisible things
+    if ((!c1->isCamera() || !c2->isInvisible()) && (!c2->isCamera() || !c1->isInvisible())) {
+		//if (!(c2->isInvisible()) && !(c1->isInvisible())) {
+		  if (between(c1,c2)) {
+		    bounce(c1,c2);
+        if (c1->getLandedOnCount() > 0) {
+          c1->updateLandedOnPos();
+        }
+        if (c2->getLandedOnCount() > 0) {
+          c2->updateLandedOnPos();
+        }
+	      //balanceMomentum(c1,c2);
+		  }
+    }
 	}
 }

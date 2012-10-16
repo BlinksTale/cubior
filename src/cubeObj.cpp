@@ -29,9 +29,12 @@ CubeObj::CubeObj() {
   // material default
   material = 0;
   
-  // usually not a player
+  // usually not a player or camera
   playerStatus = false;
+  cameraStatus = false;
   toldToMove = false;
+  // Nor an invisible wall
+  invisible = false;
 
   // Pos vars
   x =    0;
@@ -300,6 +303,15 @@ bool CubeObj::isPlayer() {
   return playerStatus;
 }
 
+// isCamera returns whether just a normal block or a camera
+bool CubeObj::isCamera() {
+  return cameraStatus;
+}
+
+void CubeObj::setCameraStatus(bool b) {
+  cameraStatus = b;
+}
+
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
   // Straight up, need to have landed and not tried to jump again before new jump
@@ -470,7 +482,18 @@ void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2)
   neighbors[4] = z1;
   neighbors[5] = z2;
 }
+// Same as neighbors, but only visible ones
+void CubeObj::setVisibleNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
+  visibleNeighborsSet = true;
+  visibleNeighbors[0] = x1;
+  visibleNeighbors[1] = x2;
+  visibleNeighbors[2] = y1;
+  visibleNeighbors[3] = y2;
+  visibleNeighbors[4] = z1;
+  visibleNeighbors[5] = z2;
+}
 bool* CubeObj::getNeighbors() { return neighbors; }
+bool* CubeObj::getVisibleNeighbors() { return visibleNeighbors; }
 // If neighbors on both sides for one dimension
 bool CubeObj::isColumn() {
   return (neighbors[0]&&neighbors[1])||(neighbors[2]&&neighbors[3])||(neighbors[4]&&neighbors[5]);

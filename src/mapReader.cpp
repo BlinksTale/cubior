@@ -25,9 +25,10 @@ Map* MapReader::readMap(const string& s) {
   bool haveGreen = false;
   bool haveBlue  = false;
   float red, green, blue;
-  int w = 0;
-  int h = 0;
-  int d = 0;
+  int padding = 1;
+  int w = padding;
+  int h = padding;
+  int d = padding;
   // To return map
   Map* map = new Map;
 	
@@ -42,15 +43,15 @@ Map* MapReader::readMap(const string& s) {
       // Find initial properties
       if (!widthFound && !row.substr(0,6).compare("width:")) {
         widthFound = true;
-        map->setWidth(atoi((row.substr(6,row.length()-6)).c_str()));
+        map->setWidth(2*padding+atoi((row.substr(6,row.length()-6)).c_str()));
       }
       if (!heightFound && !row.substr(0,7).compare("height:")){
         heightFound = true;
-        map->setHeight(atoi((row.substr(7,row.length()-7)).c_str()));
+        map->setHeight(2*padding+atoi((row.substr(7,row.length()-7)).c_str()));
       }
       if (!depthFound && !row.substr(0,6).compare("depth:")) {
         depthFound = true;
-        map->setDepth(atoi((row.substr(6,row.length()-6)).c_str()));
+        map->setDepth(2*padding+atoi((row.substr(6,row.length()-6)).c_str()));
       }
       if (!goalHeightFound && !row.substr(0,11).compare("goalHeight:")) {
         goalHeightFound = true;
@@ -84,13 +85,13 @@ Map* MapReader::readMap(const string& s) {
       }
       if (readingMap) {
         if (row.length()==0) {
-          d=0;
+          d=padding;
           h++;
         } else {
-          w = 0;
-          while (w<row.length()&&w<map->getWidth()) {
+          w = padding;
+          while (w-padding<row.length()&&w<map->getWidth()-padding) {
             // Convert map numbers to material numbers
-            std::string mapColorString = row.substr(w,1);
+            std::string mapColorString = row.substr(w-padding,1);
             int mapColor = atoi(mapColorString.c_str());
             // Add any tile
             if (mapColor!=0) {
@@ -107,6 +108,7 @@ Map* MapReader::readMap(const string& s) {
       }
       iterator++;
     }
+
     if (newMap.good()) {
       cout << "It failed!" << endl;
     }
@@ -115,5 +117,52 @@ Map* MapReader::readMap(const string& s) {
 
   else cout << "Unable to open " << file << endl; 
 	
+  // Finally, just before returning it, add invisible walls
+  // Z wallz first
+  for (int w=0; w<map->getWidth(); w++) {
+    for (int h=0; h<map->getHeight(); h++) {
+      // Rear Wall
+      for (int d=0; d<padding; d++) {
+        CubeObj* newCube = new CubeObj();
+        newCube->setInvisible(true);
+        newCube->setMaterial(8);
+        newCube->tick();
+        map->addCube(newCube,w,h,map->getDepth()-padding+d); // THIS IS CORRECT ON LEVEL 0
+        map->setCubeCount(map->getCubeCount()+1);
+      }
+      // Front Wall
+      for (int d=0; d<padding; d++) {
+        CubeObj* newCube = new CubeObj();
+        newCube->setInvisible(true);
+        newCube->setMaterial(8);
+        newCube->tick();
+        map->addCube(newCube,w,h,d); // THIS IS CORRECT ON LEVEL 0
+        map->setCubeCount(map->getCubeCount()+1);
+      }
+    }
+  }
+  // Then X walls
+  for (int d=padding; d<map->getDepth()-padding; d++) {
+    for (int h=0; h<map->getHeight(); h++) {
+      // Right Wall
+      for (int w=0; w<padding; w++) {
+        CubeObj* newCube = new CubeObj();
+        newCube->setInvisible(true);
+        newCube->setMaterial(8);
+        newCube->tick();
+        map->addCube(newCube,map->getWidth()-padding+w,h,d);
+        map->setCubeCount(map->getCubeCount()+1);
+      }
+      // Left Wall
+      for (int w=0; w<padding; w++) {
+        CubeObj* newCube = new CubeObj();
+        newCube->setInvisible(true);
+        newCube->setMaterial(8);
+        newCube->tick();
+        map->addCube(newCube,w,h,d);
+        map->setCubeCount(map->getCubeCount()+1);
+      }
+    }
+  }
   return map;
 }

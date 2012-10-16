@@ -10,12 +10,12 @@
 
 class CubeObj {
   protected:
-    bool neighbors[6],edges[6],toldToMove;
+    bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove;
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
-    bool hasMaterial, playerStatus, newJump, loseMomentumOnLock;
-    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet;
+    bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
+    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction;
     int maxJump, jumpSpeed, jumpSpeedRatio, gravity;
     int material;
@@ -23,6 +23,7 @@ class CubeObj {
     CubeObj* landedOn;
     float landedOnDirectionDiff;
     float newFriction, strength, direction; // for use with new friction technique
+    bool invisible;
   public:
     CubeObj();
 
@@ -35,9 +36,14 @@ class CubeObj {
     bool updateLandedOnPos();
     int getLandedOnCount();
     void freeze();
+    
+    // return status
     bool isMoving();
     bool isMovingQuickly();
     bool isPlayer();
+    bool isCamera();
+    void setCameraStatus(bool);
+
     void jump(bool);
 
     virtual void collisionEffect(CubeObj*);
@@ -86,9 +92,11 @@ class CubeObj {
     int getMomentumX();
     int getMomentumY();
     int getMomentumZ();
-
+    
     void setNeighbors(bool,bool,bool,bool,bool,bool);
+    void setVisibleNeighbors(bool,bool,bool,bool,bool,bool);
     bool* getNeighbors();
+    bool* getVisibleNeighbors();
     // These two check neighbor status and return if double neighbors in one or two dimensions respectively
     bool isColumn();
     bool isWall();
@@ -108,6 +116,8 @@ class CubeObj {
 
     float getStrength();
     float getDirection();
+    void setInvisible(bool b) { invisible = b; }
+    bool isInvisible() { return invisible; }
 };
 
 #endif 

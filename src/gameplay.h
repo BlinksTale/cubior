@@ -32,7 +32,7 @@ const int tileSize = 100;
 const int totalLevels = 20; // for now, update this when new levels are added
 
 const int cubiorCount = 4;
-const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
+const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth); // padding = 1
 
 // Variables for how long we've moved towards intended, yet target is visible..
 const int visibleIntendedMax = 0;
