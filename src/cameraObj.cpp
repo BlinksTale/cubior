@@ -185,6 +185,9 @@ void CameraObj::applyLockedToPlayer() {
   y = tracker->getY() + lockedY;
   z = tracker->getZ() + lockedZ;
   angleY = lockedAngleY;
+  // Must snap to 45 degree intervals
+  if (!getSnapLock()) { snapLock(); }
+  // And be within range of player
   if (groundDistToPlayer() > farthestDist) {
     changePosTowards(
             permanentTarget,
@@ -199,6 +202,9 @@ void CameraObj::applyLockedToPlayerX() {
   y = tracker->getY() + lockedY;
   z = tracker->getZ() + lockedZ;
   angleY = lockedAngleY;
+  // Must snap to 45 degree intervals
+  if (!getSnapLock()) { snapLock(); }
+  // And be within range of player
   if (groundDistToPlayer() > farthestDist) { changePosTowards(permanentTarget,camSpeed); }
 }
 
@@ -210,10 +216,37 @@ void CameraObj::applyLockedToPlayerZ() {
   y = tracker->getY() + lockedY;
   z = tracker->getZ() + lockedZ;
   angleY = lockedAngleY;
+  // Must snap to 45 degree intervals
+  if (!getSnapLock()) { snapLock(); }
+  // And be within range of player
   if (groundDistToPlayer() > farthestDist) {
     changePosTowards(permanentTarget,camSpeed);
   }
 }
+
+// Gives whether angle is at a 45 degree interval
+bool CameraObj::getSnapLock() {
+  //cout << "AND ANGLEY IS " << angleY << endl;
+  while (lockedAngleY < 0) { lockedAngleY += 360; }
+  int range = 1;
+  bool result = ((int)(lockedAngleY) % 45 < range) || ((int)(lockedAngleY) % 45 > 45 - range);
+  //cout << "SNAP LOCKED IS " << result << " FOR " << lockedAngleY << endl;
+  return result;
+}
+
+// Snap lockedAngleY into a 45 degree increment
+void CameraObj::snapLock() {
+  while (lockedAngleY < 0) { lockedAngleY += 360; }
+  int distFromLock = (int)(lockedAngleY) % 45;
+  int extraOne = (distFromLock > 22 ? 1 : 0);
+  //cout << "DIST FROM LOCK " << distFromLock << " SO EXTRA ONE IS " << extraOne << endl;
+  lockedAngleY = (floor((lockedAngleY - distFromLock) / 45.0) + extraOne) * 45.0;
+
+  // Then update lockedX, Y and Z
+
+}
+
+float CameraObj::getLockedAngleY() { return lockedAngleY; }
 
 // Fifth camera movement style moves towards some exact
 // intendedPos, stopping and confirming justFixed upon arrival
@@ -860,6 +893,7 @@ void CameraObj::resetLocks() {
   lockedZ = z - permanentTarget->getZ();
   lockedY = lockedY < camHeight ? camHeight : lockedY;
   lockedAngleY = angleY;
+  snapLock();
 }
 
 // Give the camera's current state,

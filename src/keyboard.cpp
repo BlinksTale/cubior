@@ -251,8 +251,10 @@ void sendCommands() {
         // NEWDELETEME: cout << "joyAngle (" << joyAngle << ") + cameraRad (" << cameraRad << ") = " << joyAngle + cameraRad << endl;
         // NEWDELETEME: cout << "sent moveZ " << -cos(joyAngle+cameraRad)*ratio/5.0 << endl;
         // NEWDELETEME: cout << "sent moveX " << -sin(joyAngle+cameraRad)*ratio/5.0 << endl;
-				getPlayer(i)->moveZ(-cos(joyAngle+cameraRad)*ratio/5.0);
-        getPlayer(i)->moveX(-sin(joyAngle+cameraRad)*ratio/5.0);
+        float toSendZ = -cos(joyAngle+cameraRad)*ratio/5.0;
+        float toSendX = -sin(joyAngle+cameraRad)*ratio/5.0;
+				getPlayer(i)->moveZ(toSendZ);
+        getPlayer(i)->moveX(toSendX);
       }
 
 			// Finally, handle other keys

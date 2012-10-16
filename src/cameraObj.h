@@ -70,6 +70,10 @@ class CameraObj : public CubeObj {
     void applyLockedToPlayerZ();
     void applyIntendedPos();
 
+    bool getSnapLock();
+    void snapLock();
+    float getLockedAngleY();
+
     void tick();
     void alwaysFollow(CubeObj*,CubeObj*);
     bool goalWithinJumpRange();

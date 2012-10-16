@@ -82,7 +82,7 @@ void CubeObj::tick() {
   //cout << endl;
   // don't move if frozen
   //cout << "OneB_01 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-
+  //if (isPlayer()) { cout << "Start MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
   if (!locked && !permalocked) {
 
     if (collision) {
@@ -105,14 +105,28 @@ void CubeObj::tick() {
     if (momentumZ > maxSpeed) { momentumZ = maxSpeed; }
     if (momentumZ < -maxSpeed) { momentumZ = -maxSpeed; }
     // Then move by that momentum
-    x += momentumX; 
-    y += momentumY;
-    z += momentumZ;
+    if (abs(momentumX) > 0.00001) {
+      x += momentumX; 
+    } else {
+      // temp fix due to odd snap when this is done *before* sending keypresses
+      // otherwise, would simply not send move commands that are this small
+      momentumX = 0.0000000000;
+    }
+    if (abs(momentumY) > 0.00001) {
+      y += momentumY;
+    } else {
+      momentumY = 0.0000000000;
+    }
+    if (abs(momentumZ) > 0.00001) {
+      z += momentumZ;
+    } else {
+      momentumZ = 0.0000000000;
+    }
     //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
     // apply friction if on the ground
   	if (!toldToMove) {
-      if (grounded && (momentumX != 0 || momentumZ != 0)) {
+      if (grounded && (abs(momentumX) > 0.00001 || abs(momentumZ) > 0.00001)) {
         // OLD WAY
         /*if (momentumX > friction) { momentumX -= friction; }
         else if (momentumX <-friction) { momentumX += friction; }
@@ -124,7 +138,7 @@ void CubeObj::tick() {
         // change x/z into dir and str, then apply friction omnidirectionally/in proportion
         // and convert back to apply to momentum
         float dir = atan(momentumX*1.0/momentumZ);
-        if (momentumZ < 0) { dir += M_PI; }
+        if (momentumZ < 0.00000000) { dir += M_PI; }
         float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
         if (str > newFriction) { str -= newFriction; }
         else if (str != 0.0) { str = 0.0; }
@@ -147,7 +161,7 @@ void CubeObj::tick() {
     
       // And since moving, update your direction!
       float dir = atan(momentumX*1.0/momentumZ);
-      if (momentumZ < 0) { dir += M_PI; }
+      if (momentumZ < 0.00000000) { dir += M_PI; }
       float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
       // Now update direction... maybe, if str was strong enough
       if (str >= newFriction) {
@@ -182,6 +196,7 @@ void CubeObj::tick() {
   }
 
   //cout << "OneB_08 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+  //if (isPlayer()) { cout << "End   MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
 
   //cout << "End Strength:  " << strength << " and Direction: " << direction << endl;
 }
@@ -422,6 +437,7 @@ void CubeObj::moveY(float n) {
 void CubeObj::moveZ(float n) {
   momentumZ += n * movementSpeed / movementDivision;
   // NEWDELETEME: cout << "momentumZ += " << n << " * " << movementSpeed << " / " << movementDivision << " = " << n*movementSpeed << " / " << movementDivision << " = " << momentumZ << endl;
+  // NEWDELETEME: cout << "momentumZ = " << momentumZ << endl;
   toldToMove = (n != 0);
 }
 void CubeObj::movePos(int n, int o, int p) {

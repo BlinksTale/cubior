@@ -131,5 +131,7 @@ const int invisibleMax = 5;
     void switchLevelShadows();
     
     bool getShadow(int);
-    
+    bool getCameraLocked(int);
+    int snapLockAngle(int);
+
 #endif 

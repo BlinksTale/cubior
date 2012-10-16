@@ -1247,3 +1247,20 @@ bool getShadow(int i) {
   // So no other cubes were found!
   return false;
 }
+
+// give if camera locked in any way
+bool getCameraLocked(int i) {
+  return camera[i].getLockedToPlayer()
+      || camera[i].getLockedToPlayerX()
+      || camera[i].getLockedToPlayerZ();
+}
+
+// Take an angle and lock it to a 45 degree mark
+int snapLockAngle(int i) {
+  int lockedAngleY = i;
+  while (lockedAngleY < 0) { lockedAngleY += 360; }
+  int distFromLock = (int)(lockedAngleY) % 45;
+  int extraOne = (distFromLock > 22 ? 1 : 0);
+  lockedAngleY = (floor((lockedAngleY - distFromLock) / 45.0) + extraOne) * 45.0;
+  return lockedAngleY;
+}
