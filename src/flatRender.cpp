@@ -45,13 +45,13 @@ static const bool refreshOnIdle = false; // works better, otherwise hangs when P
 
 // Cubior and Cube Count vals (duplicates from Gameplay, will link them later)
 const int cubiorNum = cubiorCount;
-const int maxCubeNum = maxCubeCount;// 9 + playableWidth*playableDepth;
+const int maxCubeNum = maxVisualCubeCount;// 9 + playableWidth*playableDepth;
 int cubeNum;
 char pausedText[50];
 bool levelShadows = true;
 
 // Map drawing stuff for faster drawing
-const int cubesCovered = 11000;//maxCubeCount;
+const int cubesCovered = 11000;//22000;//11000;//maxCubeCount;
 GLuint betterIndices[36*cubesCovered];
 
 // angle of cubior while he rotates

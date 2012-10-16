@@ -36,6 +36,7 @@ void Map::removeCubeAt(int w, int h, int d) {
 }
 
 void Map::wipeMap() {
+  cout << "Wiping " << width << ", " << height << ", " << depth << endl;
   // Have some size first
   if (width>0 && height>0 && depth>0) {
     // Then delete contents in all slots

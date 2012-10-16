@@ -30,9 +30,13 @@ const int maxHeight= playableHeight + mapEdge*2;
 const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
 const int totalLevels = 20; // for now, update this when new levels are added
+const int padding = 2;
 
 const int cubiorCount = 4;
-const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth); // padding = 1
+// All unmoving cubes, even invisible
+const int maxCubeCount = (playableHeight)*(playableWidth)*(playableDepth);
+// Just the visible unmoving cubes
+const int maxVisualCubeCount = (playableHeight-2*padding)*(playableWidth-2*padding)*(playableDepth-2*padding);
 
 // Variables for how long we've moved towards intended, yet target is visible..
 const int visibleIntendedMax = 0;
