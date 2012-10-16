@@ -74,6 +74,7 @@ Map* MapReader::readMap(const string& s) {
         blue = atof((row.substr(5,row.length()-5)).c_str());
       }
       // Start the spot reading!
+      // (read in the cubes from their individual spots)
       if (row.length()==0 && !readingMap && widthFound && heightFound && depthFound) {
         readingMap = true;
         // But also check to see if we have a full set of new colors

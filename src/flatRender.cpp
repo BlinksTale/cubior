@@ -762,6 +762,18 @@ void initVisuals() {
     // Yellow case
     if (getCube(i)->getMaterial()==9) {
       cubeShape[i].initVisuals(0.95,1.00,0.50, 0.9,1.0,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    // Cave case
+    } else if (getCube(i)->getMaterial()==7) {
+      cubeShape[i].initVisuals(0.10,0.15,0.65, 0.20,0.10,0.55,0.25,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    // Bridge case
+    } else if (getCube(i)->getMaterial()==6) {
+      cubeShape[i].initVisuals(0.80,0.52,0.25, 0.90,0.62,0.35, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    // Canyon case
+    } else if (getCube(i)->getMaterial()==5) {
+      cubeShape[i].initVisuals(0.90,0.35,0.11, 1.0,0.58,0.41, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+    // Wet soil case
+    } else if (getCube(i)->getMaterial()==4) {
+      cubeShape[i].initVisuals(0.4,0.4,0.4, 0.5,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
     // Snow case
     } else if (getCube(i)->getMaterial()==3) {
       cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
