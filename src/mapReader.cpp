@@ -99,7 +99,6 @@ Map* MapReader::readMap(const string& s) {
               newCube->setMaterial(mapColor);
               newCube->tick();
               map->addCube(newCube,w,h,d);
-              map->setCubeCount(map->getCubeCount()+1);
             }
             w++;
           }
@@ -128,7 +127,6 @@ Map* MapReader::readMap(const string& s) {
         newCube->setMaterial(8);
         newCube->tick();
         map->addCube(newCube,w,h,map->getDepth()-padding+d); // THIS IS CORRECT ON LEVEL 0
-        map->setCubeCount(map->getCubeCount()+1);
       }
       // Front Wall
       for (int d=0; d<padding; d++) {
@@ -137,7 +135,6 @@ Map* MapReader::readMap(const string& s) {
         newCube->setMaterial(8);
         newCube->tick();
         map->addCube(newCube,w,h,d); // THIS IS CORRECT ON LEVEL 0
-        map->setCubeCount(map->getCubeCount()+1);
       }
     }
   }
@@ -151,7 +148,6 @@ Map* MapReader::readMap(const string& s) {
         newCube->setMaterial(8);
         newCube->tick();
         map->addCube(newCube,map->getWidth()-padding+w,h,d);
-        map->setCubeCount(map->getCubeCount()+1);
       }
       // Left Wall
       for (int w=0; w<padding; w++) {
@@ -160,9 +156,13 @@ Map* MapReader::readMap(const string& s) {
         newCube->setMaterial(8);
         newCube->tick();
         map->addCube(newCube,w,h,d);
-        map->setCubeCount(map->getCubeCount()+1);
       }
     }
   }
+  // Finally, get rid of any extra cubes (totally enclosed in other cubes)
+  //map->wipeSurrounded();
+  //map->wipeMap();
+
+  // Then return it!
   return map;
 }

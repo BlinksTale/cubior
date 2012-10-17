@@ -161,8 +161,10 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
   c1->setCollision(true);
   c2->setCollision(true);
-  c1->applyCollisionMomentumZ();
-  c2->applyCollisionMomentumZ();
+  if (!c1->isPlayer() || !c2->isPlayer()) {
+    c1->applyCollisionMomentumZ();
+    c2->applyCollisionMomentumZ();
+  }
 //    balanceMomentum(c1,c2,2);
   } else if (diffX != 0) {// && ((diffX > 0 && !c1e[0] && !c2e[1]) || (diffX < 0 && !c2e[0] && !c1e[1]))) {
     //cout << "CHOSE x DIFF " << diffX << endl;
@@ -170,8 +172,10 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
   c1->setCollision(true);
   c2->setCollision(true);
-  c1->applyCollisionMomentumX();
-  c2->applyCollisionMomentumX();
+  if (!c1->isPlayer() || !c2->isPlayer()) {
+    c1->applyCollisionMomentumX();
+    c2->applyCollisionMomentumX();
+  }
   // balanceMomentum(c1,c2,0);
   }
 }

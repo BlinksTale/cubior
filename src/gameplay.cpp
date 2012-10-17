@@ -112,7 +112,7 @@ void resetCubior(int i) {
 	int distFromCenter = (i+1)/2;
 	int directionFromCenter = 1+(i%2)*(-2);
   //cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
-  cubior[i].setPos(0*1/2,1000, max(currentMapDepth*tileSize*1/4,currentMapDepth*tileSize/2-tileSize*2));
+  cubior[i].setPos(i*200-300,1000, max(currentMapDepth*tileSize*1/4,currentMapDepth*tileSize/2-tileSize*2));
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);

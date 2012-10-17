@@ -29,10 +29,12 @@ void Map::init() {
 
 void Map::addCube(CubeObj* cube, int w, int h, int d) {
   map[w][h][d] = cube;
+  cubeCount++;
 }
 
 void Map::removeCubeAt(int w, int h, int d) {
   delete map[w][h][d];
+  cubeCount--;
 }
 
 void Map::wipeMap() {
@@ -44,6 +46,31 @@ void Map::wipeMap() {
       for (int h=0; h<height; h++) {
         for (int d=0; d<depth; d++) {
           removeCubeAt(w,h,d);
+        }
+      }
+    }
+  }
+}
+
+void Map::wipeSurrounded() {
+  //cout << "Wiping " << width << ", " << height << ", " << depth << endl;
+  // Have some size first
+  if (width>0 && height>0 && depth>0) {
+    // Then delete contents in all slots
+    for (int cX=1+padding; cX<width-padding-1; cX++) {
+      for (int cY=1+padding; cY<height-padding-1; cY++) {
+        for (int cZ=1+padding; cZ<depth-padding-1; cZ++) {
+          // Find neighbors
+          bool n0 = map[cX+1][cY][cZ] != 0;
+          bool n1 = map[cX-1][cY][cZ] != 0;
+          bool n2 = map[cX][cY+1][cZ] != 0;
+          bool n3 = map[cX][cY-1][cZ] != 0;
+          bool n4 = map[cX][cY][cZ+1] != 0;
+          bool n5 = map[cX][cY][cZ-1] != 0;
+          // All full? Delete self
+          if (n0 && n1 && n2 && n3 && n4 && n5) {
+            removeCubeAt(cX,cY,cZ);
+          }
         }
       }
     }

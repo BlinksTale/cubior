@@ -25,6 +25,7 @@ class Map {
     void addCube(CubeObj*,int,int,int);
     void removeCubeAt(int,int,int);
     void wipeMap();
+    void wipeSurrounded();
 
     void setWidth(int);
     void setHeight(int);
