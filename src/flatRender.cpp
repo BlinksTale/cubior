@@ -777,13 +777,13 @@ void initVisuals() {
       // Canyon case
       } else if (getCube(i)->getMaterial()==5) {
         cubeShape[i].initVisuals(0.90,0.35,0.11, 1.0,0.58,0.41, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Wet soil case
+      // Rock case
       } else if (getCube(i)->getMaterial()==4) {
         cubeShape[i].initVisuals(0.4,0.4,0.4, 0.5,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Snow case
       } else if (getCube(i)->getMaterial()==3) {
         cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Stone case
+      // Castle Wall case
       } else if (getCube(i)->getMaterial()==2) {
         cubeShape[i].initVisuals(0.52,0.62,0.54, 0.9,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Grass case
