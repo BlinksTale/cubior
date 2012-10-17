@@ -163,8 +163,14 @@ void gameplayStart(string levelToLoad) {
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
     }
 
-    // Then ensure at least P1 is playing
-    cubiorPlayable[0] = true;
+    // If NOBODY playing...
+    if (!cubiorPlayable[0] && 
+        !cubiorPlayable[1] && 
+        !cubiorPlayable[2] && 
+        !cubiorPlayable[3]) { 
+      // Then ensure at least P1 is playing
+      cubiorPlayable[0] = true;
+    }
 
     // and Cube Obstacle start states
     for (int i=0; i<cubeCount; i++) {
@@ -970,7 +976,7 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
     cX = getCollisionMapSlot(&tracker,0);
     cY = getCollisionMapSlot(&tracker,1);
     cZ = getCollisionMapSlot(&tracker,2);
-    
+    /*
     // Update the Same Spots
     sameX[sameSpot] = cX;
     sameY[sameSpot] = cY;
@@ -989,7 +995,7 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
     // Since we got stuck by even trying.
     if (allSame) {
       return false;
-    }
+    }*/
 
     if (showData) {
       cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";

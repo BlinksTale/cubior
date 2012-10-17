@@ -39,12 +39,18 @@ CameraObj::CameraObj() {
 
 // Set to starting pos, start of a new level
 void CameraObj::resetPos() {
-  x = 0;
-  y = 1000000;
-  z = -1000;
-  x = 0;
-  z = getMapDepth()*tileSize/2+tileSize*6;
-  angleX = -45;
+  if (permanentTarget) {
+    x = permanentTarget->getX();
+    y = permanentTarget->getY()+50*camHeight;
+    z = permanentTarget->getZ()+6*tileSize;//getMapDepth()*tileSize/2;//4*camHeight;
+  } else {
+    x = 0;
+    y = 1000000;
+    //z = -1000;
+    //x = 0;
+    z = getMapDepth()*tileSize/2+tileSize*6;
+  }
+  angleX = 0;
   angleY = 0;
   angleZ = 0;
   lastAngleY = 0.0;
@@ -420,10 +426,11 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
   permanentTargetGoal = targetGoal;
   lastLandedY = target->getY();
   lastLanded = target->getLanded();
-  x = target->getX()-camHeight;
-  y = target->getY()+50*camHeight;
-  z = target->getZ()-camHeight;
+  //x = target->getX()-camHeight;
+  //y = target->getY()+50*camHeight;
+  //z = target->getZ()-6*tileSize;//4*camHeight;
   tracker->setTarget(permanentTarget);
+  resetPos();
   follow(
       tracker->getX(),
       permanentTarget->getY(),
