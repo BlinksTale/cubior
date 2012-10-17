@@ -30,8 +30,8 @@
 //#include <sys/time.h> // for linux time
 
 // Starting values that change often in testing
-bool printFPS = true;
-bool fullscreen = false;
+bool printFPS = false;
+bool fullscreen = true;
 bool drawOutlines = false;
 bool levelShadows = true; // at this point, shadows do not influence lag
 
