@@ -42,6 +42,8 @@ void CameraObj::resetPos() {
   x = 0;
   y = 1000000;
   z = -1000;
+  x = 0;
+  z = getMapDepth()*tileSize/2+tileSize*6;
   angleX = -45;
   angleY = 0;
   angleZ = 0;
@@ -116,6 +118,8 @@ void CameraObj::updateMeans() {
     meanX += camPosX[i];
     meanY += camPosY[i];
     meanZ += camPosZ[i];
+    //cout << "Old meanAngleX " << meanAngleX << " vs camAngleX[" << i << "] " << camAngleX[i] << endl;
+   // meanAngleX = matchRangeOf(camAngleX[i],meanAngleX);
     meanAngleX += camAngleX[i];
     meanAngleY += camAngleY[i];
     meanAngleZ += camAngleZ[i];
@@ -123,13 +127,24 @@ void CameraObj::updateMeans() {
   // And divide 'em back down to size
   meanX /= camArraySize;
   meanY /= camArraySize;
+  //meanY = -2400; // DELEMETE angleX problem
   meanZ /= camArraySize;
   meanAngleX /= camArraySize;
   meanAngleY /= camArraySize;
   meanAngleZ /= camArraySize;
+  //cout << "MeanAngleX was " << meanAngleX << endl;
   //cout << "meanAngleX is " << meanAngleX << endl;
-  if (meanAngleX > 360) { meanAngleX = 360; }
-  if (meanAngleX < 270)  { meanAngleX = 270;  }
+  /*while (meanAngleX < 0)   { meanAngleX += 360; }
+  while (meanAngleX > 360) { meanAngleX -= 360; }
+  if (meanAngleX < 180) {
+    if (meanAngleX > 90) { meanAngleX = 90; } 
+    if (meanAngleX < 0)  { meanAngleX = 0;  }
+  } else {
+    if (meanAngleX > 360) { meanAngleX = 360; }
+    if (meanAngleX < 270) { meanAngleX = 270; }
+  }*/
+  //meanAngleX = 370;
+  //cout << "MeanAngleX now is " << meanAngleX << endl;
 }
 
 void CameraObj::updateJustFixedVisibility() {
@@ -530,8 +545,13 @@ bool CameraObj::goalOutsideNearRange() {
 
 // Convert a diff in two dimensions to an angle
 float CameraObj::deltasToDegrees(int opp, int adj) {
-  float PI = 3.14159;
-  float result = (adj!=0) ? atan(opp/(adj*1.0)) : (-2*(opp > 0)+1)*PI/2.0;
+  float result;
+  
+  if (adj != 0) {
+    result = atan(opp*1.0/(adj*1.0));
+  } else {
+    result = (-2*(opp > 0)+1)*M_PI/2.0;
+  }
 
   // This accounts for how atan only covers the top half of the circle for degrees
   // cout << "result at this point is " << result << endl;
@@ -541,7 +561,30 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
   //if (opp < 0) { result += (-2*(adj<0)+1)*PI-result; } // true = 1, false = 0
 
   // Then convert radians to degrees
-  result *= 360.0/(2.0*PI);
+  result *= 360.0/(2.0*M_PI);
+  return result;
+}
+
+float CameraObj::fixedDeltasToDegrees(int opp, int adj) {
+  float result;
+  
+  if (adj != 0) {
+    result = atan(opp*1.0/(adj*1.0));
+  } else {
+    // Just straight up look out (assuming fixed is only used for camera)
+    // with a 90 degree return value.
+    result = M_PI/2.0 - M_PI*(opp<0);
+    //(-2*(opp > 0)+1)*M_PI/2.0;
+  }
+
+  // If adj < 0, must flip it over to be above 90 degree mark and negated
+  // to move from 90 to 180 instead of from 0 to -90.
+  if (adj < 0) {
+    result = -result + M_PI/2.0;
+  }
+
+  // Then convert radians to degrees
+  result *= 360.0/(2.0*M_PI);
   return result;
 }
 
@@ -663,9 +706,14 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     /* Vertical aiming segment */
     float targetY = findTargetY(b, landed);
     // quick temp var for the triangle between ground hyp and y diff
-    float vertAtan = deltasToDegrees(groundDistTo(a,c),y-targetY);  
+    //cout << "groundDistTo(" << a << "," << c <<") = " << groundDistTo(a,c) << endl;
+    //cout << "y " << y << " - TargetY " << targetY << " = " << y-targetY << endl;
+    float vertAtan = fixedDeltasToDegrees(groundDistTo(a,c),y-targetY);  
+    //cout << "vertAtan = " << vertAtan << endl;
     // angleXToBe is how far down to be looking, from the camera, to the player
-    float angleXToBe =  vertAtan != 0 ? 270 + vertAtan : angleX;
+    float angleXToBe = 270 + vertAtan;// vertAtan != 0 ? 270 + vertAtan : angleX;
+    //if (angleXToBe > 360) { y++; }
+    //cout << "xToBe " << angleXToBe << endl;
 
     /* Horizontal aiming segment */
     // The 1.0 is necessary for floating point division, as a/x/c/z are all ints

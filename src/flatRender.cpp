@@ -30,12 +30,14 @@
 //#include <sys/time.h> // for linux time
 
 // Starting values that change often in testing
-bool printFPS = false;
+bool printFPS = true;
 bool fullscreen = false;
 bool drawOutlines = false;
+bool levelShadows = true; // at this point, shadows do not influence lag
 
 // Intended Frames Per Second do not change
 static const int FPS = 60;
+int lastFPS = FPS;
 int windowWidth = 640;
 int windowHeight = 480;
 int oldWindowWidth = windowWidth;
@@ -48,7 +50,6 @@ const int cubiorNum = cubiorCount;
 const int maxCubeNum = maxVisualCubeCount;// 9 + playableWidth*playableDepth;
 int cubeNum;
 char pausedText[50];
-bool levelShadows = true;
 
 // Map drawing stuff for faster drawing
 const int cubesCovered = 11000;//22000;//11000;//maxCubeCount;
@@ -135,7 +136,11 @@ int getFPS() {
   int newDiff = newClock - lastFrame;
   lastFrame = newClock;
   averageDiff = averageDiff*0.9 + newDiff*0.1;
-  return CLOCKS_PER_SEC/averageDiff; // wtf xD so lazy FIXME
+  lastFPS = CLOCKS_PER_SEC/averageDiff; // wtf xD so lazy FIXME
+  return lastFPS;
+}
+int getLastFPS() {
+  return lastFPS;
 }
 
 // Time since last called
@@ -284,6 +289,15 @@ void displayFor(int player) {
   // Then draw all shadows in order of height!
   drawAllShadows(player);
   
+  // Print fullscreen FPS
+  if (printFPS && fullscreen) {
+    int n;
+      n=sprintf(pausedText, "FPS %d", getLastFPS());
+    printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
+    int d;
+      d=sprintf(pausedText, "Rate %f", getFPSRate());
+    printString(pausedText,playerX[player],playerY[player]+100,playerZ[player]);
+  }
   // Print pause menu
   if (getGameplayRunning()) {
       int n, a=cameraPointer[player]->getMeanAngleX(); //truth
@@ -1077,4 +1091,9 @@ void toggleLevelShadows() {
   //levelShadows = !levelShadows;
   // HIJACKED FOR OUTLINES! MUAHAHAA
   drawOutlines = !drawOutlines;
+}
+
+float getFPSRate() {
+  float result = FPS*1.0/lastFPS;
+  return result*0.5+1.0*0.5;
 }

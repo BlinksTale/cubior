@@ -115,7 +115,7 @@ Map* MapReader::readMap(const string& s) {
   }
 
   else cout << "Unable to open " << file << endl; 
-	
+
   // Finally, just before returning it, add invisible walls
   // Z wallz first
   for (int w=0; w<map->getWidth(); w++) {
@@ -162,6 +162,7 @@ Map* MapReader::readMap(const string& s) {
   // Finally, get rid of any extra cubes (totally enclosed in other cubes)
   //map->wipeSurrounded();
   //map->wipeMap();
+  // alright, so wipeSurrounded REALLY doesn't work right now. Try moving it to gameplay?
 
   // Then return it!
   return map;

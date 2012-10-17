@@ -45,6 +45,8 @@
 
     // Time keeping
     int getFPS();
+    int getLastFPS();
+    float getFPSRate();
     int getTimePassed();
 
 #endif 

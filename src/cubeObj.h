@@ -10,6 +10,9 @@
 
 class CubeObj {
   protected:
+    static const int maxMovement = 49; // less than half of a cube width
+    static const int maxFall = 49; // less than half of a cube width
+    bool fpsRateEnabled;
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove;
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
@@ -17,7 +20,7 @@ class CubeObj {
     bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction;
-    int maxJump, jumpSpeed, jumpSpeedRatio, gravity;
+    float maxJump, jumpSpeed, jumpSpeedRatio, gravity;
     int material;
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;
@@ -73,11 +76,11 @@ class CubeObj {
     void changePosTowards(CubeObj*,double);
     void changePosTowards(int, int, int, double);
      
-    void setMomentumX(int);
-    void setMomentumY(int);
-    void setMomentumZ(int);
+    void setMomentumX(float);
+    void setMomentumY(float);
+    void setMomentumZ(float);
     
-    void movePos(int,int,int);
+    void movePos(float,float,float);
     void moveX(float);
     void moveY(float);
     void moveZ(float);
@@ -118,6 +121,8 @@ class CubeObj {
     float getDirection();
     void setInvisible(bool b) { invisible = b; }
     bool isInvisible() { return invisible; }
+
+    float myFpsRate();
 };
 
 #endif 

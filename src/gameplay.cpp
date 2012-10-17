@@ -177,11 +177,14 @@ void gameplayStart(string levelToLoad) {
       for (int x=0; x<levelMap->getWidth(); x++) {
         for (int y=0; y<levelMap->getHeight(); y++) {
           if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
-            // FIXME: Should just grab cubeAt and put it in cube array. Cube array must be pointer then?
-            cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
-            cube[currentCube].setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
-            cube[currentCube].setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
-            currentCube++;
+            // Removing surrounded cubes increases lag, actually
+            //if (!levelMap->isSurrounded(x,y,z)) {
+              // FIXME: Should just grab cubeAt and put it in cube array. Cube array must be pointer then?
+              cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
+              cube[currentCube].setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
+              cube[currentCube].setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
+              currentCube++;
+            //}
           }
         }
       }
@@ -264,7 +267,7 @@ void loadLevel(int levelNum) {
 void gameplayLoop() {
   // NEWDELETEME: cout << "player to goal angle = " << getAngleBetween(cubior[0].getX(),cubior[0].getZ(),goal.getX(),goal.getZ()) << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
-        
+  
   if (gameplayRunning && !winningShot) {
 	  
 	  // Only recognize a level change for one loop
@@ -283,7 +286,7 @@ void gameplayLoop() {
         }
       }
     }
-  	// and the goal
+    // and the goal
     goal.tick();
     addToCollisionMap(&goal, collisionMap);
 
@@ -319,8 +322,8 @@ void gameplayLoop() {
           cout << "and tileSize is " << tileSize << endl;
         }*/
       }
-    }
-    
+    } 
+
     // Finally, make camera catchup
     for (int i=0; i<cubiorCount; i++) {
   	  if (changeLevel) { break; }
@@ -343,8 +346,11 @@ void gameplayLoop() {
         //cout << "for2loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         //cout << "grounded = " << cubior[i].getGrounded() << endl;
         //cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
+        
         // Only look for new walls if not moving much
-        if (!cubior[i].isMovingQuickly() && playerVisible(i) && cubior[i].getStillGrounded()) {
+        if (!cubior[i].isMovingQuickly()) {
+          if (playerVisible(i)) {
+            if (cubior[i].getStillGrounded()) {
           // Keep track of how often each direction is requested.
           xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
 
@@ -362,7 +368,10 @@ void gameplayLoop() {
             if (zWall[2]) { zNear[i]++; } // far space
             if (zWall[3]) { zFar[i]++;  } // near space
           }
+            }
+          }
         }
+
         //cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
         // Do not try to adjust for walls if in goal range
@@ -479,6 +488,7 @@ void gameplayLoop() {
     }
 
   } else if (winningShot) {
+
     // How to handle the victory screen
     rotateAroundPlayer(winner, winningHyp);
     winningHyp *= winningZoom;
@@ -496,7 +506,7 @@ void gameplayLoop() {
     }
   }
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
-
+  
 }
 
 /*******************
@@ -895,7 +905,7 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   
   bool showData = false;
   int cX = aX, cY = aY, cZ = aZ;
-  
+
   // Tracker moves along the line, getting as close as possible
   CubeObj tracker;
   tracker.setPos(slotToPosition(cX,0), slotToPosition(cY,1), slotToPosition(cZ,2));
@@ -916,10 +926,21 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   if (cY > maxHeight) {
     return true;
   }
-  
+
+  // Only tolerate not moving up to six times before quitting
+  int sameSpot = 0;
+  const int sameMax = 5;
+  int sameX[sameMax];
+  int sameY[sameMax];
+  int sameZ[sameMax];
+  sameX[0] = cX;
+  sameY[0] = cY;
+  sameZ[0] = cZ;
+  sameSpot++;
+
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
-    
+
     // Found something there? Make sure it has 2D of neighbors (is a real threat)
     if ((cX < maxWidth && cX >= 0 && cY < maxHeight && cY >= 0 && cZ < maxDepth && cZ >= 0) && 
       m[cX][cY][cZ] != NULL && !(m[cX][cY][cZ]->isInvisible()) && m[cX][cY][cZ]->isWall()) {
@@ -937,14 +958,39 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
       
       return false;
     }
-    // Otherwise, move closer
-    tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/16.0); // was /4
+    // Otherwise, if *something* is a bigger dist than one away, keep moving closer!
+    if (abs(cX-gX)>1 || abs(cY-gY)>1 || abs(cZ-gZ)>1) {
+      tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/16.0); // was /4
+    } else {
+      // But if not, well, close enough! Next move would have been there anyways
+      return true;
+    }
 
     // Then Reset Cam Tracker Pos
     cX = getCollisionMapSlot(&tracker,0);
     cY = getCollisionMapSlot(&tracker,1);
     cZ = getCollisionMapSlot(&tracker,2);
     
+    // Update the Same Spots
+    sameX[sameSpot] = cX;
+    sameY[sameSpot] = cY;
+    sameZ[sameSpot] = cZ;
+    sameSpot++;
+    if (sameSpot >= sameMax) { sameSpot = 0; }
+    // All the same? Quit!
+    bool allSame = true;
+    for (int s=0; s<sameMax-2; s++) {
+      allSame = allSame && (sameX[s] == sameX[s+1] || sameX[s] == sameX[s+2]);
+      allSame = allSame && (sameY[s] == sameY[s+1] || sameY[s] == sameY[s+2]);
+      allSame = allSame && (sameY[s] == sameY[s+1] || sameY[s] == sameY[s+2]);
+    }
+    //cout << " then all the same is " << allSame;
+    // No differences? Quit! Just pretend we can't see the player
+    // Since we got stuck by even trying.
+    if (allSame) {
+      return false;
+    }
+
     if (showData) {
       cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
       cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
@@ -963,7 +1009,7 @@ bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][m
   // it will follow a line from the cameraObj to the player within the perm map
   // checking each slot along that line, and returning false if there is an
   // occupation before the player is reached.
-
+  
   //cout << "camera currently at " << (c2->getX()) << ", " << (c2->getY()) << ", " << (c2->getZ()) << endl;
   // Cam Tracker Pos
   // will check out all the spots before trying to move into them
@@ -977,17 +1023,17 @@ bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][m
   int gY = getCollisionMapSlot(target,1);
   int gZ = getCollisionMapSlot(target,2);
   //cout << "Checking slots visibility " << cX << ", " << cY << ", " << cZ << " against " << gX << ", " << gY << ", " << gZ << endl;
+  
   return checkSlotPathVisibility(cX,cY,cZ,gX,gY,gZ,m);
 }
 
 // Tells Camera if it can see player or not, sets up Line of Sight
 void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
-
+  
   // Used to check all spaces between cam and target,
   // it will follow a line from the cameraObj to the player within the perm map
   // checking each slot along that line, and returning false if there is an
   // occupation before the player is reached.
-
   CubeObj tracker;
   tracker.setPos(c->getX(), c->getY(), c->getZ());
   c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
@@ -1211,16 +1257,16 @@ void setInvincibility(int n, bool newState) { cubior[n].setInvincibility(newStat
 
 int getGravity() { return gravity; }
 
-void  enableGoodCollision() { goodCollision = true; }
+void  enableGoodCollision() { goodCollision = true;  }
 void disableGoodCollision() { goodCollision = false; }
 void  stopGameplay() { gameplayRunning = false; }
-void startGameplay() { gameplayRunning = true; }
+void startGameplay() { gameplayRunning = true;  }
 bool getGameplayRunning() { return gameplayRunning; }
-int getMapWidth()   { return levelMap->getWidth() ; }
-int getMapHeight()   { return levelMap->getHeight() ; }
-int getMapDepth()   { return levelMap->getDepth() ; }
-float getMapRed()   { return levelMap->getRed(); }
-float getMapGreen() { return levelMap->getGreen(); }
+int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
+int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}
+int getMapDepth()   { if (levelMap != NULL) { return levelMap->getDepth() ; } else { return 0; }}
+float getMapRed()   { return levelMap->getRed();  }
+float getMapGreen() { return levelMap->getGreen();}
 float getMapBlue()  { return levelMap->getBlue(); }
 
 // Return the angle between two points.
@@ -1279,4 +1325,10 @@ int snapLockAngle(int i) {
   int extraOne = (distFromLock > 22 ? 1 : 0);
   lockedAngleY = (floor((lockedAngleY - distFromLock) / 45.0) + extraOne) * 45.0;
   return lockedAngleY;
+}
+
+// How much to move compared to how fast game
+float fpsRate() {
+  // pass it along from flatRender
+  return getFPSRate();
 }

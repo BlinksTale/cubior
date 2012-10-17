@@ -138,4 +138,6 @@ const int invisibleMax = 5;
     bool getCameraLocked(int);
     int snapLockAngle(int);
 
+    float fpsRate(); // how much more we need to move compared to expected speed
+
 #endif 

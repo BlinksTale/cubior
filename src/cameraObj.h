@@ -112,6 +112,7 @@ class CameraObj : public CubeObj {
     float angleToGoal();
     float angleBetweenPlayerAndGoal();
     float deltasToDegrees(int, int);
+    float fixedDeltasToDegrees(int, int);
 
     int get(int);
     int getX();

@@ -12,10 +12,15 @@
 #include <cmath> // for atan
 #define _USE_MATH_DEFINES // for M_PI
 #include <math.h> // for M_PI
+#include <cmath> // for max()/min()
+
 using namespace std;
 
 CubeObj::CubeObj() {
   
+  // FPS Rate in use?
+  fpsRateEnabled = true;
+
   // Friction for all techniques
   newFriction = 2.35;
   friction =  2 ;
@@ -79,6 +84,7 @@ CubeObj::CubeObj() {
 }
 
 void CubeObj::tick() {
+  //if (playerStatus) { cout << "Start of the cube loop" << endl; }
   //cout << "Bgn Strength:  " << strength << " and Direction: " << direction << endl;
   //cout << "TICK CALLED";
   //if (toldToMove) { cout << " and TOLD TO MOVE" << endl; }
@@ -105,23 +111,42 @@ void CubeObj::tick() {
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
+    if (momentumY > maxFall) { momentumY = maxFall; }
+    if (momentumY < -maxFall) { momentumY = -maxFall; }
     if (momentumZ > maxSpeed) { momentumZ = maxSpeed; }
     if (momentumZ < -maxSpeed) { momentumZ = -maxSpeed; }
+    //if (momentumX != 0) { cout << "X " << momentumX << endl; }
     // Then move by that momentum
     if (abs(momentumX) > 0.00001) {
-      x += momentumX; 
+      if (momentumX > 0) {
+        // lesser of two positives
+        x += min( 1*(float)maxMovement,(float)momentumX*myFpsRate()); 
+      } else {
+        // greater of two negatives
+        x += max(-1*(float)maxMovement,(float)momentumX*myFpsRate()); 
+      }
     } else {
       // temp fix due to odd snap when this is done *before* sending keypresses
       // otherwise, would simply not send move commands that are this small
       momentumX = 0.0000000000;
     }
+    //if (momentumY != 0) { cout << "Y " << momentumY << endl; }
     if (abs(momentumY) > 0.00001) {
-      y += momentumY;
+      if (momentumY > 0) {
+        y += min( 1*(float)maxMovement,(float)momentumY*myFpsRate());
+      } else {
+        y += max(-1*(float)maxMovement,(float)momentumY*myFpsRate());
+      }
     } else {
       momentumY = 0.0000000000;
     }
+    //if (momentumZ != 0) { cout << "Z " << momentumZ << endl; }
     if (abs(momentumZ) > 0.00001) {
-      z += momentumZ;
+      if (momentumZ > 0) {
+        z += min( 1*(float)maxMovement,(float)momentumZ*myFpsRate());
+      } else {
+        z += max(-1*(float)maxMovement,(float)momentumZ*myFpsRate());
+      }
     } else {
       momentumZ = 0.0000000000;
     }
@@ -143,7 +168,7 @@ void CubeObj::tick() {
         float dir = atan(momentumX*1.0/momentumZ);
         if (momentumZ < 0.00000000) { dir += M_PI; }
         float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
-        if (str > newFriction) { str -= newFriction; }
+        if (str > newFriction*myFpsRate()) { str -= newFriction*myFpsRate(); }
         else if (str != 0.0) { str = 0.0; }
         // Now update direction... maybe, if str was strong enough
         if (str >= newFriction) {
@@ -200,7 +225,7 @@ void CubeObj::tick() {
 
   //cout << "OneB_08 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
   //if (isPlayer()) { cout << "End   MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
-
+  //if (playerStatus) { cout << "End of the cube loop" << endl; }
   //cout << "End Strength:  " << strength << " and Direction: " << direction << endl;
 }
 
@@ -227,15 +252,15 @@ void CubeObj::calculateDiff() {
 }
 // Apply gravity!
 void CubeObj::fall() {
-  momentumY -= gravity;
+  momentumY -= gravity*myFpsRate();
   doubleLastGrounded = lastGrounded;
   lastGrounded = grounded;
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
   if (getNotGrounded() && landedOn != NULL) {
-    momentumX += landedOn->getMomentumX();
+    momentumX += landedOn->getMomentumX(); // maybe *fpsRate()?
     //momentumY += landedOn->getMomentumY();
-    momentumZ += landedOn->getMomentumZ();
+    momentumZ += landedOn->getMomentumZ(); // maybe *fpsRate()?
     direction = landedOn->getDirection() + landedOnDirectionDiff;
     landedOn = NULL;
     landedOnCount = 0;
@@ -410,7 +435,7 @@ void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
   // Find ultimate hyp and ratio
   float hypXZ  = sqrt((double)(n*n + p*p));
   float hypXYZ = sqrt((double)(hypXZ*hypXZ + o*o));
-  double ratio = delta*(-1.0)/hypXYZ;
+  double ratio = delta*(-1.0)/hypXYZ*myFpsRate();
   //cout << "Finding hypXZ as " << hypXZ << " and hypXYZ as " << hypXYZ << " and ratio as " << ratio << endl;
 
   //cout << "hypXYZ is " << hypXYZ << " where delta is " << delta << endl;
@@ -432,30 +457,30 @@ void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
 }
 
 // SetMomentum is absolute momentum
-void CubeObj::setMomentumX(int n) { momentumX = n * movementSpeed / movementDivision; }
-void CubeObj::setMomentumY(int n) { momentumY = n * movementSpeed / movementDivision; }
-void CubeObj::setMomentumZ(int n) { momentumZ = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumX(float n) { momentumX = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumY(float n) { momentumY = n * movementSpeed / movementDivision; }
+void CubeObj::setMomentumZ(float n) { momentumZ = n * movementSpeed / movementDivision; }
 
 // Move is relative momentum
 void CubeObj::moveX(float n) {
-  momentumX += n * movementSpeed / movementDivision;
+  momentumX += n * movementSpeed*myFpsRate() / movementDivision;
   // NEWDELETEME: cout << "momentumX = " << momentumX << endl;
   toldToMove = (n != 0);
 }
 void CubeObj::moveY(float n) {
-  momentumY += n * jumpSpeed / movementDivision;
+  momentumY += n * jumpSpeed*myFpsRate() / movementDivision;
   toldToMove = (n != 0);
 }
 void CubeObj::moveZ(float n) {
-  momentumZ += n * movementSpeed / movementDivision;
+  momentumZ += n * movementSpeed*myFpsRate() / movementDivision;
   // NEWDELETEME: cout << "momentumZ += " << n << " * " << movementSpeed << " / " << movementDivision << " = " << n*movementSpeed << " / " << movementDivision << " = " << momentumZ << endl;
   // NEWDELETEME: cout << "momentumZ = " << momentumZ << endl;
   toldToMove = (n != 0);
 }
-void CubeObj::movePos(int n, int o, int p) {
-  momentumX += n * movementSpeed / movementDivision;
-  momentumY += o * movementSpeed / movementDivision;
-  momentumZ += p * movementSpeed / movementDivision;
+void CubeObj::movePos(float n, float o, float p) {
+  momentumX += n * movementSpeed*myFpsRate() / movementDivision;
+  momentumY += o * movementSpeed*myFpsRate() / movementDivision;
+  momentumZ += p * movementSpeed*myFpsRate() / movementDivision;
 }
 
 // Freeze stops momentum
@@ -534,3 +559,12 @@ int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and 
 int CubeObj::getMaterial() { return material; }
 // Set the material, for coloring
 void CubeObj::setMaterial(int s) { material = s; }
+
+// Custom FPS rate based on whether enabled or not
+float CubeObj::myFpsRate() {
+  if (fpsRateEnabled) {
+    return fpsRate();
+  } else {
+    return 1.0;
+  }
+}
