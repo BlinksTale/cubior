@@ -33,6 +33,7 @@ class CameraObj : public CubeObj {
     bool foundIntendedPos;
     bool freedom;
     TrackerObj* tracker;
+    int permanentTargetNum;
     int meanX, meanY, meanZ;
     float meanAngleX, meanAngleY, meanAngleZ;
     int camPosX[camArraySize];
@@ -75,7 +76,7 @@ class CameraObj : public CubeObj {
     float getLockedAngleY();
 
     void tick();
-    void alwaysFollow(CubeObj*,CubeObj*);
+    void alwaysFollow(CubeObj*,CubeObj*,int);
     bool goalWithinJumpRange();
     bool goalWithinDistRange();
     bool goalOutsideDistRange();

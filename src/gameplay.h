@@ -42,6 +42,8 @@ const int maxVisualCubeCount = (playableHeight-2*padding)*(playableWidth-2*paddi
 const int visibleIntendedMax = 0;
 // longest period we can not see player w/o fixing it
 const int invisibleMax = 5;
+// keep track of how regularly player is visible
+static const int playerVisibleMax = 10;
 
     void gameplayStart(string);
     void nextLevelCountdown(int);
@@ -59,11 +61,12 @@ const int invisibleMax = 5;
     // Check LOS between cam and player, then move to clear shot by a clear path
     void ensurePlayerVisible(int);
     bool playerVisible(int);
+    bool playerRegularlyVisible(int);
     bool getLastPlayerVisible(int);
     bool cubeVisible(int,int);
     void fixPlayerVisibility(int);
     void moveToPlayer(int);
-    void rotateToPlayer(int);
+    void rotateToPlayer(int,int);
     void rotateAroundPlayer(int,int); // for victory shot
     
     // Camera

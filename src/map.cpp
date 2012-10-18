@@ -23,6 +23,8 @@ Map::Map(int w, int h, int d) {
 
 // Default way to initialize a map
 void Map::init() {
+  goalWidth = 0;
+  goalDepth = 0;
   goalDepth = 0;
   defaultColors();
 }
@@ -39,7 +41,6 @@ void Map::removeCubeAt(int w, int h, int d) {
 }
 
 void Map::wipeMap() {
-  cout << "Wiping " << width << ", " << height << ", " << depth << endl;
   // Have some size first
   if (width>0 && height>0 && depth>0) {
     // Then delete contents in all slots
@@ -92,13 +93,15 @@ void Map::setWidth(int n) { width = n; }
 void Map::setHeight(int n){ height= n; }
 void Map::setDepth(int n) { depth = n; }
 void Map::setCubeCount(int n) { cubeCount = n; }
-void Map::setGoalHeight(int n) { goalHeight = n; }
+void Map::setGoalWidth(int n) { goalWidth = n; }
+void Map::setGoalHeight(int n){ goalHeight= n; }
 void Map::setGoalDepth(int n) { goalDepth = n; }
 int Map::getWidth() { return width; }
 int Map::getHeight(){ return height;}
 int Map::getDepth() { return depth; }
 int Map::getCubeCount() { return cubeCount; }
-int Map::getGoalHeight() { return goalHeight; }
+int Map::getGoalWidth() { return goalWidth; }
+int Map::getGoalHeight(){ return goalHeight;}
 int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }

@@ -6,6 +6,8 @@
  */
 
 #include "cameraObj.h"
+#include "cubeObj.h"
+#include "cubiorObj.h"
 #include "gameplay.h"
 #include "trackerObj.h"
 
@@ -163,7 +165,7 @@ void CameraObj::updateJustFixedVisibility() {
 
 // To use first camera style, nothing else must be required of it
 bool CameraObj::freeMovementState() {
-  return freedom && !foundIntendedPos &&
+  return freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
       ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
        (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ));
 }
@@ -308,19 +310,21 @@ void CameraObj::applyIntendedPos() {
         cout << "currentPos  " << x << ", " << y << ", " << z << endl;
       }
           
+      //cout << "last" << lastDistToIntended << " - dist " << distToCube(&intendedPos) << endl;
       // If you get stuck trying to get to intended
-      if (abs(lastDistToIntended - distToCube(&intendedPos))<50) {
+      if (abs(lastDistToIntended - distToCube(&intendedPos))<camSpeed) {
         //cout << "Fire1" << endl;
         // keep track of how long you've been stuck
         intendedStuckCount++;
         // if this is too long a stick, just jump!
         if (intendedStuckCount >= intendedStuckMax) {
-        //cout << "Fire1a" << endl;
+          //cout << "Fire1a" << endl;
           setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
           intendedStuckCount = 0; // and reset stuck count, of course
         }
       } else {
         if (intendedStuckCount > 0) {
+          //cout << "FREE AGAIN" << endl;
           intendedStuckCount = 0; // no stick? Reset stuck count
         }
         // if you finally got free, update the lastDistToIntended
@@ -347,6 +351,10 @@ void CameraObj::applyIntendedPos() {
       //freedom = false;
       if (showData) { cout << "intendedPos and freedom set to false" << endl; }
     }
+  } else {
+    // No intended Pos, but need one? Call on gameplay to do it!
+    // This is key, apparently! Works well now though :)
+    rotateToPlayer(permanentTargetNum,0);
   }
   // No matter what, since you have a permanent target,
   // always look at the player still
@@ -421,8 +429,9 @@ void CameraObj::tick() {
 }
 
 // Used to permanently set a target to always follow
-void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal) {
+void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal, int targetNum) {
   permanentTarget = target;
+  permanentTargetNum = targetNum;
   permanentTargetGoal = targetGoal;
   lastLandedY = target->getY();
   lastLanded = target->getLanded();
@@ -784,7 +793,9 @@ float CameraObj::followOne(float oldYToBe, int playerAngle, int num, int den) {
   }
 
   // But if within goal range, *change* modes to look at player AND the goal
-  if (goalWithinDistRange() && goalWithinJumpRange()) {
+  // however, not if already locked to an axis
+  if (goalWithinDistRange() && goalWithinJumpRange()
+    && !lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) {
     // Figure out which side to follow from
     cameraSide = findFollowingBothSide(angleYToBe, angleY);
     followingBoth = true;

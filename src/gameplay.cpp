@@ -6,6 +6,7 @@
  */
 
 #include "gameplay.h"
+#include "keyboard.h"
 #include "cameraObj.h"
 #include "cubeObj.h"
 #include "goalObj.h"
@@ -67,8 +68,13 @@ bool justUnpaused = false;
 
 // Changing game state variables
 bool gameplayRunning = true;
+bool gameplayFirstRunning = true;
 int xFar[4], xNear[4], zFar[4], zNear[4]; // for detecting walls for wall angles/shots
 bool lastPlayerVisible[4]; // last time player visibility was reported
+
+// Keep track of player's visibility
+int playerVisibleSlot = 0;
+bool playerVisibleArray[4][playerVisibleMax];
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
@@ -123,6 +129,7 @@ void resetCubior(int i) {
 
 // Load in a level and set it up
 void gameplayStart(string levelToLoad) {
+
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
@@ -156,7 +163,7 @@ void gameplayStart(string levelToLoad) {
   
       // Start camera!
 	    camera[i].resetPos();
-      camera[i].alwaysFollow(&cubior[i],&goal);
+      camera[i].alwaysFollow(&cubior[i],&goal,i);
 
       // Cubior Start State
       cubior[i].setCubiorNum(i);
@@ -197,7 +204,7 @@ void gameplayStart(string levelToLoad) {
     }
     
     // Then the goal
-    goal.setPos(000,levelMap->getGoalHeight(),levelMap->getGoalDepth());
+    goal.setPos(levelMap->getGoalWidth(),levelMap->getGoalHeight(),levelMap->getGoalDepth());
     
     // Then populate permamap
     // ... with permanent Cubes
@@ -212,6 +219,13 @@ void gameplayStart(string levelToLoad) {
       findEdges(&cube[i], permanentMap);
     }
 
+  }
+  
+  // Temp fix for title screen, auto pause on start
+  if (gameplayFirstRunning) {
+    //camera[0].setAngleX(-90);
+    playerPause(-1,true);
+    gameplayFirstRunning = false;
   }
 }
 
@@ -688,6 +702,22 @@ void ensurePlayerVisible(int i) {
   }
 }
 
+// Copy of playerVisible but for an array
+bool playerRegularlyVisible(int i) {
+  checkCameraLOS(&camera[i],permanentMap);
+  playerVisibleArray[i][playerVisibleSlot] = camera[i].getLOS();
+  int sum = 0;
+  for (int k=0; k<playerVisibleMax; k++) {
+    // add one for every slot where visible
+    if (playerVisibleArray[i][k]) {
+      sum++;
+    }
+  }
+  playerVisibleSlot++;
+  if (playerVisibleSlot >= playerVisibleMax) { playerVisibleSlot = 0; }
+  // Must be visible half the time or more
+  return (sum >= playerVisibleMax/2); 
+}
 // Gives player non-visibility
 bool playerVisible(int i) {
   // Must check LOS first, or getLOS will not be updated
@@ -713,7 +743,7 @@ bool cubeVisible(int i, int j) {
 void fixPlayerVisibility(int i) {
   if (rotateIfInvisible) {
     if (!camera[i].getFoundIntendedPos()) {
-      rotateToPlayer(i);
+      rotateToPlayer(i,0);
     }
   } else {
     moveToPlayer(i);
@@ -733,8 +763,8 @@ void moveToPlayer(int i) {
 }
 
 // Try to find an angle & rotate the camera to angle to see the player
-void rotateToPlayer(int i) {
-  
+void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be than cam angle
+  //cout << "Rotating to player w/ distDiff " << distDiff << endl;
   bool foundAnAngle = false;
   CubeObj intendedPos;
   bool foundIntendedPos = false;
@@ -752,7 +782,7 @@ void rotateToPlayer(int i) {
   oldCamera.setPos(oldX,oldY,oldZ);
   
   // Hypotenuse for triangle formed between camera and target
-  int hyp = camera[i].groundDistToPlayer();
+  int hyp = camera[i].groundDistToPlayer() - distDiff;
   if (hyp > camera[i].getFarthestDist()) {
     hyp = camera[i].getFarthestDist();
   }
@@ -838,7 +868,7 @@ void rotateToPlayer(int i) {
         // And now we have found such a position, so remember that it's taken
         foundIntendedPos = true;
 
-      }      
+      }
     }
     //cout << "No perfect fix yet on try " << k << " of " << anglesToTry << endl;
   }
@@ -860,6 +890,13 @@ void rotateToPlayer(int i) {
     //camera[i].setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
     
     camera[i].setIntendedPos(&intendedPos);
+  /*} else {
+    int newDistDiff = 500; // how much closer to get each new try
+    // Still a bit away from player?
+    if (hyp > newDistDiff*2) {
+      // Move closer and try again
+      rotateToPlayer(i,distDiff+newDistDiff);
+    }*/
   }
   //cout << "foundIntendedPos = " << (foundIntendedPos ? "true" : "false") << endl;
 }
@@ -969,7 +1006,7 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
       tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/16.0); // was /4
     } else {
       // But if not, well, close enough! Next move would have been there anyways
-      return true;
+        tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/32.0); // was /4
     }
 
     // Then Reset Cam Tracker Pos

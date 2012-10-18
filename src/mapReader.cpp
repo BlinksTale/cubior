@@ -19,6 +19,7 @@ Map* MapReader::readMap(const string& s) {
   bool widthFound = false;
   bool heightFound= false;
   bool depthFound = false;
+  bool goalWidthFound = false;
   bool goalHeightFound = false;
   bool goalDepthFound = false;
   bool haveRed   = false;
@@ -52,6 +53,10 @@ Map* MapReader::readMap(const string& s) {
       if (!depthFound && !row.substr(0,6).compare("depth:")) {
         depthFound = true;
         map->setDepth(2*padding+atoi((row.substr(6,row.length()-6)).c_str()));
+      }
+      if (!goalWidthFound && !row.substr(0,10).compare("goalWidth:")) {
+        goalWidthFound = true;
+        map->setGoalWidth(atoi((row.substr(10,row.length()-10)).c_str()));
       }
       if (!goalHeightFound && !row.substr(0,11).compare("goalHeight:")) {
         goalHeightFound = true;

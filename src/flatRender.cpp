@@ -131,6 +131,36 @@ GLfloat shadowColors[maxCubeCount*24];
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
 
+// copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
+// Here are the fonts: 
+LPVOID glutFonts[7] = { 
+    GLUT_BITMAP_9_BY_15, 
+    GLUT_BITMAP_8_BY_13, 
+    GLUT_BITMAP_TIMES_ROMAN_10, 
+    GLUT_BITMAP_TIMES_ROMAN_24, 
+    GLUT_BITMAP_HELVETICA_10, 
+    GLUT_BITMAP_HELVETICA_12, 
+    GLUT_BITMAP_HELVETICA_18 
+}; 
+
+
+// copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
+// Here is the function 
+void glutPrint(float x, float y, LPVOID font, char* text, float r, float g, float b, float a) 
+{ 
+    if(!text || !strlen(text)) return; 
+    bool blending = false; 
+    if(glIsEnabled(GL_BLEND)) blending = true; 
+    glEnable(GL_BLEND); 
+    glColor4f(r,g,b,a); 
+    glRasterPos2f(x,y); 
+    while (*text) { 
+        glutBitmapCharacter(font, *text); 
+        text++; 
+    } 
+    if(!blending) glDisable(GL_BLEND); 
+}  
+
 int getFPS() {
   int newClock = clock();
   int newDiff = newClock - lastFrame;
@@ -253,6 +283,7 @@ void displayFor(int player) {
   glMatrixMode(GL_MODELVIEW); // must set this here to undo silhouette's effects later
   glLoadIdentity();
   
+  glPushMatrix();
   // Zoom camera out,
   glScalef(0.001,0.001,0.001);
   // Set camera angle and pos, based off averages
@@ -286,6 +317,24 @@ void displayFor(int player) {
   if (drawOutlines) { drawGoalOutline(); }
   drawGoal();
   
+      int n;
+  if (!getGameplayRunning() && getLastPause() == -1) {
+      // START SCREEN temp fix for IGF demo
+      n=sprintf(pausedText, "Cubior");
+      int pD = 1000;
+      printString(pausedText,cameraPointer[player]->getMeanX()+75,cameraPointer[player]->getMeanY()+100,cameraPointer[player]->getMeanZ()-pD);
+      n=sprintf(pausedText, "by Brian Handy");
+      printString(pausedText,cameraPointer[player]->getMeanX()+165,cameraPointer[player]->getMeanY()+50,cameraPointer[player]->getMeanZ()-pD);
+      n=sprintf(pausedText, "Sound by Rolando Nadal");
+      printString(pausedText,cameraPointer[player]->getMeanX()+260,cameraPointer[player]->getMeanY()+25,cameraPointer[player]->getMeanZ()-pD);
+      n=sprintf(pausedText, "Music by Waterflame");
+      printString(pausedText,cameraPointer[player]->getMeanX()+225,cameraPointer[player]->getMeanY()+0,cameraPointer[player]->getMeanZ()-pD);
+      n=sprintf(pausedText, "Press Start/Enter!");
+      printString(pausedText,cameraPointer[player]->getMeanX()+215,cameraPointer[player]->getMeanY()-100,cameraPointer[player]->getMeanZ()-pD);
+      n=sprintf(pausedText, "(up to four players can join using gamepads)");
+      printString(pausedText,cameraPointer[player]->getMeanX()+515,cameraPointer[player]->getMeanY()-125,cameraPointer[player]->getMeanZ()-pD);
+  }
+
   // Then draw all shadows in order of height!
   drawAllShadows(player);
   
@@ -308,17 +357,29 @@ void displayFor(int player) {
     int n, a=getLastPause() + 1;
     if (a > 0) {
       n=sprintf(pausedText, "P%d PAUSED", a);
-    } else {
-      n=sprintf(pausedText, "ALL PAUSED");
     }
     printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
   }
   // And player stats (wip/temp)
   // Commented out so that these values can easily be displayed again if necessary 
   // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
-  
+  glPopMatrix();
+    
+  // Then on top, draw pause text
+  if (!getGameplayRunning()) {
+      n=sprintf(pausedText, "by Brian Handy");
+      printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+200,cameraPointer[player]->getMeanZ());
+      n=sprintf(pausedText, "Sound by Rolando Nadal");
+      printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+100,cameraPointer[player]->getMeanZ());
+      n=sprintf(pausedText, "Music by Waterflame");
+      printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+000,cameraPointer[player]->getMeanZ());
+      n=sprintf(pausedText, "Press Start/Enter!");
+      printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()-1400,cameraPointer[player]->getMeanZ());
+
+    }
   //cout << "Ending half " << player << ":  \t\t" << getTimePassed() << endl;
 }
+
 
 // Give shadows to everything!
 void drawAllShadows(int player) {

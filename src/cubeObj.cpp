@@ -420,7 +420,7 @@ void CubeObj::changePos(int n, int o, int p) { x += n; y += o; z += p; }
 
 // Shorthand for changePosTowards but with a target object
 void CubeObj::changePosTowards(CubeObj* target, double delta) {
-  changePosTowards(target->getX(),target->getY(),target->getZ(),delta);
+  changePosTowards(target->getX(),target->getY(),target->getZ(),delta*myFpsRate());
 }
 
 // Find the differences, find the ultimate hyp, and move everything by that ratio

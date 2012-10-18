@@ -14,7 +14,7 @@
 class Map {
   protected:
     CubeObj* map[maxWidth][maxHeight][maxDepth];
-    int width, height, depth, cubeCount, goalHeight, goalDepth;
+    int width, height, depth, cubeCount, goalWidth, goalHeight, goalDepth;
     bool customColors;
     float red, green, blue;
   public:
@@ -32,6 +32,7 @@ class Map {
     void setHeight(int);
     void setDepth(int);
     void setCubeCount(int);
+    void setGoalWidth(int);
     void setGoalHeight(int);
     void setGoalDepth(int);
     void setCustomColors(float,float,float);
@@ -41,6 +42,7 @@ class Map {
     int getHeight();
     int getDepth();
     int getCubeCount();
+    int getGoalWidth();
     int getGoalHeight();
     int getGoalDepth();
     float getRed();
