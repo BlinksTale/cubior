@@ -321,18 +321,22 @@ void displayFor(int player) {
   if (!getGameplayRunning() && getLastPause() == -1) {
       // START SCREEN temp fix for IGF demo
       n=sprintf(pausedText, "Cubior");
-      int pD = 1000;
-      printString(pausedText,cameraPointer[player]->getMeanX()+75,cameraPointer[player]->getMeanY()+100,cameraPointer[player]->getMeanZ()-pD);
+      int pW = 0;//1000;
+      int pH =-1000;
+      int pD = 0; // was -1000 when angleX was 0, now angleX is 270
+      float heightVsExpected = -1050.0/windowHeight;
+      float widthVsExpected = windowWidth/1600.0;
+      printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
       n=sprintf(pausedText, "by Brian Handy");
-      printString(pausedText,cameraPointer[player]->getMeanX()+165,cameraPointer[player]->getMeanY()+50,cameraPointer[player]->getMeanZ()-pD);
+      printString(pausedText,cameraPointer[player]->getMeanX()+pW+165*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+50*heightVsExpected);
       n=sprintf(pausedText, "Sound by Rolando Nadal");
-      printString(pausedText,cameraPointer[player]->getMeanX()+260,cameraPointer[player]->getMeanY()+25,cameraPointer[player]->getMeanZ()-pD);
+      printString(pausedText,cameraPointer[player]->getMeanX()+pW+260*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+25*heightVsExpected);
       n=sprintf(pausedText, "Music by Waterflame");
-      printString(pausedText,cameraPointer[player]->getMeanX()+225,cameraPointer[player]->getMeanY()+0,cameraPointer[player]->getMeanZ()-pD);
+      printString(pausedText,cameraPointer[player]->getMeanX()+pW+225*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+0*heightVsExpected);
       n=sprintf(pausedText, "Press Start/Enter!");
-      printString(pausedText,cameraPointer[player]->getMeanX()+215,cameraPointer[player]->getMeanY()-100,cameraPointer[player]->getMeanZ()-pD);
+      printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
       n=sprintf(pausedText, "(up to four players can join using gamepads)");
-      printString(pausedText,cameraPointer[player]->getMeanX()+515,cameraPointer[player]->getMeanY()-125,cameraPointer[player]->getMeanZ()-pD);
+      printString(pausedText,cameraPointer[player]->getMeanX()+515*widthVsExpected,cameraPointer[player]->getMeanY(),cameraPointer[player]->getMeanZ()+pD-125*heightVsExpected);
   }
 
   // Then draw all shadows in order of height!

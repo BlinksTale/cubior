@@ -26,7 +26,7 @@
 
 using namespace std;
 
-bool cubiorPlayable[cubiorCount];
+bool cubiorPlayable[cubiorCount] = {false,false,false,false};
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
@@ -52,6 +52,7 @@ CubiorObj cubior[cubiorCount];
 CubeObj cube[maxCubeCount];
 GoalObj goal;
 CameraObj camera[cubiorCount];
+bool cameraDroppingIn[cubiorCount];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -118,7 +119,7 @@ void resetCubior(int i) {
 	int distFromCenter = (i+1)/2;
 	int directionFromCenter = 1+(i%2)*(-2);
   //cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
-  cubior[i].setPos(i*200-300,1000, max(currentMapDepth*tileSize*1/4,currentMapDepth*tileSize/2-tileSize*2));
+  cubior[i].setPos(i*200-300,1000, currentMapDepth*tileSize/2-tileSize*2);
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);
@@ -164,20 +165,30 @@ void gameplayStart(string levelToLoad) {
       // Start camera!
 	    camera[i].resetPos();
       camera[i].alwaysFollow(&cubior[i],&goal,i);
+      cameraDroppingIn[i] = true;
 
       // Cubior Start State
       cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
     }
 
-    // If NOBODY playing...
-    if (!cubiorPlayable[0] && 
-        !cubiorPlayable[1] && 
-        !cubiorPlayable[2] && 
-        !cubiorPlayable[3]) { 
-      // Then ensure at least P1 is playing
-      cubiorPlayable[0] = true;
-    }
+    // Load nobody if only first running!
+    //if (!gameplayFirstRunning) {
+      // If NOBODY playing...
+      if (!cubiorPlayable[0] && 
+          !cubiorPlayable[1] && 
+          !cubiorPlayable[2] && 
+          !cubiorPlayable[3]) { 
+        // Use the chosen player
+        int chosenOne = getPlayerChosen();
+        if (chosenOne > -1 && chosenOne < 4) {
+          cubiorPlayable[chosenOne] = true;
+        } else {
+          // Then ensure at least P1 is playing
+          cubiorPlayable[0] = true;
+        }
+      }
+    //}
 
     // and Cube Obstacle start states
     for (int i=0; i<cubeCount; i++) {
@@ -225,7 +236,6 @@ void gameplayStart(string levelToLoad) {
   if (gameplayFirstRunning) {
     //camera[0].setAngleX(-90);
     playerPause(-1,true);
-    gameplayFirstRunning = false;
   }
 }
 
@@ -259,6 +269,15 @@ void nextLevelCountdown(int i) {
 void nextLevel() {
   loadLevel((currentLevel + 1) % totalLevels);
 }
+
+// So keyboard can know if pause press is also choosing a player
+bool getGameplayFirstRunning() {
+  return gameplayFirstRunning;
+}
+void setGameplayFirstRunning(bool b) {
+  gameplayFirstRunning = b;
+}
+
 // To load the last level
 void lastLevel() {
   loadLevel((currentLevel - 1 + totalLevels) % totalLevels);
@@ -273,6 +292,7 @@ void loadLevel(int levelNum) {
   // Set next level number
   changeLevel = true;
   currentLevel = levelNum;
+  gameplayFirstRunning = (levelNum == 0);
   
   // Then load the appropriate level
   int n;
@@ -280,6 +300,11 @@ void loadLevel(int levelNum) {
   n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
   gameplayStart(buffer);
   initVisuals();
+}
+
+// Just give number of current level
+int getLevelNum() {
+  return currentLevel;
 }
 
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
@@ -313,6 +338,13 @@ void gameplayLoop() {
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
       if (cubiorPlayable[i]) {
+
+        // First, stop that dropping in if it's no longer happening
+        if (cameraDroppingIn[i]) {
+          if (!camera[i].getDroppingIn()) {
+            cameraDroppingIn[i] = camera[i].getDroppingIn();
+          }
+        }
 
         int cX = getCollisionMapSlot(&cubior[i],0);
         int cY = getCollisionMapSlot(&cubior[i],1);
@@ -367,8 +399,8 @@ void gameplayLoop() {
         //cout << "grounded = " << cubior[i].getGrounded() << endl;
         //cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
         
-        // Only look for new walls if not moving much
-        if (!cubior[i].isMovingQuickly()) {
+        // Only look for new walls if not moving much & not dropping in
+        if (!cubior[i].isMovingQuickly() && !cameraDroppingIn[i]) {
           if (playerVisible(i)) {
             if (cubior[i].getStillGrounded()) {
           // Keep track of how often each direction is requested.
@@ -1331,7 +1363,8 @@ void switchFullscreen() {
 void switchLevelShadows() {
   //toggleLevelShadows();
   // HIJACKED! Used for songs atm for Rolando demo
-  nextSong();
+  //nextSong();
+  // No use in demo form
 }
 
 // Find if cube n is the last down (no shadow)

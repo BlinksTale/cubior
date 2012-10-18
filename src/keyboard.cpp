@@ -33,6 +33,9 @@ bool independentMovement = true; // move separately from camera angle after star
 int altFrame = 0;
 int altMax = 5;
 
+// For pressing start to see who goes first
+int playerChosen = -1;
+
 bool directionsPressed[playerCount]; // whether movement has started for this player
 int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
 
@@ -103,14 +106,37 @@ void playerLevelShadows(bool newBool) {
 void playerPause(int p, bool newBool) {
 	if (!pauseKey[p] && newBool) { // newly pressing Enter
 		if (!getGameplayRunning()) {
+      // Paused or temp title screen
+
+      // title screen
+      if (getGameplayFirstRunning()) {
+        playerChosen = p;
+        for (int i=0; i<4; i++) {
+          setCubiorPlayable(i,false);
+          resetCubior(i);
+        }
+        setCubiorPlayable(p,true);
+        resetCubior(p);
+        setGameplayFirstRunning(false);
+      }
+
+      // paused
 			if (lastPause == p || lastPause == -1) {
 				startGameplay();
         setJustUnpaused(true);
 			}
-		} else {
-			stopGameplay();
-      setJustPaused(true);
-			lastPause = p;
+
+    } else {
+      // Gameplay is running!
+      if (p<0 || p>3 || getCubiorPlayable(p)) {
+        // Can pause if playing
+		    stopGameplay();
+        setJustPaused(true);
+		    lastPause = p;
+      } else {
+        // Otherwise, join
+        playerJoin(p,true);
+      }
 		}
 	}
 	pauseKey[p] = newBool;
@@ -426,6 +452,11 @@ void handleSpecialInput(int key, bool newBool) {
 
 void specialInputDown(int key, int x, int y) { handleSpecialInput(key, true); }
 void specialInputUp(int key, int x, int y)   { handleSpecialInput(key, false); }
+
+// Give who was chosen as first person to play
+int getPlayerChosen() {
+  return playerChosen;
+}
 
 /* No need now that we use SFML instead of OpenGL for this
 void handleJoystickInput(int button, bool b) {

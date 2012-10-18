@@ -21,14 +21,15 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = true;
+bool mute = false;
 bool lastMute = mute;
 
 // List of songs
-string songs[] = { "./music/Waterflame_MakeARunForIt.ogg",
-                   "./music/Waterflame_Cats.ogg",
-                   "./music/Waterflame_Orange.ogg"};
-int songCount = 3;
+string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };//,
+  //"./music/Waterflame_MakeARunForIt.ogg",
+  //                 "./music/Waterflame_Cats.ogg",
+  //                 "./music/Waterflame_Orange.ogg"};
+int songCount = 1;
 int currentSong = 0;
 
 // Setup for sound effects

@@ -23,7 +23,7 @@ using namespace std;
 CameraObj::CameraObj() {
   // Pos vars
   resetPos();
-  
+
   // Follow vars
   cameraSide = 0; // where zero is undetermined
   farthestDist = 1200;
@@ -41,18 +41,21 @@ CameraObj::CameraObj() {
 
 // Set to starting pos, start of a new level
 void CameraObj::resetPos() {
+  // Start every reset by declaring a drop in
+  droppingIn = true;
+
   if (permanentTarget) {
     x = permanentTarget->getX();
-    y = permanentTarget->getY()+50*camHeight;
+    y = permanentTarget->getY()+100*getMapHeight()*tileSize;//250*camHeight;
     z = permanentTarget->getZ()+6*tileSize;//getMapDepth()*tileSize/2;//4*camHeight;
   } else {
     x = 0;
-    y = 1000000;
+    y = 100000000;
     //z = -1000;
     //x = 0;
     z = getMapDepth()*tileSize/2+tileSize*6;
   }
-  angleX = 0;
+  angleX = 270; // perfect! 270,0,0 looks straight down
   angleY = 0;
   angleZ = 0;
   lastAngleY = 0.0;
@@ -389,12 +392,18 @@ void CameraObj::tick() {
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
+
+    // Finall in vertical range?
+    if (y - permanentTarget->getY() < camHeight) {
+      // No longer dropping in!
+      droppingIn = false;
+    }
     
     // And give freedom back if player moved away from just fixed location
     updateJustFixedVisibility();
     
     // then move the camera itself if free to do so
-    if (freeMovementState()) {
+    if (freeMovementState() || droppingIn) {
       applyFreeMovement();
     // Locked to player then? Keep up with them!
     } else if (lockedToPlayer) {
@@ -983,4 +992,8 @@ void CameraObj::setState(int i) {
     case 2: intendedState = 1; break;
     default: freeState = 1; break;
   }
+}
+
+bool CameraObj::getDroppingIn() {
+  return droppingIn;
 }

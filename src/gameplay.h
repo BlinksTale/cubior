@@ -29,7 +29,7 @@ const int maxWidth = playableWidth + mapEdge*2;
 const int maxHeight= playableHeight + mapEdge*2;
 const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
-const int totalLevels = 20; // for now, update this when new levels are added
+const int totalLevels = 12; // for now, update this when new levels are added
 const int padding = 2;
 
 const int cubiorCount = 4;
@@ -50,7 +50,10 @@ static const int playerVisibleMax = 10;
     void nextLevel();
     void lastLevel();
     void loadLevel(int);
+    int getLevelNum();
     void gameplayLoop();
+
+    void resetCubior(int);
 
     // Looks for vertical walls or clearings along 1 dimension of player
     int* searchForWall(int,int [],CubeObj* [][maxHeight][maxDepth],int);
@@ -122,9 +125,13 @@ static const int playerVisibleMax = 10;
     void enableGoodCollision();
     void disableGoodCollision();
 
+    // Gameplay itself
     void stopGameplay();
     void startGameplay();
     bool getGameplayRunning();
+    bool getGameplayFirstRunning();
+    void setGameplayFirstRunning(bool);
+
     // Map Values
     int getMapWidth();
     int getMapHeight();
@@ -140,6 +147,8 @@ static const int playerVisibleMax = 10;
     bool getShadow(int);
     bool getCameraLocked(int);
     int snapLockAngle(int);
+
+    int getPlayerChosen(); // who was picked first
 
     float fpsRate(); // how much more we need to move compared to expected speed
 

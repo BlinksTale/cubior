@@ -11,6 +11,7 @@
     void playerLevelShadows(bool);
     void playerPause(int, bool);
     int getLastPause();
+    void playerJoin(int, bool);
 
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);
@@ -25,7 +26,7 @@
     //void handleJoystickInput(unsigned int, bool);
     void nextLevelPressed(bool);
     void lastLevelPressed(bool);
-
+    
     void setJump(int, bool);
     void setLock(int, bool);
 #endif 
