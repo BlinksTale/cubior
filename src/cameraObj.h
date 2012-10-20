@@ -14,9 +14,9 @@
 class CameraObj : public CubeObj {
 // FIXME: extending CubeObj may cause lag, but not sure. Check later
   protected:
-    static const bool showData = false;
+    static const bool showData = true;
     bool droppingIn; // used to start a level, won't try option five until false
-
+    bool locksReset; // make sure you don't lock before the locks are reset
     bool wallState, intendedState, goalState, freeState;
     // Would love to have this higher/smoother, but doesn't keep up with player
     // when following along a wall angle.

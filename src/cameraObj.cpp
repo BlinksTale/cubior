@@ -28,6 +28,7 @@ CameraObj::CameraObj() {
   cameraSide = 0; // where zero is undetermined
   farthestDist = 1200;
   closestDist = 1000;
+  locksReset = false;
   
   // To cycle through camPos arrays
   currentCamSlot = 0;
@@ -394,30 +395,45 @@ void CameraObj::tick() {
 	  tracker->tick();
 
     // Finall in vertical range?
-    if (y - permanentTarget->getY() < camHeight) {
+    if (y - permanentTarget->getY() <= camHeight) {
       // No longer dropping in!
       droppingIn = false;
     }
     
     // And give freedom back if player moved away from just fixed location
     updateJustFixedVisibility();
-    
+    cout << "Current state: freeMovementState is " << freeMovementState() << " and dropping in is " << droppingIn << " and locksReset is " << locksReset;
+    cout << " and lockedToPlayer is " << lockedToPlayer << " and lockedToPlayerX is " << lockedToPlayerX << " and lockedToPlayerZ is " << lockedToPlayerZ << endl;
+
+    // No reset locks on dropping in!
+    if (droppingIn && locksReset) { locksReset = false; } 
+
     // then move the camera itself if free to do so
     if (freeMovementState() || droppingIn) {
+      cout << "First option1" << endl;
       applyFreeMovement();
     // Locked to player then? Keep up with them!
-    } else if (lockedToPlayer) {
+    } else if (lockedToPlayer && locksReset) {
       applyLockedToPlayer();
     // Locked to player X then? Keep up with them!
-    } else if (lockedToPlayerX) {
+    } else if (lockedToPlayerX && locksReset) {
       applyLockedToPlayerX();
     // Locked to player Z then? Keep up with them!
-    } else if (lockedToPlayerZ) {
+    } else if (lockedToPlayerZ && locksReset) {
+      cout << "lockedToPlayerZ is " << lockedToPlayerZ << " while locksReset is " << locksReset << endl;
       applyLockedToPlayerZ();
-    } else { // not free or have an intended pos
+    } else if (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) { // not free or have an intended pos
       applyIntendedPos();
-    } // END OF OPTION FIVE
+    } else { // Nothing else worked? Well... just move freely then anyways
+      cout << "Giving up" << endl;
+      applyFreeMovement();
+    }
 
+    // Somehow managed to enable locking, but not actually lock yet?
+    if ((lockedToPlayer || lockedToPlayerX || lockedToPlayerZ) && (!locksReset)) {
+      // Take care of that!
+      resetLocks();
+    }
 
     // Ultimatum Look at player no matter what
     // Probably don't want to do this, but seeing if it fixes second green level problem
@@ -592,21 +608,28 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
 
 float CameraObj::fixedDeltasToDegrees(int opp, int adj) {
   float result;
-  
+  cout << "fixedDelta for groundDist " << opp << " and heightDiff " << adj << endl;
   if (adj != 0) {
     result = atan(opp*1.0/(adj*1.0));
   } else {
     // Just straight up look out (assuming fixed is only used for camera)
     // with a 90 degree return value.
-    result = M_PI/2.0 - M_PI*(opp<0);
+    // but wait! adj 0 means no dist to player value, or, you're directly overhead
+    // or so it seems since being straight under the camera looks forwards now
+    //result = M_PI/2.0 - M_PI*(opp<0);
+    // new alt given that then.
+    result = 0 + (opp >= 0) * M_PI*2;
+
     //(-2*(opp > 0)+1)*M_PI/2.0;
   }
 
   // If adj < 0, must flip it over to be above 90 degree mark and negated
   // to move from 90 to 180 instead of from 0 to -90.
   if (adj < 0) {
-    result = -result + M_PI/2.0;
+    result += M_PI;
   }
+  // Actually, the + M_PI/2 was causing all the problems - adj < 0 (heightDiff < 0)
+  // was giving back correctAngle - 90. Needed + M_PI instead. And no negation!
 
   // Then convert radians to degrees
   result *= 360.0/(2.0*M_PI);
@@ -734,7 +757,7 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     //cout << "groundDistTo(" << a << "," << c <<") = " << groundDistTo(a,c) << endl;
     //cout << "y " << y << " - TargetY " << targetY << " = " << y-targetY << endl;
     float vertAtan = fixedDeltasToDegrees(groundDistTo(a,c),y-targetY);  
-    //cout << "vertAtan = " << vertAtan << endl;
+    cout << "vertAtan = " << vertAtan << endl;
     // angleXToBe is how far down to be looking, from the camera, to the player
     float angleXToBe = 270 + vertAtan;// vertAtan != 0 ? 270 + vertAtan : angleX;
     //if (angleXToBe > 360) { y++; }
@@ -950,24 +973,40 @@ bool CameraObj::getLockedToPlayer() { return lockedToPlayer; }
 bool CameraObj::getLockedToPlayerX() { return lockedToPlayerX; }
 bool CameraObj::getLockedToPlayerZ() { return lockedToPlayerZ; }
 void CameraObj::setLockedToPlayer(bool b) { 
+  cout << "Setting lockedToPlayer to " << b << endl;
+  cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
+  locksReset = false;
   resetLocks();
+  cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayer = b;
 }
 void CameraObj::setLockedToPlayerX(bool b) { 
+  cout << "Setting lockedToPlayerX to " << b << endl;
+  cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
+  locksReset = false;
   resetLocks();
+  cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayerX = b;
 }
 void CameraObj::setLockedToPlayerZ(bool b) { 
+  cout << "Setting lockedToPlayerZ to " << b << endl;
+  cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
+  locksReset = false;
   resetLocks();
+  cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayerZ = b;
 }
 // For any type of locking
 void CameraObj::resetLocks() {
+  cout << "locking to " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl; 
   lockedX = x - permanentTarget->getX();
   lockedY = y - permanentTarget->getY();
   lockedZ = z - permanentTarget->getZ();
+  cout << "locked by " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedY = lockedY < camHeight ? camHeight : lockedY;
+  cout << "update lockedY to " << lockedY << endl;
   lockedAngleY = angleY;
+  locksReset = lockedToPlayer || lockedToPlayerX || lockedToPlayerZ;
   snapLock();
 }
 
