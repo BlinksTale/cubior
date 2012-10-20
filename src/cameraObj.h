@@ -22,6 +22,9 @@ class CameraObj : public CubeObj {
     // when following along a wall angle.
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
     int currentCamSlot;
+
+    // For cam controls
+    bool playerCenterCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
     
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;
     int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
@@ -64,6 +67,7 @@ class CameraObj : public CubeObj {
     void updateCamArray();
     void updateMeans();
     
+    void applyJustFixedVisibility(); // first time setup when establishing that we just fixed it
     void updateJustFixedVisibility(); // ensure we do start moving again if needed
     bool freeMovementState(); // returns if Option 1 or not
     void applyFreeMovement();
@@ -71,6 +75,8 @@ class CameraObj : public CubeObj {
     void applyLockedToPlayerX();
     void applyLockedToPlayerZ();
     void applyIntendedPos();
+    bool matchAngleY(int);
+    void applyMatchAngleY(int);
 
     bool getSnapLock();
     void snapLock();
@@ -184,6 +190,13 @@ class CameraObj : public CubeObj {
     int getState();
     void setState(int);
     bool getDroppingIn(); // to check if just starting out
+
+    // Set camera commands
+    void setPlayerCenterCommand(bool);
+    void setPlayerLeftCommand(bool b)   { if (playerLeftCommand != b)   { playerLeftCommand   = b; } }
+    void setPlayerRightCommand(bool b)  { if (playerRightCommand != b)  { playerRightCommand  = b; } }
+    void setPlayerUpCommand(bool b)     { if (playerUpCommand != b)     { playerUpCommand     = b; } }
+    void setPlayerDownCommand(bool b)   { if (playerDownCommand != b)   { playerDownCommand   = b; } }
 };
 
 #endif 

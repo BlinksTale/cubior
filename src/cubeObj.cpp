@@ -240,6 +240,19 @@ float CubeObj::getDirection() {
   return result;
 }
 
+// Return direction by camera's angle system, and in degrees
+int CubeObj::getCamDirection() {
+  // Start with old function
+  float result = getDirection(); // in radians and offset by PI still
+  // Rotate to Camera's angle system (not sure why different, FIXME someday?)
+  result = result + M_PI;
+
+  // Convert to degrees
+  int intResult = (int)((result * 360)/(2*M_PI));
+
+  return intResult;
+}
+
 void CubeObj::calculateDiff() {
     // And set diff vals last
     if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }

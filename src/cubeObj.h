@@ -119,6 +119,7 @@ class CubeObj {
 
     float getStrength();
     float getDirection();
+    int getCamDirection(); // translated to camera numbers
     void setInvisible(bool b) { invisible = b; }
     bool isInvisible() { return invisible; }
 

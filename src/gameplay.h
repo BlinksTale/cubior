@@ -57,7 +57,7 @@ static const int playerVisibleMax = 10;
 
     // Looks for vertical walls or clearings along 1 dimension of player
     int* searchForWall(int,int [],CubeObj* [][maxHeight][maxDepth],int);
-    void rotateToAngle(int,float,int);
+    void rotateToAngle(int,float,int); //  for cam control
     bool isVertSpace(CubeObj* [][maxHeight][maxDepth], int, int, int);
     bool insideMap(int,int,int); // lets you know if pos is OK for Macs
     
@@ -78,6 +78,13 @@ static const int playerVisibleMax = 10;
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
     bool getCameraToCubeLOS(CameraObj*, CubeObj*, CubeObj*[][maxHeight][maxDepth]);
     
+    // Camera control
+    void playerCenterCam(int);
+    void playerLeftCam(int);
+    void playerRightCam(int);
+    void playerUpCam(int);
+    void playerDownCam(int);
+
     // Collision
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);

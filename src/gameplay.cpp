@@ -164,6 +164,8 @@ void gameplayStart(string levelToLoad) {
   
       // Start camera!
 	    camera[i].resetPos();
+      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+  
       camera[i].alwaysFollow(&cubior[i],&goal,i);
       cameraDroppingIn[i] = true;
 
@@ -663,12 +665,14 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   // New pivot angle to go to
   while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
   while (targetAngle < baseAngle - M_PI) { baseAngle -= 2*M_PI; }
+  cout << "ROTATING FROM " << baseAngle << " TO " << targetAngle << endl;
   if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations/2))) {
     newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations/2));
   } else {
     // too close, just make equal!
     newAngle = targetAngle;
   }
+  cout << "ACTUALLY ROTATING TO " << newAngle << endl;
   //cout << "newAngle is " << newAngle << endl;
   // Set new intended pos for each turn
   // math is a little hackey, tried swapping cos and sin and adding M_PI
@@ -678,13 +682,17 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
 
   // Leaving camera cube in here just in case forgetting it would ruin something, not sure
   // FIXME later by testing it with no camera cube step
+  // Looks like it is necessary. At the least, it was necessary for drop in of
+  // next level after rotating around goal, and it still makes or breaks locking
+  // to x and z axis against walls
+  // Oh, didn't notice camera's setPos relying on it though. Might want to fix that and try again.
   cameraCube.setPos(newX,camera[i].getY(),newZ);
   camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
   camera[i].lookAtTarget();
   camera[i].updateCamArray();
   camera[i].updateMeans();
   //cout << "finalAngle is " << getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ) << endl;
-}    
+}
     
 /*************
  * Check LOS *
@@ -1134,6 +1142,26 @@ void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, in
     if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
         Collision::checkAndBounce(i,m[cX][cY][cZ]);
     }
+}
+
+/*******************
+ * CAMERA COMMANDS *
+ *******************/
+
+void playerCenterCam(int i) {
+  camera[i].setPlayerCenterCommand(true);
+}
+void playerLeftCam(int i) {
+  camera[i].setPlayerLeftCommand(true);
+}
+void playerRightCam(int i) {
+  camera[i].setPlayerRightCommand(true);
+}
+void playerUpCam(int i) {
+  camera[i].setPlayerUpCommand(true);
+}
+void playerDownCam(int i) {
+  camera[i].setPlayerDownCommand(true);
 }
 
 // Takes cubior, and its slot, then checks collision

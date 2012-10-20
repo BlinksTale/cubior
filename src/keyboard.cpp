@@ -86,6 +86,13 @@ void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 
+// Camera commands
+void setCenterCommand(int p, bool b) { if (b) { playerCenterCam(p); } }
+void setLeftCommand(int p, bool b)   { if (b) { playerLeftCam(p);   } }
+void setRightCommand(int p, bool b)  { if (b) { playerRightCam(p);  } }
+void setUpCommand(int p, bool b)     { if (b) { playerUpCam(p);     } }
+void setDownCommand(int p, bool b)   { if (b) { playerDownCam(p);   } }
+
 // Pause fullscreen can be anyone, actually
 void playerFullscreen(bool newBool) {
 	if (!fullscreenKey && newBool) { // newly pressing Enter
@@ -399,6 +406,9 @@ void handleInput(unsigned char key, bool newBool) {
 	case ',': case '<': setLock(0,newBool); break;
 	case '.': case '>': setJump(0,newBool); break;
 	case ' ':           setJump(0,newBool); break;
+    // CAMERA CONTROLS (single player)
+  case 9: // press tab to center cam for P1
+  case '\\': setCenterCommand(0,newBool); break;
 
 		// PLAYER 2
 	case 'w': case 'W':   upKey[1] = newBool; break;
