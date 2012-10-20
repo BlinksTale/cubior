@@ -665,14 +665,14 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   // New pivot angle to go to
   while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
   while (targetAngle < baseAngle - M_PI) { baseAngle -= 2*M_PI; }
-  cout << "ROTATING FROM " << baseAngle << " TO " << targetAngle << endl;
+  //cout << "ROTATING FROM " << baseAngle << " TO " << targetAngle << endl;
   if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations/2))) {
     newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations/2));
   } else {
     // too close, just make equal!
     newAngle = targetAngle;
   }
-  cout << "ACTUALLY ROTATING TO " << newAngle << endl;
+  //cout << "ACTUALLY ROTATING TO " << newAngle << endl;
   //cout << "newAngle is " << newAngle << endl;
   // Set new intended pos for each turn
   // math is a little hackey, tried swapping cos and sin and adding M_PI

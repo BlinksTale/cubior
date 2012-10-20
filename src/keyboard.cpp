@@ -69,6 +69,7 @@ bool lockButton[playerCount];
 bool superButton[playerCount];
 bool pauseButton[playerCount];
 bool joinButton[playerCount];
+bool cameraButton[playerCount];
 
 bool fullscreenKey;
 bool levelShadowsKey;
@@ -330,14 +331,16 @@ void joystickCommands(int i) {
 	int joystick = joystickNum(i);
 	// Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
-	for (int b=0; b<8; b++) {
-		if (b != 6 && b != 7) {
-			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
-		} else if (b == 6) { // Join
+	for (int b=0; b<10; b++) {
+		if (b == 6) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
-		} else if (b == 7) { // Pause
+		} else if (b == 7) { // Pause pauseButton
 			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
-		}
+		} else if (b == 4 || b == 9) { // Camera cameraButtons, left bumper/right stick
+      setCenterCommand(i,sf::Joystick::isButtonPressed(joystick,b));
+    } else { // All unestablish buttons == jumpButton!
+			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
+    }
 	}
 
 	// Convert (for now) joystick to direction buttons
