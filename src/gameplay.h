@@ -73,6 +73,7 @@ static const int playerVisibleMax = 10;
     void rotateAroundPlayer(int,int); // for victory shot
     
     // Camera
+    void checkCameraAgainstWalls(int);
     bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);
     bool checkPathVisibility(CubeObj*, CubeObj*, CubeObj* [][maxHeight][maxDepth]);
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);

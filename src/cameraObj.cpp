@@ -38,6 +38,7 @@ CameraObj::CameraObj() {
   followingBoth = false; // Start by just following cube, not also goal
   nearGoal = false; // inherently won't start right under the goal
   los = true; // Assume you can see the player from the sky :P
+  playerCommandActive = false; // And assume not starting in player's control
 }
 
 // Set to starting pos, start of a new level
@@ -416,6 +417,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
   int totalRotations = 12;
   int newAngle = angleY;
+  int oldAngle = angleY;
 
   //cout << "I'm at angleY: " << angleY << " while it's at targetAngle: " << targetAngle << " and was angleToMatch: " << angleToMatch << endl;
 
@@ -446,25 +448,56 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
 
   // make sure you're still looking at the player at the end of the day.
   lookAtTarget();
+  oldAngle = matchRangeOf(oldAngle, newAngle);
   resetCamArray();
   updateMeans();
 }
+
+// Make sure angle stays what we fixed it to
+void CameraObj::applyCommandAngle() {
+  // No longer applying command to rotate to new angle
+  playerCenterCommand = false;
+  // Now applying command to maintain angle we have
+  playerCommandActive = true;
+  playerCommandAngle = angleY;
+}
+
+// Make sure to disable command if we left its range
+void CameraObj::checkCommandAngle() {
+  int tempAngle = matchRangeOf(playerCommandAngle,angleY);
+  // Left the range?
+  if ((tempAngle > angleY + playerCommandMargin) 
+       || (tempAngle < angleY - playerCommandMargin)) {
+    // Then disable it
+    playerCommandActive = false;
+  }
+}
+
+bool CameraObj::getPlayerCommandActive() {
+  return playerCommandActive;
+}
+
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
-
+  
   // If you are following one target every frame,
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
 
-    // Finall in vertical range?
+    // Finally in vertical range?
     if (y - permanentTarget->getY() <= camHeight) {
       // No longer dropping in!
       droppingIn = false;
     }
     
+    // And if player commanded, still in player command range?
+    if (playerCommandActive) {
+      checkCommandAngle();
+    }
+
     // And give freedom back if player moved away from just fixed location
     updateJustFixedVisibility();
     /*cout << "Current state: freeMovementState is " << freeMovementState() << " and dropping in is ";
@@ -489,24 +522,24 @@ void CameraObj::tick() {
       } else {
         // Just fixed angle, so don't mess it up!
         applyJustFixedVisibility();
-        // No longer applying command to rotate to new angle
-        playerCenterCommand = false;
+        // Just applied match angle, so don't mess it up either!
+        applyCommandAngle();
       }
-    // then move the camera itself if free to do so
-    } else if (freeMovementState() || droppingIn) {
+    // then move the camera itself if free to do so (or player commanded)
+    } else if (freeMovementState() || droppingIn || playerCommandActive) {
       //cout << "First option1" << endl;
       applyFreeMovement();
     // Locked to player then? Keep up with them!
-    } else if (lockedToPlayer && locksReset && !justFixedVisibility) {
+    } else if (lockedToPlayer && locksReset && !justFixedVisibility && !playerCommandActive) {
       applyLockedToPlayer();
     // Locked to player X then? Keep up with them!
-    } else if (lockedToPlayerX && locksReset && !justFixedVisibility) {
+    } else if (lockedToPlayerX && locksReset && !justFixedVisibility && !playerCommandActive) {
       applyLockedToPlayerX();
     // Locked to player Z then? Keep up with them!
-    } else if (lockedToPlayerZ && locksReset && !justFixedVisibility) {
+    } else if (lockedToPlayerZ && locksReset && !justFixedVisibility && !playerCommandActive) {
       //cout << "lockedToPlayerZ is " << lockedToPlayerZ << " while locksReset is " << locksReset << endl;
       applyLockedToPlayerZ();
-    } else if (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) { // not free or have an intended pos
+    } else if (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ && !playerCommandActive) { // not free or have an intended pos
       applyIntendedPos();
     } else { // Nothing else worked? Well... just move freely then anyways
       //cout << "Giving up" << endl;
@@ -514,7 +547,7 @@ void CameraObj::tick() {
     }
 
     // Somehow managed to enable locking, but not actually lock yet?
-    if ((lockedToPlayer || lockedToPlayerX || lockedToPlayerZ) && (!locksReset)) {
+    if ((lockedToPlayer || lockedToPlayerX || lockedToPlayerZ) && (!locksReset) && (!playerCommandActive)) {
       // Take care of that!
       resetLocks();
     }
@@ -853,7 +886,7 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
 
     // Figure out follow-just-the-player mode
     // can do this if you just fixed visibility too
-    if (!followingBoth || justFixedVisibility) {
+    if (!followingBoth || justFixedVisibility || playerCommandActive || lockedToPlayerX || lockedToPlayerZ || lockedToPlayer) {
       // Only point the way the player faces if you're moving
       //cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {

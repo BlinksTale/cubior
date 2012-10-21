@@ -88,7 +88,14 @@ void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 
 // Camera commands
-void setCenterCommand(int p, bool b) { if (b) { playerCenterCam(p); } }
+void setCenterCommand(int p, bool b) {
+  if (b && !cameraButton[p]) {
+    playerCenterCam(p);
+  }
+  if (cameraButton[p] != b) {
+    cameraButton[p] = b;
+  }
+}
 void setLeftCommand(int p, bool b)   { if (b) { playerLeftCam(p);   } }
 void setRightCommand(int p, bool b)  { if (b) { playerRightCam(p);  } }
 void setUpCommand(int p, bool b)     { if (b) { playerUpCam(p);     } }
@@ -329,19 +336,25 @@ int joystickNum(int i) {
 // Figure out all joystick input translations to key presses, for now
 void joystickCommands(int i) {
 	int joystick = joystickNum(i);
-	// Accept any not-start-or-select button for jumping
+  // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
+  bool camButtonPressed = false;
 	for (int b=0; b<10; b++) {
 		if (b == 6) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == 7) { // Pause pauseButton
 			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == 4 || b == 9) { // Camera cameraButtons, left bumper/right stick
-      setCenterCommand(i,sf::Joystick::isButtonPressed(joystick,b));
+      // If either is pressed, add that to camButtonPressed
+      // so we only send one call later
+      camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
     } else { // All unestablish buttons == jumpButton!
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
     }
 	}
+
+  // Cam button stuff
+  setCenterCommand(i,camButtonPressed);
 
 	// Convert (for now) joystick to direction buttons
 	joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
@@ -414,13 +427,13 @@ void handleInput(unsigned char key, bool newBool) {
   case '\\': setCenterCommand(0,newBool); break;
 
 		// PLAYER 2
-	case 'w': case 'W':   upKey[1] = newBool; break;
-	case 'a': case 'A':    leftKey[1] = newBool; break;
-	case 's': case 'S': downKey[1] = newBool; break;
-	case 'd': case 'D':  rightKey[1] = newBool; break;
-	case 'f': case 'F':   setJump(1,newBool); break;
-	case 'g': case 'G':   setLock(1,newBool); break;
-	case 'h': case 'H': setSuper(1,newBool); break;
+	case 'w': case 'W':    upKey[1] = newBool; break;
+	case 'a': case 'A':  leftKey[1] = newBool; break;
+	case 's': case 'S':  downKey[1] = newBool; break;
+	case 'd': case 'D': rightKey[1] = newBool; break;
+	case 'f': case 'F':    setJump(1,newBool); break;
+	case 'g': case 'G':    setLock(1,newBool); break;
+	case 'h': case 'H':   setSuper(1,newBool); break;
 
 		// PLAYER 3
 	case 'i': case 'I':       upKey[2] = newBool; break;

@@ -384,129 +384,12 @@ void gameplayLoop() {
 	    if (cubiorPlayable[i]){
         
         //cout << "for-loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-        // try to line camera up against a wall
-        int xWall[4];
-        int zWall[4];
-        searchForWall(i,xWall,permanentMap,0);
-        searchForWall(i,zWall,permanentMap,2);
-        //cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
-        //cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
-        // FIXME: I want this to be based on an "is any space or wall" bool
-        /*if (xWall != 0 || zWall != 0) {
-          cout << "atan is " << atan(zWall*1.0/xWall) << endl;
-          rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
-        }*/
-        
-        //cout << "for2loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-        //cout << "grounded = " << cubior[i].getGrounded() << endl;
-        //cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
-        
-        // Only look for new walls if not moving much & not dropping in
-        if (!cubior[i].isMovingQuickly() && !cameraDroppingIn[i]) {
-          if (playerVisible(i)) {
-            if (cubior[i].getStillGrounded()) {
-          // Keep track of how often each direction is requested.
-          xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
 
-          // Look for walls
-          if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
-            if (xWall[0] && !xWall[1]) { xNear[i]++; } // near wall but no far wall
-            if (!xWall[0] && xWall[1]) { xFar[i]++;  } // far wall but no near wall
-            if (zWall[0] && !zWall[1]) { zNear[i]++; } // near wall but no far wall
-            if (!zWall[0] && zWall[1]) { zFar[i]++;  } // far wall but no near wall
-          }
-          // No walls? Look for drops!
-          if (xWall[2] || xWall[3] || zWall[2] || zWall[3]) {
-            if (xWall[2]) { xNear[i]++; } // far space
-            if (xWall[3]) { xFar[i]++;  } // near space
-            if (zWall[2]) { zNear[i]++; } // far space
-            if (zWall[3]) { zFar[i]++;  } // near space
-          }
-            }
-          }
+        // Only try to compare camera to walls for angles if not recently player commanded
+        if (!camera[i].getPlayerCommandActive()) {
+          checkCameraAgainstWalls(i);
         }
 
-        //cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-        //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
-        // Do not try to adjust for walls if in goal range
-        if (playerVisible(i) && (!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
-            !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
-          //cout << "Good!" << endl;
-          float targetAngle = 0;
-          //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
-          // xNear wins
-          //cout << "for4loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-          if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
-            //cout << "xNear" << endl;
-            targetAngle = 0;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
-              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
-            } else if (!camera[i].getLockedToPlayerX()) {
-              camera[i].setLockedToPlayerX(true);
-            }
-          // xFar wins
-          } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
-          //cout << "for5loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-            //cout << "xFar" << endl;
-            targetAngle = M_PI;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
-              rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
-            } else if (!camera[i].getLockedToPlayerX()) {
-              camera[i].setLockedToPlayerX(true);
-            }
-          } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
-          //cout << "for6loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-          // zNear wins
-          if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
-            //cout << "zNear" << endl;
-            //cout << "zNear chosen" << endl;
-            targetAngle = 1.0/2*M_PI;
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
-              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
-            } else if (!camera[i].getLockedToPlayerZ()) {
-              camera[i].setLockedToPlayerZ(true); 
-            }
-          // zFar wins
-          } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
-          //cout << "for7loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-          //cout << "It happens here" << endl;
-            //cout << "zFar" << endl;
-            //cout << "zFar chosen" << endl;
-            // to figure out which direction to rotate towards
-            int targetX = camera[i].getPermanentTarget()->getX();
-            int targetZ = camera[i].getPermanentTarget()->getZ();
-            float testAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
-            // Then rotate in that direction
-            if (testAngle < M_PI/2.0) {
-              targetAngle = -0.999/2*M_PI;
-            } else {
-              targetAngle = 2.999/2*M_PI;
-            }
-            // Put them in the same range
-            while (targetAngle < camera[i].getRadiansAngleY() - M_PI) { targetAngle += 2*M_PI; }
-            while (targetAngle > camera[i].getRadiansAngleY() + M_PI) { targetAngle -= 2*M_PI; }
-            if (abs(targetAngle - camera[i].getRadiansAngleY())>0.07) {
-              //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
-              rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
-            } else if (!camera[i].getLockedToPlayerZ()) {
-              camera[i].setLockedToPlayerZ(true);
-            }
-          } else if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
-          //cout << "for8loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-          //cout << "targetAngle " << targetAngle << endl;
-          //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
-          //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
-        } else {
-          //cout << "for9loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-          //cout << "Nada" << endl;
-          if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
-          if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
-          if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
-          //cout << "for0loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-        }
         //cout << "pre-tick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         // Basic setup
         camera[i].tick();
@@ -561,6 +444,135 @@ void gameplayLoop() {
   }
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
+}
+
+// See if you can line the camera up against a wall
+// so the player has an easier time navigating the platforming
+// (out here in gameplay to more easily use the cube array)
+void checkCameraAgainstWalls(int i) {
+  // try to line camera up against a wall
+  int xWall[4];
+  int zWall[4];
+  searchForWall(i,xWall,permanentMap,0);
+  searchForWall(i,zWall,permanentMap,2);
+  //cout << "xWall is [" << xWall[0] << "," << xWall[1] << "," << xWall[2] << "," << xWall[3] << "]" << endl;
+  //cout << "zWall is [" << zWall[0] << "," << zWall[1] << "," << zWall[2] << "," << zWall[3] << "]" << endl;
+  // FIXME: I want this to be based on an "is any space or wall" bool
+  /*if (xWall != 0 || zWall != 0) {
+    cout << "atan is " << atan(zWall*1.0/xWall) << endl;
+    rotateToAngle(i,atan(zWall*1.0/xWall),camera[i].groundDistToPlayer());
+  }*/
+        
+  //cout << "for2loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+  //cout << "grounded = " << cubior[i].getGrounded() << endl;
+  //cout << "stillGrounded = " << cubior[i].getStillGrounded() << endl;
+        
+  // Only look for new walls if not moving much, not dropping in, and no recent player camera commands
+  if (!cubior[i].isMovingQuickly() && !cameraDroppingIn[i]) {
+    if (playerVisible(i)) {
+      if (cubior[i].getStillGrounded()) {
+    // Keep track of how often each direction is requested.
+    xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
+
+    // Look for walls
+    if (xWall[0] || xWall[1] || zWall[0] || zWall[1]) {
+      if (xWall[0] && !xWall[1]) { xNear[i]++; } // near wall but no far wall
+      if (!xWall[0] && xWall[1]) { xFar[i]++;  } // far wall but no near wall
+      if (zWall[0] && !zWall[1]) { zNear[i]++; } // near wall but no far wall
+      if (!zWall[0] && zWall[1]) { zFar[i]++;  } // far wall but no near wall
+    }
+    // No walls? Look for drops!
+    if (xWall[2] || xWall[3] || zWall[2] || zWall[3]) {
+      if (xWall[2]) { xNear[i]++; } // far space
+      if (xWall[3]) { xFar[i]++;  } // near space
+      if (zWall[2]) { zNear[i]++; } // far space
+      if (zWall[3]) { zFar[i]++;  } // near space
+    }
+      }
+    }
+  }
+
+  //cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+  //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
+  // Do not try to adjust for walls if in goal range
+  if (playerVisible(i) && (!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
+      !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
+    //cout << "Good!" << endl;
+    float targetAngle = 0;
+    //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
+    // xNear wins
+    //cout << "for4loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+    if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
+      //cout << "xNear" << endl;
+      targetAngle = 0;
+      if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+        rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+      } else if (!camera[i].getLockedToPlayerX()) {
+        camera[i].setLockedToPlayerX(true);
+      }
+    // xFar wins
+    } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
+    //cout << "for5loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+      //cout << "xFar" << endl;
+      targetAngle = M_PI;
+      if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+        rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
+      } else if (!camera[i].getLockedToPlayerX()) {
+        camera[i].setLockedToPlayerX(true);
+      }
+    } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
+    //cout << "for6loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+    // zNear wins
+    if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
+      //cout << "zNear" << endl;
+      //cout << "zNear chosen" << endl;
+      targetAngle = 1.0/2*M_PI;
+      if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
+        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+        rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+      } else if (!camera[i].getLockedToPlayerZ()) {
+        camera[i].setLockedToPlayerZ(true); 
+      }
+    // zFar wins
+    } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
+    //cout << "for7loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+    //cout << "It happens here" << endl;
+      //cout << "zFar" << endl;
+      //cout << "zFar chosen" << endl;
+      // to figure out which direction to rotate towards
+      int targetX = camera[i].getPermanentTarget()->getX();
+      int targetZ = camera[i].getPermanentTarget()->getZ();
+      float testAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);
+      // Then rotate in that direction
+      if (testAngle < M_PI/2.0) {
+        targetAngle = -0.999/2*M_PI;
+      } else {
+        targetAngle = 2.999/2*M_PI;
+      }
+      // Put them in the same range
+      while (targetAngle < camera[i].getRadiansAngleY() - M_PI) { targetAngle += 2*M_PI; }
+      while (targetAngle > camera[i].getRadiansAngleY() + M_PI) { targetAngle -= 2*M_PI; }
+      if (abs(targetAngle - camera[i].getRadiansAngleY())>0.07) {
+        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
+        rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
+      } else if (!camera[i].getLockedToPlayerZ()) {
+        camera[i].setLockedToPlayerZ(true);
+      }
+    } else if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
+    //cout << "for8loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+    //cout << "targetAngle " << targetAngle << endl;
+    //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
+    //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
+  } else {
+    //cout << "for9loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+    //cout << "Nada" << endl;
+    if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
+    if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
+    if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
+    //cout << "for0loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
+  }
 }
 
 /*******************
@@ -666,8 +678,8 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   while (targetAngle > baseAngle + M_PI) { baseAngle += 2*M_PI; }
   while (targetAngle < baseAngle - M_PI) { baseAngle -= 2*M_PI; }
   //cout << "ROTATING FROM " << baseAngle << " TO " << targetAngle << endl;
-  if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations/2))) {
-    newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations/2));
+  if (abs(targetAngle-baseAngle)>(M_PI*2.0/(winningRotations))) {
+    newAngle = baseAngle + (1-2*(baseAngle>targetAngle))*(M_PI*2.0/(winningRotations));
   } else {
     // too close, just make equal!
     newAngle = targetAngle;

@@ -25,7 +25,10 @@ class CameraObj : public CubeObj {
 
     // For cam controls
     bool playerCenterCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
-    
+    bool playerCommandActive; // whether still adhering to player set angle or not
+    int playerCommandAngle; // so that we keep player's angle until we move outside it naturally
+    static const int playerCommandMargin = 60; // how far we can turn before leaving player set angle
+
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;
     int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
            visibleIntendedCount, lastDistToIntended, intendedStuckCount;
@@ -76,8 +79,13 @@ class CameraObj : public CubeObj {
     void applyLockedToPlayerX();
     void applyLockedToPlayerZ();
     void applyIntendedPos();
+
+    // Player Camera Controls
     bool matchAngleY(int);
     void applyMatchAngleY(int);
+    void applyCommandAngle();
+    void checkCommandAngle();
+    bool getPlayerCommandActive();
 
     bool getSnapLock();
     void snapLock();
