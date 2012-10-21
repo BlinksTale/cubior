@@ -86,7 +86,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   bool* c2n = c2->getNeighbors();
 
   //if (diffX != 0 || diffY != 0 || diffZ != 0) {
-  //  cout << "DIFFS FOR " << c1 << " AND " << c2 << " ARE " << diffX << ", " << diffY << ", " << diffZ << endl;
+    //cout << "DIFFS FOR " << c1 << " AND " << c2 << " ARE " << diffX << ", " << diffY << ", " << diffZ << endl;
   //}
 
   // Only change one dimension at a time, the lowest that isn't zero

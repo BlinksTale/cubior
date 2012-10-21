@@ -327,9 +327,11 @@ void gameplayLoop() {
       // Run main tick loop for all Cubiors...
       for (int i = 0; i<cubiorCount; i++) {
         if (cubiorPlayable[i] && cubior[i].getLandedOnCount() == landedOnNum) {
+          //cout << "Ticking cubior " << i << endl;
           cubior[i].tick();
           keepInBounds(&cubior[i]);
           addToCollisionMap(&cubior[i], collisionMap);
+          //cout << "Done ticking cubior " << i << " and " << i << "'s collision stuff" << endl;
         }
       }
     }
