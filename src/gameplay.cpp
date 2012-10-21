@@ -495,8 +495,13 @@ void checkCameraAgainstWalls(int i) {
   //cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
   //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
   // Do not try to adjust for walls if in goal range
-  if (playerVisible(i) && (!camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
-      !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
+  if (playerVisible(i) &&
+    // must also either already be locked
+    (camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayer() || camera[i].getLockedToPlayerZ() ||
+    // or not be in goal range
+    !camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
+    // Then also, can't be told to not move, and must have a wall or space to align to
+    !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
     //cout << "Good!" << endl;
     float targetAngle = 0;
     //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;

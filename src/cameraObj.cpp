@@ -181,8 +181,17 @@ void CameraObj::applyJustFixedVisibility() {
 
 // To use first camera style, nothing else must be required of it
 bool CameraObj::freeMovementState() {
-  return freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
+  /*cout << "Free movement state is " << (freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
       ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
+       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ))) << endl;
+
+  cout << "The individual parts are freedom " << freedom << " !foundIntendedPos " << !foundIntendedPos;
+  cout << " playerRegularlyVisible(permanentTargetNum) " << playerRegularlyVisible(permanentTargetNum);
+  cout << " and the rest " << ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
+       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ)) << endl;
+  */
+  return freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
+      (/*(!goalOutsideDistRange() && goalWithinJumpRange()) ||*/
        (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ));
 }
 
@@ -414,6 +423,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
             -permanentTarget->getDirection()+M_PI/2, // what? Weirdness with the numbers here.
             groundDistToPlayer()
           );*/
+
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
   int totalRotations = 12;
   int newAngle = angleY;
@@ -434,8 +444,8 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
   angleY = -newAngle - 90;
 
   // Find new location
-  int deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;//*groundDistToPlayer();
-  int deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;//*groundDistToPlayer();
+  int deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;
+  int deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;
   int intendedX = permanentTarget->getX() + deltaX;
   int intendedZ = permanentTarget->getZ() + deltaZ;
 
@@ -451,12 +461,24 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
   oldAngle = matchRangeOf(oldAngle, newAngle);
   resetCamArray();
   updateMeans();
+
+  // This way, if you entered matchAngle while in Option 5 (moving to new intendedPos)
+  // then the non-visibility state from that will get updated and become invalid
+  // so that relinquishing playerCommandActive later will lead to a new era of Option 1
+  // (free movement) naturally instead of waiting for intendedPos to be fulfilled
+  // NOPE DIDN'T WORK NOT WORTH IT playerRegularlyVisible(permanentTargetNum);
 }
 
 // Make sure angle stays what we fixed it to
 void CameraObj::applyCommandAngle() {
   // No longer applying command to rotate to new angle
   playerCenterCommand = false;
+  // Nor trying to move to some old visibility angle/shot
+  foundIntendedPos = false;
+  freedom = true;
+  lockedToPlayer = false;
+  lockedToPlayerX = false;
+  lockedToPlayerZ = false;
   // Now applying command to maintain angle we have
   playerCommandActive = true;
   playerCommandAngle = angleY;
@@ -470,6 +492,12 @@ void CameraObj::checkCommandAngle() {
        || (tempAngle < angleY - playerCommandMargin)) {
     // Then disable it
     playerCommandActive = false;
+    // And reset all other camera scenario vars
+    lockedToPlayer = false;
+    lockedToPlayerX = false;
+    lockedToPlayerZ = false;
+    foundIntendedPos = false;
+    freedom = true;
   }
 }
 
