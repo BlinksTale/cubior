@@ -7,7 +7,6 @@
 #include <iostream>
 #include "visuals.h"
 #include "gameplay.h"
-#include "png.h"
 using namespace std;
 
 #include <SFML/Graphics.hpp>
@@ -139,7 +138,7 @@ int main(int argc, char *argv[])
     std::cout << "Please provide a filename." << std::endl;
     return 1;
   }*/
-  const char* filename = "./images/CubiorLogoFacebookTimelineBanner.png";//CubiorLogo720.png";//argv[1];
+  const char* filename = "./images/CubiorLogo720.png";//argv[1];
 
   // Load file and decode image.
   std::vector<unsigned char> image;
@@ -212,22 +211,26 @@ int main(int argc, char *argv[])
   glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
   
   bool done = false;
-  glColor4ub(255, 255, 255, 255);
-  
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  float textureX = 10;
+  float textureY = 10;
+  // Not sure why this was used here
+  //glColor4ub(255, 255, 255, 255);
+  // No difference when commented out
     
-    
-    // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
-    glBegin(GL_QUADS);
-      glTexCoord2d( 0,  0); glVertex2f(    0,      0);
-      glTexCoord2d(u3,  0); glVertex2f(width,      0);
-      glTexCoord2d(u3, v3); glVertex2f(width, height);
-      glTexCoord2d( 0, v3); glVertex2f(    0, height);
-    glEnd();
-    
-    glutSwapBuffers();
 
     while (true) {
+      textureX += 0.1;
+      glClearColor(0.5, 0, 0.5, 0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+      // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
+      glBegin(GL_QUADS);
+        glTexCoord2d( 0,  0); glVertex2f(      textureX,        textureY);
+        glTexCoord2d(u3,  0); glVertex2f(textureX+width,        textureY);
+        glTexCoord2d(u3, v3); glVertex2f(textureX+width, textureY+height);
+        glTexCoord2d( 0, v3); glVertex2f(      textureX, textureY+height);
+      glEnd();
+    
+      glutSwapBuffers();
     }
 }
