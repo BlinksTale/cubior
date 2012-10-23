@@ -13,6 +13,9 @@
 #include "goalShape.h"
 #include "cubiorShape.h"
 
+#include "lodepng.h" // for 2D images, all PNG based for transparency
+  // lodePNG copyright (c) 2005-2012 Lode Vandevenne
+
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
 
@@ -146,8 +149,9 @@ LPVOID glutFonts[7] = {
 // Texture related things
 // based on stuff
 // from http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures
- static GLuint logoTexture;
-
+static GLuint logoTexture;
+std::vector<unsigned char> textureImage;
+unsigned textureWidth, textureHeight;
 
 // A print text function
 // copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
@@ -271,6 +275,10 @@ void display() {
   // End with a quick flush, to draw faster
   // EDIT: No need for flush! This is only for when graphics card is on other side of the networks
   //glFlush();
+
+  // just before swap buffers, print on top the textures!
+  //drawMenu(0);
+
   //cout << "Flush: \t\t\t" << getTimePassed() << endl;
   glutSwapBuffers(); // because using double buffer, must swap buffers
   //cout << "Swap: \t\t\t" << getTimePassed() << endl;
@@ -386,7 +394,11 @@ void displayFor(int player) {
       n=sprintf(pausedText, "Press Start/Enter!");
       printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()-1400,cameraPointer[player]->getMeanZ());
 
+      // Lastly, draw menu system for player (if paused, long term)
+      drawMenu(player);
     }
+
+
   //cout << "Ending half " << player << ":  \t\t" << getTimePassed() << endl;
 }
 
@@ -1002,8 +1014,89 @@ void initVisuals() {
 
 }
 
+// Mostly copied from lodepng example
+// Draws 2D PNGs on the screen (eventually for title and menus)
+void initMenu() {
+  const char* filename = "./images/CubiorLogo720.png";//argv[1];
+  unsigned error = lodepng::decode(textureImage, textureWidth, textureHeight, filename);
+  
+
+}
+
+// Draws the 2D PNGs themselves as textures
+void drawMenu(int i) {
+  // Don't use whole viewport since different menu for every player
+  //glViewport(0, 0, windowWidth, windowHeight); // don't need?
+  glMatrixMode(GL_PROJECTION); // necessary
+  glLoadIdentity(); // this one seems to be necessary
+  glOrtho(0, windowWidth, windowHeight, 0, -1, 1); // necessary
+  glMatrixMode(GL_MODELVIEW); // don't need?
+  glLoadIdentity(); // don't need?
+  
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable(GL_ALPHA_TEST); // no visible effect yet
+  
+  // Texture size must be power of two for the primitive OpenGL version this is written for. Find next power of two.
+  size_t u2 = 1; while(u2 < textureWidth) u2 *= 2;
+  size_t v2 = 1; while(v2 < textureHeight) v2 *= 2;
+  // Ratio for power of two version compared to actual version, to render the non power of two image with proper size.
+  double u3 = (double)textureWidth / u2;
+  double v3 = (double)textureHeight / v2;
+
+  // Make power of two version of the image.
+  std::vector<unsigned char> image2(u2 * v2 * 4);
+  for(size_t y = 0; y < textureHeight; y++)
+  for(size_t x = 0; x < textureWidth; x++)
+  for(size_t c = 0; c < 4; c++)
+  {
+    image2[4 * u2 * y + 4 * x + c] = textureImage[4 * textureWidth * y + 4 * x + c];
+  }
+
+  // Enable the texture for OpenGL.
+  glEnable(GL_TEXTURE_2D);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST = no smoothing
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
+  glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
+  
+  // Still unsure of functionality, but known importance!
+  // glColor4ub brings back color to the PNG where it was black before
+  glColor4ub(255, 255, 255, 255);
+
+  // Where the logo is for bouncing
+  int time;
+  time = clock();
+  float currentTextureX = 20.0*sin(time/1600.0);
+  float currentTextureY = 50+10.0*sin(time/800.0);
+
+  //glTranslatef(0.0,0.0,10.0);
+  glPushMatrix();
+  glTranslatef((windowWidth-textureWidth)/2.0+currentTextureX,0.0f+currentTextureY,0.0f);
+  //glRotatef(180.0,0.0,1.0,0.0);
+  // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
+      glBegin(GL_QUADS);
+        glTexCoord2d( 0,  0); glVertex2f(             0,               0);
+        glTexCoord2d(u3,  0); glVertex2f(0+textureWidth,               0);
+        glTexCoord2d(u3, v3); glVertex2f(0+textureWidth, 0+textureHeight);
+        glTexCoord2d( 0, v3); glVertex2f(             0, 0+textureHeight);
+      glEnd();
+  glPopMatrix();
+  
+  glDisable(GL_BLEND);
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_ALPHA_TEST);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+  
+}
+
 // To setup OpenGL and GLUT in general
 void initFlat(int argc, char** argv) {
+
+  // load PNGs for menu system
+  initMenu();
 
   // Setup all-cubes-of-any-form visuals 
   initVisuals();

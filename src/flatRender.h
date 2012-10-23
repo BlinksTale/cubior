@@ -10,6 +10,7 @@
     void display();
     void displayFor(int); // individual views
     void initVisuals();
+    void initMenu();
     void initFlat(int, char**);
     void fillScreenWithShadow();
     void calcPlayer(int);
@@ -29,6 +30,7 @@
     void drawGoal();
     void drawGoalShadow();
     void drawGoalOutline();
+    void drawMenu(int);
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();
