@@ -15,7 +15,7 @@ else
   Exe = cubior.exe
 endif
 
-AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o bin/sfx.o bin/music.o
+AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o bin/sfx.o bin/music.o bin/lodepng.o
 
 all: bin/cubior.o bin/cubiorTest.o
 	g++ $(AllFiles) bin/cubior.o $(Graphics) $(Audio) -o bin/cubior && bin/$(Exe)
@@ -53,6 +53,9 @@ bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape
 
 bin/textRender.o: src/textRender.cpp
 	g++ -c src/textRender.cpp -o bin/textRender.o
+
+bin/lodepng.o: src/lodepng.cpp
+	g++ -c src/lodepng.cpp -o bin/lodepng.o
 
 
 #########

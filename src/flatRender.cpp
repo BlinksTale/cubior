@@ -143,7 +143,13 @@ LPVOID glutFonts[7] = {
     GLUT_BITMAP_HELVETICA_18 
 }; 
 
+// Texture related things
+// based on stuff
+// from http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures
+ static GLuint logoTexture;
 
+
+// A print text function
 // copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
 // Here is the function 
 void glutPrint(float x, float y, LPVOID font, char* text, float r, float g, float b, float a) 
