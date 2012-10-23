@@ -1029,7 +1029,14 @@ void drawMenu(int i) {
   //glViewport(0, 0, windowWidth, windowHeight); // don't need?
   glMatrixMode(GL_PROJECTION); // necessary
   glLoadIdentity(); // this one seems to be necessary
-  glOrtho(0, windowWidth, windowHeight, 0, -1, 1); // necessary
+  GLfloat aspect = ((GLfloat)windowWidth / (GLfloat)windowHeight)/(1600.0/1050.0);
+  //gluPerspective(45.0, aspect*windowWidth/windowHeight, 0.050, 100.0);
+  if (aspect > 1.0) {
+    glOrtho(0, 1600*aspect, 1050, 0, -1, 1); // necessary
+  } else {
+    glOrtho(0, 1600, 1050/aspect, 0, -1, 1); // necessary
+  }
+  //glOrtho(0, 1600*aspect, 1050, 0, -1, 1); // necessary
   glMatrixMode(GL_MODELVIEW); // don't need?
   glLoadIdentity(); // don't need?
   
@@ -1073,7 +1080,13 @@ void drawMenu(int i) {
 
   //glTranslatef(0.0,0.0,10.0);
   glPushMatrix();
-  glTranslatef((windowWidth-textureWidth)/2.0+currentTextureX,0.0f+currentTextureY,0.0f);
+  // Always keep in center of screen, regardless of size/resolution
+  // And use aspect from earlier to do this, and 1600 as expected/base width
+  if (aspect > 1.0) {
+    glTranslatef(1600*aspect/2-textureWidth/2+currentTextureX,0.0f+currentTextureY,0.0f);
+  } else {
+    glTranslatef(1600/2-textureWidth/2+currentTextureX,0.0f+currentTextureY,0.0f);
+  }
   //glRotatef(180.0,0.0,1.0,0.0);
   // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
       glBegin(GL_QUADS);
