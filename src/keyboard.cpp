@@ -87,6 +87,9 @@ void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
 void setSuper(int p, bool b) { if (superEnabled) { superKey[p] = b; } }
 
+// Did we have a joystick last we checked?
+bool joystickRecentlyConnected = false;
+
 // Camera commands
 void setCenterCommand(int p, bool b) {
   if (b && !cameraButton[p]) {
@@ -365,6 +368,23 @@ void joystickCommands(int i) {
 	leftButton[i] = joyX[i] <-15;
 	rightButton[i]= joyX[i] > 15;
 
+}
+
+// Return if any joystick connected
+bool joystickConnected() {
+  bool result = false;
+  // check for all four
+  for (int i=0; i<4; i++) {
+    result = result || sf::Joystick::isConnected(joystickNum(i));
+  }
+  joystickRecentlyConnected = result;
+  // if any connected, return true
+  return result;
+}
+
+// Gives what state was as of last time checking
+bool joystickWasConnected() {
+  return joystickRecentlyConnected;
 }
 
 // Combine buttons and keys under one input system

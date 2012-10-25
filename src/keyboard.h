@@ -18,6 +18,8 @@
     void handleInput(unsigned char, bool);
     void sendCommands();
     void joystickCommands(int);
+    bool joystickConnected();
+    bool joystickWasConnected();
     void mergeInput(int);
     void specialInputDown(int, int, int);
     void specialInputUp(int, int, int);

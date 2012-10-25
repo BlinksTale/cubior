@@ -12,9 +12,7 @@
 #include "cubeShape.h"
 #include "goalShape.h"
 #include "cubiorShape.h"
-
-#include "lodepng.h" // for 2D images, all PNG based for transparency
-  // lodePNG copyright (c) 2005-2012 Lode Vandevenne
+#include "image.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -146,12 +144,9 @@ LPVOID glutFonts[7] = {
     GLUT_BITMAP_HELVETICA_18 
 }; 
 
-// Texture related things
-// based on stuff
-// from http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures
-static GLuint logoTexture;
-std::vector<unsigned char> textureImage;
-unsigned textureWidth, textureHeight;
+// Images for HUD, Menu, etc
+Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
+  resumeImage, quitImage, creditsImage;
 
 // A print text function
 // copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
@@ -334,23 +329,23 @@ void displayFor(int player) {
       int n;
   if (!getGameplayRunning() && getLastPause() == -1) {
       // START SCREEN temp fix for IGF demo
-      n=sprintf(pausedText, "Cubior");
+      //n=sprintf(pausedText, "Cubior");
       int pW = 0;//1000;
       int pH =-1000;
       int pD = 0; // was -1000 when angleX was 0, now angleX is 270
       float heightVsExpected = -1050.0/windowHeight;
       float widthVsExpected = windowWidth/1600.0;
-      printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
+      //printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
       n=sprintf(pausedText, "by Brian Handy");
       printString(pausedText,cameraPointer[player]->getMeanX()+pW+165*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+50*heightVsExpected);
       n=sprintf(pausedText, "Sound by Rolando Nadal");
       printString(pausedText,cameraPointer[player]->getMeanX()+pW+260*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+25*heightVsExpected);
       n=sprintf(pausedText, "Music by Waterflame");
       printString(pausedText,cameraPointer[player]->getMeanX()+pW+225*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+0*heightVsExpected);
-      n=sprintf(pausedText, "Press Start/Enter!");
-      printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
-      n=sprintf(pausedText, "(up to four players can join using gamepads)");
-      printString(pausedText,cameraPointer[player]->getMeanX()+515*widthVsExpected,cameraPointer[player]->getMeanY(),cameraPointer[player]->getMeanZ()+pD-125*heightVsExpected);
+      //n=sprintf(pausedText, "Press Start/Enter!");
+      //printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
+      //n=sprintf(pausedText, "(up to four players can join using gamepads)");
+      //printString(pausedText,cameraPointer[player]->getMeanX()+515*widthVsExpected,cameraPointer[player]->getMeanY(),cameraPointer[player]->getMeanZ()+pD-125*heightVsExpected);
   }
 
   // Then draw all shadows in order of height!
@@ -1014,12 +1009,15 @@ void initVisuals() {
 
 }
 
-// Mostly copied from lodepng example
-// Draws 2D PNGs on the screen (eventually for title and menus)
+// Load data into Image objects
 void initMenu() {
-  const char* filename = "./images/CubiorLogo720.png";//argv[1];
-  unsigned error = lodepng::decode(textureImage, textureWidth, textureHeight, filename);
-  
+  logoImage            = Image("./images/CubiorLogo720.png");
+  pressStartImage      = Image("./images/CubiorPressStart720.png");
+  pressEnterImage      = Image("./images/CubiorPressEnter720.png");
+  pressStartEnterImage = Image("./images/CubiorPressStartEnter720.png");
+  resumeImage          = Image("./images/CubiorResume720.png");
+  creditsImage         = Image("./images/CubiorCredits720.png");
+  quitImage            = Image("./images/CubiorQuit720.png");
 
 }
 
@@ -1046,27 +1044,10 @@ void drawMenu(int i) {
   glEnable(GL_BLEND);
   glDisable(GL_ALPHA_TEST); // no visible effect yet
   
-  // Texture size must be power of two for the primitive OpenGL version this is written for. Find next power of two.
-  size_t u2 = 1; while(u2 < textureWidth) u2 *= 2;
-  size_t v2 = 1; while(v2 < textureHeight) v2 *= 2;
-  // Ratio for power of two version compared to actual version, to render the non power of two image with proper size.
-  double u3 = (double)textureWidth / u2;
-  double v3 = (double)textureHeight / v2;
-
-  // Make power of two version of the image.
-  std::vector<unsigned char> image2(u2 * v2 * 4);
-  for(size_t y = 0; y < textureHeight; y++)
-  for(size_t x = 0; x < textureWidth; x++)
-  for(size_t c = 0; c < 4; c++)
-  {
-    image2[4 * u2 * y + 4 * x + c] = textureImage[4 * textureWidth * y + 4 * x + c];
-  }
-
   // Enable the texture for OpenGL.
   glEnable(GL_TEXTURE_2D);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //GL_NEAREST = no smoothing
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); 
-  glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // slight smoothing when smaller than norm
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // no smoothing when full size and up
   
   // Still unsure of functionality, but known importance!
   // glColor4ub brings back color to the PNG where it was black before
@@ -1075,28 +1056,25 @@ void drawMenu(int i) {
   // Where the logo is for bouncing
   int time;
   time = clock();
-  float currentTextureX = 20.0*sin(time/1600.0);
-  float currentTextureY = 50+10.0*sin(time/800.0);
-
-  //glTranslatef(0.0,0.0,10.0);
-  glPushMatrix();
-  // Always keep in center of screen, regardless of size/resolution
-  // And use aspect from earlier to do this, and 1600 as expected/base width
-  if (aspect > 1.0) {
-    glTranslatef(1600*aspect/2-textureWidth/2+currentTextureX,0.0f+currentTextureY,0.0f);
-  } else {
-    glTranslatef(1600/2-textureWidth/2+currentTextureX,0.0f+currentTextureY,0.0f);
-  }
-  //glRotatef(180.0,0.0,1.0,0.0);
-  // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
-      glBegin(GL_QUADS);
-        glTexCoord2d( 0,  0); glVertex2f(             0,               0);
-        glTexCoord2d(u3,  0); glVertex2f(0+textureWidth,               0);
-        glTexCoord2d(u3, v3); glVertex2f(0+textureWidth, 0+textureHeight);
-        glTexCoord2d( 0, v3); glVertex2f(             0, 0+textureHeight);
-      glEnd();
-  glPopMatrix();
   
+  // Start screen?
+  if (getLastPause() == -1) {
+    logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect);
+
+    // Blink the press start/enter image
+    if (time%1200 < 900) {
+      if (joystickConnected()) {
+        pressStartImage.draw(0,700,aspect);
+      } else {
+        pressEnterImage.draw(0,700,aspect);
+      }
+    }
+  // Regular pause!
+  } else {
+    resumeImage.draw(0,25,aspect);
+    creditsImage.draw(0,325,aspect); // will be options later
+    quitImage.draw(0,625,aspect);
+  }
   glDisable(GL_BLEND);
   glDisable(GL_TEXTURE_2D);
   glEnable(GL_ALPHA_TEST);
