@@ -1050,7 +1050,7 @@ void drawMenu(int i) {
   glDisable(GL_DEPTH_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
-  //glDisable(GL_ALPHA_TEST); // no visible effect yet
+  glDisable(GL_ALPHA_TEST); // no visible effect yet
   
   // Enable the texture for OpenGL.
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // slight smoothing when smaller than norm
@@ -1068,25 +1068,27 @@ void drawMenu(int i) {
   if (!getGameplayRunning()) {
     // Start screen?
     if (getLastPause() == -1) {
-      logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect);
+      logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect,false);
 
       // Blink the press start/enter image
       if (time%1200 < 900) {
         if (joystickConnected()) {
-          pressStartImage.draw(0,700,aspect);
+          pressStartImage.draw(0,700,aspect,false);
         } else {
-          pressEnterImage.draw(0,700,aspect);
+          pressEnterImage.draw(0,700,aspect,false);
         }
       }
     // Regular pause!
     } else {
-      resumeImage.draw(0,25,aspect);
-      creditsImage.draw(0,325,aspect); // will be options later
-      quitImage.draw(0,625,aspect);
+      int option = getOption(i);
+      float rotation = 5.0*sin(time/300.0);
+      resumeImage.draw(0,25,aspect,(option==0)*rotation);
+      creditsImage.draw(0,325,aspect,(option==1)*rotation); // will be options later
+      quitImage.draw(0,625,aspect,(option==2)*rotation);
     }
   }
   glDisable(GL_BLEND);
-  //glEnable(GL_ALPHA_TEST);
+  glEnable(GL_ALPHA_TEST);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 

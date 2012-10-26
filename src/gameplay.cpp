@@ -67,6 +67,10 @@ bool justExited = false;
 bool justPaused = false;
 bool justUnpaused = false;
 
+// Pause option value
+int option[4];
+int maxOption = 3;
+
 // Changing game state variables
 bool gameplayRunning = true;
 bool gameplayFirstRunning = true;
@@ -1381,9 +1385,16 @@ int getGravity() { return gravity; }
 
 void  enableGoodCollision() { goodCollision = true;  }
 void disableGoodCollision() { goodCollision = false; }
-void  stopGameplay() { gameplayRunning = false; }
+void  stopGameplay(int i) { gameplayRunning = false; resetOption(i); }
 void startGameplay() { gameplayRunning = true;  }
 bool getGameplayRunning() { return gameplayRunning; }
+
+// Pause option values for when gameplay is not running
+void resetOption(int i) { option[i] = 0; }
+void nextOption(int i) { option[i] = (option[i]+1)%maxOption; }
+void prevOption(int i) { option[i] = (option[i]+maxOption-1)%maxOption; }
+int getOption(int i) { return option[i]; }
+
 int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
 int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}
 int getMapDepth()   { if (levelMap != NULL) { return levelMap->getDepth() ; } else { return 0; }}

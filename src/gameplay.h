@@ -134,11 +134,17 @@ static const int playerVisibleMax = 10;
     void disableGoodCollision();
 
     // Gameplay itself
-    void stopGameplay();
+    void stopGameplay(int);
     void startGameplay();
     bool getGameplayRunning();
     bool getGameplayFirstRunning();
     void setGameplayFirstRunning(bool);
+
+    // Pause options
+    void resetOption(int);
+    void nextOption(int);
+    void prevOption(int);
+    int getOption(int);
 
     // Map Values
     int getMapWidth();

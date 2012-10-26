@@ -47,6 +47,10 @@ bool leftInput[playerCount];
 bool rightInput[playerCount];
 bool jumpInput[playerCount];
 
+// For menu navigation
+bool lastUpInput[playerCount];
+bool lastDownInput[playerCount];
+
 // For Keyboards
 bool upKey[playerCount];
 bool downKey[playerCount];
@@ -149,7 +153,7 @@ void playerPause(int p, bool newBool) {
       // Gameplay is running!
       if (p<0 || p>3 || getCubiorPlayable(p)) {
         // Can pause if playing
-		    stopGameplay();
+		    stopGameplay(p);
         setJustPaused(true);
 		    lastPause = p;
       } else {
@@ -315,7 +319,16 @@ void sendCommands() {
 				oldLR[i] = newLR;
 			}
 		}
-	}
+  // Gameplay not running? Send pause commands!
+	} else {
+		for (int i = 0; i<playerCount; i++) {
+      if (  upInput[i] &&   !lastUpInput[i]) { prevOption(i); }
+      if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
+      // And update old vars
+      lastUpInput[i] = upInput[i];
+      lastDownInput[i] = downInput[i];
+    }
+  }
 }
 
 // Given a player num, returns joystick num

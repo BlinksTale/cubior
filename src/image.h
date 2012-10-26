@@ -30,7 +30,7 @@ class Image {
 public:
     Image();
     Image(const char*);
-    void Image::draw(int,int,float);
+    void Image::draw(int,int,float,float);
 };
 
 #endif

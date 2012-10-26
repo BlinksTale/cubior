@@ -42,7 +42,7 @@ Image::Image(const char* name) {
 }
 
 // Draw self at a location
-void Image::draw(int x, int y, float aspect) {
+void Image::draw(int x, int y, float aspect, float rotate) {
   
   // Would like to move this out of draw if possible
   // Make power of two version of the image.
@@ -61,21 +61,22 @@ void Image::draw(int x, int y, float aspect) {
 
   //glTranslatef(0.0,0.0,10.0);
   glPushMatrix();
-  // Always keep in center of screen, regardless of size/resolution
-  // And use aspect from earlier to do this, and 1600 as expected/base width
-  if (aspect > 1.0) {
-    glTranslatef(1600*aspect/2-width/2+currentTextureX,0.0f+currentTextureY,0.0f);
-  } else {
-    glTranslatef(1600/2-width/2+currentTextureX,0.0f+currentTextureY,0.0f);
-  }
-  //glRotatef(180.0,0.0,1.0,0.0);
-  // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
-      glBegin(GL_QUADS);
-        glTexCoord2d( 0,  0); glVertex2f(      0,        0);
-        glTexCoord2d(u3,  0); glVertex2f(0+width,        0);
-        glTexCoord2d(u3, v3); glVertex2f(0+width, 0+height);
-        glTexCoord2d( 0, v3); glVertex2f(      0, 0+height);
-      glEnd();
+    // Always keep in center of screen, regardless of size/resolution
+    // And use aspect from earlier to do this, and 1600 as expected/base width
+    if (aspect > 1.0) {
+      glTranslatef(1600*aspect/2+currentTextureX, 0.0f+height/2+currentTextureY,0.0f);
+    } else {
+      glTranslatef(1600/2+currentTextureX,        0.0f+height/2+currentTextureY,0.0f);
+    }
+    glPushMatrix();
+    glRotatef(rotate,0.0,0.0,1.0);
+    // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
+    glBegin(GL_QUADS);
+      glTexCoord2d( 0,  0); glVertex2f(0-width/2.0, 0-height/2.0);
+      glTexCoord2d(u3,  0); glVertex2f(0+width/2.0, 0-height/2.0);
+      glTexCoord2d(u3, v3); glVertex2f(0+width/2.0, 0+height/2.0);
+      glTexCoord2d( 0, v3); glVertex2f(0-width/2.0, 0+height/2.0);
+    glEnd();
   glPopMatrix();
-
+  glPopMatrix();
 }
