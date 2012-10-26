@@ -260,6 +260,13 @@ void display() {
       //cout << "All before disp " << i << ": \t" << getTimePassed() << endl;
 
       displayFor(i);
+
+      //if (!getGameplayRunning()) {
+        // Lastly, draw menu system for player (if paused, long term)
+        glEnable(GL_TEXTURE_2D);
+        drawMenu(i);
+        glDisable(GL_TEXTURE_2D);
+      //}
       //cout << "To display for " << i << ": \t" << getTimePassed() << endl;
       
     }
@@ -371,13 +378,13 @@ void displayFor(int player) {
     if (a > 0) {
       n=sprintf(pausedText, "P%d PAUSED", a);
     }
-    printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
+    //printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
   }
   // And player stats (wip/temp)
   // Commented out so that these values can easily be displayed again if necessary 
   // if (getPlayer(0)->getGrounded()) { printString("grounded",0,140,0); } else { printString("flying",0,120,0); }
-  glPopMatrix();
-    
+
+  
   // Then on top, draw pause text
   if (!getGameplayRunning()) {
       n=sprintf(pausedText, "by Brian Handy");
@@ -386,12 +393,13 @@ void displayFor(int player) {
       printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+100,cameraPointer[player]->getMeanZ());
       n=sprintf(pausedText, "Music by Waterflame");
       printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+000,cameraPointer[player]->getMeanZ());
-      n=sprintf(pausedText, "Press Start/Enter!");
-      printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()-1400,cameraPointer[player]->getMeanZ());
+      //n=sprintf(pausedText, "Press Start/Enter!");
+      //printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()-1400,cameraPointer[player]->getMeanZ());
 
-      // Lastly, draw menu system for player (if paused, long term)
-      drawMenu(player);
     }
+  
+  glPopMatrix();
+  
 
 
   //cout << "Ending half " << player << ":  \t\t" << getTimePassed() << endl;
@@ -1042,10 +1050,9 @@ void drawMenu(int i) {
   glDisable(GL_DEPTH_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
-  glDisable(GL_ALPHA_TEST); // no visible effect yet
+  //glDisable(GL_ALPHA_TEST); // no visible effect yet
   
   // Enable the texture for OpenGL.
-  glEnable(GL_TEXTURE_2D);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // slight smoothing when smaller than norm
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // no smoothing when full size and up
   
@@ -1057,30 +1064,32 @@ void drawMenu(int i) {
   int time;
   time = clock();
   
-  // Start screen?
-  if (getLastPause() == -1) {
-    logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect);
+  // Only draw any of it if paused
+  if (!getGameplayRunning()) {
+    // Start screen?
+    if (getLastPause() == -1) {
+      logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect);
 
-    // Blink the press start/enter image
-    if (time%1200 < 900) {
-      if (joystickConnected()) {
-        pressStartImage.draw(0,700,aspect);
-      } else {
-        pressEnterImage.draw(0,700,aspect);
+      // Blink the press start/enter image
+      if (time%1200 < 900) {
+        if (joystickConnected()) {
+          pressStartImage.draw(0,700,aspect);
+        } else {
+          pressEnterImage.draw(0,700,aspect);
+        }
       }
+    // Regular pause!
+    } else {
+      resumeImage.draw(0,25,aspect);
+      creditsImage.draw(0,325,aspect); // will be options later
+      quitImage.draw(0,625,aspect);
     }
-  // Regular pause!
-  } else {
-    resumeImage.draw(0,25,aspect);
-    creditsImage.draw(0,325,aspect); // will be options later
-    quitImage.draw(0,625,aspect);
   }
   glDisable(GL_BLEND);
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_ALPHA_TEST);
+  //glEnable(GL_ALPHA_TEST);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
-  
+
 }
 
 // To setup OpenGL and GLUT in general
@@ -1117,7 +1126,7 @@ void initFlat(int argc, char** argv) {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK); // This is odd, it should be GL_BACK. Camera must be inverted or something
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
-
+  
   // input
   glutKeyboardFunc(inputDown);
   glutKeyboardUpFunc(inputUp);

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <math.h>
 #include "gameplay.h"
+#include "music.h"
 
 #define M_PI 3.14159265359
 
@@ -432,6 +433,8 @@ void handleInput(unsigned char key, bool newBool) {
 		// Shift + '=' to jump ahead a level
 	case '+': nextLevelPressed(newBool); break;
 	case '_': lastLevelPressed(newBool); break;
+  case '-': decreaseMusicVolume(); break;
+  case '=': increaseMusicVolume(); break;
 
 		// OLD PLAYER 1 CONTROLS 
 	case 'c': case 'C': setSuper(0,newBool); break;

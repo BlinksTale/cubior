@@ -22,5 +22,7 @@
   void nextSong();
   void setMute(bool);
   void toggleMute();
+  void increaseMusicVolume();
+  void decreaseMusicVolume();
 
 #endif

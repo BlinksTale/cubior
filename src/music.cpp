@@ -21,7 +21,7 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = false;
+bool mute = true;
 bool lastMute = mute;
 
 // List of songs
@@ -32,6 +32,12 @@ string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };//,
 int songCount = 1;
 int currentSong = 0;
 
+int deltaVolume = 10;
+int minVolume = 0;
+int defaultVolume = 70;
+int maxVolume = 100;
+int currentVolume = defaultVolume;
+
 // Setup for sound effects
 void initMusic(int argc, char** argv) {
   playSong(currentSong);
@@ -41,7 +47,7 @@ void playSong(int i) {
   // Load sounds into buffers
   music.openFromFile(songs[i]);
   music.setLoop(true);
-  music.setVolume(70);
+  music.setVolume(currentVolume);
   
   // And setup sound players
   if (!mute) { music.play(); }
@@ -82,4 +88,22 @@ void nextSong() {
   } else {
     playSong(currentSong);
   }
+}
+
+void increaseMusicVolume() { 
+  if (currentVolume < maxVolume) {
+    currentVolume += deltaVolume;
+  } else if (currentVolume != maxVolume) {
+      currentVolume = maxVolume;
+  }
+  music.setVolume(currentVolume);
+}
+
+void decreaseMusicVolume() { 
+  if (currentVolume > minVolume) {
+    currentVolume -= deltaVolume;
+  } else if (currentVolume != minVolume) {
+      currentVolume = minVolume;
+  }
+  music.setVolume(currentVolume);
 }
