@@ -50,6 +50,7 @@ bool jumpInput[playerCount];
 // For menu navigation
 bool lastUpInput[playerCount];
 bool lastDownInput[playerCount];
+bool lastJumpInput[playerCount];
 
 // For Keyboards
 bool upKey[playerCount];
@@ -324,9 +325,11 @@ void sendCommands() {
 		for (int i = 0; i<playerCount; i++) {
       if (  upInput[i] &&   !lastUpInput[i]) { prevOption(i); }
       if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
+      if (jumpInput[i] && !lastJumpInput[i]) { chooseOption(i); }
       // And update old vars
       lastUpInput[i] = upInput[i];
       lastDownInput[i] = downInput[i];
+      lastJumpInput[i] = jumpInput[i];
     }
   }
 }

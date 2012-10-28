@@ -141,13 +141,6 @@ void gameplayStart(string levelToLoad) {
     // And reset goal glow
     goal.setGlow(false);
 
-    // First, get rid of any old map data
-    if (!firstTimeStarting) {
-      levelMap->wipeMap();
-      delete levelMap; // aaand now this works! Earlier it broke everything, but no more!
-    } else {
-      firstTimeStarting = false;
-    }
     // and thus the memory leak was vanquished, and it was good.
     // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad); // now load that level!
@@ -1394,6 +1387,24 @@ void resetOption(int i) { option[i] = 0; }
 void nextOption(int i) { option[i] = (option[i]+1)%maxOption; }
 void prevOption(int i) { option[i] = (option[i]+maxOption-1)%maxOption; }
 int getOption(int i) { return option[i]; }
+// A more tricky function, activate your selection
+void chooseOption(int i) {
+  switch(option[i]) {
+    case 0:
+      // Resume game
+      playerPause(i,true);
+      break;
+    case 1:
+      // Play credits
+      break;
+    case 2:
+      // Quit game
+      exit(0);
+      break;
+    default:
+      break;
+  }
+}
 
 int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
 int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}

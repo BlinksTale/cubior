@@ -23,13 +23,14 @@ class Image {
     // based on stuff
     // from http://en.wikibooks.org/wiki/OpenGL_Programming/Intermediate/Textures
     std::vector<unsigned char> texture;
-    unsigned width, height;
+    unsigned int width, height;
     size_t u2, v2;
     double u3, v3;
+    std::vector<unsigned char> imageItself;
 
 public:
     Image();
-    Image(const char*);
+    Image(const char*,float);
     void Image::draw(int,int,float,float);
 };
 

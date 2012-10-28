@@ -9,6 +9,11 @@
 #include <cstdlib>// for atoi
 using namespace std;
 
+#define NULL 0
+
+bool mapMade = false;
+Map* map = NULL;
+
 Map* MapReader::readMap(const string& s) {
 	// To read file
   string file = s;
@@ -31,7 +36,12 @@ Map* MapReader::readMap(const string& s) {
   int h = padding;
   int d = padding;
   // To return map
-  Map* map = new Map;
+  
+  if (map != NULL) {
+    delete map;
+  }
+  map = new Map;
+  mapMade = true;
 	
   // Stream in the file
   ifstream newMap;

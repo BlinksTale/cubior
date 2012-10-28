@@ -21,6 +21,10 @@ Map::Map(int w, int h, int d) {
   init();
 }
 
+Map::~Map() {
+  wipeMap();
+}
+
 // Default way to initialize a map
 void Map::init() {
   goalWidth = 0;

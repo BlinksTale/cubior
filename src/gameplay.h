@@ -145,6 +145,7 @@ static const int playerVisibleMax = 10;
     void nextOption(int);
     void prevOption(int);
     int getOption(int);
+    void chooseOption(int);
 
     // Map Values
     int getMapWidth();

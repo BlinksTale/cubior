@@ -8,11 +8,10 @@
 #include "cubeObj.h"
 #include "gameplay.h"
 
-#include <iostream>
-#include <cmath> // for atan
+//#include <iostream>
+#include <cmath> // for atan, max()/min()
 #define _USE_MATH_DEFINES // for M_PI
 #include <math.h> // for M_PI
-#include <cmath> // for max()/min()
 
 using namespace std;
 

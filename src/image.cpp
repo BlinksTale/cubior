@@ -27,10 +27,12 @@ Image::Image() {
   v3 = 0;
 }
 
-// Constructor! Take a file name in
-Image::Image(const char* name) {
+// Constructor! Take a file name in, and how much a fraction it is of intended size
+Image::Image(const char* name, float multiplier) {
+  height = 0;
+  width = 0;
   unsigned error1 = lodepng::decode(texture, width, height, name);
-
+  cout << "Loading texture " << name << " of size " << width << ", " << height << endl;
   
   // Texture size must be power of two for the primitive OpenGL version this is written for. Find next power of two.
   u2 = 1; while(u2 < width) u2 *= 2;
@@ -38,11 +40,6 @@ Image::Image(const char* name) {
   // Ratio for power of two version compared to actual version, to render the non power of two image with proper size.
   u3 = (double)width / u2;
   v3 = (double)height / v2;
-
-}
-
-// Draw self at a location
-void Image::draw(int x, int y, float aspect, float rotate) {
   
   // Would like to move this out of draw if possible
   // Make power of two version of the image.
@@ -54,7 +51,16 @@ void Image::draw(int x, int y, float aspect, float rotate) {
     image2[4 * u2 * y + 4 * x + c] = texture[4 * width * y + 4 * x + c];
   }
 
-  glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image2[0]);
+  imageItself = image2;
+
+  height *= multiplier;
+  width *= multiplier;
+}
+
+// Draw self at a location
+void Image::draw(int x, int y, float aspect, float rotate) {
+  
+  glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
   
   float currentTextureX = x;
   float currentTextureY = y;

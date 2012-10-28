@@ -263,9 +263,13 @@ void display() {
 
       //if (!getGameplayRunning()) {
         // Lastly, draw menu system for player (if paused, long term)
-        glEnable(GL_TEXTURE_2D);
-        drawMenu(i);
-        glDisable(GL_TEXTURE_2D);
+      
+      if (!getGameplayRunning()) {
+          glEnable(GL_TEXTURE_2D);
+          drawMenu(i);
+          glDisable(GL_TEXTURE_2D);
+      }
+      
       //}
       //cout << "To display for " << i << ": \t" << getTimePassed() << endl;
       
@@ -1019,13 +1023,13 @@ void initVisuals() {
 
 // Load data into Image objects
 void initMenu() {
-  logoImage            = Image("./images/CubiorLogo720.png");
-  pressStartImage      = Image("./images/CubiorPressStart720.png");
-  pressEnterImage      = Image("./images/CubiorPressEnter720.png");
-  pressStartEnterImage = Image("./images/CubiorPressStartEnter720.png");
-  resumeImage          = Image("./images/CubiorResume720.png");
-  creditsImage         = Image("./images/CubiorCredits720.png");
-  quitImage            = Image("./images/CubiorQuit720.png");
+  logoImage            = Image("./images/CubiorLogo256.png",1.5);
+  pressStartImage      = Image("./images/CubiorPressStart128.png",2.0);
+  pressEnterImage      = Image("./images/CubiorPressEnter128.png",2.0);
+  pressStartEnterImage = Image("./images/CubiorPressStartEnter128.png",2.0);
+  resumeImage          = Image("./images/CubiorResume128.png",2.0);
+  creditsImage         = Image("./images/CubiorCredits128.png",2.0);
+  quitImage            = Image("./images/CubiorQuit128.png",2.0);
 
 }
 
@@ -1054,7 +1058,7 @@ void drawMenu(int i) {
   
   // Enable the texture for OpenGL.
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // slight smoothing when smaller than norm
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // no smoothing when full size and up
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // no smoothing when full size and up
   
   // Still unsure of functionality, but known importance!
   // glColor4ub brings back color to the PNG where it was black before
@@ -1065,14 +1069,13 @@ void drawMenu(int i) {
   time = clock();
   
   // Only draw any of it if paused
-  if (!getGameplayRunning()) {
     // Start screen?
     if (getLastPause() == -1) {
       logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect,false);
 
       // Blink the press start/enter image
       if (time%1200 < 900) {
-        if (joystickConnected()) {
+        if (joystickConnected() && time > 8000) {
           pressStartImage.draw(0,700,aspect,false);
         } else {
           pressEnterImage.draw(0,700,aspect,false);
@@ -1086,7 +1089,6 @@ void drawMenu(int i) {
       creditsImage.draw(0,325,aspect,(option==1)*rotation); // will be options later
       quitImage.draw(0,625,aspect,(option==2)*rotation);
     }
-  }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
   glEnable(GL_DEPTH_TEST);

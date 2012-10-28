@@ -20,6 +20,7 @@ class Map {
   public:
     Map();
     Map(int,int,int);
+    ~Map();
     void init();
 
     void addCube(CubeObj*,int,int,int);
