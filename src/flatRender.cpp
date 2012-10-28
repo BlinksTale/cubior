@@ -390,7 +390,7 @@ void displayFor(int player) {
 
   
   // Then on top, draw pause text
-  if (!getGameplayRunning()) {
+  if (!getGameplayRunning() && getLastPause() == -1) {
       n=sprintf(pausedText, "by Brian Handy");
       printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()+200,cameraPointer[player]->getMeanZ());
       n=sprintf(pausedText, "Sound by Rolando Nadal");
@@ -1027,9 +1027,9 @@ void initMenu() {
   pressStartImage      = Image("./images/CubiorPressStart128.png",2.0);
   pressEnterImage      = Image("./images/CubiorPressEnter128.png",2.0);
   pressStartEnterImage = Image("./images/CubiorPressStartEnter128.png",2.0);
-  resumeImage          = Image("./images/CubiorResume128.png",2.0);
-  creditsImage         = Image("./images/CubiorCredits128.png",2.0);
-  quitImage            = Image("./images/CubiorQuit128.png",2.0);
+  resumeImage          = Image("./images/CubiorResume128.png",3.0);
+  creditsImage         = Image("./images/CubiorCredits128.png",3.0);
+  quitImage            = Image("./images/CubiorQuit128.png",3.0);
 
 }
 
@@ -1071,23 +1071,23 @@ void drawMenu(int i) {
   // Only draw any of it if paused
     // Start screen?
     if (getLastPause() == -1) {
-      logoImage.draw(20.0*sin(time/1600.0),50+10.0*sin(time/800.0),aspect,false);
+      logoImage.draw(20.0*sin(time/1600.0),-500+10.0*sin(time/800.0),aspect,false);
 
       // Blink the press start/enter image
       if (time%1200 < 900) {
         if (joystickConnected() && time > 8000) {
-          pressStartImage.draw(0,700,aspect,false);
+          pressStartImage.draw(0,200,aspect,false);
         } else {
-          pressEnterImage.draw(0,700,aspect,false);
+          pressEnterImage.draw(0,200,aspect,false);
         }
       }
     // Regular pause!
     } else {
       int option = getOption(i);
       float rotation = 5.0*sin(time/300.0);
-      resumeImage.draw(0,25,aspect,(option==0)*rotation);
-      creditsImage.draw(0,325,aspect,(option==1)*rotation); // will be options later
-      quitImage.draw(0,625,aspect,(option==2)*rotation);
+      resumeImage.draw(0,-300,aspect,(option==0)*rotation);
+      creditsImage.draw(0,-100,aspect,(option==1)*rotation); // will be options later
+      quitImage.draw(0,100,aspect,(option==2)*rotation);
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
