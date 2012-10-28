@@ -3,6 +3,7 @@
 
 // reading a text file
 #include "mapReader.h"
+#include "gameplay.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -31,7 +32,6 @@ Map* MapReader::readMap(const string& s) {
   bool haveGreen = false;
   bool haveBlue  = false;
   float red, green, blue;
-  int padding = 1;
   int w = padding;
   int h = padding;
   int d = padding;
@@ -141,12 +141,12 @@ Map* MapReader::readMap(const string& s) {
       }
       // Front Wall
       for (int d=0; d<padding; d++) {
-        fillSpotWithInvisible(map,w,h,d+1);
+        fillSpotWithInvisible(map,w,h,d);
       }
     }
   }
   // Then X walls
-  for (int d=padding; d<map->getDepth()-padding; d++) {
+  for (int d=0; d<map->getDepth(); d++) {
     for (int h=0; h<map->getHeight(); h++) {
       // Right Wall
       for (int w=0; w<padding; w++) {
@@ -154,7 +154,7 @@ Map* MapReader::readMap(const string& s) {
       }
       // Left Wall
       for (int w=0; w<padding; w++) {
-        fillSpotWithInvisible(map,w+1,h,d);
+        fillSpotWithInvisible(map,w,h,d);
       }
     }
   }
@@ -176,7 +176,7 @@ void MapReader::fillSpotWithInvisible(Map* map, int spotX, int spotY, int spotZ)
   } else {
     CubeObj* newCube = new CubeObj();
     newCube->setInvisible(true);
-    newCube->setMaterial(8);
+    newCube->setMaterial(3);
     newCube->tick();
     map->addCube(newCube,spotX,spotY,spotZ);
   }
