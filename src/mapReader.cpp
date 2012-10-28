@@ -137,19 +137,11 @@ Map* MapReader::readMap(const string& s) {
     for (int h=0; h<map->getHeight(); h++) {
       // Rear Wall
       for (int d=0; d<padding; d++) {
-        CubeObj* newCube = new CubeObj();
-        newCube->setInvisible(true);
-        newCube->setMaterial(8);
-        newCube->tick();
-        map->addCube(newCube,w,h,map->getDepth()-padding+d); // THIS IS CORRECT ON LEVEL 0
+        fillSpotWithInvisible(map,w,h,map->getDepth()-padding+d); // THIS IS CORRECT ON LEVEL 0
       }
       // Front Wall
       for (int d=0; d<padding; d++) {
-        CubeObj* newCube = new CubeObj();
-        newCube->setInvisible(true);
-        newCube->setMaterial(8);
-        newCube->tick();
-        map->addCube(newCube,w,h,d); // THIS IS CORRECT ON LEVEL 0
+        fillSpotWithInvisible(map,w,h,d+1);
       }
     }
   }
@@ -158,19 +150,11 @@ Map* MapReader::readMap(const string& s) {
     for (int h=0; h<map->getHeight(); h++) {
       // Right Wall
       for (int w=0; w<padding; w++) {
-        CubeObj* newCube = new CubeObj();
-        newCube->setInvisible(true);
-        newCube->setMaterial(8);
-        newCube->tick();
-        map->addCube(newCube,map->getWidth()-padding+w,h,d);
+        fillSpotWithInvisible(map,map->getWidth()-padding+w,h,d);
       }
       // Left Wall
       for (int w=0; w<padding; w++) {
-        CubeObj* newCube = new CubeObj();
-        newCube->setInvisible(true);
-        newCube->setMaterial(8);
-        newCube->tick();
-        map->addCube(newCube,w,h,d);
+        fillSpotWithInvisible(map,w+1,h,d);
       }
     }
   }
@@ -181,4 +165,19 @@ Map* MapReader::readMap(const string& s) {
 
   // Then return it!
   return map;
+}
+
+// Put invisible blot in a spot, or make current block invisible
+void MapReader::fillSpotWithInvisible(Map* map, int spotX, int spotY, int spotZ) {
+  if (map->getCubeAt(spotX,spotY,spotZ) != NULL) {
+    map->getCubeAt(spotX,spotY,spotZ)->setInvisible(true);
+    map->getCubeAt(spotX,spotY,spotZ)->setMaterial(8);
+    map->getCubeAt(spotX,spotY,spotZ)->tick();
+  } else {
+    CubeObj* newCube = new CubeObj();
+    newCube->setInvisible(true);
+    newCube->setMaterial(8);
+    newCube->tick();
+    map->addCube(newCube,spotX,spotY,spotZ);
+  }
 }

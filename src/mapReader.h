@@ -14,6 +14,7 @@
 class MapReader {
   public:
     static Map* readMap(const std::string&);
+    static void fillSpotWithInvisible(Map*,int,int,int);
 };
 
 #endif 
