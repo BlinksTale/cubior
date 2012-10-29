@@ -235,6 +235,12 @@ void gameplayStart(string levelToLoad) {
   // Temp fix for title screen, auto pause on start
   if (gameplayFirstRunning) {
     //camera[0].setAngleX(-90);
+    // Reset everyone except p1's playability to false
+    // So that we only see one view of the title screen
+    cubiorPlayable[0] = true;
+    cubiorPlayable[1] = false;
+    cubiorPlayable[2] = false;
+    cubiorPlayable[3] = false;
     playerPause(-1,true);
   }
 }
