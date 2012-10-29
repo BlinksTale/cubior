@@ -1023,13 +1023,13 @@ void initVisuals() {
 
 // Load data into Image objects
 void initMenu() {
-  logoImage            = Image("./images/CubiorLogo256.png",1.5);
-  pressStartImage      = Image("./images/CubiorPressStart128.png",2.0);
-  pressEnterImage      = Image("./images/CubiorPressEnter128.png",2.0);
-  pressStartEnterImage = Image("./images/CubiorPressStartEnter128.png",2.0);
-  resumeImage          = Image("./images/CubiorResume128.png",3.0);
-  creditsImage         = Image("./images/CubiorCredits128.png",3.0);
-  quitImage            = Image("./images/CubiorQuit128.png",3.0);
+  logoImage            = Image("./images/CubiorLogo720.png",1);//256.png",1.5);
+  pressStartImage      = Image("./images/CubiorPressStart720.png",1);//128.png",2.0);
+  pressEnterImage      = Image("./images/CubiorPressEnter720.png",1);//128.png",2.0);
+  pressStartEnterImage = Image("./images/CubiorPressStartEnter720.png",1);//128.png",2.0);
+  resumeImage          = Image("./images/CubiorResume720.png",1);//128.png",3.0);
+  creditsImage         = Image("./images/CubiorCredits720.png",1);//128.png",3.0);
+  quitImage            = Image("./images/CubiorQuit720.png",1);//128.png",3.0);
 
 }
 
@@ -1085,8 +1085,8 @@ void drawMenu(int i) {
     } else {
       int option = getOption(i);
       float rotation = 5.0*sin(time/300.0);
-      resumeImage.draw(0,-300,aspect,(option==0)*rotation);
-      creditsImage.draw(0,-100,aspect,(option==1)*rotation); // will be options later
+      resumeImage.draw(0,-500,aspect,(option==0)*rotation);
+      creditsImage.draw(0,-200,aspect,(option==1)*rotation); // will be options later
       quitImage.draw(0,100,aspect,(option==2)*rotation);
     }
   glDisable(GL_BLEND);

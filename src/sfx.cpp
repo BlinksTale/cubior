@@ -20,12 +20,12 @@
 
 // Buffer Vars (hold song data)
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
-  menuEnterBuffer, menuExitBuffer;
+  menuEnterBuffer, menuExitBuffer, glowBuffer;
 sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
 
 // Sound Vars (play what's in buffer)
 sf::Sound testSound, exitSound, errorSound,
-  menuEnterSound, menuExitSound;
+  menuEnterSound, menuExitSound, glowSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
 // Sound muffling variables
@@ -117,6 +117,35 @@ void initSfx(int argc, char** argv) {
      have planned for the next month. Camera, menu, goal touching cutscene and
      playtesting/level design are my current targets, so I don't think we'll be
      seeing health any time soon.
+
+     ---
+
+     New batch from 10/27/12!
+
+     Bump 1 is solid
+     Bump 2 could not be heard :\
+     Bump 3 is a more happy bump
+     Bump 4 is a mid bump
+     Bump 5 is dark
+     Bump 6 is mid-to-happy
+     Bump 7 == Bump 6?
+     Bump 8 == Bump 4?
+     Bump 9 is solid-to-dark
+     Bump 10 is a hair darker than dark
+     Bump 11 is awk solid?
+     Bump 12 is awk mid-to-happy or happy
+
+     Thinking...
+     Bump 6 for p1
+     Bump 4 for p2
+     Bump 1 for p3
+     Bump 5 for p4
+     Also considering range Bump 3, Bump 6, Bump 1, Bump 5
+
+     Goal 3 sounds best, long and lots happening
+
+
+     Turn 6 would be good for p1 camera new angle
    */
 
   /*************/
@@ -126,6 +155,7 @@ void initSfx(int argc, char** argv) {
   // Load sounds into buffers
   testBuffer.loadFromFile("./sfx/Jump/Jump 3.wav");
   exitBuffer.loadFromFile("./sfx/Menu-Game/Leave 8.wav");
+  glowBuffer.loadFromFile("./sfx/Menu-Game/Goal 3 Louder.wav");//Leave 8.wav");
   menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
   menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
   errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
@@ -133,14 +163,15 @@ void initSfx(int argc, char** argv) {
   jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3.wav");
   jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9.wav");
   jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10.wav");
-  bumpBuffer[0].loadFromFile("./sfx/Collision/Hit 1.wav");
-  bumpBuffer[1].loadFromFile("./sfx/Collision/Hit 4.wav");
-  bumpBuffer[2].loadFromFile("./sfx/Collision/Hit 6.wav"); // Original one true bump
-  bumpBuffer[3].loadFromFile("./sfx/Collision/Hit 14.wav");
+  bumpBuffer[0].loadFromFile("./sfx/Collision/Bump 6.wav");//Hit 1.wav");
+  bumpBuffer[1].loadFromFile("./sfx/Collision/Bump 4.wav");//Hit 4.wav");
+  bumpBuffer[2].loadFromFile("./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
+  bumpBuffer[3].loadFromFile("./sfx/Collision/Bump 5.wav");//Hit 14.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
   exitSound.setBuffer(exitBuffer);
+  glowSound.setBuffer(glowBuffer);
   menuEnterSound.setBuffer(menuEnterBuffer);
   menuExitSound.setBuffer(menuExitBuffer);
   errorSound.setBuffer(errorBuffer);
@@ -163,19 +194,21 @@ void sfxLoop() {
       sfxLastPlayerVisible[i] = getLastPlayerVisible(i);
       // Newly visible
       if (sfxLastPlayerVisible[i]) {
-        bumpSound[i].setVolume(75);
         if (i>=2) {
           jumpSound[i].setVolume(65);
+          bumpSound[i].setVolume(100);
         } else {
           jumpSound[i].setVolume(100);
+          bumpSound[i].setVolume(80);
         }
       } else {
         // Newly hidden, half volume
-        bumpSound[i].setVolume(25);
         if (i>=2) {
           jumpSound[i].setVolume(21);
+          bumpSound[i].setVolume(50);
         } else {
           jumpSound[i].setVolume(33);
+          bumpSound[i].setVolume(40);
         }
       }
     }
@@ -188,6 +221,7 @@ void sfxLoop() {
   // Win Level
   if (getJustExited()) { 
     exitSound.play(); 
+    glowSound.play(); 
     setJustExited(false);
   }
   // Open Pause

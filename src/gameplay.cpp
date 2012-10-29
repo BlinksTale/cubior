@@ -49,7 +49,7 @@ float winningZoom = 0.9985;
 int winningRotations = 256;
 
 CubiorObj cubior[cubiorCount];
-CubeObj cube[maxCubeCount];
+CubeObj* cube[maxCubeCount];
 GoalObj goal;
 CameraObj camera[cubiorCount];
 bool cameraDroppingIn[cubiorCount];
@@ -190,9 +190,9 @@ void gameplayStart(string levelToLoad) {
     //}
 
     // and Cube Obstacle start states
-    for (int i=0; i<cubeCount; i++) {
-      cube[i].setPermalock(true);
-    }
+    /*for (int i=0; i<cubeCount; i++) {
+      cube[i]->setPermalock(true);
+    }*/
             
     // Load cubes in from level reader
     int currentCube = 0;
@@ -203,9 +203,10 @@ void gameplayStart(string levelToLoad) {
             // Removing surrounded cubes increases lag, actually
             //if (!levelMap->isSurrounded(x,y,z)) {
               // FIXME: Should just grab cubeAt and put it in cube array. Cube array must be pointer then?
-              cube[currentCube].setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
-              cube[currentCube].setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
-              cube[currentCube].setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
+              cube[currentCube] = levelMap->getCubeAt(x,y,z);
+              cube[currentCube]->setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
+              //cube[currentCube]->setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
+              //cube[currentCube]->setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
               currentCube++;
             //}
           }
@@ -219,14 +220,14 @@ void gameplayStart(string levelToLoad) {
     // Then populate permamap
     // ... with permanent Cubes
     for (int i = 0; i<cubeCount; i++) {
-      cube[i].tick();
+      cube[i]->tick();
       //keepInBounds(&cube[i]);
-      addToCollisionMap(&cube[i], permanentMap);
+      addToCollisionMap(cube[i], permanentMap);
     }
     // Then set their neighbors, for more efficient rendering
     for (int i = 0; i<cubeCount; i++) {
-      findNeighbors(&cube[i], permanentMap);
-      findEdges(&cube[i], permanentMap);
+      findNeighbors(cube[i], permanentMap);
+      findEdges(cube[i], permanentMap);
     }
 
   }
@@ -792,7 +793,7 @@ bool getLastPlayerVisible(int i) {
 // Gives player non-visibility
 bool cubeVisible(int i, int j) {
   // Must check LOS first, or getLOS will not be updated
-  return getCameraToCubeLOS(&camera[i],&cube[j],permanentMap);
+  return getCameraToCubeLOS(&camera[i],cube[j],permanentMap);
 }
 
 // We know the player is not visible, so fix it!
@@ -1337,8 +1338,8 @@ int slotToPosition(int slot, int d) {
 // Returns gameplay state
 CubiorObj* getPlayer() { return &cubior[0]; }
 CubiorObj* getPlayer(int i) { return &cubior[i]; }
-CubeObj* getCube() { return &cube[0]; }
-CubeObj* getCube(int i) { return &cube[i]; }
+CubeObj* getCube() { return cube[0]; }
+CubeObj* getCube(int i) { return cube[i]; }
 GoalObj* getGoal() { return &goal; }
 // Total Cubiors that can be played
 const int getCubiorCount() { return cubiorCount; }
@@ -1438,11 +1439,11 @@ void switchLevelShadows() {
 
 // Find if cube n is the last down (no shadow)
 bool getShadow(int i) {
-  int slotY = getCollisionMapSlot(&cube[i],1);
+  int slotY = getCollisionMapSlot(cube[i],1);
   // no shadow if 0th spot or neighbor beneath
-  if (slotY!=0 && !((cube[i].getNeighbors())[3])) {//permanentMap[slotX][slotY-1][slotZ] == NULL) {
-    int slotX = getCollisionMapSlot(&cube[i],0);
-    int slotZ = getCollisionMapSlot(&cube[i],2);
+  if (slotY!=0 && !((cube[i]->getNeighbors())[3])) {//permanentMap[slotX][slotY-1][slotZ] == NULL) {
+    int slotX = getCollisionMapSlot(cube[i],0);
+    int slotZ = getCollisionMapSlot(cube[i],2);
     // Check all inbetween slots
     for (int j=slotY-2; j>=0; j--) {
       if (permanentMap[slotX][j][slotZ] != NULL) {

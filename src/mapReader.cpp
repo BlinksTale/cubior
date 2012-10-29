@@ -113,6 +113,7 @@ Map* MapReader::readMap(const string& s) {
               CubeObj* newCube = new CubeObj();
               newCube->setMaterial(mapColor);
               newCube->tick();
+              newCube->setPermalock(true);
               map->addCube(newCube,w,h,d);
             }
             w++;
@@ -177,6 +178,7 @@ void MapReader::fillSpotWithInvisible(Map* map, int spotX, int spotY, int spotZ)
     CubeObj* newCube = new CubeObj();
     newCube->setInvisible(true);
     newCube->setMaterial(3);
+    newCube->setPermalock(true);
     newCube->tick();
     map->addCube(newCube,spotX,spotY,spotZ);
   }
