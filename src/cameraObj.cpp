@@ -512,6 +512,7 @@ bool CameraObj::getPlayerCommandActive() {
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
+  cout << "hasCommandedAngle " << hasCommandedAngle << " of rotation " << commandedAngle << " while at " << angleY << endl;
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
   
@@ -561,8 +562,20 @@ void CameraObj::tick() {
     // Second highest priority to player's other orders
     } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
       if (!hasCommandedAngle) {
-        commandedAngle = angleY;// permanentTarget->getCamDirection();
-        commandedAngle += playerRightCommand*45 - playerLeftCommand*45;
+        int angleDelta = 45;
+        // in relation to current angle...
+        commandedAngle = angleY + 90; // +90 because -90 to 270 range causes problems
+        // First, get to the closest angleDelta aligned angle
+        if ((commandedAngle) % angleDelta != 0) {
+          if ((commandedAngle) % angleDelta >= angleDelta/2) {
+            commandedAngle += angleDelta - (commandedAngle % angleDelta);
+          } else {
+            commandedAngle -= (commandedAngle % angleDelta);
+          }
+        }
+        // Then make the rotation
+        commandedAngle += playerRightCommand*angleDelta - playerLeftCommand*angleDelta;
+        commandedAngle -= 90; // then undoing +90 from "because -90 to 270 range causes problems"
         hasCommandedAngle = true;
       }
       //cout << "Option Zero" << endl;
