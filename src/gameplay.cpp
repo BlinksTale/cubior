@@ -66,6 +66,9 @@ int gravity = 2;
 bool justExited = false;
 bool justPaused = false;
 bool justUnpaused = false;
+bool justChangedMenu = false;
+bool justChangedOption = false;
+bool justCausedError = false;
 
 // Pause option value
 int option[4];
@@ -1405,9 +1408,15 @@ bool getCubiorJustBumped(int i) { return cubior[i].justBumped(); }
 bool getJustExited() { return justExited; }
 bool getJustPaused() { return justPaused; }
 bool getJustUnpaused() { return justUnpaused; }
+bool getJustChangedMenu() { return justChangedMenu; }
+bool getJustChangedOption() { return justChangedOption; }
+bool getJustCausedError() { return justCausedError; }
 void setJustExited(bool b) { justExited = b; }
 void setJustPaused(bool b) { justPaused = b; }
 void setJustUnpaused(bool b) { justUnpaused = b; }
+void setJustChangedMenu(bool b) { justChangedMenu = b; }
+void setJustChangedOption(bool b) { justChangedOption = b; }
+void setJustCausedError(bool b) { justCausedError = b; }
 
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }
@@ -1427,8 +1436,14 @@ bool getGameplayRunning() { return gameplayRunning; }
 
 // Pause option values for when gameplay is not running
 void resetOption(int i) { option[i] = 0; }
-void nextOption(int i) { option[i] = (option[i]+1)%maxOption[menu[i]]; }
-void prevOption(int i) { option[i] = (option[i]+maxOption[menu[i]]-1)%maxOption[menu[i]]; }
+void nextOption(int i) {
+  if (maxOption[menu[i]] > 1) { justChangedOption = true; }
+  option[i] = (option[i]+1) % maxOption[menu[i]];
+}
+void prevOption(int i) {
+  if (maxOption[menu[i]] > 1) { justChangedOption = true; }
+  option[i] = (option[i]+maxOption[menu[i]]-1) % maxOption[menu[i]];
+}
 int getOption(int i) { return option[i]; }
 // A more tricky function, activate your selection
 void chooseOption(int i) {
@@ -1469,9 +1484,13 @@ void chooseOption(int i) {
         break;
       case 1:
         // Drop out
-        startGameplay();
-        setJustUnpaused(true);
-        setCubiorPlayable(i,false);
+        if (getCubiorsPlayable() > 1) {
+          startGameplay();
+          setJustUnpaused(true);
+          setCubiorPlayable(i,false);
+        } else {
+          justCausedError = true;
+        }
         break;
       case 2:
         // Change options
@@ -1525,12 +1544,22 @@ void chooseOption(int i) {
     }
   }
 
+  // And if no errors
+  if (!justCausedError) {
+    // selection gets a menu selection sound trigger
+    justChangedMenu = true;
+  }
 }
 
 int getMenu() { return menu[0]; }
 int getMenu(int i) { return menu[i]; }
-void setMenu(int j) { menu[0] = j; }
-void setMenu(int i, int j) { menu[i] = j; option[i] = 0; }
+void setMenu(int i, int j) {
+  // Any menu selection also gets a menu selection sound trigger
+  justChangedMenu = true;
+
+  menu[i] = j;
+  option[i] = 0;
+}
 
 int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
 int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}

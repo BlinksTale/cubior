@@ -95,6 +95,7 @@ class CubeObj {
     int getMomentumX();
     int getMomentumY();
     int getMomentumZ();
+    int getMaxJump();
     
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     void setVisibleNeighbors(bool,bool,bool,bool,bool,bool);

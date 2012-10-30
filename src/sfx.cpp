@@ -20,16 +20,19 @@
 
 // Buffer Vars (hold song data)
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
-  menuEnterBuffer, menuExitBuffer, glowBuffer;
+  menuEnterBuffer, menuExitBuffer, glowBuffer,
+  changeMenuBuffer, changeOptionBuffer;
 sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
 
 // Sound Vars (play what's in buffer)
 sf::Sound testSound, exitSound, errorSound,
-  menuEnterSound, menuExitSound, glowSound;
+  menuEnterSound, menuExitSound, glowSound,
+  changeMenuSound, changeOptionSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
 // Sound muffling variables
 bool sfxLastPlayerVisible[4];
+int jumpVolumeMultiplier[] = {100,100,100,100};
 
 // Setup for sound effects
 void initSfx(int argc, char** argv) {
@@ -146,6 +149,9 @@ void initSfx(int argc, char** argv) {
 
 
      Turn 6 would be good for p1 camera new angle
+
+     Menu 1 good for changing menu option
+     Menu 4 is good for changing menu itself
    */
 
   /*************/
@@ -159,14 +165,16 @@ void initSfx(int argc, char** argv) {
   menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
   menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
   errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
-  jumpBuffer[0].loadFromFile("./sfx/Jump/Jump 2.wav");
-  jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3.wav");
-  jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9.wav");
-  jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10.wav");
+  jumpBuffer[0].loadFromFile("./sfx/Jump/Jump 2 Long.wav");
+  jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3 Long.wav");
+  jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9 Long.wav");
+  jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10 Long.wav");
   bumpBuffer[0].loadFromFile("./sfx/Collision/Bump 6.wav");//Hit 1.wav");
   bumpBuffer[1].loadFromFile("./sfx/Collision/Bump 4.wav");//Hit 4.wav");
   bumpBuffer[2].loadFromFile("./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
   bumpBuffer[3].loadFromFile("./sfx/Collision/Bump 5.wav");//Hit 14.wav");
+  changeMenuBuffer.loadFromFile("./sfx/Menu-Game/Menu 4.wav");
+  changeOptionBuffer.loadFromFile("./sfx/Menu-Game/Menu 1.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
@@ -175,6 +183,8 @@ void initSfx(int argc, char** argv) {
   menuEnterSound.setBuffer(menuEnterBuffer);
   menuExitSound.setBuffer(menuExitBuffer);
   errorSound.setBuffer(errorBuffer);
+  changeMenuSound.setBuffer(changeMenuBuffer);
+  changeOptionSound.setBuffer(changeOptionBuffer);
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
@@ -194,26 +204,35 @@ void sfxLoop() {
       sfxLastPlayerVisible[i] = getLastPlayerVisible(i);
       // Newly visible
       if (sfxLastPlayerVisible[i]) {
-        if (i>=2) {
+        jumpVolumeMultiplier[i] = 100;
+        bumpSound[i].setVolume(100);
+        /*if (i>=2) {
           jumpSound[i].setVolume(65);
           bumpSound[i].setVolume(100);
         } else {
           jumpSound[i].setVolume(100);
           bumpSound[i].setVolume(80);
-        }
+        }*/
       } else {
         // Newly hidden, half volume
-        if (i>=2) {
+        jumpVolumeMultiplier[i] = 40;
+        bumpSound[i].setVolume(50);
+        /*if (i>=2) {
           jumpSound[i].setVolume(21);
           bumpSound[i].setVolume(50);
         } else {
           jumpSound[i].setVolume(33);
           bumpSound[i].setVolume(40);
-        }
+        }*/
       }
     }
     // Jumping SFX
-    if (getCubiorJustJumped(i)) { jumpSound[i].play(); }
+    if (getCubiorJustJumped(i)) {
+      jumpSound[i].play();
+    }
+    // Gets halfway there just by being >0 momentumY
+    // but then must push up towards full momentum to get full volume
+    jumpSound[i].setVolume((50+jumpVolumeMultiplier[i]*getPlayer(i)->getMomentumY())/(getPlayer(i)->getMaxJump()*5));
     if (getCubiorJustBumped(i)) {
       bumpSound[i].play();
     }
@@ -233,6 +252,21 @@ void sfxLoop() {
   if (getJustUnpaused()){
     menuExitSound.play(); 
     setJustUnpaused(false);
+  }
+  // Change Menu
+  if (getJustChangedMenu()) {
+    changeMenuSound.play();
+    setJustChangedMenu(false);
+  }
+  // Change Menu
+  if (getJustChangedOption()) {
+    changeOptionSound.play();
+    setJustChangedOption(false);
+  }
+  // Error Occurred
+  if (getJustCausedError()) {
+    errorSound.play();
+    setJustCausedError(false);
   }
 }
 // Specific sound effects

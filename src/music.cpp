@@ -21,8 +21,9 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = true;
+bool mute = false;
 bool lastMute = mute;
+int defaultVolume = 50; // 40 Sounds really good! Might be a hint too quiet? 50 is perfect!
 
 // List of songs
 string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };//,
@@ -34,7 +35,6 @@ int currentSong = 0;
 
 int deltaVolume = 10;
 int minVolume = 0;
-int defaultVolume = 70;
 int maxVolume = 100;
 int currentVolume = defaultVolume;
 

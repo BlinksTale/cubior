@@ -531,6 +531,7 @@ int CubeObj::getAngleZ() { return 0; }
 int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
+int CubeObj::getMaxJump() { return maxJump; }
 
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   neighborsSet = true;

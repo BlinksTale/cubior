@@ -116,10 +116,16 @@ static const int playerVisibleMax = 10;
     bool getJustExited();
     bool getJustPaused();
     bool getJustUnpaused();
+    bool getJustChangedOption();
+    bool getJustChangedMenu();
+    bool getJustCausedError();
     // And setters for sfx triggers
     void setJustExited(bool);
     void setJustPaused(bool);
     void setJustUnpaused(bool);
+    void setJustChangedOption(bool);
+    void setJustChangedMenu(bool);
+    void setJustCausedError(bool);
     
     const int getMaxCubeCount();
     int getCubeCount();
@@ -151,7 +157,6 @@ static const int playerVisibleMax = 10;
     // Menu info
     int getMenu();
     int getMenu(int);
-    void setMenu(int);
     void setMenu(int,int);
 
     // Map Values
