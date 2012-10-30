@@ -135,9 +135,8 @@ void playerLevelShadows(bool newBool) {
 void playerPause(int p, bool newBool) {
 	if (!pauseKey[p] && newBool) { // newly pressing Enter
 		if (!getGameplayRunning()) {
-      // Splash screen
-
       // title screen
+      // choose who pressed start and set them as playable
       if (getGameplayFirstRunning()) {
         playerChosen = p;
         for (int i=0; i<4; i++) {
@@ -148,10 +147,9 @@ void playerPause(int p, bool newBool) {
         resetCubior(p);
         setGameplayFirstRunning(false);
         setMenu(p,1);
-      // Otherwise, normal unpause
+      // Otherwise, paused and selecting option
       } else if (lastPause == p || lastPause == -1) {
-				startGameplay();
-        setJustUnpaused(true);
+				chooseOption(p);
 			}
 
     } else {

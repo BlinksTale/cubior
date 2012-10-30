@@ -1433,7 +1433,8 @@ void chooseOption(int i) {
     switch(option[i]) {
       case 0:
         // Start game
-        playerPause(i,true);
+        startGameplay();
+        setJustUnpaused(true);
         break;
       case 1:
         // Change options
@@ -1454,7 +1455,8 @@ void chooseOption(int i) {
     switch(option[i]) {
       case 0:
         // Resume game
-        playerPause(i,true);
+        startGameplay();
+        setJustUnpaused(true);
         break;
       case 1:
         // Change options
