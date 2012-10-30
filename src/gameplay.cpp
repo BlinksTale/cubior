@@ -287,8 +287,11 @@ void nextLevelCountdown(int i) {
 }
 
 // Restart game by going back to first level
-void restartGame() {
-  menu[0] = 0;
+// aka resetGame
+void restartGame(int i) {
+  //setMenu(i, 0);
+  //gameplayRunning = false;
+  //gameplayFirstRunning = true;
   loadLevel(0);
 }
 
@@ -312,6 +315,13 @@ void lastLevel() {
 
 // Moving to any level number
 void loadLevel(int levelNum) {
+  // Cannot load level if paused
+  if (!gameplayRunning) {
+    // So unpause it if needed!
+    startGameplay();
+    setJustUnpaused(true);
+  }
+  
   // Finally moving on, reset the winner
   winner = -1;
   winningShot = false;
@@ -337,11 +347,11 @@ int getLevelNum() {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
-  cout << "New loop!" << endl;
+  /*cout << "New loop!" << endl;
   for (int i=0; i<4; i++) {
     cout << "Menu[" << i << "] = " << menu[i] << endl;
     cout << "Option[" << i << "] = " << option[i] << endl;
-  }
+  }*/
   // NEWDELETEME: cout << "player to goal angle = " << getAngleBetween(cubior[0].getX(),cubior[0].getZ(),goal.getX(),goal.getZ()) << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
@@ -1426,7 +1436,6 @@ void chooseOption(int i) {
     switch(option[i]) {
       default:
         // Switch to Start Screen only with start/enter, not choose/A/Space
-        //menu[0]=1;
         break;
     }
   } else if (menu[i] == 1) { // Start Menu (Main Menu)
@@ -1438,11 +1447,11 @@ void chooseOption(int i) {
         break;
       case 1:
         // Change options
-        setMenu(0, 3);//menu[0] = 3;
+        setMenu(i, 3);//menu[0] = 3;
         break;
       case 2:
         // Play credits
-        setMenu(0, 5);//menu[0] = 5;
+        setMenu(i, 5);//menu[0] = 5;
         break;
       case 3:
         // Quit game
@@ -1464,13 +1473,12 @@ void chooseOption(int i) {
         break;
       case 2:
         // Return to Title Screen
-        restartGame();
+        restartGame(i);
         break;
       default:
         break;
     }
   } else if (menu[i] == 3) { // Options Menu
-    int controller = i;//(getLastPause() == -1) ? 0 : i;
     switch(option[i]) {
       case 0:
         // Toggle Angle Controls
@@ -1478,35 +1486,33 @@ void chooseOption(int i) {
         break;
       case 1:
         // See Controller Map
-        setMenu(controller, 4);//menu[controller] = 4;
+        setMenu(i, 4);//menu[controller] = 4;
         break;
       case 2:
         // Return to pause or start menu
         if (getLastPause() == -1) { // start menu
-          setMenu(controller, 1);//menu[controller] = 1;
+          setMenu(i, 1);//menu[controller] = 1;
         } else {                    // pause menu
-          setMenu(controller, 2);//menu[controller] = 2;
+          setMenu(i, 2);//menu[controller] = 2;
         }
         break;
       default:
         break;
     }
   } else if (menu[i] == 4) { // Controller Map
-    int controller = (getLastPause() == -1) ? 0 : i;
     switch(option[i]) {
       case 0:
         // Return to options menu
-        setMenu(controller, 3);//menu[controller] = 3;
+        setMenu(i, 3);//menu[controller] = 3;
         break;
       default:
         break;
     }
   } else if (menu[i] == 5) { // Credits
-    int controller = (getLastPause() == -1) ? 0 : i;
     switch(option[i]) {
       case 0:
         // Return to start menu
-        setMenu(controller, 1);//menu[controller] = 1;
+        setMenu(i, 1);//menu[controller] = 1;
         break;
       default:
         break;

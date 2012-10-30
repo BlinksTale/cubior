@@ -342,7 +342,7 @@ void displayFor(int player) {
   drawGoal();
   
       int n;
-  if (!getGameplayRunning() && getLastPause() == -1 && getMenu() == 0) {
+  if (!getGameplayRunning() && getLastPause() == -1 && getMenu(player) == 0) {
       // START SCREEN temp fix for IGF demo
       //n=sprintf(pausedText, "Cubior");
       int pW = 0;//1000;
@@ -1090,8 +1090,8 @@ void drawMenu(int i) {
     int option = getOption(i);
     float rotation = 5.0*sin(time/300.0);
     // Start screen?
-    if (getLastPause() == -1) {
-      if (getMenu(i) == 0) { // Splash screen
+    if (/*getLastPause() == -1 && */getMenu(i) == 0) {
+        // Splash screen
         logoImage.draw(20.0*sin(time/1600.0),-300+10.0*sin(time/800.0),aspect,false);
 
         // Blink the press start/enter image
@@ -1102,57 +1102,35 @@ void drawMenu(int i) {
             pressEnterImage.draw(0,380,aspect,false);
           }
         }
-      } else if (getMenu(0) == 1) { // Start Menu
+    } else if (getMenu(i) == 1) { // Start Menu
         startImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
         optionsImage.draw(0,-0.5*menuSpacing,aspect,(option==1)*rotation);
         creditsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation);
         quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
-      } else if (getMenu(0) == 3) { // Start Options Menu
-        cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
-        if (getIndependentMovement(i)) {
-          cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
-        } else {
-          cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
-        }
-        controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
-        backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
-      } else if (getMenu(0) == 4) { // Start Controls Display
-        if (joystickConnected()) {
-          gamepadControlsImage.draw(0,-100,aspect,false);
-        } else {
-          keyboardControlsImage.draw(0,-100,aspect,false);
-        }
-        backImage.draw(           0, 400,aspect,(option==0)*rotation);
-      } else if (getMenu(0) == 5) { // Credits Display
-        creditsTextImage.draw(0,0,aspect,false);
-        backImage.draw(           0, 400,aspect,(option==0)*rotation);
-      }
     // Regular pause!
-    } else {
-      if (getMenu(i) == 2) { // Main Pause Menu
-        resumeImage.draw( 0,-1*menuSpacing,aspect,(option==0)*rotation);
-        optionsImage.draw(0, 0*menuSpacing,aspect,(option==1)*rotation); 
-        quitImage.draw(   0, 1*menuSpacing,aspect,(option==2)*rotation);
-      } else if (getMenu(i) == 3) { // Pause Options Menu
-        cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
-        if (getIndependentMovement(i)) {
-          cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
-        } else {
-          cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
-        }
-        controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
-        backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
-      } else if (getMenu(i) == 4) { // Controls Display
-        if (joystickConnected()) {
-          gamepadControlsImage.draw(0,-100,aspect,false);
-        } else {
-          keyboardControlsImage.draw(0,-100,aspect,false);
-        }
-        backImage.draw(           0, 400,aspect,(option==0)*rotation);
-      } else if (getMenu(0) == 5) { // Start Controls Display
-        creditsTextImage.draw(0,0,aspect,false);
-        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+    } else if (getMenu(i) == 2) { // Main Pause Menu
+      resumeImage.draw( 0,-1*menuSpacing,aspect,(option==0)*rotation);
+      optionsImage.draw(0, 0*menuSpacing,aspect,(option==1)*rotation); 
+      quitImage.draw(   0, 1*menuSpacing,aspect,(option==2)*rotation);
+    } else if (getMenu(i) == 3) { // Pause Options Menu
+      cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
+      if (getIndependentMovement(i)) {
+        cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+      } else {
+        cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
       }
+      controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
+      backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
+    } else if (getMenu(i) == 4) { // Controls Display
+      if (joystickConnected()) {
+        gamepadControlsImage.draw(0,-100,aspect,false);
+      } else {
+        keyboardControlsImage.draw(0,-100,aspect,false);
+      }
+      backImage.draw(           0, 400,aspect,(option==0)*rotation);
+    } else if (getMenu(i) == 5) { // Start Controls Display
+      creditsTextImage.draw(0,0,aspect,false);
+      backImage.draw(           0, 400,aspect,(option==0)*rotation);
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);

@@ -51,6 +51,7 @@ static const int playerVisibleMax = 10;
     void lastLevel();
     void loadLevel(int);
     int getLevelNum();
+    void restartGame(int);
     void gameplayLoop();
 
     void resetCubior(int);
