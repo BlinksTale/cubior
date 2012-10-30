@@ -63,6 +63,10 @@ class CameraObj : public CubeObj {
     int justFixedZ;
     static const int justFixedMaxDist = 100;
     
+    // Camera commands
+    bool hasCommandedAngle;
+    int commandedAngle;
+
   public:
     CameraObj();
     void resetPos();
@@ -202,10 +206,10 @@ class CameraObj : public CubeObj {
 
     // Set camera commands
     void setPlayerCenterCommand(bool);
-    void setPlayerLeftCommand(bool b)   { if (playerLeftCommand != b)   { playerLeftCommand   = b; } }
-    void setPlayerRightCommand(bool b)  { if (playerRightCommand != b)  { playerRightCommand  = b; } }
-    void setPlayerUpCommand(bool b)     { if (playerUpCommand != b)     { playerUpCommand     = b; } }
-    void setPlayerDownCommand(bool b)   { if (playerDownCommand != b)   { playerDownCommand   = b; } }
+    void setPlayerLeftCommand(bool);
+    void setPlayerRightCommand(bool);
+    void setPlayerUpCommand(bool);
+    void setPlayerDownCommand(bool);
 };
 
 #endif 

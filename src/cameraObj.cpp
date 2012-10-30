@@ -39,6 +39,7 @@ CameraObj::CameraObj() {
   nearGoal = false; // inherently won't start right under the goal
   los = true; // Assume you can see the player from the sky :P
   playerCommandActive = false; // And assume not starting in player's control
+  hasCommandedAngle = false; // No basis originally for what angle we're moving from
 }
 
 // Set to starting pos, start of a new level
@@ -473,6 +474,10 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
 void CameraObj::applyCommandAngle() {
   // No longer applying command to rotate to new angle
   playerCenterCommand = false;
+  playerLeftCommand = false;
+  playerRightCommand = false;
+  playerUpCommand = false;
+  playerDownCommand = false;
   // Nor trying to move to some old visibility angle/shot
   foundIntendedPos = false;
   freedom = true;
@@ -548,6 +553,26 @@ void CameraObj::tick() {
         applyMatchAngleY(permanentTarget->getCamDirection());
       // If not, be done!
       } else {
+        // Just fixed angle, so don't mess it up!
+        applyJustFixedVisibility();
+        // Just applied match angle, so don't mess it up either!
+        applyCommandAngle();
+      }
+    // Second highest priority to player's other orders
+    } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
+      if (!hasCommandedAngle) {
+        commandedAngle = angleY;// permanentTarget->getCamDirection();
+        commandedAngle += playerRightCommand*45 - playerLeftCommand*45;
+        hasCommandedAngle = true;
+      }
+      //cout << "Option Zero" << endl;
+      // Told to recenter? Not matched up yet? Do so!
+      if (!(matchAngleY(commandedAngle))) {
+        applyMatchAngleY(commandedAngle);
+      // If not, be done!
+      } else {
+        // No longer an angle commanded to have
+        hasCommandedAngle = false;
         // Just fixed angle, so don't mess it up!
         applyJustFixedVisibility();
         // Just applied match angle, so don't mess it up either!
@@ -1185,4 +1210,16 @@ bool CameraObj::getDroppingIn() {
 // Camera controls
 void CameraObj::setPlayerCenterCommand(bool b) { 
   if (playerCenterCommand != b) { playerCenterCommand = b; }
+}
+void CameraObj::setPlayerLeftCommand(bool b) {
+  if (playerLeftCommand != b)   { playerLeftCommand   = b; } 
+}
+void CameraObj::setPlayerRightCommand(bool b) {
+  if (playerRightCommand != b)  { playerRightCommand  = b; }
+}
+void CameraObj::setPlayerUpCommand(bool b) {
+  if (playerUpCommand != b)     { playerUpCommand     = b; } 
+}
+void CameraObj::setPlayerDownCommand(bool b) {
+  if (playerDownCommand != b)   { playerDownCommand   = b; } 
 }

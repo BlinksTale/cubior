@@ -469,10 +469,34 @@ void handleInput(unsigned char key, bool newBool) {
   case '\\': setCenterCommand(0,newBool); break;
 
 		// PLAYER 2
-	case 'w': case 'W':    upKey[1] = newBool; break;
-	case 'a': case 'A':  leftKey[1] = newBool; break;
-	case 's': case 'S':  downKey[1] = newBool; break;
-	case 'd': case 'D': rightKey[1] = newBool; break;
+	case 'w': case 'W':    
+    if (getCubiorPlayable(1)) {
+      upKey[1] = newBool;
+    } else {
+      setUpCommand(0,newBool);
+    }
+    break;
+	case 'a': case 'A':
+    if (getCubiorPlayable(1)) {
+      leftKey[1] = newBool;
+    } else {
+      setLeftCommand(0,newBool);
+    }
+    break;
+	case 's': case 'S':
+    if (getCubiorPlayable(1)) {
+      downKey[1] = newBool;
+    } else {
+      setDownCommand(0,newBool);
+    }
+    break;
+	case 'd': case 'D':
+    if (getCubiorPlayable(1)) {
+      rightKey[1] = newBool;
+    } else {
+      setRightCommand(0,newBool);
+    }
+    break;
 	case 'f': case 'F':    setJump(1,newBool); break;
 	case 'g': case 'G':    setLock(1,newBool); break;
 	case 'h': case 'H':   setSuper(1,newBool); break;
