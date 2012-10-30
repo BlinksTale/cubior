@@ -69,13 +69,13 @@ bool justUnpaused = false;
 
 // Pause option value
 int option[4];
-int maxOption[] = {1,4,3,3,1,1};
+int maxOption[] = {1,4,4,3,1,1};
 // And menu in which we are selecting said option
 int menu[4];
 /* Menus are as follows:
  * 0. Splash screen, option: Press Start OR Press Enter
  * 1. Start screen, options: Start/Options/Credits/Quit
- * 2. Pause menu, options: Resume/Options/Quit
+ * 2. Pause menu, options: Resume/Drop Out/Options/Quit
  * 3. Options menu, options: Camera Controls, Controls, Back
  * 4. Controller map, option: Back
  * 5. Credits, option: Back
@@ -1468,10 +1468,16 @@ void chooseOption(int i) {
         setJustUnpaused(true);
         break;
       case 1:
+        // Drop out
+        startGameplay();
+        setJustUnpaused(true);
+        setCubiorPlayable(i,false);
+        break;
+      case 2:
         // Change options
         setMenu(i, 3);//menu[i] = 3;
         break;
-      case 2:
+      case 3:
         // Return to Title Screen
         restartGame(i);
         break;

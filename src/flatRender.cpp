@@ -148,7 +148,7 @@ LPVOID glutFonts[7] = {
 Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
   resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
   controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
-  keyboardControlsImage, gamepadControlsImage, creditsTextImage;
+  keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage;
 float menuSize = 0.75;
 int menuSpacing = 200;
 
@@ -1035,6 +1035,7 @@ void initMenu() {
   resumeImage          = Image("./images/CubiorResume720.png", menuSize);//128.png",3.0);
   optionsImage         = Image("./images/CubiorOptions720.png",menuSize);//128.png",2.0);
   backImage            = Image("./images/CubiorBack720.png",menuSize);
+  dropOutImage         = Image("./images/CubiorDropOut720.png",menuSize);
 
   controlsImage          = Image("./images/CubiorControls720.png",menuSize);
   cameraControlsImage    = Image("./images/CubiorCameraControls720.png",menuSize);
@@ -1109,9 +1110,10 @@ void drawMenu(int i) {
         quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     // Regular pause!
     } else if (getMenu(i) == 2) { // Main Pause Menu
-      resumeImage.draw( 0,-1*menuSpacing,aspect,(option==0)*rotation);
-      optionsImage.draw(0, 0*menuSpacing,aspect,(option==1)*rotation); 
-      quitImage.draw(   0, 1*menuSpacing,aspect,(option==2)*rotation);
+      resumeImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
+      dropOutImage.draw(0,-0.5*menuSpacing,aspect,(option==1)*rotation); 
+      optionsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation); 
+      quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
       cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
       if (getIndependentMovement(i)) {
