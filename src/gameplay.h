@@ -147,6 +147,12 @@ static const int playerVisibleMax = 10;
     int getOption(int);
     void chooseOption(int);
 
+    // Menu info
+    int getMenu();
+    int getMenu(int);
+    void setMenu(int);
+    void setMenu(int,int);
+
     // Map Values
     int getMapWidth();
     int getMapHeight();

@@ -30,7 +30,12 @@ const int playerCount = 4;
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
 const bool superEnabled = false;
-bool independentMovement = true; // move separately from camera angle after start of movement
+bool independentMovementDefault = false;
+bool independentMovement[] = { // move separately from camera angle after start of movement
+  independentMovementDefault,
+  independentMovementDefault,
+  independentMovementDefault,
+  independentMovementDefault}; 
 int altFrame = 0;
 int altMax = 5;
 
@@ -130,7 +135,7 @@ void playerLevelShadows(bool newBool) {
 void playerPause(int p, bool newBool) {
 	if (!pauseKey[p] && newBool) { // newly pressing Enter
 		if (!getGameplayRunning()) {
-      // Paused or temp title screen
+      // Splash screen
 
       // title screen
       if (getGameplayFirstRunning()) {
@@ -142,10 +147,9 @@ void playerPause(int p, bool newBool) {
         setCubiorPlayable(p,true);
         resetCubior(p);
         setGameplayFirstRunning(false);
-      }
-
-      // paused
-			if (lastPause == p || lastPause == -1) {
+        setMenu(p,1);
+      // Otherwise, normal unpause
+      } else if (lastPause == p || lastPause == -1) {
 				startGameplay();
         setJustUnpaused(true);
 			}
@@ -154,6 +158,7 @@ void playerPause(int p, bool newBool) {
       // Gameplay is running!
       if (p<0 || p>3 || getCubiorPlayable(p)) {
         // Can pause if playing
+        setMenu(p,2); // pause menu
 		    stopGameplay(p);
         setJustPaused(true);
 		    lastPause = p;
@@ -192,7 +197,7 @@ void sendCommands() {
 		  bool joyMovement = joystickDist > deadzoneRadius;
 
       // If moving seperately from camera
-      if (independentMovement) {
+      if (independentMovement[i]) {
         // And actually, y'know, moving
         if (!directionsPressed[i] && (upKey[i] || downKey[i] || leftKey[i] || rightKey[i] || joyMovement)) {
           // And we weren't previously, and get some keys or joystick movement
@@ -210,7 +215,7 @@ void sendCommands() {
 			bool newLR = leftInput[i] || rightInput[i];
 			float cameraRad;
       // And set basis for our angles
-      if (independentMovement) {
+      if (independentMovement[i]) {
         // base on starting camera angle
         cameraRad = (oldAngleY[i])*PI/180;
       } else {
@@ -530,3 +535,10 @@ cout << "It was called for " << button << "!\n";
 
 void joystickDown(unsigned int button, int x, int y, int z) { handleJoystickInput(button, true); }
 */
+
+bool getIndependentMovement(int i) {
+  return independentMovement[i];
+}
+void toggleIndependentMovement(int i) {
+  independentMovement[i] = !independentMovement[i];
+}

@@ -31,4 +31,7 @@
     
     void setJump(int, bool);
     void setLock(int, bool);
+    
+    bool getIndependentMovement(int);
+    void toggleIndependentMovement(int);
 #endif 

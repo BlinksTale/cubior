@@ -146,7 +146,11 @@ LPVOID glutFonts[7] = {
 
 // Images for HUD, Menu, etc
 Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
-  resumeImage, quitImage, creditsImage;
+  resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
+  controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
+  keyboardControlsImage, gamepadControlsImage, creditsTextImage;
+float menuSize = 0.75;
+int menuSpacing = 200;
 
 // A print text function
 // copied from http://www.gamedeception.net/threads/1876-Printing-Text-with-glut
@@ -338,7 +342,7 @@ void displayFor(int player) {
   drawGoal();
   
       int n;
-  if (!getGameplayRunning() && getLastPause() == -1) {
+  if (!getGameplayRunning() && getLastPause() == -1 && getMenu() == 0) {
       // START SCREEN temp fix for IGF demo
       //n=sprintf(pausedText, "Cubior");
       int pW = 0;//1000;
@@ -1027,9 +1031,22 @@ void initMenu() {
   pressStartImage      = Image("./images/CubiorPressStart720.png",1);//128.png",2.0);
   pressEnterImage      = Image("./images/CubiorPressEnter720.png",1);//128.png",2.0);
   pressStartEnterImage = Image("./images/CubiorPressStartEnter720.png",1);//128.png",2.0);
-  resumeImage          = Image("./images/CubiorResume720.png",1);//128.png",3.0);
-  creditsImage         = Image("./images/CubiorCredits720.png",1);//128.png",3.0);
-  quitImage            = Image("./images/CubiorQuit720.png",1);//128.png",3.0);
+  startImage           = Image("./images/CubiorStart720.png",  menuSize);//128.png",2.0);
+  resumeImage          = Image("./images/CubiorResume720.png", menuSize);//128.png",3.0);
+  optionsImage         = Image("./images/CubiorOptions720.png",menuSize);//128.png",2.0);
+  backImage            = Image("./images/CubiorBack720.png",menuSize);
+
+  controlsImage          = Image("./images/CubiorControls720.png",menuSize);
+  cameraControlsImage    = Image("./images/CubiorCameraControls720.png",menuSize);
+  cameraControlsProImage = Image("./images/CubiorPro720.png",menuSize);
+  cameraControlsEasyImage= Image("./images/CubiorEasy720.png",menuSize);
+  keyboardControlsImage  = Image("./images/CubiorControlsKeyboard720.png",1);
+  gamepadControlsImage   = Image("./images/CubiorControlsGamepad720.png",1);
+  
+  creditsImage         = Image("./images/CubiorCredits720.png",menuSize);//128.png",3.0);
+  // Credits text image was having trouble loading, going to just use printed text for now
+  creditsTextImage     = Image("./images/CubiorCredits720.png",menuSize);//Text1080.png",1);
+  quitImage            = Image("./images/CubiorQuit720.png",   menuSize);//128.png",3.0);
 
 }
 
@@ -1069,25 +1086,73 @@ void drawMenu(int i) {
   time = clock();
   
   // Only draw any of it if paused
+    // Something will always be moving/rotating
+    int option = getOption(i);
+    float rotation = 5.0*sin(time/300.0);
     // Start screen?
     if (getLastPause() == -1) {
-      logoImage.draw(20.0*sin(time/1600.0),-500+10.0*sin(time/800.0),aspect,false);
+      if (getMenu(i) == 0) { // Splash screen
+        logoImage.draw(20.0*sin(time/1600.0),-300+10.0*sin(time/800.0),aspect,false);
 
-      // Blink the press start/enter image
-      if (time%1200 < 900) {
-        if (joystickConnected() && time > 8000) {
-          pressStartImage.draw(0,200,aspect,false);
-        } else {
-          pressEnterImage.draw(0,200,aspect,false);
+        // Blink the press start/enter image
+        if (time%1200 < 900) {
+          if (joystickConnected() && time > 8000) {
+            pressStartImage.draw(0,380,aspect,false);
+          } else {
+            pressEnterImage.draw(0,380,aspect,false);
+          }
         }
+      } else if (getMenu(0) == 1) { // Start Menu
+        startImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
+        optionsImage.draw(0,-0.5*menuSpacing,aspect,(option==1)*rotation);
+        creditsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation);
+        quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
+      } else if (getMenu(0) == 3) { // Start Options Menu
+        cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
+        if (getIndependentMovement(i)) {
+          cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        } else {
+          cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        }
+        controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
+        backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
+      } else if (getMenu(0) == 4) { // Start Controls Display
+        if (joystickConnected()) {
+          gamepadControlsImage.draw(0,-100,aspect,false);
+        } else {
+          keyboardControlsImage.draw(0,-100,aspect,false);
+        }
+        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      } else if (getMenu(0) == 5) { // Credits Display
+        creditsTextImage.draw(0,0,aspect,false);
+        backImage.draw(           0, 400,aspect,(option==0)*rotation);
       }
     // Regular pause!
     } else {
-      int option = getOption(i);
-      float rotation = 5.0*sin(time/300.0);
-      resumeImage.draw(0,-500,aspect,(option==0)*rotation);
-      creditsImage.draw(0,-200,aspect,(option==1)*rotation); // will be options later
-      quitImage.draw(0,100,aspect,(option==2)*rotation);
+      if (getMenu(i) == 2) { // Main Pause Menu
+        resumeImage.draw( 0,-1*menuSpacing,aspect,(option==0)*rotation);
+        optionsImage.draw(0, 0*menuSpacing,aspect,(option==1)*rotation); 
+        quitImage.draw(   0, 1*menuSpacing,aspect,(option==2)*rotation);
+      } else if (getMenu(i) == 3) { // Pause Options Menu
+        cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
+        if (getIndependentMovement(i)) {
+          cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        } else {
+          cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        }
+        controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
+        backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
+      } else if (getMenu(i) == 4) { // Controls Display
+        if (joystickConnected()) {
+          gamepadControlsImage.draw(0,-100,aspect,false);
+        } else {
+          keyboardControlsImage.draw(0,-100,aspect,false);
+        }
+        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      } else if (getMenu(0) == 5) { // Start Controls Display
+        creditsTextImage.draw(0,0,aspect,false);
+        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      }
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);

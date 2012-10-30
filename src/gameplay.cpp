@@ -69,7 +69,17 @@ bool justUnpaused = false;
 
 // Pause option value
 int option[4];
-int maxOption = 3;
+int maxOption[] = {1,4,3,3,1,1};
+// And menu in which we are selecting said option
+int menu[4];
+/* Menus are as follows:
+ * 0. Splash screen, option: Press Start OR Press Enter
+ * 1. Start screen, options: Start/Options/Credits/Quit
+ * 2. Pause menu, options: Resume/Options/Quit
+ * 3. Options menu, options: Camera Controls, Controls, Back
+ * 4. Controller map, option: Back
+ * 5. Credits, option: Back
+ */
 
 // Changing game state variables
 bool gameplayRunning = true;
@@ -234,6 +244,7 @@ void gameplayStart(string levelToLoad) {
   
   // Temp fix for title screen, auto pause on start
   if (gameplayFirstRunning) {
+    // initGameplay type of thing here for whole game, or start screen again.
     //camera[0].setAngleX(-90);
     // Reset everyone except p1's playability to false
     // So that we only see one view of the title screen
@@ -241,6 +252,10 @@ void gameplayStart(string levelToLoad) {
     cubiorPlayable[1] = false;
     cubiorPlayable[2] = false;
     cubiorPlayable[3] = false;
+    // Reset all to splash screen menu
+    for (int i=0; i<4; i++) {
+      menu[i] = 0;
+    }
     playerPause(-1,true);
   }
 }
@@ -269,6 +284,12 @@ void nextLevelCountdown(int i) {
   }
   //cout << "winningShot is " << winningShot << endl;
   
+}
+
+// Restart game by going back to first level
+void restartGame() {
+  menu[0] = 0;
+  loadLevel(0);
 }
 
 // To load the next level
@@ -316,6 +337,11 @@ int getLevelNum() {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
+  cout << "New loop!" << endl;
+  for (int i=0; i<4; i++) {
+    cout << "Menu[" << i << "] = " << menu[i] << endl;
+    cout << "Option[" << i << "] = " << option[i] << endl;
+  }
   // NEWDELETEME: cout << "player to goal angle = " << getAngleBetween(cubior[0].getX(),cubior[0].getZ(),goal.getX(),goal.getZ()) << endl;
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
@@ -1391,27 +1417,106 @@ bool getGameplayRunning() { return gameplayRunning; }
 
 // Pause option values for when gameplay is not running
 void resetOption(int i) { option[i] = 0; }
-void nextOption(int i) { option[i] = (option[i]+1)%maxOption; }
-void prevOption(int i) { option[i] = (option[i]+maxOption-1)%maxOption; }
+void nextOption(int i) { option[i] = (option[i]+1)%maxOption[menu[i]]; }
+void prevOption(int i) { option[i] = (option[i]+maxOption[menu[i]]-1)%maxOption[menu[i]]; }
 int getOption(int i) { return option[i]; }
 // A more tricky function, activate your selection
 void chooseOption(int i) {
-  switch(option[i]) {
-    case 0:
-      // Resume game
-      playerPause(i,true);
-      break;
-    case 1:
-      // Play credits
-      break;
-    case 2:
-      // Quit game
-      exit(0);
-      break;
-    default:
-      break;
+  if (menu[i] == 0) { // Splash Screen
+    switch(option[i]) {
+      default:
+        // Switch to Start Screen only with start/enter, not choose/A/Space
+        //menu[0]=1;
+        break;
+    }
+  } else if (menu[i] == 1) { // Start Menu (Main Menu)
+    switch(option[i]) {
+      case 0:
+        // Start game
+        playerPause(i,true);
+        break;
+      case 1:
+        // Change options
+        setMenu(0, 3);//menu[0] = 3;
+        break;
+      case 2:
+        // Play credits
+        setMenu(0, 5);//menu[0] = 5;
+        break;
+      case 3:
+        // Quit game
+        exit(0);
+        break;
+      default:
+        break;
+    }
+  } else if (menu[i] == 2) { // Pause Menu
+    switch(option[i]) {
+      case 0:
+        // Resume game
+        playerPause(i,true);
+        break;
+      case 1:
+        // Change options
+        setMenu(i, 3);//menu[i] = 3;
+        break;
+      case 2:
+        // Return to Title Screen
+        restartGame();
+        break;
+      default:
+        break;
+    }
+  } else if (menu[i] == 3) { // Options Menu
+    int controller = i;//(getLastPause() == -1) ? 0 : i;
+    switch(option[i]) {
+      case 0:
+        // Toggle Angle Controls
+        toggleIndependentMovement(i);
+        break;
+      case 1:
+        // See Controller Map
+        setMenu(controller, 4);//menu[controller] = 4;
+        break;
+      case 2:
+        // Return to pause or start menu
+        if (getLastPause() == -1) { // start menu
+          setMenu(controller, 1);//menu[controller] = 1;
+        } else {                    // pause menu
+          setMenu(controller, 2);//menu[controller] = 2;
+        }
+        break;
+      default:
+        break;
+    }
+  } else if (menu[i] == 4) { // Controller Map
+    int controller = (getLastPause() == -1) ? 0 : i;
+    switch(option[i]) {
+      case 0:
+        // Return to options menu
+        setMenu(controller, 3);//menu[controller] = 3;
+        break;
+      default:
+        break;
+    }
+  } else if (menu[i] == 5) { // Credits
+    int controller = (getLastPause() == -1) ? 0 : i;
+    switch(option[i]) {
+      case 0:
+        // Return to start menu
+        setMenu(controller, 1);//menu[controller] = 1;
+        break;
+      default:
+        break;
+    }
   }
+
 }
+
+int getMenu() { return menu[0]; }
+int getMenu(int i) { return menu[i]; }
+void setMenu(int j) { menu[0] = j; }
+void setMenu(int i, int j) { menu[i] = j; option[i] = 0; }
 
 int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
 int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}

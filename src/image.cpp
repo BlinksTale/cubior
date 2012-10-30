@@ -70,9 +70,9 @@ void Image::draw(int x, int y, float aspect, float rotate) {
     // Always keep in center of screen, regardless of size/resolution
     // And use aspect from earlier to do this, and 1600 as expected/base width
     if (aspect > 1.0) {
-      glTranslatef(1600*aspect/2+currentTextureX, 1050/2+height/2+currentTextureY,0.0f);
+      glTranslatef(1600*aspect/2+currentTextureX, 1050/2+currentTextureY,0.0f);
     } else {
-      glTranslatef(1600/2+currentTextureX,        1050/2+height/2+currentTextureY,0.0f);
+      glTranslatef(1600/2+currentTextureX,        1050/2+currentTextureY,0.0f);
     }
     glPushMatrix();
     if (rotate != 0.000) {
