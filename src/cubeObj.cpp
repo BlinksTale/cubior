@@ -172,6 +172,10 @@ void CubeObj::tick() {
         float dir = atan(momentumX*1.0/momentumZ);
         if (momentumZ < 0.00000000) { dir += M_PI; }
         float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
+        // Keep a cap on it!
+        if (str > maxSpeed) {
+          str = maxSpeed;
+        }
         if (str > newFriction*myFpsRate()) { str -= newFriction*myFpsRate(); }
         else if (str != 0.0) { str = 0.0; }
         // Now update direction... maybe, if str was strong enough
@@ -201,6 +205,10 @@ void CubeObj::tick() {
       float dir = atan(momentumX*1.0/momentumZ);
       if (momentumZ < 0.00000000) { dir += M_PI; }
       float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
+      // Keep a cap on it!
+      if (str > maxSpeed) {
+        str = maxSpeed;
+      }
       // Now update direction... maybe, if str was strong enough
       if (str >= newFriction) {
         direction = dir;

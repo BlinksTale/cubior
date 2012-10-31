@@ -580,6 +580,13 @@ void CameraObj::tick() {
     // No reset locks on dropping in!
     if (droppingIn && locksReset) { locksReset = false; } 
 
+    // Stuck dropping in, but still just within range-ish
+    // and a player command is sent? Eh, just follow the orders
+    if (droppingIn && (y - permanentTarget->getY() <= 1.5*camHeight) && 
+      (playerCenterCommand || playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand)) {
+      // No longer dropping in!
+      droppingIn = false;
+    }
     
     // Highest priority to player's orders
     if (playerCenterCommand && !droppingIn) {

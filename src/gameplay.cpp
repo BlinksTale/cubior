@@ -361,6 +361,7 @@ void gameplayLoop() {
   //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
   if (gameplayRunning && !winningShot) {
+    //cout << cubior[0].getStrength() << " makes " << cubior[0].getMomentumX() << ", " << cubior[0].getMomentumZ() << " = " << sqrt(pow((float)cubior[0].getMomentumZ(),2) + pow((float)cubior[0].getMomentumX(), 2)) << endl;
 	  
 	  // Only recognize a level change for one loop
 	  if (changeLevel) { changeLevel = false; }
