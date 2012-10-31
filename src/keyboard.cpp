@@ -401,19 +401,19 @@ void joystickCommands(int i) {
   bool newSecondaryDown  = newSecondaryY > secondaryTrigger;
   // Pass the trigger and have not done this last time to activate the call
   if (newSecondaryLeft != secondaryJoyLeft[i]) { 
-    setLeftCommand(0,newSecondaryLeft);
+    setLeftCommand(i,newSecondaryLeft);
     secondaryJoyLeft[i]  = newSecondaryLeft;
   }
   if (newSecondaryRight != secondaryJoyRight[i]) { 
-    setRightCommand(0,newSecondaryRight);
+    setRightCommand(i,newSecondaryRight);
     secondaryJoyRight[i] = newSecondaryRight;
   }
   if (newSecondaryUp != secondaryJoyUp[i]) {
-    setUpCommand(0,newSecondaryUp); 
+    setUpCommand(i,newSecondaryUp); 
     secondaryJoyUp[i] = newSecondaryUp;
   }
   if (newSecondaryDown != secondaryJoyDown[i]) { 
-    setDownCommand(0,newSecondaryDown);
+    setDownCommand(i,newSecondaryDown);
     secondaryJoyDown[i] = newSecondaryDown;
   }
 }
