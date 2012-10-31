@@ -161,7 +161,7 @@ void initSfx(int argc, char** argv) {
   // Load sounds into buffers
   testBuffer.loadFromFile("./sfx/Jump/Jump 3.wav");
   exitBuffer.loadFromFile("./sfx/Menu-Game/Leave 8.wav");
-  glowBuffer.loadFromFile("./sfx/Menu-Game/Goal Echo 2 Louder.wav");//Brian Goal 3.wav");//Leave 8.wav");
+  glowBuffer.loadFromFile("./sfx/Menu-Game/Goal Echo 5.wav");//Brian Goal 3.wav");//Leave 8.wav");
   menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
   menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
   errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
