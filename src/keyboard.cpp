@@ -81,6 +81,10 @@ bool superButton[playerCount];
 bool pauseButton[playerCount];
 bool joinButton[playerCount];
 bool cameraButton[playerCount];
+bool secondaryJoyLeft[playerCount];
+bool secondaryJoyRight[playerCount];
+bool secondaryJoyUp[playerCount];
+bool secondaryJoyDown[playerCount];
 
 bool fullscreenKey;
 bool levelShadowsKey;
@@ -387,7 +391,31 @@ void joystickCommands(int i) {
 	downButton[i] = joyY[i] > 15;
 	leftButton[i] = joyX[i] <-15;
 	rightButton[i]= joyX[i] > 15;
-
+  
+  int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+  int secondaryTrigger = 50;
+  bool newSecondaryLeft  = newSecondaryX <-secondaryTrigger;
+  bool newSecondaryRight = newSecondaryX > secondaryTrigger;
+  bool newSecondaryUp    = newSecondaryY <-secondaryTrigger;
+  bool newSecondaryDown  = newSecondaryY > secondaryTrigger;
+  // Pass the trigger and have not done this last time to activate the call
+  if (newSecondaryLeft != secondaryJoyLeft[i]) { 
+    setLeftCommand(0,newSecondaryLeft);
+    secondaryJoyLeft[i]  = newSecondaryLeft;
+  }
+  if (newSecondaryRight != secondaryJoyRight[i]) { 
+    setRightCommand(0,newSecondaryRight);
+    secondaryJoyRight[i] = newSecondaryRight;
+  }
+  if (newSecondaryUp != secondaryJoyUp[i]) {
+    setUpCommand(0,newSecondaryUp); 
+    secondaryJoyUp[i] = newSecondaryUp;
+  }
+  if (newSecondaryDown != secondaryJoyDown[i]) { 
+    setDownCommand(0,newSecondaryDown);
+    secondaryJoyDown[i] = newSecondaryDown;
+  }
 }
 
 // Return if any joystick connected
