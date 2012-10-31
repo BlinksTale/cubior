@@ -1022,7 +1022,6 @@ void initVisuals() {
   goalShape.setGlow(false);
   goalShape.initGoalVisuals();
   updateGoalGraphic();
-
 }
 
 // Load data into Image objects

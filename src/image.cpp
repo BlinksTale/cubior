@@ -32,7 +32,7 @@ Image::Image(const char* name, float multiplier) {
   height = 0;
   width = 0;
   unsigned error1 = lodepng::decode(texture, width, height, name);
-  cout << "Loading texture " << name << " of size " << width << ", " << height << endl;
+  //cout << "Loading texture " << name << " of size " << width << ", " << height << endl;
   
   // Texture size must be power of two for the primitive OpenGL version this is written for. Find next power of two.
   u2 = 1; while(u2 < width) u2 *= 2;
@@ -51,6 +51,9 @@ Image::Image(const char* name, float multiplier) {
     image2[4 * u2 * y + 4 * x + c] = texture[4 * width * y + 4 * x + c];
   }
 
+  if (imageItself.size() > 0) {
+    delete &imageItself;
+  }
   imageItself = image2;
 
   height *= multiplier;
