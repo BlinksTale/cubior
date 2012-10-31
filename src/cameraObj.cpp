@@ -593,6 +593,8 @@ void CameraObj::tick() {
         applyMatchAngleY(permanentTarget->getCamDirection(),false);
       // If not, be done!
       } else {
+        // Trigger sound
+        setJustFocusedCamera(true);
         // Just fixed angle, so don't mess it up!
         applyJustFixedVisibility();
         // Just applied match angle, so don't mess it up either!
@@ -601,6 +603,9 @@ void CameraObj::tick() {
     // Second highest priority to player's other orders
     } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
       if (!hasCommandedAngle) {
+        // Trigger sound
+        setJustTurnedCamera(true);
+
         int angleDelta = 45;
         commandedHyp = groundDistToPlayer();
         // in relation to current angle...

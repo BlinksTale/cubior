@@ -119,6 +119,8 @@ static const int playerVisibleMax = 10;
     bool getJustChangedOption();
     bool getJustChangedMenu();
     bool getJustCausedError();
+    bool getJustFocusedCamera();
+    bool getJustTurnedCamera();
     // And setters for sfx triggers
     void setJustExited(bool);
     void setJustPaused(bool);
@@ -126,6 +128,8 @@ static const int playerVisibleMax = 10;
     void setJustChangedOption(bool);
     void setJustChangedMenu(bool);
     void setJustCausedError(bool);
+    void setJustFocusedCamera(bool);
+    void setJustTurnedCamera(bool);
     
     const int getMaxCubeCount();
     int getCubeCount();

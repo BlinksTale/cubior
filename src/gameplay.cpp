@@ -69,6 +69,8 @@ bool justUnpaused = false;
 bool justChangedMenu = false;
 bool justChangedOption = false;
 bool justCausedError = false;
+bool justTurnedCamera = false;
+bool justFocusedCamera = false;
 
 // Pause option value
 int option[4];
@@ -1411,12 +1413,16 @@ bool getJustUnpaused() { return justUnpaused; }
 bool getJustChangedMenu() { return justChangedMenu; }
 bool getJustChangedOption() { return justChangedOption; }
 bool getJustCausedError() { return justCausedError; }
+bool getJustFocusedCamera() { return justFocusedCamera; }
+bool getJustTurnedCamera() { return justTurnedCamera; }
 void setJustExited(bool b) { justExited = b; }
 void setJustPaused(bool b) { justPaused = b; }
 void setJustUnpaused(bool b) { justUnpaused = b; }
 void setJustChangedMenu(bool b) { justChangedMenu = b; }
 void setJustChangedOption(bool b) { justChangedOption = b; }
 void setJustCausedError(bool b) { justCausedError = b; }
+void setJustFocusedCamera(bool b) { justFocusedCamera = b; }
+void setJustTurnedCamera(bool b) { justTurnedCamera = b; }
 
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }

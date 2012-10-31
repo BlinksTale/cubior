@@ -21,13 +21,15 @@
 // Buffer Vars (hold song data)
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
   menuEnterBuffer, menuExitBuffer, glowBuffer,
-  changeMenuBuffer, changeOptionBuffer;
+  changeMenuBuffer, changeOptionBuffer,
+  focusCameraBuffer, turnCameraBuffer;
 sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
 
 // Sound Vars (play what's in buffer)
 sf::Sound testSound, exitSound, errorSound,
   menuEnterSound, menuExitSound, glowSound,
-  changeMenuSound, changeOptionSound;
+  changeMenuSound, changeOptionSound,
+  focusCameraSound, turnCameraSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
 // Sound muffling variables
@@ -147,8 +149,16 @@ void initSfx(int argc, char** argv) {
 
      Goal 3 sounds best, long and lots happening
 
-
+     Turn 1 or 4 for camera turns?
+     Turn 10 for focus behind?
      Turn 6 would be good for p1 camera new angle
+     Turn 5 would be good for p2 camera new angle
+     Turn 1 would be good for p3 camera new angle
+     Turn 2 would be good for p4 camera new angle
+     Turn slow 5 for p1 flip around
+     Turn slow 6 for p2 flip around
+     Turn slow 3 for p3 flip around
+     Turn slow 1 for p4 flip around
 
      Menu 1 good for changing menu option
      Menu 4 is good for changing menu itself
@@ -159,22 +169,24 @@ void initSfx(int argc, char** argv) {
   /*************/
 
   // Load sounds into buffers
-  testBuffer.loadFromFile("./sfx/Jump/Jump 3.wav");
-  exitBuffer.loadFromFile("./sfx/Menu-Game/Leave 8.wav");
-  glowBuffer.loadFromFile("./sfx/Menu-Game/Goal Echo 5.wav");//Brian Goal 3.wav");//Leave 8.wav");
-  menuEnterBuffer.loadFromFile("./sfx/Menu-Game/Leave 5.wav");
-  menuExitBuffer.loadFromFile("./sfx/Menu-Game/Leave 3.wav");
-  errorBuffer.loadFromFile("./sfx/Menu-Game/Error 3.wav");
-  jumpBuffer[0].loadFromFile("./sfx/Jump/Jump 2 Long.wav");
-  jumpBuffer[1].loadFromFile("./sfx/Jump/Jump 3 Long.wav");
-  jumpBuffer[2].loadFromFile("./sfx/Jump/Jump 9 Long.wav");
-  jumpBuffer[3].loadFromFile("./sfx/Jump/Jump 10 Long.wav");
-  bumpBuffer[0].loadFromFile("./sfx/Collision/Bump 6.wav");//Hit 1.wav");
-  bumpBuffer[1].loadFromFile("./sfx/Collision/Bump 4.wav");//Hit 4.wav");
-  bumpBuffer[2].loadFromFile("./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
-  bumpBuffer[3].loadFromFile("./sfx/Collision/Bump 5.wav");//Hit 14.wav");
-  changeMenuBuffer.loadFromFile("./sfx/Menu-Game/Menu 4.wav");
+  testBuffer.loadFromFile(        "./sfx/Jump/Jump 3 Long.wav");
+  exitBuffer.loadFromFile(        "./sfx/Menu-Game/Leave 8.wav");
+  glowBuffer.loadFromFile(        "./sfx/Menu-Game/Goal Echo 5.wav");//Brian Goal 3.wav");//Leave 8.wav");
+  menuEnterBuffer.loadFromFile(   "./sfx/Menu-Game/Leave 5.wav");
+  menuExitBuffer.loadFromFile(    "./sfx/Menu-Game/Leave 3.wav");
+  errorBuffer.loadFromFile(       "./sfx/Menu-Game/Error 3.wav");
+  jumpBuffer[0].loadFromFile(     "./sfx/Jump/Jump 2 Long.wav");
+  jumpBuffer[1].loadFromFile(     "./sfx/Jump/Jump 3 Long.wav");
+  jumpBuffer[2].loadFromFile(     "./sfx/Jump/Jump 9 Long.wav");
+  jumpBuffer[3].loadFromFile(     "./sfx/Jump/Jump 10 Long.wav");
+  bumpBuffer[0].loadFromFile(     "./sfx/Collision/Bump 6.wav");//Hit 1.wav");
+  bumpBuffer[1].loadFromFile(     "./sfx/Collision/Bump 4.wav");//Hit 4.wav");
+  bumpBuffer[2].loadFromFile(     "./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
+  bumpBuffer[3].loadFromFile(     "./sfx/Collision/Bump 5.wav");//Hit 14.wav");
+  changeMenuBuffer.loadFromFile(  "./sfx/Menu-Game/Menu 4.wav");
   changeOptionBuffer.loadFromFile("./sfx/Menu-Game/Menu 1.wav");
+  focusCameraBuffer.loadFromFile( "./sfx/Movement/Turn 10.wav");
+  turnCameraBuffer.loadFromFile(  "./sfx/Movement/Turn 1.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
@@ -185,6 +197,8 @@ void initSfx(int argc, char** argv) {
   errorSound.setBuffer(errorBuffer);
   changeMenuSound.setBuffer(changeMenuBuffer);
   changeOptionSound.setBuffer(changeOptionBuffer);
+  focusCameraSound.setBuffer(focusCameraBuffer);
+  turnCameraSound.setBuffer(turnCameraBuffer);
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
@@ -267,6 +281,15 @@ void sfxLoop() {
   if (getJustCausedError()) {
     errorSound.play();
     setJustCausedError(false);
+  }
+  // Camera focused
+  if (getJustFocusedCamera()) {
+    focusCameraSound.play();
+    setJustFocusedCamera(false);
+  }
+  if (getJustTurnedCamera()) {
+    turnCameraSound.play();
+    setJustTurnedCamera(false);
   }
 }
 // Specific sound effects
