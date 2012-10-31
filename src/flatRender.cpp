@@ -238,6 +238,21 @@ void display() {
       } else if (cubiorsPlayable == 4) {
         // Quick exit for 4player mode, run faster!
         setPerspective(1,1);
+      } else if (cubiorsPlayable == 2) {
+        // Both flush left
+        posX = 0;
+        // Both are full width, no height
+        viewW *= 2;
+        // Figure out who the other is
+        int other;
+        for (int j=0; j<4; j++) {
+          if (j != i && getCubiorPlayable(j)) {
+            other = j;
+          }
+        }
+        // Second of the two? Put on bottom, else top
+        posY = other > i ? windowHeight*1/2+1 : -1;
+        setPerspective(2,1);
       } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
         // Space Vertically? Fill the height
         viewH *= 2;
