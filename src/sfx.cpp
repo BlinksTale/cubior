@@ -253,7 +253,7 @@ void sfxLoop() {
   }
   // Win Level
   if (getJustExited()) { 
-    exitSound.play(); 
+    //exitSound.play(); 
     glowSound.play(); 
     setJustExited(false);
   }

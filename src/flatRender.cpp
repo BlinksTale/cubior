@@ -1046,7 +1046,7 @@ void initMenu() {
   
   creditsImage         = Image("./images/CubiorCredits720.png",menuSize);//128.png",3.0);
   // Credits text image was having trouble loading, going to just use printed text for now
-  creditsTextImage     = Image("./images/CubiorCredits720.png",menuSize);//Text1080.png",1);
+  creditsTextImage     = Image("./images/CubiorCreditsThemselves720.png",1);//Text1080.png",1);
   quitImage            = Image("./images/CubiorQuit720.png",   menuSize);//128.png",3.0);
 
 }
@@ -1131,7 +1131,7 @@ void drawMenu(int i) {
       }
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
     } else if (getMenu(i) == 5) { // Start Controls Display
-      creditsTextImage.draw(0,0,aspect,false);
+      creditsTextImage.draw(0,-100,aspect,false);
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
     }
   glDisable(GL_BLEND);

@@ -1,12 +1,10 @@
 Current priorities as of 10/7/12:
 
-v. After the third time you pause, if you pause on the next level, you will lose all shadows and see no menu
+Credits
+Reduce max speed or increase agility at max speed, players feel a loss of control
+  with joysticks when moving fast or moving at all..?
 
 0V. Follow both's choose angle flips around on room 2/3, second green room
-
-000. Maybe we need a lock on the camera to the goal's plane while within view both area
-    this way, players without independentMovement could still not get turned around
-	when pursuing the goal itself
 
 00. Weirdness when player pauses while touching goal. Pausing should take priority.
      Weirdness also transfers into next level?
@@ -18,20 +16,12 @@ v. After the third time you pause, if you pause on the next level, you will lose
      that's all in option one, so it must be that viewBoth isn't figuring out which side it's really on.
 2. There is an upper bound to how high the camera can rotate before flipping over
    Find what this number is, and do not allow angleX to pass it. STILL NEED TO DO THIS, STILL AN ISSUE.
-3. Make camera look between player and goal at appropriate zoom dist, currently just looks at goal sometimes (castle level?)
-4. Maybe have the initial camera drop not snag? Dunno why it does that now. CONFUSES PLAYERS
 
 ---
 Old but still worthy priorities
 
-1. Adjust player movement based on camera angle more precisely
-
-??. multiplayer/splitscreen problem with camera looking not at player when moved.
-      may be related to views tied to goal?
 ?. Move camera less, keep static more
 
 ??. Wouldn't it be cool if in locked mode, it tracked the last dir travelled,
     and would point the camera so you could see further ahead in the dir you were
     about to go in? (ala Mario World)
-
-???. Using int for playerAngle in cameraObj, is this causing some of the player-movement issues?
