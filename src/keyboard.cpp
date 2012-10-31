@@ -550,8 +550,9 @@ void handleInput(unsigned char key, bool newBool) {
 		playerCount = 2;
 		break;
 		*/
-		// QUIT
-	case 27: exit(0); break;
+		// QUIT w/ Esc
+    // Now changed to pause p1
+	case 27: playerPause(0,newBool); break;//exit(0); break;
 	default: break;
 	}
 }
