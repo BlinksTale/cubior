@@ -407,17 +407,18 @@ void CameraObj::applyIntendedPos() {
 // Check if you match some y angle
 bool CameraObj::matchAngleY(int angleToMatch) {
   // Match angleToMatch to range of angleY first
-  int targetAngle = matchRangeOf(angleToMatch, angleY);
+  int targetAngle = matchRangeOf(angleToMatch, meanAngleY);
 
   // How big is the margin of error?
-  int margin = 10;
+  int margin = 2;
 
   // Then compare and return!
-  return (angleY < targetAngle+margin && angleY > targetAngle-margin);
+  return (meanAngleY < targetAngle+margin && meanAngleY > targetAngle-margin);
 
 }
 
-void CameraObj::applyMatchAngleY(int angleToMatch) {
+// Move (instantly or smoothly) to a new angle to look at player
+void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
           // permanentTargetNum ~ playerNum
         /*rotateToAngle(
             permanentTargetNum,
@@ -426,30 +427,64 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
           );*/
 
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
-  int totalRotations = 12;
+  int totalRotations = 90;//12;
   int newAngle = angleY;
   int oldAngle = angleY;
 
   //cout << "I'm at angleY: " << angleY << " while it's at targetAngle: " << targetAngle << " and was angleToMatch: " << angleToMatch << endl;
 
-  /*if (abs(targetAngle-angleY)>(360.0/(totalRotations/2))) {
-    newAngle = angleY + (1-2*(angleY>targetAngle))*(360.0/(totalRotations/2));
+  // Smooth transitions to new angle
+  if (smoothly) {
+    /*if (abs(targetAngle-angleY)>(360.0/(totalRotations/2))) {
+      newAngle = angleY + (1-2*(angleY>targetAngle))*(360.0/(totalRotations/2));
+    } else {
+      // too close, just make equal!
+      newAngle = targetAngle;
+    }*/
+    //cout << "angleY " << angleY << " vs angleToMatch " << angleToMatch << endl;
+    //int fakeTargetAngle = angleY*0.9 + 0.1*angleToMatch;
+    float cameraRotationSpeed = 90;
+    while (angleY < angleToMatch - 180) { angleY += 360; }
+    while (angleY > angleToMatch + 180) { angleY -= 360; }
+    if (angleY < angleToMatch - cameraRotationSpeed) {
+      angleY += cameraRotationSpeed;
+    } else if (angleY > angleToMatch + cameraRotationSpeed) {
+      angleY -= cameraRotationSpeed;
+    } else {
+      angleY = angleToMatch;
+    }
+    //cout << "angleY now set to " << angleY << endl;
+    newAngle = -(angleY + 90);
+    //angleY = 0.01*angleToMatch + 0.99*angleY;
+    if (abs(angleY - angleToMatch) < cameraRotationSpeed) {
+      //angleY = angleToMatch;
+    } else {
+      //angleY = oldAngle;
+      //angleY = oldAngle;
+    }
+    //angleY = 0.9*oldAngle + 0.1*angleY;
+    //newAngle = 0.9*oldAngle + 0.1*newAngle;
   } else {
-    // too close, just make equal!
+    // IMMEDIATE RESULTS VERSION
+    // Some of the math is really odd feeling about switching it back,
+    // with my matchRangeOf(-angleToMatch-90,) up there, but it works.
     newAngle = targetAngle;
-  }*/
-  // IMMEDIATE RESULTS VERSION
-  // Some of the math is really odd feeling about switching it back,
-  // with my matchRangeOf(-angleToMatch-90,) up there, but it works.
-  newAngle = targetAngle;
-  angleY = -newAngle - 90;
-
+    angleY = -newAngle - 90;
+  }
+  
   // Find new location
-  int deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;
-  int deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*idealDist;
+  int usedDist = idealDist;// hasCommandedAngle? commandedHyp : idealDist;
+  int deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
+  int deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
   int intendedX = permanentTarget->getX() + deltaX;
   int intendedZ = permanentTarget->getZ() + deltaZ;
-
+  // But now once more with exaggerated dist as to curve mean for equal dist from player in whole turn
+  /*usedDist = hasCommandedAngle? commandedHyp + 0.5*groundDistTo(intendedX,intendedZ) : idealDist;
+  deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
+  deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
+  intendedX = permanentTarget->getX() + deltaX;
+  intendedZ = permanentTarget->getZ() + deltaZ;
+  */
   //cout << "So I'm going from " << x << ", " << z << " to " << newAngle << " at " << intendedX << ", " << intendedZ << " due to delta of " << deltaX << ", " << deltaZ << endl;
 
   // Update pos
@@ -460,7 +495,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch) {
   // make sure you're still looking at the player at the end of the day.
   lookAtTarget();
   oldAngle = matchRangeOf(oldAngle, newAngle);
-  resetCamArray();
+  if (!smoothly) { resetCamArray(); }
   updateMeans();
 
   // This way, if you entered matchAngle while in Option 5 (moving to new intendedPos)
@@ -512,7 +547,7 @@ bool CameraObj::getPlayerCommandActive() {
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
-  cout << "hasCommandedAngle " << hasCommandedAngle << " of rotation " << commandedAngle << " while at " << angleY << endl;
+  //cout << "hasCommandedAngle " << hasCommandedAngle << " of rotation " << commandedAngle << " while at " << angleY << endl;
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
   
@@ -548,10 +583,14 @@ void CameraObj::tick() {
     
     // Highest priority to player's orders
     if (playerCenterCommand && !droppingIn) {
+      // Disable rotation commands
+      hasCommandedAngle = false; // none of the second highest commanded angels allowed
+      
+
       //cout << "Option Zero" << endl;
       // Told to recenter? Not matched up yet? Do so!
       if (!(matchAngleY(permanentTarget->getCamDirection()))) {
-        applyMatchAngleY(permanentTarget->getCamDirection());
+        applyMatchAngleY(permanentTarget->getCamDirection(),false);
       // If not, be done!
       } else {
         // Just fixed angle, so don't mess it up!
@@ -563,6 +602,7 @@ void CameraObj::tick() {
     } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
       if (!hasCommandedAngle) {
         int angleDelta = 45;
+        commandedHyp = groundDistToPlayer();
         // in relation to current angle...
         commandedAngle = angleY + 90; // +90 because -90 to 270 range causes problems
         // First, get to the closest angleDelta aligned angle
@@ -581,9 +621,13 @@ void CameraObj::tick() {
       //cout << "Option Zero" << endl;
       // Told to recenter? Not matched up yet? Do so!
       if (!(matchAngleY(commandedAngle))) {
-        applyMatchAngleY(commandedAngle);
+        applyMatchAngleY(commandedAngle,true);
       // If not, be done!
       } else {
+        // Force final angle
+        //angleY = commandedAngle;
+        //resetCamArray();
+        //updateMeans();
         // No longer an angle commanded to have
         hasCommandedAngle = false;
         // Just fixed angle, so don't mess it up!

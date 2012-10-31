@@ -66,6 +66,7 @@ class CameraObj : public CubeObj {
     // Camera commands
     bool hasCommandedAngle;
     int commandedAngle;
+    int commandedHyp;
 
   public:
     CameraObj();
@@ -86,7 +87,7 @@ class CameraObj : public CubeObj {
 
     // Player Camera Controls
     bool matchAngleY(int);
-    void applyMatchAngleY(int);
+    void applyMatchAngleY(int,bool);
     void applyCommandAngle();
     void checkCommandAngle();
     bool getPlayerCommandActive();
