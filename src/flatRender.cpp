@@ -1018,20 +1018,20 @@ void initMenu() {
   startImage           = Image("./images/CubiorStart720.png",  menuSize);//128.png",2.0);
   resumeImage          = Image("./images/CubiorResume720.png", menuSize);//128.png",3.0);
   optionsImage         = Image("./images/CubiorOptions720.png",menuSize);//128.png",2.0);
-  backImage            = Image("./imagesCubiorBack720.png",menuSize);
-  dropOutImage         = Image("./imagesCubiorDropOut720.png",menuSize);
+  backImage            = Image("./images/CubiorBack720.png",menuSize);
+  dropOutImage         = Image("./images/CubiorDropOut720.png",menuSize);
 
-  controlsImage          = Image("./imagesCubiorControls720.png",menuSize);
-  cameraControlsImage    = Image("./imagesCubiorCameraControls720.png",menuSize);
-  cameraControlsProImage = Image("./imagesCubiorPro720.png",menuSize);
-  cameraControlsEasyImage= Image("./imagesCubiorEasy720.png",menuSize);
-  keyboardControlsImage  = Image("./imagesCubiorControlsKeyboard720.png",1);
-  gamepadControlsImage   = Image("./imagesCubiorControlsGamepad720.png",1);
+  controlsImage          = Image("./images/CubiorControls720.png",menuSize);
+  cameraControlsImage    = Image("./images/CubiorCameraControls720.png",menuSize);
+  cameraControlsProImage = Image("./images/CubiorPro720.png",menuSize);
+  cameraControlsEasyImage= Image("./images/CubiorEasy720.png",menuSize);
+  keyboardControlsImage  = Image("./images/CubiorControlsKeyboard720.png",1);
+  gamepadControlsImage   = Image("./images/CubiorControlsGamepad720.png",1);
   
-  creditsImage         = Image("./imagesCubiorCredits720.png",menuSize);//128.png",3.0);
+  creditsImage         = Image("./images/CubiorCredits720.png",menuSize);//128.png",3.0);
   // Credits text image was having trouble loading, going to just use printed text for now
-  creditsTextImage     = Image("./imagesCubiorCreditsThemselves720.png",1);//Text1080.png",1);
-  quitImage            = Image("./imagesCubiorQuit720.png",   menuSize);//128.png",3.0);
+  creditsTextImage     = Image("./images/CubiorCreditsThemselves720.png",1);//Text1080.png",1);
+  quitImage            = Image("./images/CubiorQuit720.png",   menuSize);//128.png",3.0);
 
 }
 
