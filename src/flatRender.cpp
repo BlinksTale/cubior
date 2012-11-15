@@ -1069,6 +1069,12 @@ void drawMenu(int i) {
   // Where the logo is for bouncing
   int time;
   time = clock();
+
+  // Runs too fast on Apple, maybe clock returns different results
+  // so we have to slow it down here
+  #ifdef __APPLE_CC__
+  time /= 160.0;
+  #endif
   
   // Only draw any of it if paused
     // Something will always be moving/rotating
