@@ -9,7 +9,6 @@
 #define	SFX
 
 #include <cstdio> // for argv and argc
-#include <SFML/Audio.hpp> // for sound manipulation
 
 #include "gameplay.h"
 

@@ -37,9 +37,16 @@ Map* MapReader::readMap(const string& s) {
   int d = padding;
   // To return map
   
+  #ifdef __APPLE_CC__
+  #else 
   if (map != NULL) {
+    // Alright, so… this breaks the game for Macs
+    // so even though it looks like a memory leak otherwise,
+    // to get the game functioning right now, we can only delete
+    // the old map on Windows
     delete map;
   }
+  #endif
   map = new Map;
   mapMade = true;
 	

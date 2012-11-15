@@ -9,7 +9,7 @@
 #include "gameplay.h"
 using namespace std;
 
-#include <SFML/Graphics.hpp>
+//#include <SFML/Graphics.hpp>
 
 #include <iostream>
 
@@ -20,11 +20,14 @@ using namespace std;
   //render();
 }*/
 
+
+/* JUST FOR NOW, COMING BACK AS SOON AS SFML TEST RUNS*/
 int main(int argc, char** argv) {
-  gameplayStart("./maps/cubiorMap0.cubior");
+  gameplayStart("./maps/cubiorMap0.cubior"); // MACFIXME: haha, yeah... should be local and start at cubiorMap0.
   initRender(argc, argv); // nothing gets called after this
   //tick();
 }
+ 
 
 /*
 LodePNG Examples

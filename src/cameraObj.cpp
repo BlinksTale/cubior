@@ -456,7 +456,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
     //cout << "angleY now set to " << angleY << endl;
     newAngle = -(angleY + 90);
     //angleY = 0.01*angleToMatch + 0.99*angleY;
-    if (abs(angleY - angleToMatch) < cameraRotationSpeed) {
+    if (abs((int)(angleY - angleToMatch)) < cameraRotationSpeed) {
       //angleY = angleToMatch;
     } else {
       //angleY = oldAngle;

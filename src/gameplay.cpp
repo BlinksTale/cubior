@@ -339,8 +339,9 @@ void loadLevel(int levelNum) {
   // Then load the appropriate level
   int n;
   char buffer[100];
-  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel);
-  gameplayStart(buffer);
+  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); // should be relative/local but... for now, doing this so that trailer can get made in a timely matter
+  gameplayStart(buffer); // MACFIXME: For some reason, Mac just having an impossible time with loading maps ingame
+    // but loading the first map from Cubior.cpp works just fine. So odd.
   initVisuals();
 }
 

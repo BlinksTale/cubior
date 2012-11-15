@@ -31,7 +31,7 @@ class Image {
 public:
     Image();
     Image(const char*,float);
-    void Image::draw(int,int,float,float);
+    void draw(int,int,float,float); // had an Image:: at front but Mac complained
 };
 
 #endif

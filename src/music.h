@@ -11,7 +11,6 @@
 #define	MUSIC
 
 #include <cstdio> // for argv and argc
-#include <SFML/Audio.hpp> // for sound manipulation
 
 #include "gameplay.h"
 //#include "flatRender.h" // pretending I don't need this for now

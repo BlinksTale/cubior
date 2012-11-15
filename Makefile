@@ -3,10 +3,8 @@ ifeq ($(shell uname), Linux)
   Audio = -Wall -lopenal -lalut #-Wall -lopenal -lalut
   Exe = cubior
 else ifeq ($(shell uname), Darwin) # Darwin = Mac
-  Graphics = -framework OpenGL -framework GLUT
-  Audio = -I./include/ -L/Library/Frameworks/OpenAL.framework/
-  #-framework OpenAL -framework Foundation
-  # -framework OpenAL -framework ALUT -framework CoreAudio #update later when on Mac
+  Graphics = -framework OpenGL -framework GLUT -I./include -L./lib -framework sfml-graphics -framework sfml-system -framework sfml-window
+  Audio = -I./include -L./lib -framework sfml-audio
   Exe = cubior
 else 
   #Graphics = -I"C:\MinGW\freeglut\include" -L"C:\MinGW\freeglut\lib" -lfreeglut -lglu32 -lopengl32 -Wl,--subsystem,windows -static
@@ -15,7 +13,7 @@ else
   Exe = cubior.exe
 endif
 
-AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o bin/sfx.o bin/music.o bin/lodepng.o
+AllFiles = bin/cubiorObj.o bin/goalObj.o bin/cubeObj.o bin/visuals.o bin/flatRender.o bin/textRender.o bin/cubiorShape.o bin/goalShape.o bin/cubeShape.o bin/gameplay.o bin/keyboard.o bin/collision.o bin/cameraObj.o bin/trackerObj.o bin/mapReader.o bin/map.o bin/sfx.o bin/music.o bin/lodepng.o bin/image.o
 
 all: bin/cubior.o bin/cubiorTest.o
 	g++ $(AllFiles) bin/cubior.o $(Graphics) $(Audio) -o bin/cubior && bin/$(Exe)
@@ -45,10 +43,10 @@ bin/cubiorShape.o: src/cubiorShape.cpp bin/cubeShape.o bin/gameplay.o
 bin/goalShape.o: src/goalShape.cpp bin/cubeShape.o
 	g++ $(Graphics) -c src/goalShape.cpp -o bin/goalShape.o
 
-bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o
+bin/visuals.o: src/visuals.cpp bin/flatRender.o bin/textRender.o bin/image.o
 	g++ -c src/visuals.cpp -o bin/visuals.o
 
-bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o bin/cubiorShape.o bin/goalShape.o bin/sfx.o bin/music.o
+bin/flatRender.o: src/flatRender.cpp bin/gameplay.o bin/keyboard.o bin/cubeShape.o bin/cubiorShape.o bin/goalShape.o bin/sfx.o bin/music.o bin/lodepng.o
 	g++ $(Audio) $(Graphics) -c src/flatRender.cpp -o bin/flatRender.o
 
 bin/textRender.o: src/textRender.cpp
@@ -57,17 +55,19 @@ bin/textRender.o: src/textRender.cpp
 bin/lodepng.o: src/lodepng.cpp
 	g++ -c src/lodepng.cpp -o bin/lodepng.o
 
+bin/image.o: src/image.cpp bin/lodepng.o
+	g++ $(Graphics) -c src/image.cpp -o bin/image.o
 
 #########
 # AUDIO #
 #########
 
 bin/sfx.o: src/sfx.cpp bin/gameplay.o
-	g++ $(Audio) -c src/sfx.cpp -o bin/sfx.o 
+	g++ $(Audio) -c src/sfx.cpp -o bin/sfx.o
 	# works w/o audio actually, but this helps show where libs are used
 
 bin/music.o: src/sfx.cpp bin/gameplay.o
-	g++ $(Audio) -c src/music.cpp -o bin/music.o 
+	g++ $(Audio) -c src/music.cpp -o bin/music.o
 	# works w/o audio actually, but this helps show where libs are used
 
 ############
