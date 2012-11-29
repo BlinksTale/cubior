@@ -12,6 +12,7 @@ using namespace std;
 //#include <SFML/Graphics.hpp>
 
 #include <iostream>
+#include <stdio.h> // for fopen
 
 // Gets called as often as possible
 /*void tick() {
@@ -23,6 +24,19 @@ using namespace std;
 
 /* JUST FOR NOW, COMING BACK AS SOON AS SFML TEST RUNS*/
 int main(int argc, char** argv) {
+    
+    
+    // Create a test file for cubior to see where working dir is in xcode
+    /*FILE *f = fopen("cubiorTestFile.txt","w+"); fprintf(f, "hello I am a cubior test file"); fclose(f);
+    
+    FILE * pFile;
+    pFile = fopen ("myCubiorFile.txt","w");
+    if (pFile!=NULL)
+    {
+        fputs ("fopen example",pFile);
+        fclose (pFile);
+    }*/
+    
   gameplayStart("./maps/cubiorMap0.cubior"); // MACFIXME: haha, yeah... should be local and start at cubiorMap0.
   initRender(argc, argv); // nothing gets called after this
   //tick();

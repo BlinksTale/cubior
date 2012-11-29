@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>// for atoi
+#include <stdio.h> // for fopen
 using namespace std;
 
 #define NULL 0
@@ -16,6 +17,7 @@ bool mapMade = false;
 Map* map = NULL;
 
 Map* MapReader::readMap(const string& s) {
+    
 	// To read file
   string file = s;
   string row;

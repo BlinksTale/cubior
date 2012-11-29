@@ -195,3 +195,7 @@ note: char s* doesn't work on Mac for sprintf buffer, but char s[100] does
 ---
 8/24/12
 remember: "git rm --cached file" makes it easy to take files off a command line commit, but keep the file
+
+---
+11/29/12
+note: Xcode copies all files into resources of App, located in a folder accessible only by going to Preferences > Derived Data and clicking the arrow to access the directory. App is then in Cubior Folder > Build > Products > Release > Cubior.app and must be right clicked on and have Show Package Contents clicked. Then in Contents > Resources you can paste all the normal (maps/music/sfx/images) directories, and everything should work. Oi!
