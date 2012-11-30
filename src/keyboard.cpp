@@ -137,7 +137,8 @@ void playerLevelShadows(bool newBool) {
 
 // Pause tied to player who paused
 void playerPause(int p, bool newBool) {
-	if (!pauseKey[p] && newBool) { // newly pressing Enter
+  // Handle universal pauses and regular pauses
+  if ((!pauseKey[p] || p == -1) && newBool) { // newly pressing Enter
 		if (!getGameplayRunning()) {
       // title screen
       // choose who pressed start and set them as playable
@@ -155,7 +156,7 @@ void playerPause(int p, bool newBool) {
       } else if (lastPause == p || lastPause == -1) {
 				chooseOption(p);
 			}
-
+    // Or handle all un-pause actions
     } else {
       // Gameplay is running!
       if (p<0 || p>3 || getCubiorPlayable(p)) {

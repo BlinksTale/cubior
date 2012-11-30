@@ -150,13 +150,23 @@ void resetCubior(int i) {
 // Load in a level and set it up
 void gameplayStart(string levelToLoad) {
 
+  // If first running, disable all cubiors
+  if (gameplayFirstRunning) {
+    //playerPause(-1, true);
+    for (int i=0; i<4; i++) {
+      cubiorPlayable[i] = 0;
+    }
+  }
+    
+  cout << "gameplayRunning is " << gameplayRunning << endl;
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
+    // and thus the memory leak was vanquished, and it was good.
+      
     // And reset goal glow
     goal.setGlow(false);
 
-    // and thus the memory leak was vanquished, and it was good.
     // Then read in a new map
     levelMap = MapReader::readMap(levelToLoad); // now load that level!
     currentMapWidth = levelMap->getWidth();
@@ -247,6 +257,8 @@ void gameplayStart(string levelToLoad) {
 
   }
   
+    cout << "Gameplay first running is " << gameplayFirstRunning << endl;
+    
   // Temp fix for title screen, auto pause on start
   if (gameplayFirstRunning) {
     // initGameplay type of thing here for whole game, or start screen again.
@@ -340,8 +352,7 @@ void loadLevel(int levelNum) {
   int n;
   char buffer[100];
   n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); // should be relative/local but... for now, doing this so that trailer can get made in a timely matter
-  gameplayStart(buffer); // MACFIXME: For some reason, Mac just having an impossible time with loading maps ingame
-    // but loading the first map from Cubior.cpp works just fine. So odd.
+  gameplayStart(buffer);
   initVisuals();
 }
 
