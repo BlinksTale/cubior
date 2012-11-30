@@ -158,7 +158,6 @@ void gameplayStart(string levelToLoad) {
     }
   }
     
-  cout << "gameplayRunning is " << gameplayRunning << endl;
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
@@ -257,7 +256,6 @@ void gameplayStart(string levelToLoad) {
 
   }
   
-    cout << "Gameplay first running is " << gameplayFirstRunning << endl;
     
   // Temp fix for title screen, auto pause on start
   if (gameplayFirstRunning) {
