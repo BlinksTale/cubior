@@ -7,6 +7,9 @@
 #include <iostream>
 #include "visuals.h"
 #include "gameplay.h"
+
+#include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
+
 using namespace std;
 
 //#include <SFML/Graphics.hpp>
@@ -37,7 +40,12 @@ int main(int argc, char** argv) {
         fclose (pFile);
     }*/
     
-  gameplayStart("./maps/cubiorMap0.cubior"); // MACFIXME: haha, yeah... should be local and start at cubiorMap0.
+  // Extra path ensures Resources folder is accessed for .app on Mac
+  std::string extraPath = "";
+  #ifdef __APPLE_CC__
+    extraPath = resourcePath();  
+  #endif  
+  gameplayStart(extraPath + "./maps/cubiorMap0.cubior");
   initRender(argc, argv); // nothing gets called after this
   //tick();
 }

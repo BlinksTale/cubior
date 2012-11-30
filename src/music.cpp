@@ -19,6 +19,8 @@
 #include <stdlib.h> // for NULL
 #include <string> // for loading a level by var passed
 
+#include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
+
 // Buffer Vars (hold song data)
 sf::Music music;
 bool mute = false;
@@ -26,7 +28,12 @@ bool lastMute = mute;
 int defaultVolume = 50; // 40 Sounds really good! Might be a hint too quiet? 50 is perfect!
 
 // List of songs
-string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };//,
+// Extra path ensures Resources folder is accessed for .app on Mac
+#ifdef __APPLE_CC__
+  string songs[] = { resourcePath() + "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };
+#else
+  string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };
+#endif
   //"./music/Waterflame_MakeARunForIt.ogg",
   //                 "./music/Waterflame_Cats.ogg",
   //                 "./music/Waterflame_Orange.ogg"};
@@ -40,6 +47,7 @@ int currentVolume = defaultVolume;
 
 // Setup for sound effects
 void initMusic(int argc, char** argv) {
+    
   playSong(currentSong);
 }
 

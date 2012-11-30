@@ -30,6 +30,8 @@
 #include <time.h> // for printing timestamps
 //#include <sys/time.h> // for linux time
 
+#include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
+
 // Starting values that change often in testing
 bool printFPS = false;
 bool fullscreen = true;
@@ -1011,27 +1013,34 @@ void initVisuals() {
 
 // Load data into Image objects
 void initMenu() {
-  logoImage            = Image("./images/CubiorLogo720.png",1);//256.png",1.5);
-  pressStartImage      = Image("./images/CubiorPressStart720.png",1);//128.png",2.0);
-  pressEnterImage      = Image("./images/CubiorPressEnter720.png",1);//128.png",2.0);
-  pressStartEnterImage = Image("./images/CubiorPressStartEnter720.png",1);//128.png",2.0);
-  startImage           = Image("./images/CubiorStart720.png",  menuSize);//128.png",2.0);
-  resumeImage          = Image("./images/CubiorResume720.png", menuSize);//128.png",3.0);
-  optionsImage         = Image("./images/CubiorOptions720.png",menuSize);//128.png",2.0);
-  backImage            = Image("./images/CubiorBack720.png",menuSize);
-  dropOutImage         = Image("./images/CubiorDropOut720.png",menuSize);
+  // Extra path ensures Resources folder is accessed for .app on Mac
+  std::string extraPath = "";
+  #ifdef __APPLE_CC__
+    extraPath = resourcePath();  
+  #endif  
+    
+  // These need to be converted to const char* with c_str for Image to accept them
+  logoImage            = Image((extraPath + "./images/CubiorLogo720.png").c_str(),1);//256.png",1.5);
+  pressStartImage      = Image((extraPath + "./images/CubiorPressStart720.png").c_str(),1);//128.png",2.0);
+  pressEnterImage      = Image((extraPath + "./images/CubiorPressEnter720.png").c_str(),1);//128.png",2.0);
+  pressStartEnterImage = Image((extraPath + "./images/CubiorPressStartEnter720.png").c_str(),1);//128.png",2.0);
+  startImage           = Image((extraPath + "./images/CubiorStart720.png").c_str(),  menuSize);//128.png",2.0);
+  resumeImage          = Image((extraPath + "./images/CubiorResume720.png").c_str(), menuSize);//128.png",3.0);
+  optionsImage         = Image((extraPath + "./images/CubiorOptions720.png").c_str(),menuSize);//128.png",2.0);
+  backImage            = Image((extraPath + "./images/CubiorBack720.png").c_str(),menuSize);
+  dropOutImage         = Image((extraPath + "./images/CubiorDropOut720.png").c_str(),menuSize);
 
-  controlsImage          = Image("./images/CubiorControls720.png",menuSize);
-  cameraControlsImage    = Image("./images/CubiorCameraControls720.png",menuSize);
-  cameraControlsProImage = Image("./images/CubiorPro720.png",menuSize);
-  cameraControlsEasyImage= Image("./images/CubiorEasy720.png",menuSize);
-  keyboardControlsImage  = Image("./images/CubiorControlsKeyboard720.png",1);
-  gamepadControlsImage   = Image("./images/CubiorControlsGamepad720.png",1);
+  controlsImage          = Image((extraPath + "./images/CubiorControls720.png").c_str(),menuSize);
+  cameraControlsImage    = Image((extraPath + "./images/CubiorCameraControls720.png").c_str(),menuSize);
+  cameraControlsProImage = Image((extraPath + "./images/CubiorPro720.png").c_str(),menuSize);
+  cameraControlsEasyImage= Image((extraPath + "./images/CubiorEasy720.png").c_str(),menuSize);
+  keyboardControlsImage  = Image((extraPath + "./images/CubiorControlsKeyboard720.png").c_str(),1);
+  gamepadControlsImage   = Image((extraPath + "./images/CubiorControlsGamepad720.png").c_str(),1);
   
-  creditsImage         = Image("./images/CubiorCredits720.png",menuSize);//128.png",3.0);
+  creditsImage         = Image((extraPath + "./images/CubiorCredits720.png").c_str(),menuSize);//128.png",3.0);
   // Credits text image was having trouble loading, going to just use printed text for now
-  creditsTextImage     = Image("./images/CubiorCreditsThemselves720.png",1);//Text1080.png",1);
-  quitImage            = Image("./images/CubiorQuit720.png",   menuSize);//128.png",3.0);
+  creditsTextImage     = Image((extraPath + "./images/CubiorCreditsThemselves720.png").c_str(),1);//Text1080.png",1);
+  quitImage            = Image((extraPath + "./images/CubiorQuit720.png").c_str(),   menuSize);//128.png",3.0);
 
 }
 

@@ -18,6 +18,8 @@
 #include <stdlib.h> // for NULL
 #include <string> // for loading a level by var passed
 
+#include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
+
 // Buffer Vars (hold song data)
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
   menuEnterBuffer, menuExitBuffer, glowBuffer,
@@ -167,26 +169,32 @@ void initSfx(int argc, char** argv) {
   /*************/
   /* SFML Init */
   /*************/
-
+    
+  // Extra path ensures Resources folder is accessed for .app on Mac
+  std::string extraPath = "";
+  #ifdef __APPLE_CC__
+    extraPath = resourcePath();  
+  #endif  
+    
   // Load sounds into buffers
-  testBuffer.loadFromFile(        "./sfx/Jump/Jump 3 Long.wav");
-  exitBuffer.loadFromFile(        "./sfx/Menu-Game/Leave 8.wav");
-  glowBuffer.loadFromFile(        "./sfx/Menu-Game/Goal Echo 5.wav");//Brian Goal 3.wav");//Leave 8.wav");
-  menuEnterBuffer.loadFromFile(   "./sfx/Menu-Game/Leave 5.wav");
-  menuExitBuffer.loadFromFile(    "./sfx/Menu-Game/Leave 3.wav");
-  errorBuffer.loadFromFile(       "./sfx/Menu-Game/Error 3.wav");
-  jumpBuffer[0].loadFromFile(     "./sfx/Jump/Jump 2 Long.wav");
-  jumpBuffer[1].loadFromFile(     "./sfx/Jump/Jump 3 Long.wav");
-  jumpBuffer[2].loadFromFile(     "./sfx/Jump/Jump 9 Long.wav");
-  jumpBuffer[3].loadFromFile(     "./sfx/Jump/Jump 10 Long.wav");
-  bumpBuffer[0].loadFromFile(     "./sfx/Collision/Bump 6.wav");//Hit 1.wav");
-  bumpBuffer[1].loadFromFile(     "./sfx/Collision/Bump 4.wav");//Hit 4.wav");
-  bumpBuffer[2].loadFromFile(     "./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
-  bumpBuffer[3].loadFromFile(     "./sfx/Collision/Bump 5.wav");//Hit 14.wav");
-  changeMenuBuffer.loadFromFile(  "./sfx/Menu-Game/Menu 4.wav");
-  changeOptionBuffer.loadFromFile("./sfx/Menu-Game/Menu 1.wav");
-  focusCameraBuffer.loadFromFile( "./sfx/Movement/Turn 10.wav");
-  turnCameraBuffer.loadFromFile(  "./sfx/Movement/Turn 1.wav");
+  testBuffer.loadFromFile(        extraPath + "./sfx/Jump/Jump 3 Long.wav");
+  exitBuffer.loadFromFile(        extraPath + "./sfx/Menu-Game/Leave 8.wav");
+  glowBuffer.loadFromFile(        extraPath + "./sfx/Menu-Game/Goal Echo 5.wav");//Brian Goal 3.wav");//Leave 8.wav");
+  menuEnterBuffer.loadFromFile(   extraPath + "./sfx/Menu-Game/Leave 5.wav");
+  menuExitBuffer.loadFromFile(    extraPath + "./sfx/Menu-Game/Leave 3.wav");
+  errorBuffer.loadFromFile(       extraPath + "./sfx/Menu-Game/Error 3.wav");
+  jumpBuffer[0].loadFromFile(     extraPath + "./sfx/Jump/Jump 2 Long.wav");
+  jumpBuffer[1].loadFromFile(     extraPath + "./sfx/Jump/Jump 3 Long.wav");
+  jumpBuffer[2].loadFromFile(     extraPath + "./sfx/Jump/Jump 9 Long.wav");
+  jumpBuffer[3].loadFromFile(     extraPath + "./sfx/Jump/Jump 10 Long.wav");
+  bumpBuffer[0].loadFromFile(     extraPath + "./sfx/Collision/Bump 6.wav");//Hit 1.wav");
+  bumpBuffer[1].loadFromFile(     extraPath + "./sfx/Collision/Bump 4.wav");//Hit 4.wav");
+  bumpBuffer[2].loadFromFile(     extraPath + "./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
+  bumpBuffer[3].loadFromFile(     extraPath + "./sfx/Collision/Bump 5.wav");//Hit 14.wav");
+  changeMenuBuffer.loadFromFile(  extraPath + "./sfx/Menu-Game/Menu 4.wav");
+  changeOptionBuffer.loadFromFile(extraPath + "./sfx/Menu-Game/Menu 1.wav");
+  focusCameraBuffer.loadFromFile( extraPath + "./sfx/Movement/Turn 10.wav");
+  turnCameraBuffer.loadFromFile(  extraPath + "./sfx/Movement/Turn 1.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
