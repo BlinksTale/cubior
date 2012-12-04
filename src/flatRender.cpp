@@ -164,7 +164,8 @@ int getTimePassed() {
 
 // Display (name chosen from examples of Dr. Toal & Dr. Dionisio)
 void display() {
-  if (printFPS) { cout << "FPS: \t" << getFPS() << endl; }
+  if (printFPS && !fullscreen) { cout << "FPS: \t" << getFPS() << endl; }
+  else if (printFPS) { getFPS(); }
   //cout << "Since last frame ended: " << getTimePassed() << endl;
   
   glScissor(0,0,windowWidth,windowHeight);

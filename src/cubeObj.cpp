@@ -615,8 +615,10 @@ int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }
 int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and getWidth but Segfaulted on Mac. Read: I need to learn virtual functions better
 int CubeObj::getMaterial() { return material; }
+int CubeObj::getAlternatingSpotSize() {
+  return altSize;
+}
 bool CubeObj::getAlternatingSpot() { // return if in a checker or not
-  int altSize = 400; // how wide the checker patterns are
   bool alternatingSpot =( // calculate if given a dark checker spot or not
       (x<0)^((int(abs(x+1))%(altSize*2)<altSize))
     ) ^ (

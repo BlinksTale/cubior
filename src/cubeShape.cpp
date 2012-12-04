@@ -496,10 +496,11 @@ void CubeShape::removeDuplicateNeighbors() {
   int width = 1; // where we start, one cube wide
   if (neighbors[0]) {
     // Keep going after right side cubes until we hit one that doesn't match us 
-    while (true) { // for right direction
+    while (true) {//width < currentObj->getAlternatingSpotSize()/100) { // for right direction
       if ( currentObj->getMaterial() == material
         && currentObj->getAlternatingSpot() == alternatingSpot
-        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())) {
+        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
+        && !currentObj->getDuplicateNeighbor()) {
         // Extend self since duplicate found
         for (int i=0; i<24; i++) {
           //vertices[i*3] = 0.0;
@@ -524,32 +525,61 @@ void CubeShape::removeDuplicateNeighbors() {
     }
   }
   // Next, check backwards!
-  currentObj = neighborObjects[4];
-  int newWidth = 1; // start over with width again
-  if (neighbors[4] && width == 1) {
+  CubeObj* oldCurrentObj = neighborObjects[4]; // use for removal process
+  currentObj = oldCurrentObj; // use for search process
+  int depth = 1; // start over with width again
+  if (neighbors[4]) {
     // Keep going after back side cubes until we hit one that doesn't match us 
-    while (true) { // for backwards direction
-      if ( currentObj->getMaterial() == material
-        && currentObj->getAlternatingSpot() == alternatingSpot
-        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())) {
-        // Then make sure we can go right the same dist as our width!
-        // Extend self since duplicate found
+    // unless no neighbor there or neighbor is already a duplicate
+    while (oldCurrentObj->getVisibleNeighbors()[4] && !(oldCurrentObj->getVisibleNeighborObjects()[4]->getDuplicateNeighbor())) {//depth < currentObj->getAlternatingSpotSize()/100) { // for backwards direction
+      // Make sure we're still only seeing the same material/neighbors/etc
+      bool stillTheSame = true;
+      currentObj = oldCurrentObj; // use for search process
+      
+      // Then make sure we can go right the same dist as our width!
+      for (int i=0; i<width; i++) {
+        if (stillTheSame) {
+          stillTheSame = stillTheSame
+            && currentObj->getMaterial() == material
+            && currentObj->getAlternatingSpot() == alternatingSpot
+            && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
+            && !currentObj->getDuplicateNeighbor();
+        }
+        if (stillTheSame && currentObj->getVisibleNeighbors()[0]) {
+          // Great! Now move along and make sure it's true for the next one too
+          currentObj = currentObj->getVisibleNeighborObjects()[0];
+        } else {
+          // Something was different or didn't exist! Oh well
+          stillTheSame = false;
+          break;
+        }
+      }
+
+      // So if nothing was different, act on it!
+      if (stillTheSame) {
+        // First, we'll be starting with the oldCurrentObj as the currentObj
+        // (search is done, removal begins)
+        currentObj = oldCurrentObj;
+        // Extend self since entire duplicate row found
         for (int i=0; i<24; i++) {
-          //vertices[i*3] = 0.0;
           if (i%3 == 2 && i < 12) {
             myVertices[i] += 100.0; // extend one to the back
           }
         }
-        // And hide the original object
-        currentObj->setDuplicateNeighbor(true);
+        // And hide all the original objects
+        for (int i=0; i<width; i++) {
+          currentObj->setDuplicateNeighbor(true);
+          // Great! Now move backwards and make sure to remove the last one too
+          currentObj = currentObj->getVisibleNeighborObjects()[0];
+        }
 
-        // Must be a bit wider since we added a cube!
-        newWidth++;
+        // Must be a bit deeper since we added a row of cubes!
+        depth++;
 
         // Now since this was a success, and further neighbors
         // of similar color/material/neighbors were found,
-        // grab this object's right side neighbor and do it again!
-        currentObj = currentObj->getVisibleNeighborObjects()[4];
+        // grab the old object's rear side neighbor and do it again!
+        oldCurrentObj = oldCurrentObj->getVisibleNeighborObjects()[4];
       } else {
         // No new neighbor of same color/material/darkness/neighborhood, get out!
         break;

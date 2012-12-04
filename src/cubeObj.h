@@ -10,6 +10,7 @@
 
 class CubeObj {
   protected:
+    static const int altSize = 400; // how wide the checker patterns are
     static const int maxMovement = 49; // less than half of a cube width
     static const int maxFall = 49; // less than half of a cube width
     bool fpsRateEnabled, duplicateNeighbor;
@@ -120,6 +121,7 @@ class CubeObj {
     virtual int getSize(int);
     int getMaterial();
     bool getAlternatingSpot();
+    int getAlternatingSpotSize();
     bool getDuplicateNeighbor();
     void setMaterial(int);
     void setDuplicateNeighbor(bool);
