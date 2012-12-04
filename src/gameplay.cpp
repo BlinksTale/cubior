@@ -1333,6 +1333,7 @@ void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   if (n4) { n4 = n4 && !(map[cX][cY][cZ+1]->isInvisible()); }
   if (n5) { n5 = n5 && !(map[cX][cY][cZ-1]->isInvisible()); }
   c1->setVisibleNeighbors(n0,n1,n2,n3,n4,n5);
+  c1->setVisibleNeighborObjects(map[cX+1][cY][cZ],map[cX-1][cY][cZ],map[cX][cY+1][cZ],map[cX][cY-1][cZ],map[cX][cY][cZ+1],map[cX][cY][cZ-1]);
 
 }
 

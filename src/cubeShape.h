@@ -13,6 +13,8 @@
 #include <GL/glut.h>
 #endif
 
+#include "cubeObj.h" // for neighbor objects
+
 class CubeShape {
   
   protected:
@@ -20,7 +22,8 @@ class CubeShape {
     bool shadowState; // default is true later for player/goal
     bool directionalCulling, aboveCam, behindCam, leftCam; // extra face culling stuff
     bool neighbors[6]; // points to neighbors array of cubeObj
-    int permanentX, permanentY, permanentZ;
+    CubeObj* neighborObjects[6]; // points to the neighbors themselves
+    int permanentX, permanentY, permanentZ, material;
     float altDark;
     float r1,g1,b1,r2,b2,g2,r3,g3,b3;
     const static bool useNeighbors = true;
@@ -34,6 +37,7 @@ class CubeShape {
     virtual GLfloat getShadowVertex(int);
     virtual void initVisuals(float,float,float,float,float,float,float,bool,bool);
     void setNeighbors(bool[6]);
+    void setNeighborObjects(CubeObj*[6]);
     virtual void updateVisuals();
     virtual void permanentPosition(int,int,int);
     virtual void draw();
@@ -47,6 +51,11 @@ class CubeShape {
     virtual bool hasVisibleFace();
     virtual void setShadow(bool);
     virtual void setRelationToCam(bool,bool,bool);
+    virtual void removeDuplicateNeighbors();
+    void setMaterial(int);
+    int getMaterial();
+    bool sameNeighborsAs(bool[6]);
+    bool atLeastAllNeighborsOf(bool[6]);
 };
 
 #endif

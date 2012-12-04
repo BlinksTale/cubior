@@ -352,6 +352,12 @@ void CubeShape::setNeighbors(bool newNeighbors[6]) {
   //shadowState = !neighbors[2]; // It's either 2 or 3, those are the y ones
 }
 
+void CubeShape::setNeighborObjects(CubeObj* newNeighbors[6]) {
+  for (int i=0; i< 6; i++) {
+    neighborObjects[i] = newNeighbors[i];
+  }
+}
+
 // using a hackey shadow volumes technique, create our
 // own tall cube beneath main cube shadow volumes.
 void CubeShape::drawShadow() {
@@ -480,4 +486,101 @@ void CubeShape::setShadow(bool b) {
       shadowVerts[7*3+2] =-sV;
     }
   }
+}
+
+// Check neighbors for like colors. Delete neighbor's indices and extend self if case found
+void CubeShape::removeDuplicateNeighbors() {
+  // If we found a duplicate (neighbor to the right AND same color)
+  // WIP: Assume same color
+  CubeObj* currentObj = neighborObjects[0];
+  int width = 1; // where we start, one cube wide
+  if (neighbors[0]) {
+    // Keep going after right side cubes until we hit one that doesn't match us 
+    while (true) { // for right direction
+      if ( currentObj->getMaterial() == material
+        && currentObj->getAlternatingSpot() == alternatingSpot
+        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())) {
+        // Extend self since duplicate found
+        for (int i=0; i<24; i++) {
+          //vertices[i*3] = 0.0;
+          if (i%6 == 0) {
+            myVertices[i] += 100.0; // extend one to the right
+          }
+        }
+        // And hide the original object
+        currentObj->setDuplicateNeighbor(true);
+
+        // Must be a bit wider since we added a cube!
+        width++;
+
+        // Now since this was a success, and further neighbors
+        // of similar color/material/neighbors were found,
+        // grab this object's right side neighbor and do it again!
+        currentObj = currentObj->getVisibleNeighborObjects()[0];
+      } else {
+        // No new neighbor of same color/material/darkness/neighborhood, get out!
+        break;
+      }
+    }
+  }
+  // Next, check backwards!
+  currentObj = neighborObjects[4];
+  int newWidth = 1; // start over with width again
+  if (neighbors[4] && width == 1) {
+    // Keep going after back side cubes until we hit one that doesn't match us 
+    while (true) { // for backwards direction
+      if ( currentObj->getMaterial() == material
+        && currentObj->getAlternatingSpot() == alternatingSpot
+        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())) {
+        // Then make sure we can go right the same dist as our width!
+        // Extend self since duplicate found
+        for (int i=0; i<24; i++) {
+          //vertices[i*3] = 0.0;
+          if (i%3 == 2 && i < 12) {
+            myVertices[i] += 100.0; // extend one to the back
+          }
+        }
+        // And hide the original object
+        currentObj->setDuplicateNeighbor(true);
+
+        // Must be a bit wider since we added a cube!
+        newWidth++;
+
+        // Now since this was a success, and further neighbors
+        // of similar color/material/neighbors were found,
+        // grab this object's right side neighbor and do it again!
+        currentObj = currentObj->getVisibleNeighborObjects()[4];
+      } else {
+        // No new neighbor of same color/material/darkness/neighborhood, get out!
+        break;
+      }
+    }
+  }
+}
+
+void CubeShape::setMaterial(int i) {
+  material = i;
+}
+
+int CubeShape::getMaterial() {
+  return material;
+}
+
+// Compare all my neighbors to another set
+bool CubeShape::sameNeighborsAs(bool newNeighbors[6]) {
+  bool result = true;
+  for (int i=0; i<6; i++) {
+    result = result && (newNeighbors[i] == neighbors[i]);
+  }
+  return result;
+}
+
+// Compare all my neighbors to another set, but only need at least what it has
+bool CubeShape::atLeastAllNeighborsOf(bool newNeighbors[6]) {
+  bool result = true;
+  for (int i=0; i<6; i++) {
+    // so there is a new neighbor there (empty face) OR no old neighbor there (solid face)
+    result = result && (newNeighbors[i] || !neighbors[i]);
+  }
+  return result;
 }

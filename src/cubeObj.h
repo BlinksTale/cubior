@@ -12,8 +12,9 @@ class CubeObj {
   protected:
     static const int maxMovement = 49; // less than half of a cube width
     static const int maxFall = 49; // less than half of a cube width
-    bool fpsRateEnabled;
+    bool fpsRateEnabled, duplicateNeighbor;
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove;
+    CubeObj* visibleNeighborObjects[6];
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
@@ -99,8 +100,10 @@ class CubeObj {
     
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     void setVisibleNeighbors(bool,bool,bool,bool,bool,bool);
+    void setVisibleNeighborObjects(CubeObj*,CubeObj*,CubeObj*,CubeObj*,CubeObj*,CubeObj*);
     bool* getNeighbors();
     bool* getVisibleNeighbors();
+    CubeObj** getVisibleNeighborObjects();
     // These two check neighbor status and return if double neighbors in one or two dimensions respectively
     bool isColumn();
     bool isWall();
@@ -116,7 +119,10 @@ class CubeObj {
     virtual int getHeight();
     virtual int getSize(int);
     int getMaterial();
+    bool getAlternatingSpot();
+    bool getDuplicateNeighbor();
     void setMaterial(int);
+    void setDuplicateNeighbor(bool);
 
     float getStrength();
     float getDirection();

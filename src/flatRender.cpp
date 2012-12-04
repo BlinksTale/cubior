@@ -842,70 +842,105 @@ void initVisuals() {
   topFacesVisible = 0;
   shadowsVisible = 0;
 
-  // Initialize Cube Visual Vals
+  // Initialize Scenery Cube Visual Vals
   for (int i=0; i<cubeNum; i++) {
     // Only draw visible cubes
     if (!getCube(i)->isInvisible()) {
       cubeCollision[i] = false;
       updateCubeGraphic(i);
-      int altSize = 400;
-      bool alternatingSpot =(
-          (cubeX[i]<0)^((int(abs(cubeX[i]+1))%(altSize*2)<altSize))
-        ) ^ (
-          (cubeY[i]<0)^((int(abs(cubeY[i]+1))%(altSize*2)<altSize))
-        )^ (
-          (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
-        );
-      // Yellow case
+      // Find the color! Based both on location (checker pattern) and map info (assigned color)
+      //int altSize = 400; // how wide the checker patterns are
+      //bool alternatingSpot =( // calculate if given a dark checker spot or not
+      //    (cubeX[i]<0)^((int(abs(cubeX[i]+1))%(altSize*2)<altSize))
+      //  ) ^ (
+      //    (cubeY[i]<0)^((int(abs(cubeY[i]+1))%(altSize*2)<altSize))
+      //  )^ (
+      //    (cubeZ[i]<0)^((int(abs(cubeZ[i]+1))%(altSize*2)<altSize))
+      //  );
+      bool alternatingSpot = getCube(i)->getAlternatingSpot();
+      cubeShape[i].setMaterial(getCube(i)->getMaterial());
+      // Yellow color assigned
       if (getCube(i)->getMaterial()==9) {
         cubeShape[i].initVisuals(0.95,1.00,0.50, 0.9,1.0,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Polar case
+      // Polar color assigned
       if (getCube(i)->getMaterial()==8) {
         cubeShape[i].initVisuals(1.0,1.00,1.0, 0.0,0.0,0.0, 1.0,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       }
-      // Cave case
+      // Cave color assigned
       } else if (getCube(i)->getMaterial()==7) {
         cubeShape[i].initVisuals(0.10,0.15,0.65, 0.20,0.10,0.55,0.25,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Bridge case
+      // Bridge color assigned
       } else if (getCube(i)->getMaterial()==6) {
         cubeShape[i].initVisuals(0.80,0.52,0.25, 0.90,0.62,0.35, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Canyon case
+      // Canyon color assigned
       } else if (getCube(i)->getMaterial()==5) {
         cubeShape[i].initVisuals(0.90,0.35,0.11, 1.0,0.58,0.41, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Rock case
+      // Rock color assigned
       } else if (getCube(i)->getMaterial()==4) {
         cubeShape[i].initVisuals(0.4,0.4,0.4, 0.5,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Snow case
+      // Snow color assigned
       } else if (getCube(i)->getMaterial()==3) {
         cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Castle Wall case
+      // Castle Wall color assigned
       } else if (getCube(i)->getMaterial()==2) {
         cubeShape[i].initVisuals(0.52,0.62,0.54, 0.9,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
-      // Grass case
+      // Grass color assigned as default
       } else {
         cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       }
+      // Grab neighbors, position, and shadow for cube visual/shape object
       cubeShape[i].setNeighbors(getCube(i)->getVisibleNeighbors());
+      cubeShape[i].setNeighborObjects(getCube(i)->getVisibleNeighborObjects());
       cubeShape[i].permanentPosition(cubeX[i], cubeY[i], cubeZ[i]);
       cubeShape[i].setShadow(getShadow(i));
-    
+
+      
+      // Finally, if it has a shadow, remember that too
+      if (cubeShape[i].hasShadow()) {
+        // OK, add the cube's vertices
+        for (int vertex=0; vertex<24; vertex++) {
+          shadowVertices[shadowsVisible*24+vertex] = cubeShape[i].getShadowVertex(vertex); // apply scale (*) then transforms (+) here later
+          shadowColors[shadowsVisible*24+vertex] = 0; // No color! It's a shadow! :D
+        }
+        // Now add all indices, 36 per cube (6 per face, 6 faces
+        for (int vertex=0; vertex<36; vertex++) {
+            // in the index for that face + that vertex, put the index from that face and vertex for that cube
+            // the 8 at the end is since we are using all 8 vertices every time
+            shadowIndices[shadowsVisible*36+vertex] = cubeShape[i].getIndex(vertex) + shadowsVisible*8; // only 8 vertices/cube!
+        }
+        // And remember the cube we added too
+        shadowsVisible++;
+      }
+    }
+  }
+
+  // End of part 1 of cube initialization. Everything has a cube shape now, so next, make them more efficient
+  // and add them to the super arrays
+
+  
+  // Part 2: Finish Initializing Scenery Cube Visual Vals
+  for (int i=0; i<cubeNum; i++) {
+    // Only draw visible cubes, must also be non-duplicates
+    if (!getCube(i)->isInvisible() && !getCube(i)->getDuplicateNeighbor()) {
+      
+      // TODO: Now that neighbors are set, we should change all the vertices for cubes with like-neighbors
+      cubeShape[i].removeDuplicateNeighbors();
+
       // If even one face is visible, include the cube's vertices
       if (cubeShape[i].hasVisibleFace()) {
-        //cout << "Now on cube " << i << " with cubesVisible = " << cubesVisible << endl;
-        // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
+        // OK, add the cube's vertices and colors
         for (int vertex=0; vertex<24; vertex++) {
-          //if (vertex<18 && vertex>11) { topVertices[cubesVisible*6+vertex] = cubeShape[i].getVertex(vertex); }
-          //if (vertex<18 && vertex>11) { topColors[cubesVisible*6+vertex] = cubeShape[i].getColor(vertex); }
-          superVertices[cubesVisible*24+vertex] = cubeShape[i].getVertex(vertex);
-          superColors[cubesVisible*24+vertex] = cubeShape[i].getColor(vertex);
+          superVertices[cubesVisible*24+vertex] = cubeShape[i].getVertex(vertex); // add vertices
+          superColors[cubesVisible*24+vertex] = cubeShape[i].getColor(vertex);    // add colors
         }
-        // Alright, now find that face. There are 36 indices per cube, so 36*988 cubes = 35568 indices total
+        // Alright, now find that face. If it has no neighbors, add it to indicies! (which vertices to draw)
         for (int face=0; face<6; face++) {
-          if (cubeShape[i].hasFace(face) && face != 2) {
-            // Add all 6 indices for that face
+          if (cubeShape[i].hasFace(face) && face != 2) { // don't draw top face here
+            // Add all 6 indices for whichever face we have decided to draw
             for (int vertex=0; vertex<6; vertex++) {
-              // in the index for that face + that vertex, put the index from that face and vertex for that cube
-              // the 8 at the end is since we are using all 8 vertices every time
+              // in the index for the current face, plus the number of that vertex,
+              // set the index to be from that face and vertex for that cube.
+              // the 8 at the end is since we are using all 8 vertices (cube's corners) every time
               superIndices[facesVisible*6+vertex] = cubeShape[i].getIndex(face*6+vertex) + cubesVisible*8;
             }
             // And remember that we've added a face
@@ -947,22 +982,6 @@ void initVisuals() {
         topFacesVisible++;
       }
 
-      // Finally, if it has a shadow, remember that too
-      if (cubeShape[i].hasShadow()) {
-        // OK, add the cube's vertices. There are 988 cubes, so 988*8 vertices/cube = 7904 vertices total, or 23712 values to make them
-        for (int vertex=0; vertex<24; vertex++) {
-          shadowVertices[shadowsVisible*24+vertex] = cubeShape[i].getShadowVertex(vertex); // apply scale (*) then transforms (+) here later
-          shadowColors[shadowsVisible*24+vertex] = 0; // No color! It's a shadow! :D
-        }
-        // Now add all indices, 36 per cube (6 per face, 6 faces
-        for (int vertex=0; vertex<36; vertex++) {
-            // in the index for that face + that vertex, put the index from that face and vertex for that cube
-            // the 8 at the end is since we are using all 8 vertices every time
-            shadowIndices[shadowsVisible*36+vertex] = cubeShape[i].getIndex(vertex) + shadowsVisible*8; // only 8 vertices/cube!
-        }
-        // And remember the cube we added too
-        shadowsVisible++;
-      }
     } // end of visible cubes
   }
 

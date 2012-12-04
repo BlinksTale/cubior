@@ -20,6 +20,10 @@ CubeObj::CubeObj() {
   // FPS Rate in use?
   fpsRateEnabled = true;
 
+  // by default, not a duplicate neighbor
+  // (so you will by default be visible)
+  duplicateNeighbor = false;
+
   // Friction for all techniques
   newFriction = 2.35;
   friction =  2 ;
@@ -560,8 +564,19 @@ void CubeObj::setVisibleNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, b
   visibleNeighbors[4] = z1;
   visibleNeighbors[5] = z2;
 }
+// For actual objects, so properties (eg. material/colors) can be referenced
+void CubeObj::setVisibleNeighborObjects(CubeObj* x1, CubeObj* x2, CubeObj* y1, CubeObj* y2, CubeObj* z1, CubeObj* z2) {
+  //visibleNeighborObjectsSet = true;
+  visibleNeighborObjects[0] = x1;
+  visibleNeighborObjects[1] = x2;
+  visibleNeighborObjects[2] = y1;
+  visibleNeighborObjects[3] = y2;
+  visibleNeighborObjects[4] = z1;
+  visibleNeighborObjects[5] = z2;
+}
 bool* CubeObj::getNeighbors() { return neighbors; }
 bool* CubeObj::getVisibleNeighbors() { return visibleNeighbors; }
+CubeObj** CubeObj::getVisibleNeighborObjects() { return visibleNeighborObjects; }
 // If neighbors on both sides for one dimension
 bool CubeObj::isColumn() {
   return (neighbors[0]&&neighbors[1])||(neighbors[2]&&neighbors[3])||(neighbors[4]&&neighbors[5]);
@@ -600,8 +615,23 @@ int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }
 int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and getWidth but Segfaulted on Mac. Read: I need to learn virtual functions better
 int CubeObj::getMaterial() { return material; }
+bool CubeObj::getAlternatingSpot() { // return if in a checker or not
+  int altSize = 400; // how wide the checker patterns are
+  bool alternatingSpot =( // calculate if given a dark checker spot or not
+      (x<0)^((int(abs(x+1))%(altSize*2)<altSize))
+    ) ^ (
+      (y<0)^((int(abs(y+1))%(altSize*2)<altSize))
+    )^ (
+      (z<0)^((int(abs(z+1))%(altSize*2)<altSize))
+    );
+  return alternatingSpot;
+}
+// check if you have been set as a duplicate, eliminated by extended polygons
+bool CubeObj::getDuplicateNeighbor() { return duplicateNeighbor; }
 // Set the material, for coloring
 void CubeObj::setMaterial(int s) { material = s; }
+// set duplicate status (would or wouldn't be overridden by extended polygons)
+void CubeObj::setDuplicateNeighbor(bool b) { duplicateNeighbor = b; }
 
 // Custom FPS rate based on whether enabled or not
 float CubeObj::myFpsRate() {
