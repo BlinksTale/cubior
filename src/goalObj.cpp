@@ -15,6 +15,8 @@ using namespace std;
 GoalObj::GoalObj() {
   permalocked = true;
   glow = false; // will glow when hit
+  glowCount = 0;
+  lastGlow = glow;
 }
 
 void GoalObj::collisionEffect(CubeObj* c) {
@@ -34,3 +36,26 @@ void GoalObj::collisionEffect(CubeObj* c) {
 
 bool GoalObj::getGlow() { return glow; }
 void GoalObj::setGlow(bool b) { glow = b; }
+
+// If glowing, increment until glowMax is reached
+// return true if it has been reached
+bool GoalObj::getGlowMax() {
+  if (glow) {
+    if (glowCount == glowMax) {
+      return true;
+    } else {
+      glowCount++;
+    }
+  }
+  return false;
+}
+
+// Returns what it was last time this got updated
+bool GoalObj::getLastGlow() {
+  bool result = lastGlow;
+  // Update lastGlow if needed
+  if (lastGlow != glow) {
+    lastGlow = glow;
+  }
+  return result;
+}

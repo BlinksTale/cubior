@@ -12,11 +12,15 @@
 
 class GoalObj : public CubeObj {
   protected:
-    bool glow;
+    bool glow, lastGlow;
+    int glowCount;
+    static const int glowMax = 10;
   public:
     GoalObj();
     void collisionEffect(CubeObj*);
     bool getGlow();
+    bool getLastGlow();
+    bool getGlowMax();
     void setGlow(bool);
 };
 

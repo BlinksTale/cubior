@@ -315,6 +315,11 @@ void displayFor(int player) {
   //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
   drawAllCubes(player);
 
+  //cout << "Last half " << player << ":     \t\t" << getTimePassed() << endl;
+  // Draw goal second to last since we want it in front of player for silhouette
+  if (drawOutlines) { drawGoalOutline(); }
+  drawGoal();
+
   //cout << "Middle half " << player << ":  \t\t" << getTimePassed() << endl;
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
@@ -330,11 +335,7 @@ void displayFor(int player) {
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
   
-  //cout << "Last half " << player << ":     \t\t" << getTimePassed() << endl;
-  // I lied, draw goal last since likely higher than player,
-  // and this shows shadow secondarily
-  if (drawOutlines) { drawGoalOutline(); }
-  drawGoal();
+  
   
   int n; // errors if not declared before if statement
   if (!getGameplayRunning() && getLastPause() == -1) {
@@ -359,11 +360,14 @@ void displayFor(int player) {
       //printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
       int startingHeight = 70;
       n=sprintf(pausedText, "by Brian Handy");
-      printStringFlat(pausedText,player,165,-50 - startingHeight);
+      printStringFlat(pausedText,player,165,-25 - startingHeight);
       n=sprintf(pausedText, "Sound by Rolando Nadal");
-      printStringFlat(pausedText,player,260,-25 - startingHeight);
+      printStringFlat(pausedText,player,260,-0 - startingHeight);
       n=sprintf(pausedText, "Music by Waterflame");
-      printStringFlat(pausedText,player,225,0 - startingHeight);
+      printStringFlat(pausedText,player,225,25 - startingHeight);
+      n=sprintf(pausedText, "Copyright 2012");
+      printStringFlat(pausedText,player,225,450 - startingHeight);
+
       //n=sprintf(pausedText, "Press Start/Enter!");
       //printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
       //n=sprintf(pausedText, "(up to four players can join using gamepads)");

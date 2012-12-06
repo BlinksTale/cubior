@@ -495,8 +495,8 @@ void gameplayLoop() {
     while (delta >= 2*M_PI) { delta -= 2*M_PI; }
     while (delta <=-2*M_PI) { delta += 2*M_PI; }
     
-    // If made a full rotation, onwards!
-    if (delta < (M_PI/winningRotations)) {
+    // If made a full rotation, and not the first step of glowing, then onwards!
+    if (delta < (M_PI/winningRotations) && goal.getLastGlow()) {
       nextLevel();
     }
   }
