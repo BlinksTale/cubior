@@ -142,6 +142,10 @@ Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
 float menuSize = 0.75;
 int menuSpacing = 200;
 
+// Credits vars! Make sure the credits always start at the bottom for every player
+int creditsTimer[4]; // when credits should start
+bool creditsRecently[4]; // if we were just on credits or not
+
 int getFPS() {
   int newClock = clock();
   int newDiff = newClock - lastFrame;
@@ -329,26 +333,60 @@ void displayFor(int player) {
   if (drawOutlines) { drawGoalOutline(); }
   drawGoal();
   
-      int n;
-  if (!getGameplayRunning() && getLastPause() == -1 && getMenu(player) == 0) {
+  int n; // errors if not declared before if statement
+  if (!getGameplayRunning() && getLastPause() == -1) {
+    // Vars for all menu bitmap text
+    int pW = 0;//1000;
+    int pH =-1000;
+    int pD = 0; // was -1000 when angleX was 0, now angleX is 270
+    
+    // Where the credits are for scrolling, we need a time basis
+    int time;
+    time = clock();
+
+    // Runs too fast on Apple, maybe clock returns different results
+    // so we have to slow it down here
+    #ifdef __APPLE_CC__
+    time /= 160.0;
+    #endif
+
+    if (getMenu(player) == 0) {
       // START SCREEN temp fix for IGF demo
       //n=sprintf(pausedText, "Cubior");
-      int pW = 0;//1000;
-      int pH =-1000;
-      int pD = 0; // was -1000 when angleX was 0, now angleX is 270
-      float heightVsExpected = -1050.0/windowHeight;
-      float widthVsExpected = windowWidth/1600.0;
       //printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
+      int startingHeight = 70;
       n=sprintf(pausedText, "by Brian Handy");
-      printString(pausedText,cameraPointer[player]->getMeanX()+pW+165*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+50*heightVsExpected);
+      printStringFlat(pausedText,player,165,-50 - startingHeight);
       n=sprintf(pausedText, "Sound by Rolando Nadal");
-      printString(pausedText,cameraPointer[player]->getMeanX()+pW+260*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+25*heightVsExpected);
+      printStringFlat(pausedText,player,260,-25 - startingHeight);
       n=sprintf(pausedText, "Music by Waterflame");
-      printString(pausedText,cameraPointer[player]->getMeanX()+pW+225*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+0*heightVsExpected);
+      printStringFlat(pausedText,player,225,0 - startingHeight);
       //n=sprintf(pausedText, "Press Start/Enter!");
       //printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
       //n=sprintf(pausedText, "(up to four players can join using gamepads)");
       //printString(pausedText,cameraPointer[player]->getMeanX()+515*widthVsExpected,cameraPointer[player]->getMeanY(),cameraPointer[player]->getMeanZ()+pD-125*heightVsExpected);
+  
+    } else if (getMenu(player) == 5) { // Credits menu
+      // If first entering credits, reset timer
+      if (!creditsRecently[player]) {
+        creditsTimer[player] = time;
+        creditsRecently[player] = true;
+      }
+      // Then pos credits based on time in relation to when we entered
+      int creditsHeight = -400 + ((time - creditsTimer[player]) % 40000)/25;
+      // And draw credits!
+      n=sprintf(pausedText, "Programming:");
+      printStringFlat(pausedText,player,165,-50 - creditsHeight);
+      n=sprintf(pausedText, "Brian Handy");
+      printStringFlat(pausedText,player,260,-25 - creditsHeight);
+      
+    }
+
+    if (creditsRecently[player] && getMenu(player) != 5) {
+      // Make sure we don't think the player has been looking at the credits
+      // if they are somewhere else
+      creditsRecently[player] = false;
+    }
   }
 
   // Then draw all shadows in order of height!
@@ -357,10 +395,10 @@ void displayFor(int player) {
   // Print fullscreen FPS
   if (printFPS && fullscreen) {
     int n;
-      n=sprintf(pausedText, "FPS %d", getLastFPS());
+    n=sprintf(pausedText, "FPS %d", getLastFPS());
     printString(pausedText,playerX[player],playerY[player]+200,playerZ[player]);
     int d;
-      d=sprintf(pausedText, "Rate %f", getFPSRate());
+    d=sprintf(pausedText, "Rate %f", getFPSRate());
     printString(pausedText,playerX[player],playerY[player]+100,playerZ[player]);
   }
   // Print pause menu
@@ -1150,7 +1188,10 @@ void drawMenu(int i) {
       }
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
     } else if (getMenu(i) == 5) { // Start Controls Display
-      creditsTextImage.draw(0,-100,aspect,false);
+      //creditsTextImage.draw(0,-100,aspect,false);
+      // ATTEMPT AT REPLACING CREDITS IMAGE W/ REAL TEXT
+      // except that this gets drawn in the same place the splash screen text does
+      // (Ctrl+F "Rolando" will find that part of the code)
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
     }
   glDisable(GL_BLEND);
@@ -1290,6 +1331,26 @@ void renderFlat() {
   // will refresh screen, right?
 }
 
+// Print bitmap text relative to center of screen
+// Probably only works for start menus, before game begins
+void printStringFlat(char *string, int player, int x, int y) {
+  // Adjust positioning based on window size vs expected window size
+  float heightVsExpected = -1050.0/windowHeight;
+  float widthVsExpected = windowWidth/1600.0;
+
+  int len, i;
+  len = (int)strlen(string);
+  glColor3f( 0.0f, 0.0f, 0.0f );
+  glRasterPos3f(
+    cameraPointer[player]->getMeanX()+0.0f+len*3*heightVsExpected,
+    cameraPointer[player]->getMeanY()-1000.0f,
+    cameraPointer[player]->getMeanZ()+0.0f+y);
+  for (i = 0; i < len; i++) {
+    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
+  }
+}
+
+// Print bitmap text on screen
 void printString(char *string, int x, int y, int z) {
   int len, i;
   len = (int)strlen(string);

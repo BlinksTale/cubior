@@ -40,6 +40,7 @@
     void setGoalGraphic(int,int,int);
     void updateFlat();
     void renderFlat();
+    void printStringFlat(char*,int,int,int);
     void printString(char*,int,int,int);
     bool getTiming();
     void toggleFullscreen();
