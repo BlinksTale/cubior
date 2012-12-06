@@ -1477,6 +1477,10 @@ void chooseOption(int i) {
         // Start game
         startGameplay();
         setJustUnpaused(true);
+        // Change all players to pause menu
+        for (int j=0; j<4; j++) {
+          setMenu(j,2);
+        }
         break;
       case 1:
         // Change options

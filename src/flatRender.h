@@ -30,7 +30,7 @@
     void drawGoal();
     void drawGoalShadow();
     void drawGoalOutline();
-    void drawMenu(int);
+    void drawMenu(int,bool);
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();

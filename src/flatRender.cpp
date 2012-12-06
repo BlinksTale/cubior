@@ -208,6 +208,11 @@ void display() {
       //if (!getCubiorPlayable(altX)
       //  &&!getCubiorPlayable(altY)
       //  &&!getCubiorPlayable(altXY)) {
+
+      // Will splitscreen make your view twice as wide?
+      bool doubleWidth = false; // assume that it will not!
+
+      // Splitscreen math below!
       if (cubiorsPlayable == 1) {
         // All alone? Fill all the screen space!
         viewW *= 2;
@@ -223,6 +228,7 @@ void display() {
         posX = 0;
         // Both are full width, no height
         viewW *= 2;
+        doubleWidth = true;
         // Figure out who the other is
         int other;
         for (int j=0; j<4; j++) {
@@ -241,6 +247,7 @@ void display() {
       } else if (!getCubiorPlayable(altX)) {
         // Space Horizontally? Fill the width
         viewW *= 2;
+        doubleWidth = true;
         posX = 0;
         setPerspective(2,1);
       } else {
@@ -265,7 +272,7 @@ void display() {
       
       if (!getGameplayRunning()) {
           glEnable(GL_TEXTURE_2D);
-          drawMenu(i);
+          drawMenu(i,doubleWidth);
           glDisable(GL_TEXTURE_2D);
       }
       
@@ -1114,12 +1121,12 @@ void initMenu() {
 }
 
 // Draws the 2D PNGs themselves as textures
-void drawMenu(int i) {
+void drawMenu(int i, bool doubleWidth) {
   // Don't use whole viewport since different menu for every player
   //glViewport(0, 0, windowWidth, windowHeight); // don't need?
   glMatrixMode(GL_PROJECTION); // necessary
   glLoadIdentity(); // this one seems to be necessary
-  GLfloat aspect = ((GLfloat)windowWidth / (GLfloat)windowHeight)/(1600.0/1050.0);
+  GLfloat aspect = ((GLfloat)windowWidth / (GLfloat)windowHeight)/(1600.0/1050.0) * (1 + doubleWidth);
   //gluPerspective(45.0, aspect*windowWidth/windowHeight, 0.050, 100.0);
   if (aspect > 1.0) {
     glOrtho(0, 1600*aspect, 1050, 0, -1, 1); // necessary
