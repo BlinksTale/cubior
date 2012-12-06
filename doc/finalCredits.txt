@@ -54,6 +54,7 @@ Bryan Kupka
 Connor Leahy
 Samantha Lewis
 Brian Lin
+Evan Manzanetti
 Marc Mouallem
 Don Murphy
 Teresa Nguyen

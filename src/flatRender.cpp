@@ -13,6 +13,7 @@
 #include "goalShape.h"
 #include "cubiorShape.h"
 #include "image.h"
+#include "creditsReader.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -24,6 +25,7 @@
 #endif
 
 #include <cmath> // for rand
+#include <string> // for credits
 #include <cstring>
 #include <algorithm>
 #include <stdio.h> // for pauseText
@@ -145,6 +147,7 @@ int menuSpacing = 200;
 // Credits vars! Make sure the credits always start at the bottom for every player
 int creditsTimer[4]; // when credits should start
 bool creditsRecently[4]; // if we were just on credits or not
+std::string* loadedCredits;
 
 int getFPS() {
   int newClock = clock();
@@ -373,12 +376,16 @@ void displayFor(int player) {
         creditsRecently[player] = true;
       }
       // Then pos credits based on time in relation to when we entered
-      int creditsHeight = -400 + ((time - creditsTimer[player]) % 40000)/25;
+      int creditsHeight = -500 + ((time - creditsTimer[player]) % 91000)/25;
       // And draw credits!
-      n=sprintf(pausedText, "Programming:");
+      for (int i=0; i<200; i++) {
+        n=sprintf(pausedText, loadedCredits[i].c_str());
+        printStringFlat(pausedText,player,165,-50+25*i - creditsHeight); // remove 165?
+      }
+      /*n=sprintf(pausedText, "Programming:");
       printStringFlat(pausedText,player,165,-50 - creditsHeight);
       n=sprintf(pausedText, "Brian Handy");
-      printStringFlat(pausedText,player,260,-25 - creditsHeight);
+      printStringFlat(pausedText,player,260,-25 - creditsHeight);*/
       
     }
 
@@ -1097,7 +1104,7 @@ void initMenu() {
   
   creditsImage         = Image((extraPath + "./images/CubiorCredits720.png").c_str(),menuSize);//128.png",3.0);
   // Credits text image was having trouble loading, going to just use printed text for now
-  creditsTextImage     = Image((extraPath + "./images/CubiorCreditsThemselves720.png").c_str(),1);//Text1080.png",1);
+  //creditsTextImage     = Image((extraPath + "./images/CubiorCreditsThemselves720.png").c_str(),1);//Text1080.png",1);
   quitImage            = Image((extraPath + "./images/CubiorQuit720.png").c_str(),   menuSize);//128.png",3.0);
 
 }
@@ -1203,6 +1210,9 @@ void drawMenu(int i) {
 
 // To setup OpenGL and GLUT in general
 void initFlat(int argc, char** argv) {
+  
+  // Read in Credits doc real quick first, before images even
+  loadedCredits = CreditsReader::readCredits("./doc/finalCredits.txt");
 
   // load PNGs for menu system
   initMenu();
