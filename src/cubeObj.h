@@ -14,7 +14,7 @@ class CubeObj {
     static const int maxMovement = 49; // less than half of a cube width
     static const int maxFall = 49; // less than half of a cube width
     bool fpsRateEnabled, duplicateNeighbor;
-    bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove;
+    bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
@@ -133,6 +133,7 @@ class CubeObj {
     bool isInvisible() { return invisible; }
 
     float myFpsRate();
+    bool getLastToldToMove();
 };
 
 #endif 

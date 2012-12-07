@@ -180,6 +180,43 @@ void CameraObj::applyJustFixedVisibility() {
   justFixedZ = permanentTarget->getZ();
 }
 
+// Make sure player command lock (locked angle after player commanded camera rotation)
+// should still apply.
+// Compare current requests against those from time of lock, any new ones
+// and the command lock will be released
+void CameraObj::checkCommandLock() {
+  // Check that no new positive returns on alt camera angles
+  // Works great for follow both! Now need to get it working for x/z lock
+  if (((
+    !oldFollowingBoth && (goalWithinDistRange() && goalWithinJumpRange()) // aok!
+  ) || (
+    !oldXNear && tryXNear
+  ) || (
+    !oldXFar && tryXFar
+  ) || (
+    !oldZNear && tryZNear
+  ) || (
+    !oldZFar && tryZFar
+  )) && (!permanentTarget->getLastToldToMove())) { // this works fine
+  // Check against
+  // followingBoth - (goalWithinDistRange() && goalWithinJumpRange())
+  // xLock - lockedToPlayerX
+  // zLock - lockedToPlayerZ
+  // can skip player visibility?
+
+    playerCommandActive = false;
+    //resetLocks();
+    lockedToPlayer = false;
+    freedom = true;
+  }
+
+  // If one goes negative though, feel free to free that up so a new pos can trigger it?
+  // Definitely doing this for followBoth at the least
+  if (oldFollowingBoth && ! (goalWithinDistRange() && goalWithinJumpRange())) {
+    oldFollowingBoth = false;
+  }
+}
+
 // To use first camera style, nothing else must be required of it
 bool CameraObj::freeMovementState() {
   /*cout << "Free movement state is " << (freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
@@ -241,6 +278,16 @@ void CameraObj::applyLockedToPlayer() {
     changePosTowards(
             permanentTarget,
             camSpeed); }
+  // Experiment: Try looking at player normally when locked
+  if (permanentTarget->getY()<y) { // Don't look up if player above you, makes camera flip over to backside
+    lookAtPlayer(
+      tracker->getX(),
+      permanentTarget->getY(),
+      tracker->getZ(),
+      permanentTarget->getAngleY(),
+      permanentTarget->getGrounded(),
+      4);
+  }
 }
 
 // Third camera movement style, locks its position
@@ -522,6 +569,14 @@ void CameraObj::applyCommandAngle() {
   // Now applying command to maintain angle we have
   playerCommandActive = true;
   playerCommandAngle = angleY;
+  // And update the checkCommandLock bools/vars so they can be compared against
+  // (no calls that were made at time of command are considered)
+  // (or at least maybe until they stop being called first, need to decide on that)
+  oldFollowingBoth = (goalWithinDistRange() && goalWithinJumpRange());
+  oldXNear= tryXNear;
+  oldXFar = tryXFar;
+  oldZNear= tryZNear;
+  oldZFar = tryZFar;
 }
 
 // Make sure to disable command if we left its range
@@ -646,14 +701,21 @@ void CameraObj::tick() {
         applyJustFixedVisibility();
         // Just applied match angle, so don't mess it up either!
         applyCommandAngle();
+        
+        // But now, lock to the new commanded angle
+        freedom = false;
+        lockedToPlayer = true;
+        setLockedToPlayer(true);
       }
     // then move the camera itself if free to do so (or player commanded)
-    } else if (freeMovementState() || droppingIn || playerCommandActive) {
+    } else if (freeMovementState() || droppingIn) {
       //cout << "First option1" << endl;
       applyFreeMovement();
     // Locked to player then? Keep up with them!
-    } else if (lockedToPlayer && locksReset && !justFixedVisibility && !playerCommandActive) {
+    } else if (playerCommandActive || (lockedToPlayer && locksReset && !justFixedVisibility && !playerCommandActive)) {
       applyLockedToPlayer();
+      checkCommandLock(); // free cam if new request
+      
     // Locked to player X then? Keep up with them!
     } else if (lockedToPlayerX && locksReset && !justFixedVisibility && !playerCommandActive) {
       applyLockedToPlayerX();
@@ -1208,15 +1270,18 @@ bool CameraObj::getLOS() { return los; }
 bool CameraObj::getVisibility() { return los; }
 CubeObj* CameraObj::getPermanentTarget() { return permanentTarget; }
 
+// When trying to lock to x/z Near/Far with gameplay.cpp
+void CameraObj::tryingXNear(bool b) { tryXNear = b; }
+void CameraObj::tryingXFar(bool b)  { tryXFar = b; }
+void CameraObj::tryingZNear(bool b) { tryZNear = b; }
+void CameraObj::tryingZFar(bool b)  { tryZFar = b; }
+
 bool CameraObj::getLockedToPlayer() { return lockedToPlayer; }
 bool CameraObj::getLockedToPlayerX() { return lockedToPlayerX; }
 bool CameraObj::getLockedToPlayerZ() { return lockedToPlayerZ; }
 void CameraObj::setLockedToPlayer(bool b) { 
-  cout << "Setting lockedToPlayer to " << b << endl;
-  cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   locksReset = false;
   resetLocks();
-  cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayer = b;
 }
 void CameraObj::setLockedToPlayerX(bool b) { 

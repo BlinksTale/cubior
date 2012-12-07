@@ -40,9 +40,11 @@ CubeObj::CubeObj() {
   // usually not a player or camera
   playerStatus = false;
   cameraStatus = false;
-  toldToMove = false;
   // Nor an invisible wall
   invisible = false;
+  // And not starting with any history of input commands
+  toldToMove = false;
+  lastToldToMove = false;
 
   // Pos vars
   x =    0;
@@ -161,6 +163,7 @@ void CubeObj::tick() {
   
     // apply friction if on the ground
   	if (!toldToMove) {
+      lastToldToMove = false;
       //if (playerStatus) { cout << "pre !toldtomove momentumZ " << momentumZ << endl; }
       if (grounded && (abs(momentumX) > 0.00001 || abs(momentumZ) > 0.00001)) {
         // OLD WAY
@@ -202,6 +205,7 @@ void CubeObj::tick() {
       //if (playerStatus) { cout << "post !toldtomove momentumZ " << momentumZ << endl; }
   
 	  } else {
+      lastToldToMove = true;
 	    //if (playerStatus) { cout << "pre told to move momentumZ " << momentumZ << endl; }
       toldToMove = false; // only here because it was true, must make it false!
     
@@ -643,3 +647,6 @@ float CubeObj::myFpsRate() {
     return 1.0;
   }
 }
+
+// Return true if recently sent a movement command (joystick or keyboard dir input)
+bool CubeObj::getLastToldToMove() { return lastToldToMove; }

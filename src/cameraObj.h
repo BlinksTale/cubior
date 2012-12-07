@@ -33,6 +33,11 @@ class CameraObj : public CubeObj {
     int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
            visibleIntendedCount, lastDistToIntended, intendedStuckCount;
     bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
+
+    // bools for checkCommandLock history
+    bool oldFollowingBoth, oldXNear, oldXFar, oldZNear, oldZFar;
+    bool tryXNear, tryXFar, tryZNear, tryZFar;
+
     float angleX, angleY, angleZ;
     CubeObj* permanentTarget;
     CubeObj* permanentTargetGoal;
@@ -78,6 +83,7 @@ class CameraObj : public CubeObj {
     
     void applyJustFixedVisibility(); // first time setup when establishing that we just fixed it
     void updateJustFixedVisibility(); // ensure we do start moving again if needed
+    void checkCommandLock(); // freedom from player command if new type of angle request 
     bool freeMovementState(); // returns if Option 1 or not
     void applyFreeMovement();
     void applyLockedToPlayer();
@@ -211,6 +217,11 @@ class CameraObj : public CubeObj {
     void setPlayerRightCommand(bool);
     void setPlayerUpCommand(bool);
     void setPlayerDownCommand(bool);
+
+    void tryingXNear(bool);
+    void tryingXFar(bool);
+    void tryingZNear(bool);
+    void tryingZFar(bool);
 };
 
 #endif 

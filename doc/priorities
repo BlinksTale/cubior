@@ -1,4 +1,16 @@
-Current priorities as of 10/7/12:
+Current priorities as of 12/6/12:
+
+Final IGF Revisions!
+
+Camera is halfway done, locks on rotate w/ WASD now, but needs
+  to follow player up/down on jumping
+Also needs to break free when a new type of camera angle is requested
+  (eg. both or edge/wall angle)
+Then build it on Mac and you should be good to go!
+(also wanted start screen to have all four cubes jumping for goal)
+(unlikely at this point, but camera work is doable!)
+
+---
 
 Credits
 Reduce max speed or increase agility at max speed, players feel a loss of control
