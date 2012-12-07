@@ -1222,8 +1222,14 @@ void drawMenu(int i, bool doubleWidth) {
 // To setup OpenGL and GLUT in general
 void initFlat(int argc, char** argv) {
   
+  // Extra path ensures Resources folder is accessed for .app on Mac
+  std::string extraPath = "";
+  #ifdef __APPLE_CC__
+    extraPath = resourcePath();  
+  #endif  
+  
   // Read in Credits doc real quick first, before images even
-  loadedCredits = CreditsReader::readCredits("./doc/finalCredits.txt");
+  loadedCredits = CreditsReader::readCredits((extraPath + "./doc/finalCredits.txt").c_str());
 
   // load PNGs for menu system
   initMenu();
