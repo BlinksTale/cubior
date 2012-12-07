@@ -40,16 +40,23 @@ void GoalObj::setGlow(bool b) { glow = b; }
 // If glowing, increment until glowMax is reached
 // return true if it has been reached
 bool GoalObj::getGlowMax() {
-  if (glow) {
-    if (glowCount == glowMax) {
-      return true;
-    } else {
-      glowCount++;
-    }
-  }
-  return false;
+  cout << "Glow Count " << glowCount << endl;
+  return (glowCount == glowMax);
 }
 
+void GoalObj::incrementGlowCount() {
+  if (glow && glowCount < glowMax) {
+    cout << "Glow Count " << glowCount << endl;
+    glowCount++;
+  }
+}
+
+void GoalObj::resetGlowCount() {
+  if (glowCount != 0) {
+    cout << "Glow Count " << glowCount << endl;
+    glowCount = 0;
+  }
+}
 // Returns what it was last time this got updated
 bool GoalObj::getLastGlow() {
   bool result = lastGlow;
@@ -57,5 +64,16 @@ bool GoalObj::getLastGlow() {
   if (lastGlow != glow) {
     lastGlow = glow;
   }
+  cout << "lastGlow is " << result << endl;
   return result;
+  /*cout << "Glow1 Count " << glowCount << endl;
+  if (glow) {
+    glowCount++;
+    if (glowCount > glowMax) {
+      glowCount = 0;
+      return true;
+    }
+  }
+  cout << "Glow2 Count " << glowCount << endl;
+  return false;*/
 }

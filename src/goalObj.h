@@ -21,6 +21,8 @@ class GoalObj : public CubeObj {
     bool getGlow();
     bool getLastGlow();
     bool getGlowMax();
+    void incrementGlowCount();
+    void resetGlowCount();
     void setGlow(bool);
 };
 

@@ -496,9 +496,13 @@ void gameplayLoop() {
     while (delta >= 2*M_PI) { delta -= 2*M_PI; }
     while (delta <=-2*M_PI) { delta += 2*M_PI; }
     
+    // Used so we don't immediately jump to next level
+    // (must have same angle as start AND been glowing for 10 steps)
+    goal.incrementGlowCount();
     // If made a full rotation, and not the first step of glowing, then onwards!
-    if (delta < (M_PI/winningRotations) && goal.getLastGlow()) {
+    if (delta < (M_PI/winningRotations) && goal.getGlowMax()) {
       nextLevel();
+      goal.resetGlowCount();
     }
   }
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
