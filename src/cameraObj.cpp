@@ -58,12 +58,34 @@ void CameraObj::resetPos() {
     //x = 0;
     z = getMapDepth()*tileSize/2+tileSize*6;
   }
+
   angleX = 270; // perfect! 270,0,0 looks straight down
   angleY = 0;
   angleZ = 0;
+  
+  restOfResetPos();
+}
+  
+// Set to starting pos, start of a new level
+void CameraObj::resetPosStart() {
+  // For gameplay first starting, start menu, splash screen
+  x = 0;
+  y = -200;
+  z = 2000;
+  angleX = 360;
+  angleY = 0;
+  angleZ = 0;
+
+  restOfResetPos();
+}
+
+// The shared portion of resetPos from
+// resetPos and resetPosStart
+void CameraObj::restOfResetPos() {
+  
   lastAngleY = 0.0;
   lastAngleDelta = 0.0;
-  
+
   wallState = false;
   intendedState = false;
   goalState = false;

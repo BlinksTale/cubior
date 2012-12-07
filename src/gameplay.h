@@ -49,6 +49,7 @@ static const int playerVisibleMax = 10;
     void nextLevelCountdown(int);
     void nextLevel();
     void lastLevel();
+    void loadStartLevel();
     void loadLevel(int);
     int getLevelNum();
     void restartGame(int);

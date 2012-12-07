@@ -367,6 +367,7 @@ void displayFor(int player) {
       //printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
       int startingHeight = 70;
       n=sprintf(pausedText, "by Brian Handy");
+      //printString(pausedText,0,0,0);
       printStringFlat(pausedText,player,165,-25 - startingHeight);
       n=sprintf(pausedText, "Sound by Rolando Nadal");
       printStringFlat(pausedText,player,260,-0 - startingHeight);

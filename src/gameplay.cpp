@@ -176,7 +176,7 @@ void gameplayStart(string levelToLoad) {
     if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
     if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
     if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
-
+    
     // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
       // Starting camera and player pos
@@ -184,12 +184,21 @@ void gameplayStart(string levelToLoad) {
       keepInBounds(&cubior[i]);
   
       // Start camera!
-	    camera[i].resetPos();
-      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-  
       camera[i].alwaysFollow(&cubior[i],&goal,i);
-      cameraDroppingIn[i] = true;
+      // Lower cameras if on first running/start screen
+      // (levelToLoad.length == 28 if levelToLoad == "./maps/cubiorMapStart.cubior")
+      if (levelToLoad.length() == 28) {
+        camera[i].resetPosStart();
+      } else {
+        // Normal camera start
+	      camera[i].resetPos();
+        // Dropping in if not start screen
+        cameraDroppingIn[i] = true;
+      }
 
+      // final details of camera setup
+      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+      
       // Cubior Start State
       cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
@@ -307,6 +316,7 @@ void restartGame(int i) {
   //setMenu(i, 0);
   //gameplayRunning = false;
   //gameplayFirstRunning = true;
+  //loadStartLevel();
   loadLevel(0);
 }
 
@@ -328,11 +338,44 @@ void lastLevel() {
   loadLevel((currentLevel - 1 + totalLevels) % totalLevels);
 }
 
-// Moving to any level number
-void loadLevel(int levelNum) {
+void loadStartLevel() {
   // Cannot load level if paused
   if (!gameplayRunning) {
     // So unpause it if needed!
+    startGameplay();
+    setJustUnpaused(true);
+  }
+  
+  // Finally moving on, reset the winner
+  winner = -1;
+  winningShot = false;
+  
+  // Set next level number
+  changeLevel = true;
+  
+  // Then load the appropriate level
+  int n;
+  char buffer[100];
+  n=sprintf(buffer, "./maps/cubiorMapStart.cubior");
+  gameplayStart(buffer);
+  initVisuals();
+}
+
+// Moving to any level number
+void loadLevel(int levelNum) {
+
+  // Loading start level, or a normal numbered level?
+  bool loadStartLevel = false;
+
+  // loading first level, and not already at first level?
+  if ((levelNum == 0) && (currentLevel != 0)) {
+    // Then actually load start level
+    loadStartLevel = true;
+  }
+
+  // Cannot load level if paused, so...
+  if (!gameplayRunning) {
+    // Just unpause it if needed!
     startGameplay();
     setJustUnpaused(true);
   }
@@ -349,7 +392,11 @@ void loadLevel(int levelNum) {
   // Then load the appropriate level
   int n;
   char buffer[100];
-  n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); // should be relative/local but... for now, doing this so that trailer can get made in a timely matter
+  if (loadStartLevel) {
+    n=sprintf(buffer, "./maps/cubiorMapStart.cubior"); 
+  } else {
+    n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); 
+  }
   gameplayStart(buffer);
   initVisuals();
 }
@@ -1493,6 +1540,7 @@ void chooseOption(int i) {
     switch(option[i]) {
       case 0:
         // Start game
+        loadLevel(0);
         startGameplay();
         setJustUnpaused(true);
         // Change all players to pause menu

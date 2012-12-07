@@ -76,6 +76,8 @@ class CameraObj : public CubeObj {
   public:
     CameraObj();
     void resetPos();
+    void resetPosStart();
+    void restOfResetPos();
     
     void resetCamArray();
     void updateCamArray();
