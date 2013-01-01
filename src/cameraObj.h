@@ -18,6 +18,7 @@ class CameraObj : public CubeObj {
     bool droppingIn; // used to start a level, won't try option five until false
     bool locksReset; // make sure you don't lock before the locks are reset
     bool wallState, intendedState, goalState, freeState;
+    bool haventPlayedFailSfx; // stops fail sfx from playing repeatedly
     // Would love to have this higher/smoother, but doesn't keep up with player
     // when following along a wall angle.
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
@@ -84,6 +85,7 @@ class CameraObj : public CubeObj {
     void applyJustFixedVisibility(); // first time setup when establishing that we just fixed it
     void updateJustFixedVisibility(); // ensure we do start moving again if needed
     void checkCommandLock(); // freedom from player command if new type of angle request 
+    void restoreCameraFreedom(); // return freedom to camera after player control is done
     bool freeMovementState(); // returns if Option 1 or not
     void applyFreeMovement();
     void applyLockedToPlayer();
@@ -93,6 +95,7 @@ class CameraObj : public CubeObj {
 
     // Player Camera Controls
     bool matchAngleY(int);
+    int getMatchingPos(int,int);
     void applyMatchAngleY(int,bool);
     void applyCommandAngle();
     void checkCommandAngle();
@@ -212,6 +215,7 @@ class CameraObj : public CubeObj {
     bool getDroppingIn(); // to check if just starting out
 
     // Set camera commands
+    void setPlayerCommandActive(bool);
     void setPlayerCenterCommand(bool);
     void setPlayerLeftCommand(bool);
     void setPlayerRightCommand(bool);

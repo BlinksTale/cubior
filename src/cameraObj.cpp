@@ -29,6 +29,7 @@ CameraObj::CameraObj() {
   farthestDist = 1200;
   closestDist = 1000;
   locksReset = false;
+  haventPlayedFailSfx = true; // ready to make a fail sound!
   
   // To cycle through camPos arrays
   currentCamSlot = 0;
@@ -38,7 +39,6 @@ CameraObj::CameraObj() {
   followingBoth = false; // Start by just following cube, not also goal
   nearGoal = false; // inherently won't start right under the goal
   los = true; // Assume you can see the player from the sky :P
-  playerCommandActive = false; // And assume not starting in player's control
   hasCommandedAngle = false; // No basis originally for what angle we're moving from
 }
 
@@ -70,17 +70,7 @@ void CameraObj::resetPos() {
   freeState = true;
   
   // start with no intended pos and full movement freedom
-  foundIntendedPos = false;
-  justFixedVisibility = false;
-  freedom = true;
-  visibleIntendedCount = 0;
-  backupFreedom = true;
-  lastDistToIntended = 0;
-  intendedStuckCount = 0;
-  lockedToPlayer = false;
-  lockedToPlayerX = false;
-  lockedToPlayerZ = false;
-  playerCommandActive = false;
+  restoreCameraFreedom();
   
   //cout << "resetting array" << endl;
   resetCamArray();
@@ -204,11 +194,7 @@ void CameraObj::checkCommandLock() {
   // xLock - lockedToPlayerX
   // zLock - lockedToPlayerZ
   // can skip player visibility?
-
-    playerCommandActive = false;
-    //resetLocks();
-    lockedToPlayer = false;
-    freedom = true;
+    restoreCameraFreedom();
   }
 
   // If one goes negative though, feel free to free that up so a new pos can trigger it?
@@ -216,6 +202,35 @@ void CameraObj::checkCommandLock() {
   if (oldFollowingBoth && ! (goalWithinDistRange() && goalWithinJumpRange())) {
     oldFollowingBoth = false;
   }
+}
+
+// Make sure camera can move on its own will again
+void CameraObj::restoreCameraFreedom() {
+    playerCommandActive = false;
+    playerLeftCommand = false;
+    playerRightCommand = false;
+    playerUpCommand = false;
+    playerDownCommand = false;
+    lockedToPlayer = false;
+    freedom = true;
+    playerCommandAngle = angleY;
+
+    foundIntendedPos = false;
+    justFixedVisibility = false;
+    visibleIntendedCount = 0;
+    backupFreedom = true;
+    lastDistToIntended = 0;
+    intendedStuckCount = 0;
+
+    // And reset all other camera scenario vars
+    lockedToPlayerX = false;
+    lockedToPlayerZ = false;
+    foundIntendedPos = false;
+
+    // And now it's ok to play the fail sfx again
+    if (!haventPlayedFailSfx) {
+      haventPlayedFailSfx = true;
+    }
 }
 
 // To use first camera style, nothing else must be required of it
@@ -465,32 +480,28 @@ bool CameraObj::matchAngleY(int angleToMatch) {
 
 }
 
+// Give an angle and dimension, get its matching pos from player
+int CameraObj::getMatchingPos(int angleToMatch, int d) {
+  if (d==1) { return permanentTarget->getY()+camHeight; }
+  int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
+  int deltaX = cos(M_PI+(targetAngle*2*M_PI)/360.0)*idealDist;
+  int deltaZ = sin(M_PI+(targetAngle*2*M_PI)/360.0)*idealDist;
+  int intendedX = permanentTarget->getX() + deltaX;
+  int intendedZ = permanentTarget->getZ() + deltaZ;
+  if (d==0) { return intendedX; }
+  if (d==2) { return intendedZ; }
+  return 0;
+}
+
 // Move (instantly or smoothly) to a new angle to look at player
 void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
-          // permanentTargetNum ~ playerNum
-        /*rotateToAngle(
-            permanentTargetNum,
-            -permanentTarget->getDirection()+M_PI/2, // what? Weirdness with the numbers here.
-            groundDistToPlayer()
-          );*/
-
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
   int totalRotations = 90;//12;
   int newAngle = angleY;
   int oldAngle = angleY;
 
-  //cout << "I'm at angleY: " << angleY << " while it's at targetAngle: " << targetAngle << " and was angleToMatch: " << angleToMatch << endl;
-
   // Smooth transitions to new angle
   if (smoothly) {
-    /*if (abs(targetAngle-angleY)>(360.0/(totalRotations/2))) {
-      newAngle = angleY + (1-2*(angleY>targetAngle))*(360.0/(totalRotations/2));
-    } else {
-      // too close, just make equal!
-      newAngle = targetAngle;
-    }*/
-    //cout << "angleY " << angleY << " vs angleToMatch " << angleToMatch << endl;
-    //int fakeTargetAngle = angleY*0.9 + 0.1*angleToMatch;
     float cameraRotationSpeed = 90;
     while (angleY < angleToMatch - 180) { angleY += 360; }
     while (angleY > angleToMatch + 180) { angleY -= 360; }
@@ -501,17 +512,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
     } else {
       angleY = angleToMatch;
     }
-    //cout << "angleY now set to " << angleY << endl;
     newAngle = -(angleY + 90);
-    //angleY = 0.01*angleToMatch + 0.99*angleY;
-    if (abs((int)(angleY - angleToMatch)) < cameraRotationSpeed) {
-      //angleY = angleToMatch;
-    } else {
-      //angleY = oldAngle;
-      //angleY = oldAngle;
-    }
-    //angleY = 0.9*oldAngle + 0.1*angleY;
-    //newAngle = 0.9*oldAngle + 0.1*newAngle;
   } else {
     // IMMEDIATE RESULTS VERSION
     // Some of the math is really odd feeling about switching it back,
@@ -535,14 +536,18 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
   */
   //cout << "So I'm going from " << x << ", " << z << " to " << newAngle << " at " << intendedX << ", " << intendedZ << " due to delta of " << deltaX << ", " << deltaZ << endl;
 
-  // Update pos
-  setX(intendedX);
-  setY(permanentTarget->getY()+camHeight);
-  setZ(intendedZ);
-
+  // If we can actually get there without issue, allow it
+  if (freeSpaceAt(intendedX, permanentTarget->getY()+camHeight, intendedZ)) {
+    // Update pos
+    setPos(intendedX, permanentTarget->getY()+camHeight, intendedZ);
+  } else {
+    // Bail! It was no good
+    restoreCameraFreedom();
+  }
   // make sure you're still looking at the player at the end of the day.
   lookAtTarget();
   oldAngle = matchRangeOf(oldAngle, newAngle);
+  
   if (!smoothly) { resetCamArray(); }
   updateMeans();
 
@@ -587,13 +592,7 @@ void CameraObj::checkCommandAngle() {
   if ((tempAngle > angleY + playerCommandMargin) 
        || (tempAngle < angleY - playerCommandMargin)) {
     // Then disable it
-    playerCommandActive = false;
-    // And reset all other camera scenario vars
-    lockedToPlayer = false;
-    lockedToPlayerX = false;
-    lockedToPlayerZ = false;
-    foundIntendedPos = false;
-    freedom = true;
+    restoreCameraFreedom();
   }
 }
 
@@ -666,8 +665,8 @@ void CameraObj::tick() {
     // Second highest priority to player's other orders
     } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
       if (!hasCommandedAngle) {
-        // Trigger sound
-        setJustTurnedCamera(true);
+        // Save old angle in case new one fails
+        int oldCommandedAngle = commandedAngle;
 
         int angleDelta = 45;
         commandedHyp = groundDistToPlayer();
@@ -684,7 +683,25 @@ void CameraObj::tick() {
         // Then make the rotation
         commandedAngle += playerRightCommand*angleDelta - playerLeftCommand*angleDelta;
         commandedAngle -= 90; // then undoing +90 from "because -90 to 270 range causes problems"
-        hasCommandedAngle = true;
+        if (freeSpaceAt(getMatchingPos(commandedAngle,0),getMatchingPos(commandedAngle,1),getMatchingPos(commandedAngle,2))) {
+          hasCommandedAngle = true;
+          
+          // Success? Trigger turn sound
+          setJustTurnedCamera(true);
+
+          // And now it's ok to play the fail sfx again
+          if (!haventPlayedFailSfx) {
+            haventPlayedFailSfx = true;
+          }
+        } else if (haventPlayedFailSfx) {
+          commandedAngle = oldCommandedAngle;
+          //restoreCameraFreedom();
+
+          // Failure? Trigger error + turned sound
+          setJustTurnedCamera(true);
+          setJustFailedCamera(true);
+          haventPlayedFailSfx = false;
+        }
       }
       //cout << "Option Zero" << endl;
       // Told to recenter? Not matched up yet? Do so!
@@ -1343,6 +1360,15 @@ bool CameraObj::getDroppingIn() {
 }
 
 // Camera controls
+void CameraObj::setPlayerCommandActive(bool b) { 
+  if (playerCommandActive != b) {
+    playerCommandActive = b;
+    // Cancelling out? Disable locks and stuff too!
+    if (!b) {
+      restoreCameraFreedom();
+    }
+  }
+}
 void CameraObj::setPlayerCenterCommand(bool b) { 
   if (playerCenterCommand != b) { playerCenterCommand = b; }
 }

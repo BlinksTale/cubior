@@ -6,6 +6,7 @@
  */
 
 #include "cubeObj.h"
+#include "cameraObj.h"
 #include "gameplay.h"
 
 //#include <iostream>
@@ -380,6 +381,14 @@ bool CubeObj::isCamera() {
 void CubeObj::setCameraStatus(bool b) {
   cameraStatus = b;
 }
+
+/*void CubeObj::setCamera(CameraObj* c) {
+  camera = c;
+}
+
+CameraObj* CubeObj::getCamera() {
+  return camera;
+}*/
 
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {

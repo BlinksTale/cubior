@@ -8,6 +8,8 @@
 #ifndef CUBEOBJ
 #define CUBEOBJ
 
+//#include "cameraObj.h"
+
 class CubeObj {
   protected:
     static const int altSize = 400; // how wide the checker patterns are
@@ -26,6 +28,7 @@ class CubeObj {
     int material;
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;
+    //CameraObj* camera; // for camera cubes to ID their cameras
     float landedOnDirectionDiff;
     float newFriction, strength, direction; // for use with new friction technique
     bool invisible;
@@ -48,6 +51,8 @@ class CubeObj {
     bool isPlayer();
     bool isCamera();
     void setCameraStatus(bool);
+    //void setCamera(CameraObj*);
+    //CameraObj* getCamera();
 
     void jump(bool);
 
