@@ -80,6 +80,7 @@ void CameraObj::resetPos() {
   lockedToPlayer = false;
   lockedToPlayerX = false;
   lockedToPlayerZ = false;
+  playerCommandActive = false;
   
   //cout << "resetting array" << endl;
   resetCamArray();
@@ -358,11 +359,11 @@ void CameraObj::applyIntendedPos() {
     //lastAngleY = angleY;
 
     if (showData) { 
-    cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
-    cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
-    cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
-    cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
-    //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
+      cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
+      cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
+      cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
+      cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
+      //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
     }
         
         

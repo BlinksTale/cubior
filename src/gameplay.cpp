@@ -129,8 +129,6 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
 
 // Put a Cubior back in its start spot
 void resetCubior(int i) {
-  // Put camera in drop down spot
-  camera[i].resetPos();
   // And reset its visible-yet-intended count
   camera[i].setVisibleIntended(0);
   
@@ -139,12 +137,18 @@ void resetCubior(int i) {
 	int directionFromCenter = 1+(i%2)*(-2);
   //cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
   cubior[i].setPos(i*200-300,1000, currentMapDepth*tileSize/2-tileSize*(1+padding));
+
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);
   cubior[i].moveX(0);
   cubior[i].moveY(3);
   cubior[i].moveZ(3);
+
+  // After Cubior is reset, THEN move camera
+  // Put camera in drop down spot
+  camera[i].resetPos();
+
 }
 
 // Load in a level and set it up
@@ -179,17 +183,18 @@ void gameplayStart(string levelToLoad) {
 
     // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
-      // Starting camera and player pos
-      resetCubior(i);
-      keepInBounds(&cubior[i]);
   
       // Start camera!
-	    camera[i].resetPos();
-      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-  
       camera[i].alwaysFollow(&cubior[i],&goal,i);
       cameraDroppingIn[i] = true;
 
+      // After set to always follow, THEN position camera and cubior
+      // Starting camera and player pos
+      resetCubior(i);
+      keepInBounds(&cubior[i]);
+	    camera[i].resetPos();
+      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+  
       // Cubior Start State
       cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);

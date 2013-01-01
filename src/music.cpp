@@ -23,7 +23,7 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = false;
+bool mute = true;//false;
 bool lastMute = mute;
 int defaultVolume = 50; // 40 Sounds really good! Might be a hint too quiet? 50 is perfect!
 

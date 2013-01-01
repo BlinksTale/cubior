@@ -1,5 +1,13 @@
 Current priorities as of 12/6/12:
 
+Public Demo Revisions
+
+1. Get camera to always drop on far side of player, facing map
+2. Get camera to not go through walls
+3. Add up and down camera controls
+4. Make cubior face dir of joystick, and frown if | joyAngle - momAngle | > 90
+
+---
 Final IGF Revisions!
 
 Build it on Mac and you should be good to go!
