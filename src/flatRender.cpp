@@ -553,9 +553,6 @@ void fillScreenWithShadow() {
 void calcPlayer(int n) {
   if (getCubiorPlayable(n)) {
     // Then animate player rotation
-    // new way
-	//if (sqrt(pow((float)(changeX[n]),2) + pow((float)(changeZ[n]),2)) >= sqrt(pow((float)(lastChangeX[n]),2) + pow((float)(lastChangeZ[n]),2))) {
-	  // old way
 	float changeMin = 5.0;
 	// Only an issue for changeZ = -20 to changeZ = 0. Not sure why.
     if (meanChangeX[n] > changeMin || meanChangeX[n] < -changeMin || meanChangeZ[n] > changeMin || meanChangeZ[n] < -changeMin) {
@@ -563,25 +560,11 @@ void calcPlayer(int n) {
       playerAngleNumerator[n] = meanChangeX[n];
     }
     lastChangeZ[n] = meanChangeZ[n];
-  //cout << "numerat is " << playerAngleNumerator[n] << endl;
-  //cout << "divisor is " << playerAngleDivisor[n] << endl;
-  
     // FINALLY, update player angle, but only once!
     // Find new angle
     float oldAngle = playerRotationMean(n);
     float newAngle = oldAngle;
-    // Only if an increase or equal amount of change do we alter direction
-    /*if (abs(changeZ[n]-lastChangeZ[n])>=0 || abs(changeX[n]-lastChangeX[n])>=0) {
-      if (lastChangeZ[n] < 0.0) {
-	    newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0 + 180;
-      } else {
-        newAngle = atan(playerAngleNumerator[n]/playerAngleDivisor[n])*60.0;
-      }
-      // Then modify it to match current mean
-      while (newAngle > oldAngle + 180) { newAngle -= 2*180; }
-      while (newAngle < oldAngle - 180) { newAngle += 2*180; }
-    }*/
-    // OLD WAY ABOVE
+    
     // NEW WAY BELOW
     if (newAngle != playerDirection[n]) {
       newAngle = playerDirection[n];
@@ -590,6 +573,12 @@ void calcPlayer(int n) {
       while (newAngle < oldAngle - 180) { newAngle += 2*180; }
     }
     playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
+
+    // Actually, overriding past stuff here (new era!)
+    // With new way, we instead assign the angle of joystick/current str dir
+    //playerRotationAngle[n][currentPlayerRotation[n]] = newAngle;
+    // Not in use actually, since instead using playerDirection to communicate this
+
     // Then move to next slot
     currentPlayerRotation[n]++;
     if (currentPlayerRotation[n] >= maxPlayerRotations) {
@@ -1290,9 +1279,13 @@ void initFlat(int argc, char** argv) {
 void updatePlayerGraphic(int n) {
   setPlayerGraphic(n,getPlayer(n)->getX(),getPlayer(n)->getY(),getPlayer(n)->getZ());
   // Then set rotation stuff
-  playerDirection[n] = (360*(getPlayer(n)->getDirection())/(2*M_PI));
-  //setPlayerGraphic(n,getCube(0)->getX(),getCube(0)->getY(),getCube(0)->getZ());
-  //setPlayerGraphic(2000,0,-1000,0);
+  //playerDirection[n] = (360*(getPlayer(n)->getDirection())/(2*M_PI));
+  // Old way above, new era new way below
+  // Only update graphic if recently told a new dir
+  //if (getPlayer(n)->getLastToldToMove()) {
+    playerDirection[n] = (360*(getPlayer(n)->getToldDirection())/(2*M_PI));
+    // FIXME: new era, insert something here so that eyes squint when fighting dir
+  //}
 }
 
 void updateCubeGraphic(int n) {

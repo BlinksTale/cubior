@@ -19,6 +19,7 @@ class CubeObj {
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
+    float toldToMoveX, toldToMoveY, toldToMoveZ; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
@@ -29,8 +30,8 @@ class CubeObj {
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;
     //CameraObj* camera; // for camera cubes to ID their cameras
-    float landedOnDirectionDiff;
-    float newFriction, strength, direction; // for use with new friction technique
+    float landedOnDirectionDiff, landedOnToldDirectionDiff;
+    float newFriction, strength, direction, toldDirection; // for use with new friction technique
     bool invisible;
   public:
     CubeObj();
@@ -121,6 +122,7 @@ class CubeObj {
     void applyCollisionMomentumX();
     void applyCollisionMomentumZ();
     bool getCollision();
+    bool getDirectionConflict();
     virtual int getWidth();
     virtual int getHeight();
     virtual int getSize(int);
@@ -133,6 +135,7 @@ class CubeObj {
 
     float getStrength();
     float getDirection();
+    float getToldDirection();
     int getCamDirection(); // translated to camera numbers
     void setInvisible(bool b) { invisible = b; }
     bool isInvisible() { return invisible; }
