@@ -4,7 +4,7 @@ Public Demo Revisions
 
 1. Get camera to not follow forwards through walls when locked (mini castle)
 2. Add up and down camera controls
-3. Make cubior face dir of joystick, and frown if | joyAngle - momAngle | > 90
+3. Play sound when cubior skids/conflict with direction vs toldDirection
 
 ---
 Final IGF Revisions!
