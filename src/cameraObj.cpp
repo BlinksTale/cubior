@@ -30,7 +30,8 @@ CameraObj::CameraObj() {
   closestDist = 1000;
   locksReset = false;
   haventPlayedFailSfx = true; // ready to make a fail sound!
-  
+  playerCommandsLastTime = false; // start with no history of player commands
+
   // To cycle through camPos arrays
   currentCamSlot = 0;
     
@@ -544,6 +545,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
     // Bail! It was no good
     restoreCameraFreedom();
   }
+  
   // make sure you're still looking at the player at the end of the day.
   lookAtTarget();
   oldAngle = matchRangeOf(oldAngle, newAngle);
@@ -606,6 +608,24 @@ void CameraObj::tick() {
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
   
+  // If no attempt at camera command, sound can be played again
+  // but must be checked at start, since later code disables commands
+  if (!playerLeftCommand  && !playerRightCommand && 
+      !playerRightCommand && !playerDownCommand) {
+        
+    // If there were any player commands last time, now there are not!
+    if (playerCommandsLastTime) {
+      playerCommandsLastTime = false;
+    } else if (!haventPlayedFailSfx) {
+    // No commands this time AND none last time? Restore the sound
+      haventPlayedFailSfx = true;
+    }
+  } else if (!playerCommandsLastTime) {
+    // If there were some commands though, now we record it
+    playerCommandsLastTime = true;
+  }
+
+
   // If you are following one target every frame,
 	if (permanentTarget) {
     // make sure to update the item that's following the target
@@ -651,7 +671,9 @@ void CameraObj::tick() {
 
       //cout << "Option Zero" << endl;
       // Told to recenter? Not matched up yet? Do so!
-      if (!(matchAngleY(permanentTarget->getCamDirection()))) {
+      // but also must be a clear angle, no blocks in intended pos
+      if (!(matchAngleY(permanentTarget->getCamDirection())) &&
+        (freeSpaceAt(getMatchingPos(commandedAngle,0),getMatchingPos(commandedAngle,1),getMatchingPos(commandedAngle,2)))) {
         applyMatchAngleY(permanentTarget->getCamDirection(),false);
       // If not, be done!
       } else {
@@ -664,6 +686,9 @@ void CameraObj::tick() {
       }
     // Second highest priority to player's other orders
     } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
+        int oldX = x;
+        int oldY = y;
+        int oldZ = z;
       if (!hasCommandedAngle) {
         // Save old angle in case new one fails
         int oldCommandedAngle = commandedAngle;
@@ -689,41 +714,56 @@ void CameraObj::tick() {
           // Success? Trigger turn sound
           setJustTurnedCamera(true);
 
-          // And now it's ok to play the fail sfx again
-          if (!haventPlayedFailSfx) {
-            haventPlayedFailSfx = true;
-          }
-        } else if (haventPlayedFailSfx) {
-          commandedAngle = oldCommandedAngle;
-          //restoreCameraFreedom();
+        } else {
+          hasCommandedAngle = false;
+          playerLeftCommand = false;
+          playerRightCommand = false;
+          playerUpCommand = false;
+          playerDownCommand = false;
 
-          // Failure? Trigger error + turned sound
-          setJustTurnedCamera(true);
-          setJustFailedCamera(true);
-          haventPlayedFailSfx = false;
+          x = oldX;
+          y = oldY;
+          z = oldZ;
+
+          // Restore old angle
+          commandedAngle = oldCommandedAngle;
+
+          if (haventPlayedFailSfx) {
+            // Failure? Trigger error + turned sound
+            setJustTurnedCamera(true);
+            setJustFailedCamera(true);
+            haventPlayedFailSfx = false;
+          }
         }
       }
-      //cout << "Option Zero" << endl;
-      // Told to recenter? Not matched up yet? Do so!
-      if (!(matchAngleY(commandedAngle))) {
-        applyMatchAngleY(commandedAngle,true);
-      // If not, be done!
-      } else {
-        // Force final angle
-        //angleY = commandedAngle;
-        //resetCamArray();
-        //updateMeans();
-        // No longer an angle commanded to have
-        hasCommandedAngle = false;
-        // Just fixed angle, so don't mess it up!
-        applyJustFixedVisibility();
-        // Just applied match angle, so don't mess it up either!
-        applyCommandAngle();
+
+      // Will only apply cam movement if it leads to an empty spot
+      // and it's an else since only applies if hasCommandedAngle
+      else if (freeSpaceAt(getMatchingPos(commandedAngle,0),getMatchingPos(commandedAngle,1),getMatchingPos(commandedAngle,2))) {
+        //cout << "Option Zero" << endl;
+        // Told to match a new commanded angle? Not matched up yet? Do so!
+        if (!(matchAngleY(commandedAngle))) {
+          applyMatchAngleY(commandedAngle,true);
+        // If not, be done!
+        } else {
+          // Force final angle
+          //angleY = commandedAngle;
+          //resetCamArray();
+          //updateMeans();
+          // No longer an angle commanded to have
+          hasCommandedAngle = false;
+          // Just fixed angle, so don't mess it up!
+          applyJustFixedVisibility();
+          // Just applied match angle, so don't mess it up either!
+          applyCommandAngle();
         
-        // But now, lock to the new commanded angle
-        freedom = false;
-        lockedToPlayer = true;
-        setLockedToPlayer(true);
+          // But now, lock to the new commanded angle
+          freedom = false;
+          lockedToPlayer = true;
+          setLockedToPlayer(true);
+        }
+      } else {
+        playerCommandAngle = angleY;
       }
     // then move the camera itself if free to do so (or player commanded)
     } else if (freeMovementState() || droppingIn) {
@@ -767,6 +807,7 @@ void CameraObj::tick() {
     4);*/
 
   }
+  
   //cout << "End camera tick" << endl;
   updateCamArray();
   updateMeans();

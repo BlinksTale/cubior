@@ -2,7 +2,7 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-1. Get camera to not move forwards when it can't rotate
+1. Get camera to not follow forwards through walls when locked (mini castle)
 2. Add up and down camera controls
 3. Make cubior face dir of joystick, and frown if | joyAngle - momAngle | > 90
 

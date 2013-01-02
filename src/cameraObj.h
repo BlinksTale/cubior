@@ -19,6 +19,7 @@ class CameraObj : public CubeObj {
     bool locksReset; // make sure you don't lock before the locks are reset
     bool wallState, intendedState, goalState, freeState;
     bool haventPlayedFailSfx; // stops fail sfx from playing repeatedly
+    bool playerCommandsLastTime; // any commands from player last tick?
     // Would love to have this higher/smoother, but doesn't keep up with player
     // when following along a wall angle.
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
