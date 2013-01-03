@@ -139,12 +139,13 @@ void resetCubior(int i) {
   //cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
   cubior[i].setPos(i*200-300,1000, currentMapDepth*tileSize/2-tileSize*(1+padding));
 
+  cubior[i].resetToldToMove();
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);
   cubior[i].moveX(0);
   cubior[i].moveY(3);
-  cubior[i].moveZ(3);
+  cubior[i].moveZ(-3);
 
   // After Cubior is reset, THEN move camera
   // Put camera in drop down spot
@@ -1430,7 +1431,8 @@ bool freeSpaceAt(int a, int b, int c) {
       slotA >= getMapWidth() || slotB >= getMapHeight() || slotC >= getMapDepth()) {
         return true;
   } else {
-    return (permanentMap[slotA][slotB][slotC] == NULL);
+    CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+    return (c1 == NULL || (c1->isInvisible()));
   }
 }
 

@@ -19,7 +19,8 @@ class CubeObj {
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
-    float toldToMoveX, toldToMoveY, toldToMoveZ; // for immediate directions/instructions
+    bool toldToMoveX, toldToMoveY, toldToMoveZ;
+    float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
@@ -88,6 +89,7 @@ class CubeObj {
     void setMomentumY(float);
     void setMomentumZ(float);
     
+    void resetToldToMove();
     void movePos(float,float,float);
     void moveX(float);
     void moveY(float);
@@ -123,6 +125,7 @@ class CubeObj {
     void applyCollisionMomentumZ();
     bool getCollision();
     bool getDirectionConflict();
+    float getDirectionConflictSeverity();
     virtual int getWidth();
     virtual int getHeight();
     virtual int getSize(int);
