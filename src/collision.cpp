@@ -231,10 +231,10 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
 		  if (between(c1,c2)) {
         // No player commands if the camera hits something
         if (c1->isCamera() && !(c2->isInvisible())) {
-          ((CameraObj*)c1)->setPlayerCommandActive(false);
+          ((CameraObj*)c1)->hitSomething();
         }
         if (c2->isCamera() && !(c1->isInvisible())) {
-          ((CameraObj*)c2)->setPlayerCommandActive(false);
+          ((CameraObj*)c2)->hitSomething();
         }
         // Then bounce the objects off each other
 		    bounce(c1,c2);

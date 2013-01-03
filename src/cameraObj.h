@@ -215,6 +215,9 @@ class CameraObj : public CubeObj {
     void setState(int);
     bool getDroppingIn(); // to check if just starting out
 
+    // Collision handling
+    void hitSomething();
+
     // Set camera commands
     void setPlayerCommandActive(bool);
     void setPlayerCenterCommand(bool);

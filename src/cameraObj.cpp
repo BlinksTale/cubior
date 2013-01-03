@@ -607,7 +607,7 @@ void CameraObj::tick() {
   //cout << "hasCommandedAngle " << hasCommandedAngle << " of rotation " << commandedAngle << " while at " << angleY << endl;
   //cout << "Start of tick,"<< endl;
   //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
-  
+
   // If no attempt at camera command, sound can be played again
   // but must be checked at start, since later code disables commands
   if (!playerLeftCommand  && !playerRightCommand && 
@@ -1251,6 +1251,9 @@ float CameraObj::smoothMatchRangeOf(float y1, float y2) {
 
 // Regarding place we want camera to go in order to see player again
 void CameraObj::setIntendedPos(CubeObj* c) {
+  // First, get rid of all other priorities
+  restoreCameraFreedom();
+  // Then set that found position and demand that we get to it
   intendedPos.setPos(c->getX(),c->getY(),c->getZ());
   foundIntendedPos = true;
 }
@@ -1398,6 +1401,15 @@ void CameraObj::setState(int i) {
 
 bool CameraObj::getDroppingIn() {
   return droppingIn;
+}
+
+// Collision handling
+void CameraObj::hitSomething() {
+  // Give up everything!
+  setPlayerCommandActive(false);
+  //foundIntendedPos = false;
+  //justFixedVisibility = false;
+  //resetLocks();
 }
 
 // Camera controls

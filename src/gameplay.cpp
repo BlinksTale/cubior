@@ -462,8 +462,11 @@ void gameplayLoop() {
         //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
         //cout << "posttick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         
-        // So long as no intendedPos, try collision
-        if (!camera[i].getFoundIntendedPos()) {
+        // So long as no intendedPos, locked to player, or commanded, try collision
+        bool checkCameraCollision = !camera[i].getFoundIntendedPos();/* || camera[i].getLockedToPlayer()
+           || camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayerZ()
+           || camera[i].getPlayerCommandActive();*/
+        if (checkCameraCollision) {
           // And bounce off walls if colliding
           cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
           camera[i].setCameraStatus(true);
