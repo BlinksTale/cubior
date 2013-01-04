@@ -217,6 +217,7 @@ void CameraObj::restoreCameraFreedom() {
     freedom = true;
     playerCommandAngle = angleY;
     playerCommandAngle = camHeight + camCommandedHeight;
+    camCommandedHeight = 0;
 
     foundIntendedPos = false;
     justFixedVisibility = false;

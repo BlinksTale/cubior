@@ -2,24 +2,20 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-1. Add up and down camera controls
-2. Play sound when cubior skids/conflict with direction vs toldDirection
-3. When camera locked, slide to side of momentum if greater than half of max momentum
-4. Make camera see where you will be going, rather than where you are, for big castle
-5. Have camera try checking vertically to resolve visibility issues
-
----
-Final IGF Revisions!
-
-Build it on Mac and you should be good to go!
-(also wanted start screen to have all four cubes jumping for goal)
-(unlikely at this point, but camera work is doable!)
+1. Get camera to not flip out when you jump above it? And are moving up..? Happens
+   consistently on middle ledge on first bridge in big grass with lowest camera.
+2. Make shadows not flicker for lowest camera view (seeing underbelly of cubes)
+3. Play sound when cubior skids/conflict with direction vs toldDirection
+4. When camera locked, slide to side of momentum if greater than half of max momentum
+5. Make camera see where you will be going, rather than where you are, for big castle
+6. Have camera try checking vertically to resolve visibility issues
 
 ---
 
-Credits
-Reduce max speed or increase agility at max speed, players feel a loss of control
-  with joysticks when moving fast or moving at all..?
+also wanted start screen to have all four cubes jumping for goal
+
+---
+
 
 0V. Follow both's choose angle flips around on room 2/3, second green room
 
