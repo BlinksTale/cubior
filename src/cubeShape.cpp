@@ -380,7 +380,7 @@ void CubeShape::drawShadowVolume() {
   // Actual shadow volume stuff
   glPushMatrix();
   glScalef(1.0,100.0,1.0);
-  glTranslatef(0.0,-0.505,0.0);
+  glTranslatef(0.0,-0.500,0.0);
 
   // If no sides to connect to... make a bit smaller, to avoid overlapping edges
   if (neighbors[0] && neighbors[1] && neighbors[4] && neighbors[5]) {
