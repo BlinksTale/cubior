@@ -91,24 +91,12 @@ void CameraObj::updateCamArray() {
   camPosX[currentCamSlot] = x;
   camPosY[currentCamSlot] = y;
   camPosZ[currentCamSlot] = z;
-  /*while (angleX > 180+meanAngleX) { angleX -= 360; }
-  while (angleX <-180+meanAngleX) { angleX += 360; }
-  while (angleY > 180+meanAngleY) { angleY -= 360; }
-  while (angleY <-180+meanAngleY) { angleY += 360; }
-  while (angleZ > 180+meanAngleZ) { angleZ -= 360; }
-  while (angleZ <-180+meanAngleZ) { angleZ += 360; }
-  */
+  
   // FIXME: This still feels really laggy, can't it be more efficient? Maybe never matchrangeof?
   for (int i=0; i<camArraySize; i++) {
-    //if (outsideRangeOf(meanAngleX,angleX)) { 
     camAngleX[i] = matchRangeOf(camAngleX[i], angleX);
-    //}
-    //if (outsideRangeOf(meanAngleY,angleY)) { 
     camAngleY[i] = matchRangeOf(camAngleY[i], angleY);
-    //}
-    //if (outsideRangeOf(meanAngleZ,angleZ)) { 
     camAngleZ[i] = matchRangeOf(camAngleZ[i], angleZ);
-    //}
   }
   camAngleX[currentCamSlot] = angleX;
   camAngleY[currentCamSlot] = angleY;
@@ -130,8 +118,6 @@ void CameraObj::updateMeans() {
     meanX += camPosX[i];
     meanY += camPosY[i];
     meanZ += camPosZ[i];
-    //cout << "Old meanAngleX " << meanAngleX << " vs camAngleX[" << i << "] " << camAngleX[i] << endl;
-   // meanAngleX = matchRangeOf(camAngleX[i],meanAngleX);
     meanAngleX += camAngleX[i];
     meanAngleY += camAngleY[i];
     meanAngleZ += camAngleZ[i];
@@ -139,34 +125,23 @@ void CameraObj::updateMeans() {
   // And divide 'em back down to size
   meanX /= camArraySize;
   meanY /= camArraySize;
-  //meanY = -2400; // DELEMETE angleX problem
   meanZ /= camArraySize;
   meanAngleX /= camArraySize;
   meanAngleY /= camArraySize;
   meanAngleZ /= camArraySize;
-  //cout << "MeanAngleX was " << meanAngleX << endl;
-  //cout << "meanAngleX is " << meanAngleX << endl;
-  /*while (meanAngleX < 0)   { meanAngleX += 360; }
-  while (meanAngleX > 360) { meanAngleX -= 360; }
-  if (meanAngleX < 180) {
-    if (meanAngleX > 90) { meanAngleX = 90; } 
-    if (meanAngleX < 0)  { meanAngleX = 0;  }
-  } else {
-    if (meanAngleX > 360) { meanAngleX = 360; }
-    if (meanAngleX < 270) { meanAngleX = 270; }
-  }*/
-  //meanAngleX = 370;
-  //cout << "MeanAngleX now is " << meanAngleX << endl;
 }
 
+// Set the position where we must stay?
+// Should be for choosing where it is we must remain
+// for player to be visible.
 void CameraObj::updateJustFixedVisibility() {
   if (justFixedVisibility && justFixedMaxDist <
         sqrt((double)(pow((double)(justFixedX-permanentTarget->getX()),(double)(2)) + pow((double)(justFixedZ-permanentTarget->getZ()),(double)(2))))) {
   justFixedVisibility = false;
-  //cout << "disable, justFixedVisibility = " << justFixedVisibility << endl;
   }
 }
 
+// And stay looking at that position, we just fixed it!
 void CameraObj::applyJustFixedVisibility() {
   justFixedVisibility = true;
   justFixedX = permanentTarget->getX();
@@ -239,18 +214,8 @@ void CameraObj::restoreCameraFreedom() {
 
 // To use first camera style, nothing else must be required of it
 bool CameraObj::freeMovementState() {
-  /*cout << "Free movement state is " << (freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
-      ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
-       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ))) << endl;
-
-  cout << "The individual parts are freedom " << freedom << " !foundIntendedPos " << !foundIntendedPos;
-  cout << " playerRegularlyVisible(permanentTargetNum) " << playerRegularlyVisible(permanentTargetNum);
-  cout << " and the rest " << ((!goalOutsideDistRange() && goalWithinJumpRange()) ||
-       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ)) << endl;
-  */
   return freedom && !foundIntendedPos && playerRegularlyVisible(permanentTargetNum) &&
-      (/*(!goalOutsideDistRange() && goalWithinJumpRange()) ||*/
-       (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ));
+      ((!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ));
 }
 
 // First camera movement style, freely follow player
@@ -260,7 +225,6 @@ void CameraObj::applyFreeMovement() {
       
   // As long as angle was not just recently modified, follow normally
   if (!justFixedVisibility) {
-    //cout << "Normal loop! Freedom found, no intended pos" << endl;
     follow(
       tracker->getX(),
       permanentTarget->getY(),
@@ -342,11 +306,9 @@ void CameraObj::applyLockedToPlayerZ() {
 
 // Gives whether angle is at a 45 degree interval
 bool CameraObj::getSnapLock() {
-  //cout << "AND ANGLEY IS " << angleY << endl;
   while (lockedAngleY < 0) { lockedAngleY += 360; }
   int range = 1;
   bool result = ((int)(lockedAngleY) % 45 < range) || ((int)(lockedAngleY) % 45 > 45 - range);
-  //cout << "SNAP LOCKED IS " << result << " FOR " << lockedAngleY << endl;
   return result;
 }
 
@@ -355,11 +317,7 @@ void CameraObj::snapLock() {
   while (lockedAngleY < 0) { lockedAngleY += 360; }
   int distFromLock = (int)(lockedAngleY) % 45;
   int extraOne = (distFromLock > 22 ? 1 : 0);
-  //cout << "DIST FROM LOCK " << distFromLock << " SO EXTRA ONE IS " << extraOne << endl;
   lockedAngleY = (floor((lockedAngleY - distFromLock) / 45.0) + extraOne) * 45.0;
-
-  // Then update lockedX, Y and Z
-
 }
 
 float CameraObj::getLockedAngleY() { return lockedAngleY; }
@@ -369,29 +327,17 @@ float CameraObj::getLockedAngleY() { return lockedAngleY; }
 void CameraObj::applyIntendedPos() {
   if (showData) { cout << "Option Five" << endl; }
   justFixedVisibility = true;
-  //cout << "You have no freedom (" << (!freedom) << ") or have found an intended position (" << foundIntendedPos << ")!" << endl;
   // if you do have a place to be or aren't allowed to move,
   if (foundIntendedPos) {
-    //cout << "w/ intended pos found" << endl;
-    // Make sure camera doesn't swing back and forth
-    //float currentAngleDelta = angleY - lastAngleY;
-    //lastAngleY = angleY;
-
     if (showData) { 
       cout << "Intended Position found, dist to cube is " << distToCube(&intendedPos) << endl;
       cout << "so intendedPos " << intendedPos.getX() << ", " << intendedPos.getY() << ", " << intendedPos.getZ() << endl;
       cout << "&  currentPos  " << x << ", " << y << ", " << z << endl;
       cout << "so it being greater than camSpeed of " << camSpeed << " is " << (distToCube(&intendedPos) > camSpeed) << endl;
-      //cout << "and currentAngleDelta " << currentAngleDelta << " times lastAngleDelta " << lastAngleDelta << " must be >=0." << endl;
     }
-        
-        
+    
     // If still not at the destination, and have not changed direction of movement
-    if (distToCube(&intendedPos) > camSpeed) {/* &&
-            (currentAngleDelta >= 0 && lastAngleDelta >= -1) ||
-            (currentAngleDelta <= 0 && lastAngleDelta <= 1)) {
-      lastAngleDelta = currentAngleDelta;*/
-          
+    if (distToCube(&intendedPos) > camSpeed) {          
       if (showData) { 
         cout << "Moving towards intended pos" << endl;
         cout << "currentPos  " << x << ", " << y << ", " << z << endl;
@@ -403,21 +349,17 @@ void CameraObj::applyIntendedPos() {
         cout << "currentPos  " << x << ", " << y << ", " << z << endl;
       }
           
-      //cout << "last" << lastDistToIntended << " - dist " << distToCube(&intendedPos) << endl;
       // If you get stuck trying to get to intended
       if (abs(lastDistToIntended - distToCube(&intendedPos))<camSpeed) {
-        //cout << "Fire1" << endl;
         // keep track of how long you've been stuck
         intendedStuckCount++;
         // if this is too long a stick, just jump!
         if (intendedStuckCount >= intendedStuckMax) {
-          //cout << "Fire1a" << endl;
           setPos(intendedPos.getX(),intendedPos.getY(),intendedPos.getZ());
           intendedStuckCount = 0; // and reset stuck count, of course
         }
       } else {
         if (intendedStuckCount > 0) {
-          //cout << "FREE AGAIN" << endl;
           intendedStuckCount = 0; // no stick? Reset stuck count
         }
         // if you finally got free, update the lastDistToIntended
@@ -425,7 +367,6 @@ void CameraObj::applyIntendedPos() {
         lastDistToIntended = distToCube(&intendedPos);
       }
     } else {
-      //cout << "No need to move, already here" << endl;
       if (showData) { cout << "currentPos1 " << x << ", " << y << ", " << z << endl; }
       x = intendedPos.getX();
       y = intendedPos.getY();
@@ -439,7 +380,6 @@ void CameraObj::applyIntendedPos() {
       applyJustFixedVisibility();
       lastAngleDelta = 0;
       // currently disabled to try and find a technique without this
-      //freedom = false;
       if (showData) { cout << "intendedPos and freedom set to false" << endl; }
     }
   } else {
@@ -461,14 +401,6 @@ void CameraObj::applyIntendedPos() {
     cout << "currentPos  " << x << ", " << y << ", " << z << endl;
     cout << "targetPos   " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl;
   }
-  // FIXME: Pretty darn sure this whole chunk I just added must be broken. groundDistToPlayer()? Really?
-  /*positionByAngles(
-    tracker->getX(),
-    tracker->getZ(),
-    100,
-    groundDistToPlayer(),
-    permanentTarget->getAngleY(),
-    4);*/
 }
 
 // Check if you match some y angle
@@ -581,14 +513,6 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
   int deltaZ = sin(M_PI+(newAngleY*2*M_PI)/360.0)*usedDist;
   int intendedX = permanentTarget->getX() + deltaX;
   int intendedZ = permanentTarget->getZ() + deltaZ;
-  // But now once more with exaggerated dist as to curve mean for equal dist from player in whole turn
-  /*usedDist = hasCommandedAngle? commandedHyp + 0.5*groundDistTo(intendedX,intendedZ) : idealDist;
-  deltaX = cos(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
-  deltaZ = sin(M_PI+(newAngle*2*M_PI)/360.0)*usedDist;
-  intendedX = permanentTarget->getX() + deltaX;
-  intendedZ = permanentTarget->getZ() + deltaZ;
-  */
-  //cout << "So I'm going from " << x << ", " << z << " to " << newAngle << " at " << intendedX << ", " << intendedZ << " due to delta of " << deltaX << ", " << deltaZ << endl;
 
   // If we can actually get there without issue, allow it
   if (freeSpaceAt(intendedX, y, intendedZ)) {
@@ -606,11 +530,8 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
   if (!smoothly) { resetCamArray(); }
   updateMeans();
 
-  // This way, if you entered matchAngle while in Option 5 (moving to new intendedPos)
-  // then the non-visibility state from that will get updated and become invalid
-  // so that relinquishing playerCommandActive later will lead to a new era of Option 1
-  // (free movement) naturally instead of waiting for intendedPos to be fulfilled
-  // NOPE DIDN'T WORK NOT WORTH IT playerRegularlyVisible(permanentTargetNum);
+  // FIXME: Maybe bail here if we find a new visible angle?
+  // This one doesn't work yet: playerRegularlyVisible(permanentTargetNum);
 }
 
 // Make sure angle stays what we fixed it to
@@ -658,9 +579,6 @@ bool CameraObj::getPlayerCommandActive() {
 
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
-  //cout << "hasCommandedAngle " << hasCommandedAngle << " of rotation " << commandedAngleY << " while at " << angleY << endl;
-  //cout << "Start of tick,"<< endl;
-  //cout << "starting currentPos  " << x << ", " << y << ", " << z << endl;
   // If no attempt at camera command, sound can be played again
   // but must be checked at start, since later code disables commands
   if (!playerLeftCommand  && !playerRightCommand && 
@@ -677,7 +595,6 @@ void CameraObj::tick() {
     // If there were some commands though, now we record it
     playerCommandsLastTime = true;
   }
-
 
   // If you are following one target every frame,
 	if (permanentTarget) {
@@ -697,13 +614,6 @@ void CameraObj::tick() {
 
     // And give freedom back if player moved away from just fixed location
     updateJustFixedVisibility();
-    /*cout << "Current state: freeMovementState is " << freeMovementState() << " and dropping in is ";
-    cout << droppingIn << " and locksReset is " << locksReset << " and playerCenterCommand is " << playerCenterCommand;
-    cout << " and lockedToPlayer is " << lockedToPlayer << " and lockedToPlayerX is " << lockedToPlayerX;
-    cout << " and lockedToPlayerZ is " << lockedToPlayerZ << " and justFixedVisibility is " << justFixedVisibility << endl;
-    */
-    // Camera controls info
-    //cout << "angleY is " << angleY << " while permanentTargetCamDir is " << permanentTarget->getCamDirection() << endl;
 
     // No reset locks on dropping in!
     if (droppingIn && locksReset) { locksReset = false; } 
@@ -721,8 +631,6 @@ void CameraObj::tick() {
       // Disable rotation commands
       hasCommandedAngle = false; // none of the second highest commanded angels allowed
       
-
-      //cout << "Option Zero" << endl;
       // Told to recenter? Not matched up yet? Do so!
       // but also must be a clear angle, no blocks in intended pos
       if (!(matchAngleY(permanentTarget->getCamDirection())) &&
@@ -844,7 +752,6 @@ void CameraObj::tick() {
       }
     // then move the camera itself if free to do so (or player commanded)
     } else if (freeMovementState() || droppingIn) {
-      //cout << "First option1" << endl;
       applyFreeMovement();
     // Locked to player then? Keep up with them!
     } else if (playerCommandActive || (lockedToPlayer && locksReset && !justFixedVisibility && !playerCommandActive)) {
@@ -855,12 +762,10 @@ void CameraObj::tick() {
       applyLockedToPlayerX();
     // Locked to player Z then? Keep up with them!
     } else if (lockedToPlayerZ && locksReset && !justFixedVisibility && !playerCommandActive) {
-      //cout << "lockedToPlayerZ is " << lockedToPlayerZ << " while locksReset is " << locksReset << endl;
       applyLockedToPlayerZ();
     } else if (!lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ && !playerCommandActive) { // not free or have an intended pos
       applyIntendedPos();
     } else { // Nothing else worked? Well... just move freely then anyways
-      //cout << "Giving up" << endl;
       applyFreeMovement();
     }
 
@@ -870,20 +775,7 @@ void CameraObj::tick() {
       resetLocks();
     }
 
-    // Ultimatum Look at player no matter what
-    // Probably don't want to do this, but seeing if it fixes second green level problem
-    // was Tracker for X/Z, didn't work, trying permanentTarget now
-    // Still no luck! What is going on?
-    /*lookAtPlayer(
-    permanentTarget->getX(),
-    permanentTarget->getY(),
-    permanentTarget->getZ(),
-    permanentTarget->getAngleY(),
-    permanentTarget->getGrounded(),
-    4);*/
-
   }
-  //cout << "End camera tick" << endl;
   updateCamArray();
   updateMeans();
 }
@@ -895,9 +787,7 @@ void CameraObj::alwaysFollow(CubeObj* target, CubeObj* targetGoal, int targetNum
   permanentTargetGoal = targetGoal;
   lastLandedY = target->getY();
   lastLanded = target->getLanded();
-  //x = target->getX()-camHeight;
-  //y = target->getY()+50*camHeight;
-  //z = target->getZ()-6*tileSize;//4*camHeight;
+
   tracker->setTarget(permanentTarget);
   resetPos();
   follow(
@@ -939,19 +829,14 @@ int CameraObj::heightToPlayer() {
 
 // Find how close player is to camera on X,Z
 int CameraObj::groundDistToPlayer() {
-  //cout << "Get groundDistToPlayer for " << (permanentTarget->getX()) << ", " << (permanentTarget->getZ()) << endl;
   return groundDistTo(permanentTarget->getX(),permanentTarget->getZ());
 }
 
 // Find how close camera is to some X,Z
 int CameraObj::groundDistTo(int a, int c) {
-  //cout << "So for x,z as " << x << ", " << z << endl;
-  //cout << "and a,c as " << a << ", " << c << endl;
   int deltaX = x-a;
   int deltaZ = z-c;
-  //cout << "We have deltaX " << deltaX << " and deltaZ " << deltaZ << endl;
   int result = sqrt((double)(deltaX*deltaX + deltaZ*deltaZ));
-  //cout << "With result " << result << endl;
   return result;
 }
 
@@ -968,14 +853,10 @@ float CameraObj::angleBetweenPlayerAndGoal() {
   float result = getAngleBetween(permanentTargetGoal->getX(),permanentTargetGoal->getZ(),permanentTarget->getX(),permanentTarget->getZ())*360/(2*M_PI);
   result -= 90;
   result = -result;
-  // NEWDELETEME: cout << "RESULT IS " << result << endl;
-  //return result;*/
   int deltaX = permanentTarget->getX()-permanentTargetGoal->getX();
   int deltaZ = permanentTarget->getZ()-permanentTargetGoal->getZ();
   float oldResult = deltasToDegrees(deltaX, deltaZ) + (deltaZ<0)*180;
-  // NEWDELETEME: cout << "OLDULT IS " << oldResult << endl;
-  // NEWDELETEME: cout << "GETCAM IS " << getAngleY() << endl;
-  return result;//oldResult;
+  return result;
 }
 
 // Look at the point halfway between the player and their goal
@@ -1029,21 +910,14 @@ float CameraObj::deltasToDegrees(int opp, int adj) {
     result = (-2*(opp > 0)+1)*M_PI/2.0;
   }
 
-  // This accounts for how atan only covers the top half of the circle for degrees
-  // cout << "result at this point is " << result << endl;
-
-  // This code was supposed to fix atan's wraparound issues... ended up causing them?
-  // Commented out and saved just in case things go horribly wrong somehow.
-  //if (opp < 0) { result += (-2*(adj<0)+1)*PI-result; } // true = 1, false = 0
-
   // Then convert radians to degrees
   result *= 360.0/(2.0*M_PI);
   return result;
 }
 
+// Revised version that works better
 float CameraObj::fixedDeltasToDegrees(int opp, int adj) {
   float result;
-  //cout << "fixedDelta for groundDist " << opp << " and heightDiff " << adj << endl;
   if (adj != 0) {
     result = atan(opp*1.0/(adj*1.0));
   } else {
@@ -1054,8 +928,6 @@ float CameraObj::fixedDeltasToDegrees(int opp, int adj) {
     //result = M_PI/2.0 - M_PI*(opp<0);
     // new alt given that then.
     result = 0 + (opp >= 0) * M_PI*2;
-
-    //(-2*(opp > 0)+1)*M_PI/2.0;
   }
 
   // If adj < 0, must flip it over to be above 90 degree mark and negated
@@ -1161,7 +1033,6 @@ void CameraObj::follow(int a, int b, int c, int playerAngle, bool landed, int st
   }
   /* Just figure out X & Z positions now */
   // Finally, implement movement for the camera in its new facing direction
-  // NEWDELETEME: cout << "YEP, HERE WITH ANGLEY = " << angleY << endl;
   positionByAngles(a,c,intendedDist,distToPlayer,angleY,strictness);
 }
 
@@ -1189,14 +1060,9 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     /* Vertical aiming segment */
     float targetY = findTargetY(b, landed);
     // quick temp var for the triangle between ground hyp and y diff
-    //cout << "groundDistTo(" << a << "," << c <<") = " << groundDistTo(a,c) << endl;
-    //cout << "y " << y << " - TargetY " << targetY << " = " << y-targetY << endl;
     float vertAtan = fixedDeltasToDegrees(groundDistTo(a,c),y-targetY);  
-    //cout << "vertAtan = " << vertAtan << endl;
     // angleXToBe is how far down to be looking, from the camera, to the player
     float angleXToBe = 270 + vertAtan;// vertAtan != 0 ? 270 + vertAtan : angleX;
-    //if (angleXToBe > 360) { y++; }
-    //cout << "xToBe " << angleXToBe << endl;
 
     /* Horizontal aiming segment */
     // The 1.0 is necessary for floating point division, as a/x/c/z are all ints
@@ -1206,7 +1072,6 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     // can do this if you just fixed visibility too
     if (!followingBoth || justFixedVisibility || playerCommandActive || lockedToPlayerX || lockedToPlayerZ || lockedToPlayer) {
       // Only point the way the player faces if you're moving
-      //cout << "momentum x/z > 10 = " << (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) << endl;
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
         angleYToBe = followOne(angleYToBe, playerAngle, num, den);
         backupFreedom = true; // if player's moving again, feel the freedom to backup
@@ -1219,7 +1084,6 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     // Then update the final angles themselves
     angleY = matchRangeOf(angleY, angleYToBe);
     angleY += -(angleY-angleYToBe)/strictness;
-    // NEWDELETEME: cout << "ANGLEY IS " << angleY << endl;
     angleX += -(angleX-angleXToBe)/strictness;
     angleZ = 0; // Generally, don't want to change this - causes disorientation
 }
@@ -1227,12 +1091,8 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
 // Final step of follow, adjust position to match camera angles
 void CameraObj::positionByAngles(int a, int c, int intendedDist, int distToPlayer, float angleY, int strictness) {
   int viewingDist = (intendedDist + 3*distToPlayer)/4;
-  // NEWDELETEME: cout << "NOW ANGLEY IS " << angleY << " FOR VIEWINGDIST " << viewingDist << endl;
-  // NEWDELETEME: cout << "SO ANGLEY*2*M_PI/360 = " << angleY*2*M_PI/360.0 << endl;
-  // NEWDELETEME: cout << "GIVING SIN " << sin(angleY*2*M_PI/360.0) << " AND COS " << cos(angleY*2*M_PI/360.0) << endl;
   int xToBe = a+viewingDist*sin(angleY*2*M_PI/360.0);
   int zToBe = c+viewingDist*cos(angleY*2*M_PI/360.0);
-  // NEWDELETEME: cout << "GIVING US " << xToBe << " BY " << zToBe << " FROM " << a << " BY " << c << endl;
 
   // This will be a bit tricky, need to determine if new dist is smaller than old
   // when backup freedom is disabled
@@ -1400,7 +1260,6 @@ bool CameraObj::getFreedom() { return freedom; }
 
 // Line of Sight - returns if view to player is clear or not
 void CameraObj::setLOS(bool b) {
-  //cout << "LOS SET TO " << b << "!!!!!!!!!!!!" << endl;
   los = b; 
 }
 bool CameraObj::getLOS() { return los; }
@@ -1422,30 +1281,21 @@ void CameraObj::setLockedToPlayer(bool b) {
   lockedToPlayer = b;
 }
 void CameraObj::setLockedToPlayerX(bool b) { 
-  //cout << "Setting lockedToPlayerX to " << b << endl;
-  //cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   locksReset = false;
   resetLocks();
-  //cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayerX = b;
 }
 void CameraObj::setLockedToPlayerZ(bool b) { 
-  //cout << "Setting lockedToPlayerZ to " << b << endl;
-  //cout << "And old lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   locksReset = false;
   resetLocks();
-  //cout << "And new lockedXYZ is " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedToPlayerZ = b;
 }
 // For any type of locking
 void CameraObj::resetLocks() {
-  //cout << "locking to " << permanentTarget->getX() << ", " << permanentTarget->getY() << ", " << permanentTarget->getZ() << endl; 
   lockedX = x - tracker->getX();
   lockedY = y - tracker->getY();
   lockedZ = z - tracker->getZ();
-  //cout << "locked by " << lockedX << ", " << lockedY << ", " << lockedZ << endl;
   lockedY = lockedY < camHeight+camCommandedHeight ? camHeight+camCommandedHeight : lockedY;
-  //cout << "update lockedY to " << lockedY << endl;
   lockedAngleY = angleY;
   locksReset = lockedToPlayer || lockedToPlayerX || lockedToPlayerZ;
   snapLock();
@@ -1482,9 +1332,6 @@ bool CameraObj::getDroppingIn() {
 void CameraObj::hitSomething() {
   // Give up everything!
   setPlayerCommandActive(false);
-  //foundIntendedPos = false;
-  //justFixedVisibility = false;
-  //resetLocks();
 }
 
 // Camera controls

@@ -2,16 +2,21 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
+0. Figure out why deltasToDegrees is in use while fixedDeltasToDegrees exists
 1. Get camera to not flip out when you jump above it? And are moving up..? Happens
    consistently on middle ledge on first bridge in big grass with lowest camera.
-2. Play sound when cubior skids/conflict with direction vs toldDirection
-3. When camera locked, slide to side of momentum if greater than half of max momentum
-4. Make camera see where you will be going, rather than where you are, for big castle
-5. Have camera try checking vertically to resolve visibility issues
+2. When camera locked, slide to side of momentum if greater than half of max momentum
+3. Make camera see where you will be going, rather than where you are, for big castle
+
+Waiting on Rolando for:
+
+1. Play sound when cubior skids/conflict with direction vs toldDirection
 
 ---
 
-also wanted start screen to have all four cubes jumping for goal
+also wanted:
+1. Have camera try checking vertically to resolve visibility issues
+2. start screen to have all four cubes jumping for goal
 
 ---
 
