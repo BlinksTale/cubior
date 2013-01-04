@@ -2,12 +2,11 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-1. Get camera to not follow forwards through walls when locked (mini castle)
-2. Add up and down camera controls
-3. Play sound when cubior skids/conflict with direction vs toldDirection
-4. When camera locked, slide to side of momentum if greater than half of max momentum
-5. Make camera see where you will be going, rather than where you are, for big castle
-6. Have camera try checking vertically to resolve visibility issues
+1. Add up and down camera controls
+2. Play sound when cubior skids/conflict with direction vs toldDirection
+3. When camera locked, slide to side of momentum if greater than half of max momentum
+4. Make camera see where you will be going, rather than where you are, for big castle
+5. Have camera try checking vertically to resolve visibility issues
 
 ---
 Final IGF Revisions!

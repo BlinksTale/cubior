@@ -29,9 +29,11 @@ class CameraObj : public CubeObj {
     bool playerCenterCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
     bool playerCommandActive; // whether still adhering to player set angle or not
     int playerCommandAngle; // so that we keep player's angle until we move outside it naturally
+    int playerCommandHeight; // same goes for commanded height
     static const int playerCommandMargin = 60; // how far we can turn before leaving player set angle
 
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;
+    int camCommandedHeight;
     int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
            visibleIntendedCount, lastDistToIntended, intendedStuckCount;
     bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
@@ -72,7 +74,8 @@ class CameraObj : public CubeObj {
     
     // Camera commands
     bool hasCommandedAngle;
-    int commandedAngle;
+    int commandedAngleY;
+    int commandedHeight;
     int commandedHyp;
 
   public:
@@ -96,7 +99,9 @@ class CameraObj : public CubeObj {
 
     // Player Camera Controls
     bool matchAngleY(int);
+    bool matchHeight(int);
     int getMatchingPos(int,int);
+    void applyMatchHeight(int,bool);
     void applyMatchAngleY(int,bool);
     void applyCommandAngle();
     void checkCommandAngle();
