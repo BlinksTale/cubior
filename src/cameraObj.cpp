@@ -927,7 +927,10 @@ float CameraObj::fixedDeltasToDegrees(int opp, int adj) {
     // or so it seems since being straight under the camera looks forwards now
     //result = M_PI/2.0 - M_PI*(opp<0);
     // new alt given that then.
-    result = 0 + (opp >= 0) * M_PI*2;
+
+    // was giving 2*M_PI for opp > 0, should have returned M_PI/2.0
+    // Works now!
+    result = M_PI/2.0 + (opp < 0) * M_PI;
   }
 
   // If adj < 0, must flip it over to be above 90 degree mark and negated
@@ -1084,7 +1087,9 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
     // Then update the final angles themselves
     angleY = matchRangeOf(angleY, angleYToBe);
     angleY += -(angleY-angleYToBe)/strictness;
-    angleX += -(angleX-angleXToBe)/strictness;
+    // Make sure x angles are on the same 360 degree range before finding diff
+    angleXToBe = matchRangeOf(angleXToBe, angleX);
+    angleX += (angleXToBe-angleX)/strictness;
     angleZ = 0; // Generally, don't want to change this - causes disorientation
 }
 

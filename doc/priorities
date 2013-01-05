@@ -2,11 +2,14 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-0. Figure out why deltasToDegrees is in use while fixedDeltasToDegrees exists
-1. Get camera to not flip out when you jump above it? And are moving up..? Happens
-   consistently on middle ledge on first bridge in big grass with lowest camera.
-2. When camera locked, slide to side of momentum if greater than half of max momentum
-3. Make camera see where you will be going, rather than where you are, for big castle
+0. Popup the controls when first starting first level
+1. Just after rotating the camera, in mid castle, pressing a direction w/
+   keyboard arrows makes you veer towards camera
+2. When camera locked, position camera on the side you are moving towards
+   (but only if >1/2*maxMomentum is achieved by momentum)
+3. Make camera see around corners/non-visible areas, for big castle
+   (or, if you go through a "doorway" then swing the camera to the new side)
+   (where a "doorway" is defined as columns on either side of you, then not)
 
 Waiting on Rolando for:
 
@@ -15,6 +18,7 @@ Waiting on Rolando for:
 ---
 
 also wanted:
+0. Figure out why deltasToDegrees is in use while fixedDeltasToDegrees exists
 1. Have camera try checking vertically to resolve visibility issues
 2. start screen to have all four cubes jumping for goal
 
