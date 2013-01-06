@@ -2,9 +2,7 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-0. Popup the controls when first starting first level
-1. Just after rotating the camera, in mid castle, pressing a direction w/
-   keyboard arrows makes you veer towards camera
+1. Popup the controls when first starting first level
 2. When camera locked, position camera on the side you are moving towards
    (but only if >1/2*maxMomentum is achieved by momentum)
 3. Make camera see around corners/non-visible areas, for big castle

@@ -272,6 +272,10 @@ void CameraObj::applyLockedToPlayer() {
       permanentTarget->getGrounded(),
       4);
   }
+  // Experiment was almost 100% success!
+  // Instead though, angleY was altered, and movement was skewed
+  // so instead, angleY is manually reset every time here.
+  angleY = commandedAngleY; // Must always keep our locked Y angle as long as locked to player!
 }
 
 // Third camera movement style, locks its position
@@ -523,13 +527,15 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
     restoreCameraFreedom();
   }
   
+  int tempAngleY = angleY;
   // make sure you're still looking at the player at the end of the day.
   lookAtTarget();
+  angleY = tempAngleY; // don't be thrown by the vertical lookAtTarget command!
   oldAngleY = matchRangeOf(oldAngleY, newAngleY); // FIXME: obsolete line?
   
   if (!smoothly) { resetCamArray(); }
   updateMeans();
-
+  
   // FIXME: Maybe bail here if we find a new visible angle?
   // This one doesn't work yet: playerRegularlyVisible(permanentTargetNum);
 }
@@ -690,6 +696,8 @@ void CameraObj::tick() {
         }
         // Then, apply that height
         commandedHeight = permanentTarget->getY()+camCommandedHeight+camHeight;
+        
+        // Check if we can go to there
         if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
           hasCommandedAngle = true;
           

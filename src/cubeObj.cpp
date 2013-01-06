@@ -300,11 +300,6 @@ void CubeObj::tick() {
     landedOnDirectionDiff = direction - landedOn->getDirection();
     landedOnToldDirectionDiff = toldDirection - landedOn->getToldDirection();
   }
-
-  //cout << "OneB_08 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-  //if (isPlayer()) { cout << "End   MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
-  //if (playerStatus) { cout << "End player loop momentumZ " << momentumZ << endl; }
-  //cout << "End Strength:  " << strength << " and Direction: " << direction << endl;
 }
 
 float CubeObj::getStrength() {
