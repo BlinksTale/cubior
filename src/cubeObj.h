@@ -105,6 +105,7 @@ class CubeObj {
     int getMomentumX();
     int getMomentumY();
     int getMomentumZ();
+    int getMomentumGround();
     int getMaxJump();
     
     void setNeighbors(bool,bool,bool,bool,bool,bool);
@@ -145,6 +146,7 @@ class CubeObj {
 
     float myFpsRate();
     bool getLastToldToMove();
+    int getMaxSpeed();
 };
 
 #endif 

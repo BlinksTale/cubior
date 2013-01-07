@@ -1097,6 +1097,7 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   tracker.setPos(slotToPosition(cX,0), slotToPosition(cY,1), slotToPosition(cZ,2));
   
   if (showData) {
+    cout << "we were given " << aX << ", " << aY << ", " << aZ << endl;
     cout << "STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAART!" << endl;
     cout << "goal @ <" << (gX) << ", " << (gY) << ", " << (gZ) << ">" << endl;
     cout << "were @ <" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">" << endl;
@@ -1108,8 +1109,8 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   // don't make the camera spin before we're even in range.
   //if (cX < 0 || cX > maxWidth || cY < 0 || cY > maxHeight || cZ < 0 || cZ > maxDepth) {
 
-  // if still dropping in, just say "Yes, they're visible"
-  if (cY > maxHeight) {
+  // if still dropping in or too far, just say "Yes, they're visible"
+  if (abs(cX) > maxHeight || abs(cY) > maxHeight || abs(cZ) > maxHeight) {
     return true;
   }
 
@@ -1176,12 +1177,12 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
     if (allSame) {
       return false;
     }*/
-
+    /*
     if (showData) {
       cout << "<" << tracker.getX() << ", " << tracker.getY() << ", " << tracker.getZ() << ">, ";
       cout << "[" << cX << ", " << cY << ", " << cZ << "] -> ";
       cout << "[" << gX << ", " << gY << ", " << gZ << "]" << endl;
-    }
+    }*/
     
     //cout << "cX is " << cX << ", cY is " << cY << ", cZ is " << cZ << endl;
     //cout << "gX is " << gX << ", gY is " << gY << ", gZ is " << gZ << endl;

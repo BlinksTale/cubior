@@ -647,6 +647,11 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 int CubeObj::getMaxJump() { return maxJump; }
+// How fast we are travelling on the ground
+int CubeObj::getMomentumGround() {
+  int momentumGround = sqrt(momentumX*momentumX+momentumZ*momentumZ);
+  return momentumGround * movementDivision;
+}
 
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   neighborsSet = true;
@@ -770,3 +775,5 @@ float CubeObj::myFpsRate() {
 
 // Return true if recently sent a movement command (joystick or keyboard dir input)
 bool CubeObj::getLastToldToMove() { return lastToldToMove; }
+
+int CubeObj::getMaxSpeed() { return maxSpeed * movementDivision; }

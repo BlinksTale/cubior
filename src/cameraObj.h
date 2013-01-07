@@ -95,6 +95,7 @@ class CameraObj : public CubeObj {
     void applyLockedToPlayer();
     void applyLockedToPlayerX();
     void applyLockedToPlayerZ();
+    void applyLockedToTracker(bool); // used for all locked to player vals
     void applyIntendedPos();
 
     // Player Camera Controls

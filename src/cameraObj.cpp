@@ -251,60 +251,67 @@ void CameraObj::applyFreeMovement() {
 // in relation to the player
 void CameraObj::applyLockedToPlayer() {
   if (showData) { cout << "Option Two" << endl; }
-  x = tracker->getX() + lockedX;
-  y = tracker->getY() + lockedY;
-  z = tracker->getZ() + lockedZ;
-  angleY = lockedAngleY;
-  // Must snap to 45 degree intervals
-  if (!getSnapLock()) { snapLock(); }
-  // And be within range of player
-  if (groundDistToPlayer() > farthestDist) {
-    changePosTowards(
-            permanentTarget,
-            camSpeed); }
-  // Experiment: Try looking at player normally when locked
-  if (permanentTarget->getY()<y) { // Don't look up if player above you, makes camera flip over to backside
-    lookAtPlayer(
-      tracker->getX(),
-      permanentTarget->getY(),
-      tracker->getZ(),
-      permanentTarget->getAngleY(),
-      permanentTarget->getGrounded(),
-      4);
-  }
-  // Experiment was almost 100% success!
-  // Instead though, angleY was altered, and movement was skewed
-  // so instead, angleY is manually reset every time here.
-  angleY = commandedAngleY; // Must always keep our locked Y angle as long as locked to player!
+  applyLockedToTracker(true);
 }
 
 // Third camera movement style, locks its position
 // in relation to the player's X axis alone
 void CameraObj::applyLockedToPlayerX() {
   if (showData) { cout << "Option Three" << endl; }
-  x = tracker->getX() + lockedX;
-  y = tracker->getY() + lockedY;
-  z = tracker->getZ() + lockedZ;
-  angleY = lockedAngleY;
-  // Must snap to 45 degree intervals
-  if (!getSnapLock()) { snapLock(); }
-  // And be within range of player
-  if (groundDistToPlayer() > farthestDist) { changePosTowards(permanentTarget,camSpeed); }
+  applyLockedToTracker(false);
 }
 
 // Fourth camera movement style, locks its position
 // in relation to the player's Z axis alone
 void CameraObj::applyLockedToPlayerZ() {
   if (showData) { cout << "Option Four" << endl; }
-  x = tracker->getX() + lockedX;
+  applyLockedToTracker(false);
+}
+
+// How all three locked styles apply to player
+void CameraObj::applyLockedToTracker(bool andLookAt) {
+  // If moving in a direction at more than half max speed,
+  // also move camera some dist in that direction
+  // The "Mario Camera" as we'll call it, from SMW (and SMB3 too?)
+  int lookDist = 300;
+  // Only extend vision if speed > half of max
+  if (permanentTarget->getMomentumGround() > permanentTarget->getMaxSpeed()/2.0) {
+    lookDist = lookDist*(permanentTarget->getMomentumGround()/(permanentTarget->getMaxSpeed()/2.0));
+  } else {
+    lookDist = 0;
+  }
+  int lookDistX = lookDist * sin(permanentTarget->getDirection());
+  int lookDistZ = lookDist * cos(permanentTarget->getDirection());
+  // setup to use lookDist here and in andLookAt,
+  // but it currently moves the tracker to the farthest negative dist in all
+  // ground directions... causing issues, so, currently not usable.
+  x = tracker->getX() + lockedX;// + lookDistX;
   y = tracker->getY() + lockedY;
-  z = tracker->getZ() + lockedZ;
+  z = tracker->getZ() + lockedZ;// + lookDistZ;
   angleY = lockedAngleY;
   // Must snap to 45 degree intervals
   if (!getSnapLock()) { snapLock(); }
   // And be within range of player
   if (groundDistToPlayer() > farthestDist) {
-    changePosTowards(permanentTarget,camSpeed);
+    changePosTowards(permanentTarget, camSpeed); 
+  }
+
+  // Commanded to also look at player
+  if (andLookAt) {    
+    // Experiment: Try looking at player normally when two dimensionally locked
+    if (permanentTarget->getY()<y) { // Don't look up if player above you, makes camera flip over to backside
+      lookAtPlayer(
+        tracker->getX(),// + lookDistX,
+        permanentTarget->getY(),
+        tracker->getZ(),// + lookDistZ,
+        permanentTarget->getAngleY(),
+        permanentTarget->getGrounded(),
+        4);
+    }
+    // Experiment was almost 100% success!
+    // Instead though, angleY was altered, and movement was skewed
+    // so instead, angleY is manually reset every time here.
+    angleY = commandedAngleY; // Must always keep our locked Y angle as long as locked to player!
   }
 }
 
