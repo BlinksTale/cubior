@@ -1193,7 +1193,11 @@ void drawMenu(int i, bool doubleWidth) {
       } else {
         keyboardControlsImage.draw(0,-100,aspect,false);
       }
-      backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      if (getJustHitStart()) {
+        startImage.draw(           0, 400,aspect,(option==0)*rotation);
+      } else {
+        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      }
     } else if (getMenu(i) == 5) { // Start Controls Display
       //creditsTextImage.draw(0,-100,aspect,false);
       // ATTEMPT AT REPLACING CREDITS IMAGE W/ REAL TEXT

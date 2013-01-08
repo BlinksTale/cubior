@@ -92,6 +92,7 @@ bool gameplayRunning = true;
 bool gameplayFirstRunning = true;
 int xFar[4], xNear[4], zFar[4], zNear[4]; // for detecting walls for wall angles/shots
 bool lastPlayerVisible[4]; // last time player visibility was reported
+bool justHitStart = false; // Whether you just tried to start the game (forces you into controls view first)
 
 // Keep track of player's visibility
 int playerVisibleSlot = 0;
@@ -1522,13 +1523,9 @@ void chooseOption(int i) {
   } else if (menu[i] == 1) { // Start Menu (Main Menu)
     switch(option[i]) {
       case 0:
-        // Start game
-        startGameplay();
-        setJustUnpaused(true);
-        // Change all players to pause menu
-        for (int j=0; j<4; j++) {
-          setMenu(j,2);
-        }
+        // See Controller Map Just Before Starting Gameplay
+        justHitStart = true;
+        setMenu(i, 4);//menu[controller] = 4;
         break;
       case 1:
         // Change options
@@ -1597,9 +1594,21 @@ void chooseOption(int i) {
   } else if (menu[i] == 4) { // Controller Map
     switch(option[i]) {
       case 0:
-        // Return to options menu
-        setMenu(i, 3);//menu[controller] = 3;
-        break;
+        if (!justHitStart) {
+          // Return to options menu
+          setMenu(i, 3);//menu[controller] = 3;
+          break;
+        } else {
+          // Start game
+          startGameplay();
+          setJustUnpaused(true);
+          // Change all players to pause menu
+          for (int j=0; j<4; j++) {
+            setMenu(j,2);
+          }
+          justHitStart = false;
+          break;
+        }
       default:
         break;
     }
@@ -1702,3 +1711,6 @@ float fpsRate() {
   // pass it along from flatRender
   return getFPSRate();
 }
+
+// Give flatrender info on whether controls are displayed for options or for starting
+bool getJustHitStart() { return justHitStart; }

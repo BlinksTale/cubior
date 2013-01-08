@@ -185,5 +185,6 @@ static const int playerVisibleMax = 10;
     int getPlayerChosen(); // who was picked first
 
     float fpsRate(); // how much more we need to move compared to expected speed
+bool getJustHitStart(); // whether trying to start gameplay or not (for controls display)
 
 #endif 

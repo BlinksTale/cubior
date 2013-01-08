@@ -201,5 +201,9 @@ remember: "git rm --cached file" makes it easy to take files off a command line 
 note: Xcode copies all files into resources of App, located in a folder accessible only by going to Preferences > Derived Data and clicking the arrow to access the directory. App is then in Cubior Folder > Build > Products > Release > Cubior.app and must be right clicked on and have Show Package Contents clicked. Then in Contents > Resources you can paste all the normal (maps/music/sfx/images) directories, and everything should work. Oi!
 
 ---
+12/16/12
+Mac: Xbox 360 controller driver, http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver
+
+---
 1/2/13
 error: if you use a joystick, then switch back to keyboard, two dir at once != no movement

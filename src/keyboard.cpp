@@ -39,6 +39,20 @@ bool independentMovement[] = { // move separately from camera angle after start 
 int altFrame = 0;
 int altMax = 5;
 
+/* Change which 360 buttons we use on Mac vs PC */
+/* (they read the controller differently) */
+#ifdef __APPLE_CC__
+int joinButtonNum = 11 - 1;
+int pauseButtonNum = 10 - 1;
+int cameraBumperButtonNum = 14 - 1;
+int cameraStickButtonNum = 13 - 1;
+#else
+int joinButtonNum = 6;
+int pauseButtonNum = 7;
+int cameraBumperButtonNum = 4;
+int cameraStickButtonNum = 9;
+#endif
+
 // For pressing start to see who goes first
 int playerChosen = -1;
 
@@ -367,13 +381,14 @@ void joystickCommands(int i) {
   // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
   bool camButtonPressed = false;
+  
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
-		if (b == 6) { // Join joinButton
+		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
-		} else if (b == 7) { // Pause pauseButton
+		} else if (b == pauseButtonNum) { // Pause pauseButton
 			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
-		} else if (b == 4 || b == 9) { // Camera cameraButtons, left bumper/right stick
+		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
       // If either is pressed, add that to camButtonPressed
       // so we only send one call later
       camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
@@ -395,7 +410,11 @@ void joystickCommands(int i) {
 	rightButton[i]= joyX[i] > 15;
   
   int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  #ifdef __APPLE_CC__
+  int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+  #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+  #endif
   int secondaryTrigger = 50;
   bool newSecondaryLeft  = newSecondaryX <-secondaryTrigger;
   bool newSecondaryRight = newSecondaryX > secondaryTrigger;
