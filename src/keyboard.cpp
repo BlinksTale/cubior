@@ -410,7 +410,11 @@ void joystickCommands(int i) {
 	rightButton[i]= joyX[i] > 15;
   
   int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  #ifdef __APPLE_CC__
+  int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+  #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+  #endif
   int secondaryTrigger = 50;
   bool newSecondaryLeft  = newSecondaryX <-secondaryTrigger;
   bool newSecondaryRight = newSecondaryX > secondaryTrigger;
