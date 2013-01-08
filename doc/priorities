@@ -19,6 +19,9 @@ also wanted:
 0. Figure out why deltasToDegrees is in use while fixedDeltasToDegrees exists
 1. Have camera try checking vertically to resolve visibility issues
 2. start screen to have all four cubes jumping for goal
+3. If cam moving to fixed point, but going to hit wall, stop! Cancel the move.
+   Currently, in the last level, camera has no problem going straight through
+   small walls to get to open spaces on the other side.
 
 ---
 
@@ -33,8 +36,6 @@ also wanted:
 
 1. And what is that funkiness on the right front corner of the first pile in room 3?
      that's all in option one, so it must be that viewBoth isn't figuring out which side it's really on.
-2. There is an upper bound to how high the camera can rotate before flipping over
-   Find what this number is, and do not allow angleX to pass it. STILL NEED TO DO THIS, STILL AN ISSUE.
 
 ---
 Old but still worthy priorities
