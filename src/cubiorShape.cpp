@@ -125,6 +125,8 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   if (getPlayer(n)->getLock()) { glScalef(2.0,0.5,2.0); }
 
   bool hit = getPlayer(n)->getCollision();
+  bool fighting = getPlayer(n)->getDirectionConflict();
+  bool squint = hit || fighting;
   bool fly = getPlayer(n)->getNotGrounded();
   float gaspValue = 0.075;
   
@@ -135,7 +137,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glPushMatrix();
   glTranslatef(0.0,0.0,0.01);
   // Mouth
-  if (!getPlayer(n)->getLock() && !hit) {
+  if (!getPlayer(n)->getLock() && !squint) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top left
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot left
@@ -149,7 +151,7 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
     glColor3f(0,0,0); glVertex3f( faceSmileWidth/2 - faceSmileCurveWidth, faceSmileHeight + faceLineWidth/2 + fly*gaspValue,0.5); // top right
   glEnd();
-  if (!getPlayer(n)->getLock() && !hit) {
+  if (!getPlayer(n)->getLock() && !squint) {
   glBegin(GL_POLYGON);
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2,                       faceSmileHeight - faceLineWidth/2 + faceSmileValue,0.5); // bot left
     glColor3f(0,0,0); glVertex3f(-faceSmileWidth/2 + faceSmileCurveWidth, faceSmileHeight - faceLineWidth/2 - fly*gaspValue,0.5); // bot right
@@ -158,13 +160,13 @@ void CubiorShape::drawCubior(int n){//float r1, float g1, float b1, float colorD
   glEnd();
   }
   // Eye L
-  if (hit) {
+  if (squint) {
     drawClosedEyeAt( 0.2, 0.15, 0.5,false);
   } else {
     drawEyeAt( 0.2, 0.15, 0.5);
   }
   // Eye R
-  if (hit) {
+  if (squint) {
     drawClosedEyeAt(-0.2, 0.15, 0.5,true);
   } else {
     drawEyeAt(-0.2, 0.15, 0.5);

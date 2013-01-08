@@ -203,3 +203,7 @@ note: Xcode copies all files into resources of App, located in a folder accessib
 ---
 12/16/12
 Mac: Xbox 360 controller driver, http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver
+
+---
+1/2/13
+error: if you use a joystick, then switch back to keyboard, two dir at once != no movement

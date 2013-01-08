@@ -8,6 +8,8 @@
 #ifndef CUBEOBJ
 #define CUBEOBJ
 
+//#include "cameraObj.h"
+
 class CubeObj {
   protected:
     static const int altSize = 400; // how wide the checker patterns are
@@ -17,6 +19,8 @@ class CubeObj {
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
+    bool toldToMoveX, toldToMoveY, toldToMoveZ;
+    float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
@@ -26,8 +30,9 @@ class CubeObj {
     int material;
     bool jumping, lastJumping, collision, lastCollision;
     CubeObj* landedOn;
-    float landedOnDirectionDiff;
-    float newFriction, strength, direction; // for use with new friction technique
+    //CameraObj* camera; // for camera cubes to ID their cameras
+    float landedOnDirectionDiff, landedOnToldDirectionDiff;
+    float newFriction, strength, direction, toldDirection; // for use with new friction technique
     bool invisible;
   public:
     CubeObj();
@@ -48,6 +53,8 @@ class CubeObj {
     bool isPlayer();
     bool isCamera();
     void setCameraStatus(bool);
+    //void setCamera(CameraObj*);
+    //CameraObj* getCamera();
 
     void jump(bool);
 
@@ -82,6 +89,7 @@ class CubeObj {
     void setMomentumY(float);
     void setMomentumZ(float);
     
+    void resetToldToMove();
     void movePos(float,float,float);
     void moveX(float);
     void moveY(float);
@@ -116,6 +124,8 @@ class CubeObj {
     void applyCollisionMomentumX();
     void applyCollisionMomentumZ();
     bool getCollision();
+    bool getDirectionConflict();
+    float getDirectionConflictSeverity();
     virtual int getWidth();
     virtual int getHeight();
     virtual int getSize(int);
@@ -128,6 +138,7 @@ class CubeObj {
 
     float getStrength();
     float getDirection();
+    float getToldDirection();
     int getCamDirection(); // translated to camera numbers
     void setInvisible(bool b) { invisible = b; }
     bool isInvisible() { return invisible; }

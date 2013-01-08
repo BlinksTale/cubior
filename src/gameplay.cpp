@@ -70,6 +70,7 @@ bool justChangedMenu = false;
 bool justChangedOption = false;
 bool justCausedError = false;
 bool justTurnedCamera = false;
+bool justFailedCamera = false;
 bool justFocusedCamera = false;
 
 // Pause option value
@@ -129,8 +130,6 @@ void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
 
 // Put a Cubior back in its start spot
 void resetCubior(int i) {
-  // Put camera in drop down spot
-  camera[i].resetPos();
   // And reset its visible-yet-intended count
   camera[i].setVisibleIntended(0);
   
@@ -139,12 +138,19 @@ void resetCubior(int i) {
 	int directionFromCenter = 1+(i%2)*(-2);
   //cubior[i].setPos(-200*(distFromCenter*directionFromCenter),100, currentMapWidth*tileSize*1/2-400);
   cubior[i].setPos(i*200-300,1000, currentMapDepth*tileSize/2-tileSize*(1+padding));
+
+  cubior[i].resetToldToMove();
   cubior[i].setMomentumX(0);
   cubior[i].setMomentumY(0);
   cubior[i].setMomentumZ(0);
   cubior[i].moveX(0);
   cubior[i].moveY(3);
-  cubior[i].moveZ(3);
+  cubior[i].moveZ(-3);
+
+  // After Cubior is reset, THEN move camera
+  // Put camera in drop down spot
+  camera[i].resetPos();
+
 }
 
 // Load in a level and set it up
@@ -179,17 +185,18 @@ void gameplayStart(string levelToLoad) {
 
     // Setup player positions and cameras
     for (int i=0; i<cubiorCount; i++) {
-      // Starting camera and player pos
-      resetCubior(i);
-      keepInBounds(&cubior[i]);
   
       // Start camera!
-	    camera[i].resetPos();
-      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-  
       camera[i].alwaysFollow(&cubior[i],&goal,i);
       cameraDroppingIn[i] = true;
 
+      // After set to always follow, THEN position camera and cubior
+      // Starting camera and player pos
+      resetCubior(i);
+      keepInBounds(&cubior[i]);
+	    camera[i].resetPos();
+      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+  
       // Cubior Start State
       cubior[i].setCubiorNum(i);
       cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
@@ -455,23 +462,26 @@ void gameplayLoop() {
         //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
         //cout << "posttick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         
-        // So long as no intendedPos, try collision
-        if (!camera[i].getFoundIntendedPos()) {
+        // So long as no intendedPos, locked to player, or commanded, try collision
+        bool checkCameraCollision = !camera[i].getFoundIntendedPos();/* || camera[i].getLockedToPlayer()
+           || camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayerZ()
+           || camera[i].getPlayerCommandActive();*/
+        if (checkCameraCollision) {
           // And bounce off walls if colliding
           cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-          cameraCube.setCameraStatus(true);
+          camera[i].setCameraStatus(true);
           // using cameraCube here since a lack thereof make camera's collision stop working 
-          int cX = getCollisionMapSlot(&cameraCube,0);
-          int cY = getCollisionMapSlot(&cameraCube,1);
-          int cZ = getCollisionMapSlot(&cameraCube,2);
+          int cX = getCollisionMapSlot(&camera[i],0);
+          int cY = getCollisionMapSlot(&camera[i],1);
+          int cZ = getCollisionMapSlot(&camera[i],2);
           if (goodCollision) {
-            explodingDiamondCollision(&cameraCube,permanentMap,cX,cY,cZ);
-            explodingDiamondCollision(&cameraCube,collisionMap,cX,cY,cZ);
+            explodingDiamondCollision(&camera[i],permanentMap,cX,cY,cZ);
+            explodingDiamondCollision(&camera[i],collisionMap,cX,cY,cZ);
           } else {
-            unintelligentCollision(&cameraCube,permanentMap,cX,cY,cZ);
-            unintelligentCollision(&cameraCube,collisionMap,cX,cY,cZ);
+            unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
+            unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
           }
-          camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+          //camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
         }
         // If not in goal's range, ensure visibility
         if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){// &&
@@ -1387,10 +1397,7 @@ void wipeFullMap(CubeObj* map[][maxHeight][maxDepth]){
 int getCollisionMapSlot(CubeObj* c, int d) {
   int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
   int cubePosition = c->get(d);
-  int cubeRadius = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
-  int mapHalfSize = map/2*tileSize;
-  int result = (cubePosition - cubeRadius + mapHalfSize)/tileSize;
-  return result;
+  return positionToSlot(cubePosition,d);
 }
 
 // pass cube and dimension to get map slot
@@ -1403,13 +1410,33 @@ int getCollisionMapPosition(int slot, int d) {
   return result;
 }
 
-// Shorthand for getCollisionMapSlot
-int positionToSlot(CubeObj* c, int d) {
-  return getCollisionMapSlot(c,d);
+// pass position and dimension to get map slot
+int positionToSlot(int a, int d) {
+  int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
+  int cubePosition = a;
+  int cubeRadius = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
+  int mapHalfSize = map/2*tileSize;
+  int result = (cubePosition - cubeRadius + mapHalfSize)/tileSize;
+  return result;
 }
 // Shorthand for getCollisionMapPosition
 int slotToPosition(int slot, int d) {
   return getCollisionMapPosition(slot,d);
+}
+
+// Return if empty space here or not
+bool freeSpaceAt(int a, int b, int c) {
+  int slotA = positionToSlot(a,0);
+  int slotB = positionToSlot(b,1);
+  int slotC = positionToSlot(c,2);
+  // Outside map bounds?
+  if (slotA < 0 || slotB < 0 || slotC < 0 ||
+      slotA >= getMapWidth() || slotB >= getMapHeight() || slotC >= getMapDepth()) {
+        return true;
+  } else {
+    CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+    return (c1 == NULL || (c1->isInvisible()));
+  }
 }
 
 // Returns gameplay state
@@ -1445,6 +1472,7 @@ bool getJustChangedOption() { return justChangedOption; }
 bool getJustCausedError() { return justCausedError; }
 bool getJustFocusedCamera() { return justFocusedCamera; }
 bool getJustTurnedCamera() { return justTurnedCamera; }
+bool getJustFailedCamera() { return justFailedCamera; }
 void setJustExited(bool b) { justExited = b; }
 void setJustPaused(bool b) { justPaused = b; }
 void setJustUnpaused(bool b) { justUnpaused = b; }
@@ -1453,6 +1481,7 @@ void setJustChangedOption(bool b) { justChangedOption = b; }
 void setJustCausedError(bool b) { justCausedError = b; }
 void setJustFocusedCamera(bool b) { justFocusedCamera = b; }
 void setJustTurnedCamera(bool b) { justTurnedCamera = b; }
+void setJustFailedCamera(bool b) { justFailedCamera = b; }
 
 const int getMaxCubeCount() { return maxCubeCount; }
 int getCubeCount() { return cubeCount; }
@@ -1601,7 +1630,7 @@ void setMenu(int i, int j) {
   option[i] = 0;
 }
 
-int getMapwidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
+int getMapWidth()   { if (levelMap != NULL) { return levelMap->getWidth() ; } else { return 0; }}
 int getMapHeight()  { if (levelMap != NULL) { return levelMap->getHeight(); } else { return 0; }}
 int getMapDepth()   { if (levelMap != NULL) { return levelMap->getDepth() ; } else { return 0; }}
 float getMapRed()   { return levelMap->getRed();  }

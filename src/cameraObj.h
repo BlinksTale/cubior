@@ -18,6 +18,8 @@ class CameraObj : public CubeObj {
     bool droppingIn; // used to start a level, won't try option five until false
     bool locksReset; // make sure you don't lock before the locks are reset
     bool wallState, intendedState, goalState, freeState;
+    bool haventPlayedFailSfx; // stops fail sfx from playing repeatedly
+    bool playerCommandsLastTime; // any commands from player last tick?
     // Would love to have this higher/smoother, but doesn't keep up with player
     // when following along a wall angle.
     static const int camArraySize = 16; // 30 is smooth, 8 is jerky, 16 works.
@@ -27,9 +29,11 @@ class CameraObj : public CubeObj {
     bool playerCenterCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
     bool playerCommandActive; // whether still adhering to player set angle or not
     int playerCommandAngle; // so that we keep player's angle until we move outside it naturally
+    int playerCommandHeight; // same goes for commanded height
     static const int playerCommandMargin = 60; // how far we can turn before leaving player set angle
 
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;
+    int camCommandedHeight;
     int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
            visibleIntendedCount, lastDistToIntended, intendedStuckCount;
     bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
@@ -70,7 +74,8 @@ class CameraObj : public CubeObj {
     
     // Camera commands
     bool hasCommandedAngle;
-    int commandedAngle;
+    int commandedAngleY;
+    int commandedHeight;
     int commandedHyp;
 
   public:
@@ -84,6 +89,7 @@ class CameraObj : public CubeObj {
     void applyJustFixedVisibility(); // first time setup when establishing that we just fixed it
     void updateJustFixedVisibility(); // ensure we do start moving again if needed
     void checkCommandLock(); // freedom from player command if new type of angle request 
+    void restoreCameraFreedom(); // return freedom to camera after player control is done
     bool freeMovementState(); // returns if Option 1 or not
     void applyFreeMovement();
     void applyLockedToPlayer();
@@ -93,6 +99,9 @@ class CameraObj : public CubeObj {
 
     // Player Camera Controls
     bool matchAngleY(int);
+    bool matchHeight(int);
+    int getMatchingPos(int,int);
+    void applyMatchHeight(int,bool);
     void applyMatchAngleY(int,bool);
     void applyCommandAngle();
     void checkCommandAngle();
@@ -211,7 +220,11 @@ class CameraObj : public CubeObj {
     void setState(int);
     bool getDroppingIn(); // to check if just starting out
 
+    // Collision handling
+    void hitSomething();
+
     // Set camera commands
+    void setPlayerCommandActive(bool);
     void setPlayerCenterCommand(bool);
     void setPlayerLeftCommand(bool);
     void setPlayerRightCommand(bool);

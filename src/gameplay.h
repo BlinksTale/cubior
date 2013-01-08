@@ -97,8 +97,9 @@ static const int playerVisibleMax = 10;
     void wipeFullMap(CubeObj*[][maxHeight][maxDepth]);
     int getCollisionMapSlot(CubeObj*,int);
     int getCollisionMapPosition(int,int);    
-    int positionToSlot(CubeObj*,int);
+    int positionToSlot(int,int);
     int slotToPosition(int, int);
+    bool freeSpaceAt(int,int,int);
   
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);
@@ -121,6 +122,7 @@ static const int playerVisibleMax = 10;
     bool getJustCausedError();
     bool getJustFocusedCamera();
     bool getJustTurnedCamera();
+    bool getJustFailedCamera();
     // And setters for sfx triggers
     void setJustExited(bool);
     void setJustPaused(bool);
@@ -130,6 +132,7 @@ static const int playerVisibleMax = 10;
     void setJustCausedError(bool);
     void setJustFocusedCamera(bool);
     void setJustTurnedCamera(bool);
+    void setJustFailedCamera(bool);
     
     const int getMaxCubeCount();
     int getCubeCount();

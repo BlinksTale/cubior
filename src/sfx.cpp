@@ -24,14 +24,14 @@
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
   menuEnterBuffer, menuExitBuffer, glowBuffer,
   changeMenuBuffer, changeOptionBuffer,
-  focusCameraBuffer, turnCameraBuffer;
+  focusCameraBuffer, turnCameraBuffer, failCameraBuffer;
 sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
 
 // Sound Vars (play what's in buffer)
 sf::Sound testSound, exitSound, errorSound,
   menuEnterSound, menuExitSound, glowSound,
   changeMenuSound, changeOptionSound,
-  focusCameraSound, turnCameraSound;
+  focusCameraSound, turnCameraSound, failCameraSound;
 sf::Sound jumpSound[4], bumpSound[4];
 
 // Sound muffling variables
@@ -195,6 +195,7 @@ void initSfx(int argc, char** argv) {
   changeOptionBuffer.loadFromFile(extraPath + "./sfx/Menu-Game/Menu 1.wav");
   focusCameraBuffer.loadFromFile( extraPath + "./sfx/Movement/Turn 10.wav");
   turnCameraBuffer.loadFromFile(  extraPath + "./sfx/Movement/Turn 1.wav");
+  failCameraBuffer.loadFromFile(  extraPath + "./sfx/Collision/Hit 13.wav");
 
   // And setup sound players
   testSound.setBuffer(testBuffer);
@@ -207,6 +208,7 @@ void initSfx(int argc, char** argv) {
   changeOptionSound.setBuffer(changeOptionBuffer);
   focusCameraSound.setBuffer(focusCameraBuffer);
   turnCameraSound.setBuffer(turnCameraBuffer);
+  failCameraSound.setBuffer(failCameraBuffer);
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
@@ -298,6 +300,10 @@ void sfxLoop() {
   if (getJustTurnedCamera()) {
     turnCameraSound.play();
     setJustTurnedCamera(false);
+  }
+  if (getJustFailedCamera()) {
+    failCameraSound.play();
+    setJustFailedCamera(false);
   }
 }
 // Specific sound effects

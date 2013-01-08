@@ -6,6 +6,7 @@
  */
 
 #include "cubeObj.h"
+#include "cameraObj.h"
 #include "gameplay.h"
 
 //#include <iostream>
@@ -25,14 +26,15 @@ CubeObj::CubeObj() {
   duplicateNeighbor = false;
 
   // Friction for all techniques
-  newFriction = 2.35;
+  newFriction = 2.5;//2.35;
   friction =  2 ;
   direction = 0.0;
+  toldDirection = 0.0;
   strength = 0.0;
 
   // And movement limits & ratios
   maxSpeed = 25 ;
-  movementSpeed = 0.3;
+  movementSpeed = 0.4;//0.3;
 
   // material default
   material = 0;
@@ -62,6 +64,12 @@ CubeObj::CubeObj() {
   momentumX = 0 ;
   momentumY = 0 ;
   momentumZ = 0 ;
+  toldToMoveX = false;
+  toldToMoveY = false;
+  toldToMoveZ = false;
+  toldToMoveXDist = 0;
+  toldToMoveYDist = 0;
+  toldToMoveZDist = 0;
   
   // Jumping vars
   jumpable = false;
@@ -116,6 +124,24 @@ void CubeObj::tick() {
     //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
     //if (playerStatus) { cout << "pre max speed momentumZ " << momentumZ << endl; }
   
+    // cap on toldToMove
+    /*if (toldToMove) {
+      float str = sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist);
+      float dir = 0;
+      if (toldToMoveXDist != 0.0) {
+        dir = tan(toldToMoveZDist/toldToMoveXDist);
+      } else {
+        dir = M_PI/2+toldToMoveZDist/abs(toldToMoveZDist)*M_PI/2;
+      }
+      if (toldToMoveXDist < 0.00000000) { dir += M_PI; }
+      cout << "str is " << str << endl;
+      if (str > 0.8) { str = 0.8; }
+      cout << "and is " << str << endl;
+      toldToMoveXDist = str*cos(dir);
+      toldToMoveZDist = str*sin(dir);
+      cout << "Old for toldis " << (sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist)) << endl;
+    }*/
+
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
@@ -158,58 +184,44 @@ void CubeObj::tick() {
     } else {
       momentumZ = 0.0000000000;
     }
-    //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-    //if (playerStatus) { cout << "post maxSpeed momentumZ " << momentumZ << endl; }
-  
-    // apply friction if on the ground
-  	if (!toldToMove) {
-      lastToldToMove = false;
-      //if (playerStatus) { cout << "pre !toldtomove momentumZ " << momentumZ << endl; }
-      if (grounded && (abs(momentumX) > 0.00001 || abs(momentumZ) > 0.00001)) {
-        // OLD WAY
-        /*if (momentumX > friction) { momentumX -= friction; }
-        else if (momentumX <-friction) { momentumX += friction; }
-        else if (momentumX != 0) { momentumX = 0; }
-        if (momentumZ > friction) { momentumZ -= friction; }
-        else if (momentumZ < -friction) { momentumZ += friction; }
-        else if (momentumZ != 0) { momentumZ = 0; }*/
-        // NEW WAY
-        // change x/z into dir and str, then apply friction omnidirectionally/in proportion
-        // and convert back to apply to momentum
-        float dir = atan(momentumX*1.0/momentumZ);
-        if (momentumZ < 0.00000000) { dir += M_PI; }
-        float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
-        // Keep a cap on it!
-        if (str > maxSpeed) {
-          str = maxSpeed;
-        }
-        if (str > newFriction*myFpsRate()) { str -= newFriction*myFpsRate(); }
-        else if (str != 0.0) { str = 0.0; }
-        // Now update direction... maybe, if str was strong enough
-        if (str >= newFriction) {
-          direction = dir;
-        }
-        // and always update strength
-        if (strength != str) {
-          strength = str;
-        }
-        //if (playerStatus) { cout << "pre friction momentumZ " << momentumZ << endl; }
-  
-        // then lastly, transfer back to momentumX and Z
-        momentumX = sin(direction)*strength;
-        momentumZ = cos(direction)*strength;
-        //if (playerStatus) { cout << "post friction momentumZ " << momentumZ << endl; }
-  
+
+    if (toldToMove) {
+      float toldDir = atan(toldToMoveXDist*1.0/toldToMoveZDist);
+      if (toldToMoveZDist < 0.00000000) { toldDir += M_PI; }
+      float str = sqrt((float)(toldToMoveXDist*toldToMoveXDist) + (float)(toldToMoveZDist*toldToMoveZDist));
+      // Keep a cap on it!
+      if (str > maxSpeed) {
+        str = maxSpeed;
       }
-      //cout << "OneB_04a player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-      //if (playerStatus) { cout << "post !toldtomove momentumZ " << momentumZ << endl; }
-  
-	  } else {
-      lastToldToMove = true;
-	    //if (playerStatus) { cout << "pre told to move momentumZ " << momentumZ << endl; }
-      toldToMove = false; // only here because it was true, must make it false!
-    
+      // Don't always show yourself changing directions,
+      // only if some real force was put into it
+      if (str >= 0.125) {
+        toldDirection = toldDir;
+      }
+      // Then move the dist you were instructed to go
+      if (toldToMoveX) {
+        bool dirConflict = (momentumX*toldToMoveXDist<0);
+        momentumX += toldToMoveXDist;//*(1+dirConflict);
+        toldToMoveX = false;
+      }
+      if (toldToMoveY) {
+        bool dirConflict = (momentumY*toldToMoveYDist<0);
+        momentumY += toldToMoveYDist;//*(1+dirConflict);
+        toldToMoveY = false;
+      }
+      if (toldToMoveZ) {
+        bool dirConflict = (momentumZ*toldToMoveZDist<0);
+        momentumZ += toldToMoveZDist;//*(1+dirConflict);
+        toldToMoveZ = false;
+      }
+    }
+
+    // apply friction if on the ground (universal regardless of toldToMove)
+    if (toldToMove || grounded && (abs(momentumX) > 0.00001 || abs(momentumZ) > 0.00001)) {
+      // change x/z into dir and str, then apply friction omnidirectionally/in proportion
+      // and convert back to apply to momentum
       // And since moving, update your direction!
+      // (toldDir being which direction you have told to go in, vs what you are going in)
       float dir = atan(momentumX*1.0/momentumZ);
       if (momentumZ < 0.00000000) { dir += M_PI; }
       float str = sqrt((float)(momentumX*momentumX) + (float)(momentumZ*momentumZ));
@@ -217,25 +229,59 @@ void CubeObj::tick() {
       if (str > maxSpeed) {
         str = maxSpeed;
       }
-      // Now update direction... maybe, if str was strong enough
-      if (str >= newFriction) {
-        direction = dir;
+      // Can only apply friction if not being moved by player
+      // (thus we can still use this section to cap max speed)
+      // can also apply friction if fighting current direction
+      if (!toldToMove){//getDirectionConflict()) {
+        if (str > newFriction*myFpsRate()) {
+          // only use half the friction for a directional conflict though
+          str -= newFriction*myFpsRate();
+        } else if (str != 0.0) {
+          str = 0.0;
+        }
       }
+      // Similarly
+      if (momentumX != 0.0 || momentumZ != 0.0) {
+        if (str > newFriction*myFpsRate()) {
+          // only use half the friction for a directional conflict though
+          str -= newFriction*myFpsRate()*(getDirectionConflictSeverity()/4.0);
+        }
+      }
+      // And then universal friction, for kicks
+      // (helps the feel a lot actually, need a more official form of this)
+      str -= newFriction*myFpsRate()/16.0;
+
+      // Don't have negative strength after all that friction!
+      if (str < 0.0) { str = 0.0; }
+
+      // Now update direction... maybe, if str was strong enough
+      //if (str >= newFriction) {
+        direction = dir;
+      //}
       // and always update strength
       if (strength != str) {
         strength = str;
-      }
-      //cout << "OneB_04b player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-      //if (playerStatus) { cout << "post told to move momentumZ " << momentumZ << endl; }
-  
-	  }
-    //if (playerStatus) { cout << "pre calcdiff momentumZ " << momentumZ << endl; }
-  
-    calculateDiff();
-    //if (playerStatus) { cout << "post calcdiff momentumZ " << momentumZ << endl; }
-  
-    //cout << "OneB_05 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+      } 
+      // then lastly, transfer back to momentumX and Z
+      momentumX = sin(direction)*strength;
+      momentumZ = cos(direction)*strength;
+    }
+      
+    // Finally, update if toldToMove or not
+  	if (toldToMove) {
+      // And if toldToMove, also move that dist
+      lastToldToMove = true;
+      toldToMove = false; // only here because it was true, must make it false for next time!
 
+      //cout << "Hyp for toldis " << (sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist)) << endl;
+      //cout << "Hyp for x/z is " << (sqrt(momentumX*momentumX+momentumZ*momentumZ)) << " vs " << strength << endl;
+	  } else {
+      // Not told to move? Then, we have not done so recently.
+      lastToldToMove = false;
+    } 
+
+    calculateDiff();
+    
   // Can lose all momentum on locking if bool is set
   } else if (isMoving() && loseMomentumOnLock) { freeze(); }
   //if (playerStatus) { cout << "Post main momentumZ " << momentumZ << endl; }
@@ -252,12 +298,8 @@ void CubeObj::tick() {
   if (updateLandedOnPos()) {
     // Any changes? Also update your directional diff
     landedOnDirectionDiff = direction - landedOn->getDirection();
+    landedOnToldDirectionDiff = toldDirection - landedOn->getToldDirection();
   }
-
-  //cout << "OneB_08 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-  //if (isPlayer()) { cout << "End   MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
-  //if (playerStatus) { cout << "End player loop momentumZ " << momentumZ << endl; }
-  //cout << "End Strength:  " << strength << " and Direction: " << direction << endl;
 }
 
 float CubeObj::getStrength() {
@@ -267,6 +309,15 @@ float CubeObj::getDirection() {
   float result = direction;
   if (getLandedOnCount()>0) {
     result = landedOn->getDirection() + landedOnDirectionDiff;
+  }
+  return result;
+}
+// Return the last direction you were told (by keyboard/joystick) to move in
+float CubeObj::getToldDirection() {
+  float result = toldDirection;
+  // May as well keep the impact of the dir of those you stand on, no harm right?
+  if (getLandedOnCount()>0) {
+    result = landedOn->getToldDirection() + landedOnToldDirectionDiff;
   }
   return result;
 }
@@ -306,9 +357,11 @@ void CubeObj::fall() {
     //momentumY += landedOn->getMomentumY();
     momentumZ += landedOn->getMomentumZ(); // maybe *fpsRate()?
     direction = landedOn->getDirection() + landedOnDirectionDiff;
+    toldDirection = landedOn->getToldDirection() + landedOnToldDirectionDiff;
     landedOn = NULL;
     landedOnCount = 0;
     landedOnDirectionDiff = 0.0;
+    landedOnToldDirectionDiff = 0.0;
   } // not on a player anymore!
 }
 
@@ -330,6 +383,7 @@ void CubeObj::landOn(CubeObj* c) {
     landedOn = c;
     landedOnCount = c->getLandedOnCount() + 1;
     landedOnDirectionDiff = direction - landedOn->getDirection();
+    landedOnToldDirectionDiff = toldDirection - landedOn->getToldDirection();
     updateLandedOnPos();
   }
 }
@@ -380,6 +434,14 @@ bool CubeObj::isCamera() {
 void CubeObj::setCameraStatus(bool b) {
   cameraStatus = b;
 }
+
+/*void CubeObj::setCamera(CameraObj* c) {
+  camera = c;
+}
+
+CameraObj* CubeObj::getCamera() {
+  return camera;
+}*/
 
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
@@ -505,32 +567,69 @@ void CubeObj::setMomentumX(float n) { momentumX = n * movementSpeed / movementDi
 void CubeObj::setMomentumY(float n) { momentumY = n * movementSpeed / movementDivision; }
 void CubeObj::setMomentumZ(float n) { momentumZ = n * movementSpeed / movementDivision; }
 
+// Just wipe out any old toldToMove commands
+void CubeObj::resetToldToMove() {
+  toldToMove = false;
+  toldToMoveX = false;
+  toldToMoveY = false;
+  toldToMoveZ = false;
+}
+
 // Move is relative momentum
 void CubeObj::moveX(float n) {
-  //cout << "told to X " << n << endl;
-  momentumX += n * movementSpeed*myFpsRate() / movementDivision;
-  // NEWDELETEME: 
-  //cout << "momentumX = " << momentumX << endl;
-  toldToMove = toldToMove || (n != 0.0000000);
+  float diff = n * movementSpeed*myFpsRate() / movementDivision;
+  // Only update dist to move if any dist change
+  if (n == n) { // not NaN
+    if (toldToMoveX) {
+      toldToMoveXDist += diff;
+    } else {
+      toldToMoveXDist = diff;
+    }
+  }
+  //momentumX += diff;
+  toldToMoveX = toldToMoveX || (n != 0.0000000 && n==n);
+  toldToMove = toldToMove || (n != 0.0000000 && n==n);
 }
 void CubeObj::moveY(float n) {
-  //cout << "told to Y " << n << endl;
-  momentumY += n * jumpSpeed*myFpsRate() / movementDivision;
-  //cout << "momentumY = " << momentumY << endl;
-  toldToMove = toldToMove || (n != 0.0000000);
+  float diff = n * jumpSpeed*myFpsRate() / movementDivision;
+  // Only update dist to move if any dist change
+  if (n == n) { // not NaN
+    if (toldToMoveY) {
+      toldToMoveYDist += diff;
+    } else {
+      toldToMoveYDist = diff;
+    }
+  }
+  //momentumY += diff;
+  toldToMoveY = toldToMoveY || (n != 0.0000000 && n==n);
+  toldToMove = toldToMove || (n != 0.0000000 && n==n);
 }
 void CubeObj::moveZ(float n) {
-  //cout << "told to Z " << n << endl;
-  momentumZ += n * movementSpeed*myFpsRate() / movementDivision;
-  // NEWDELETEME: cout << "momentumZ += " << n << " * " << movementSpeed << " / " << movementDivision << " = " << n*movementSpeed << " / " << movementDivision << " = " << momentumZ << endl;
-  // NEWDELETEME: 
-  //cout << "momentumZ = " << momentumZ << endl;
-  toldToMove = toldToMove || (n != 0.0000000);
+  float diff = n * movementSpeed*myFpsRate() / movementDivision;
+  // Only update dist to move if any dist change
+  if (n == n) { // not NaN
+    if (toldToMoveZ) {
+      toldToMoveZDist += diff;
+    } else {
+      toldToMoveZDist = diff;
+    }
+  }
+  toldToMoveZ = toldToMoveZ || (n != 0.0000000 && n==n);
+  toldToMove = toldToMove || (n != 0.0000000 && n==n);
+  //momentumZ += diff;
 }
 void CubeObj::movePos(float n, float o, float p) {
-  momentumX += n * movementSpeed*myFpsRate() / movementDivision;
-  momentumY += o * movementSpeed*myFpsRate() / movementDivision;
-  momentumZ += p * movementSpeed*myFpsRate() / movementDivision;
+  toldToMoveX = true;
+  toldToMoveY = true;
+  toldToMoveZ = true;
+  toldToMoveXDist = n;
+  toldToMoveYDist = o;
+  toldToMoveZDist = p;
+
+  //momentumX += n * movementSpeed*myFpsRate() / movementDivision;
+  //momentumY += o * movementSpeed*myFpsRate() / movementDivision;
+  //momentumZ += p * movementSpeed*myFpsRate() / movementDivision;
+  toldToMove = toldToMove || (n != 0.0000000) || (o != 0.0000000) || (p != 0.0000000);
 }
 
 // Freeze stops momentum
@@ -615,6 +714,27 @@ void CubeObj::applyCollisionMomentumX() { momentumX *= 0.95; }
 void CubeObj::applyCollisionMomentumZ() { momentumZ *= 0.95; }
 bool CubeObj::getCollision() { return collision; }
 
+// Checks if diff between dir and toldDir by >=90 deg (but radians, so PI/2)
+bool CubeObj::getDirectionConflict() {
+  // lastToldToMove included since only a conflict if trying to move
+  // must have some movement too
+  return abs(direction - toldDirection) >= M_PI/2.0 && lastToldToMove;
+}
+// On a scale of 0.0 to 1.0, returns result of how far into the conflict we are
+// 1.0 represents an M_PI difference, while 0.0 means they point the same way
+float CubeObj::getDirectionConflictSeverity() {
+  float result;
+  float diff = abs(direction - toldDirection);
+  if (diff > M_PI) {
+    result = M_PI;
+  } else if (diff < 0) {
+    result = 0;
+  } else {
+    result = diff;
+  }
+  result = result/M_PI;
+  return result;
+}
 int CubeObj::getWidth() { return 100*(1); }
 int CubeObj::getHeight() { return 100*(1); }
 int CubeObj::getSize(int s) { return s == 1 ? 100 : 100; } // was getHeight and getWidth but Segfaulted on Mac. Read: I need to learn virtual functions better

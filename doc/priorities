@@ -1,16 +1,27 @@
 Current priorities as of 12/6/12:
 
-Final IGF Revisions!
+Public Demo Revisions
 
-Build it on Mac and you should be good to go!
-(also wanted start screen to have all four cubes jumping for goal)
-(unlikely at this point, but camera work is doable!)
+1. Popup the controls when first starting first level
+2. When camera locked, position camera on the side you are moving towards
+   (but only if >1/2*maxMomentum is achieved by momentum)
+3. Make camera see around corners/non-visible areas, for big castle
+   (or, if you go through a "doorway" then swing the camera to the new side)
+   (where a "doorway" is defined as columns on either side of you, then not)
+
+Waiting on Rolando for:
+
+1. Play sound when cubior skids/conflict with direction vs toldDirection
 
 ---
 
-Credits
-Reduce max speed or increase agility at max speed, players feel a loss of control
-  with joysticks when moving fast or moving at all..?
+also wanted:
+0. Figure out why deltasToDegrees is in use while fixedDeltasToDegrees exists
+1. Have camera try checking vertically to resolve visibility issues
+2. start screen to have all four cubes jumping for goal
+
+---
+
 
 0V. Follow both's choose angle flips around on room 2/3, second green room
 

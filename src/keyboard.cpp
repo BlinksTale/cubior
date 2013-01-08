@@ -381,7 +381,8 @@ void joystickCommands(int i) {
   // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
   bool camButtonPressed = false;
-
+  
+  // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
