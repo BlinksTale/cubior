@@ -2,10 +2,9 @@ Current priorities as of 12/6/12:
 
 Public Demo Revisions
 
-1. Popup the controls when first starting first level
-2. When camera locked, position camera on the side you are moving towards
+1. When camera locked, position camera on the side you are moving towards
    (but only if >1/2*maxMomentum is achieved by momentum)
-3. Make camera see around corners/non-visible areas, for big castle
+2. Make camera see around corners/non-visible areas, for big castle
    (or, if you go through a "doorway" then swing the camera to the new side)
    (where a "doorway" is defined as columns on either side of you, then not)
 
@@ -26,7 +25,7 @@ also wanted:
 ---
 
 
-0V. Follow both's choose angle flips around on room 2/3, second green room
+0V. Follow both's choose angle flips around on room 2 or 3, second green room
 
 00. Weirdness when player pauses while touching goal. Pausing should take priority.
      Weirdness also transfers into next level?
