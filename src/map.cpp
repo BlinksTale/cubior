@@ -110,7 +110,13 @@ int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
-  return map[w][h][d];
+  if (w >= 0 && w < width  &&
+      h >= 0 && h < height &&
+      d >= 0 && d < depth) {
+    return map[w][h][d];
+  } else {
+    return NULL;
+  }
 }
 
 // Background's solid color!

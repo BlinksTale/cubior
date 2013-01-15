@@ -8,29 +8,20 @@
 #ifndef GAMEPLAY
 #define GAMEPLAY
 
+#include "constraints.h"
 #include "cubeObj.h"
 #include "goalObj.h"
 #include "cubiorObj.h"
 #include "cameraObj.h"
+#include "map.h"
 #include <iostream> // necessary for string
 
 using namespace std; // necessary for string
 
 const bool rotateIfInvisible = true;
-const int mapEdge = 4;
+
 // How many angles to try when rotating back into view of player
 const float anglesToTry = 8;
-const int wallCheckRadius = 3;
-
-const int playableWidth = 100;
-const int playableHeight= 100;
-const int playableDepth = 100;
-const int maxWidth = playableWidth + mapEdge*2;
-const int maxHeight= playableHeight + mapEdge*2;
-const int maxDepth = playableDepth + mapEdge*2;
-const int tileSize = 100;
-const int totalLevels = 12; // for now, update this when new levels are added
-const int padding = 2;
 
 const int cubiorCount = 4;
 // All unmoving cubes, even invisible
@@ -58,8 +49,10 @@ static const int playerVisibleMax = 10;
 
     // Looks for vertical walls or clearings along 1 dimension of player
     int* searchForWall(int,int [],CubeObj* [][maxHeight][maxDepth],int);
+    int* searchForWall(int,int [],Map*,int);
     void rotateToAngle(int,float,int); //  for cam control
     bool isVertSpace(CubeObj* [][maxHeight][maxDepth], int, int, int);
+    bool isVertSpace(Map*, int, int, int);
     bool insideMap(int,int,int); // lets you know if pos is OK for Macs
     
     // Check LOS between cam and player, then move to clear shot by a clear path
@@ -76,9 +69,13 @@ static const int playerVisibleMax = 10;
     // Camera
     void checkCameraAgainstWalls(int);
     bool checkSlotPathVisibility(int,int,int,int,int,int, CubeObj* [][maxHeight][maxDepth]);
+    bool checkSlotPathVisibility(int,int,int,int,int,int, Map*);
     bool checkPathVisibility(CubeObj*, CubeObj*, CubeObj* [][maxHeight][maxDepth]);
+    bool checkPathVisibility(CubeObj*, CubeObj*, Map*);
     void checkCameraLOS(CameraObj*, CubeObj*[][maxHeight][maxDepth]);
+    void checkCameraLOS(CameraObj*, Map*);
     bool getCameraToCubeLOS(CameraObj*, CubeObj*, CubeObj*[][maxHeight][maxDepth]);
+    bool getCameraToCubeLOS(CameraObj*, CubeObj*, Map*);
     
     // Camera control
     void playerCenterCam(int);
@@ -89,17 +86,26 @@ static const int playerVisibleMax = 10;
 
     // Collision
     void explodingDiamondCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
+    void explodingDiamondCollision(CubeObj*,Map*,int,int,int);
     void unintelligentCollision(CubeObj*,CubeObj*[][maxHeight][maxDepth],int,int,int);
+    void unintelligentCollision(CubeObj*,Map*,int,int,int);
     void addToCollisionMap(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
+    void addToCollisionMap(CubeObj*,Map*);
     void findNeighbors(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
+    void findNeighbors(CubeObj*,Map*);
+    void findEdges(CubeObj*,CubeObj*[][maxHeight][maxDepth]);
+    void findEdges(CubeObj*,Map*);
     bool* getNeighbors(CubeObj*);
     void wipeCurrentMap(CubeObj*[][maxHeight][maxDepth]);
+    void wipeCurrentMap(Map*);
     void wipeFullMap(CubeObj*[][maxHeight][maxDepth]);
     int getCollisionMapSlot(CubeObj*,int);
     int getCollisionMapPosition(int,int);    
     int positionToSlot(int,int);
     int slotToPosition(int, int);
     bool freeSpaceAt(int,int,int);
+    void tryCheckAndBounce(CubeObj*, CubeObj*[][maxHeight][maxDepth], int, int, int);
+    void tryCheckAndBounce(CubeObj*, Map*, int, int, int);
   
     CubiorObj* getPlayer();
     CubiorObj* getPlayer(int);

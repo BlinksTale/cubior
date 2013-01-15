@@ -8,8 +8,9 @@
 #ifndef MAP
 #define MAP
 
+#include "constraints.h" // for max width/depth/height
 #include "cubeObj.h"
-#include "gameplay.h"
+//#include "gameplay.h"
 
 class Map {
   protected:

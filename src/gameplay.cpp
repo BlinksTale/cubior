@@ -29,7 +29,8 @@ using namespace std;
 bool cubiorPlayable[cubiorCount] = {false,false,false,false};
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
-CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+//CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+Map* permanentMap = new Map(maxWidth,maxHeight,maxDepth);
 CubeObj cameraCube; // FIXME: Seems to only be here for collision purposes
 Map* levelMap;
 
@@ -116,9 +117,18 @@ void keepInBounds(CubeObj* c1) {
 
 // Checks if any side of a cube is on the edge of the map
 void findEdges(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
-  int cX = getCollisionMapSlot(c1,0);
-  int cY = getCollisionMapSlot(c1,1);
-  int cZ = getCollisionMapSlot(c1,2);
+  c1->setEdges(
+    c1->getX() >=(currentMapWidth/2-1)*tileSize,
+    c1->getX() <=-(currentMapWidth/2-1)*tileSize,
+    c1->getY() >=(currentMapHeight/2-1)*tileSize,
+    c1->getY() <=-(currentMapHeight/2-1)*tileSize,
+    c1->getZ() >=(currentMapDepth/2-1)*tileSize,
+    c1->getZ() <=-(currentMapDepth/2-1)*tileSize
+  );
+}
+
+// Same as above, only with a map object
+void findEdges(CubeObj* c1, Map* map) {
   c1->setEdges(
     c1->getX() >=(currentMapWidth/2-1)*tileSize,
     c1->getX() <=-(currentMapWidth/2-1)*tileSize,
@@ -168,6 +178,7 @@ void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
+    // This one does not work for some reason. permanentMap->wipeMap();
     // and thus the memory leak was vanquished, and it was good.
       
     // And reset goal glow
@@ -710,30 +721,92 @@ int* searchForWall(int player, int results[], CubeObj* m[][maxHeight][maxDepth],
   results[2] = frontSpace;
   results[3] = rearSpace;
   return results;
-/*  // then it reports on if any walls exist in front of or behind, or both/none
-  if (frontWall && rearWall && frontSpace && rearSpace) {
-    return 0;
-  } else if (frontWall && frontSpace) {
-    return 1;
-  } else if (rearWall && rearSpace) {
-    return -1;
-  } else {
-    return frontWall - rearWall + rearSpace - frontSpace;
-  }*/
+}
+
+// Same as above, only for maps instead of arrays
+int* searchForWall(int player, int results[], Map* m, int dimension) {
+  bool rearWall = 0, frontWall = 0, rearSpace = 0, frontSpace = 0;
+  int cX = getCollisionMapSlot(&cubior[player],0);
+  int cY = getCollisionMapSlot(&cubior[player],1);
+  int cZ = getCollisionMapSlot(&cubior[player],2);
+  // delta along cube radius
+  int dX = 0, dZ = 0;
+  
+  // Now check surroundings on X or Z axis
+  for (int i=0; i<wallCheckRadius; i++) {
+    // depending on dimension, choose which axis to alter
+    if (dimension == 0) { dX = i;}
+    if (dimension == 2) { dZ = i;}
+    // check in front
+    if (!frontWall && insideMap(cX+dX,cY,cZ+dZ)) { 
+      frontWall = ((m->getCubeAt(cX+dX,cY,cZ+dZ) != NULL) && !(m->getCubeAt(cX+dX,cY,cZ+dZ)->isInvisible()) && (m->getCubeAt(cX+dX,cY,cZ+dZ)->isVertWall())); 
+    }
+    // or for a lack behind
+    if (!frontSpace && insideMap(cX-dX,cY,cZ-dZ)) { 
+      frontSpace= ((m->getCubeAt(cX-dX,cY,cZ-dZ) == NULL || m->getCubeAt(cX-dX,cY,cZ-dZ)->isInvisible()) && (isVertSpace(m,cX-dX,cY,cZ-dZ)));
+    }
+    // check behind
+    if (!rearWall && insideMap(cX-dX,cY,cZ-dZ)) { 
+      rearWall  = ((m->getCubeAt(cX-dX,cY,cZ-dZ) != NULL) && !(m->getCubeAt(cX-dX,cY,cZ-dZ)->isInvisible()) && (m->getCubeAt(cX-dX,cY,cZ-dZ)->isVertWall())); 
+    }
+    // or for a lack in front
+    if (!rearSpace && insideMap(cX+dX,cY,cZ+dZ)) { 
+      rearSpace = ((m->getCubeAt(cX+dX,cY,cZ+dZ) == NULL || m->getCubeAt(cX+dX,cY,cZ+dZ)->isInvisible()) && (isVertSpace(m,cX+dX,cY,cZ+dZ)));
+    }
+  }
+  results[0] = frontWall;
+  results[1] = rearWall;
+  results[2] = frontSpace;
+  results[3] = rearSpace;
+  return results;
 }
 
 // Check if equiv of isVertWall, but all spaces empty
 bool isVertSpace(CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
+  CubeObj* self  = m[cX][cY][cZ];
+  CubeObj* left  = m[cX+1][cY][cZ];
+  CubeObj* right = m[cX-1][cY][cZ];
+  CubeObj* up    = m[cX][cY+1][cZ];
+  CubeObj* down  = m[cX][cY-1][cZ];
+  CubeObj* front = m[cX][cY][cZ+1];
+  CubeObj* back  = m[cX][cY][cZ-1];
   // if not at an edge
   if ((cX<maxWidth && cX>0) && (cY<maxHeight && cY>0) && (cZ<maxDepth && cZ>0)){
-    return ((m[cX][cY][cZ] == NULL || m[cX][cY][cZ]->isInvisible()) // center space
-      && ((m[cX][cY+1][cZ] == NULL || m[cX][cY+1][cZ]->isInvisible()) &&
-          (m[cX][cY-1][cZ] == NULL || m[cX][cY-1][cZ]->isInvisible())) // vert neighbors
+    return ((self == NULL || self->isInvisible()) // center space
+      && ((up   == NULL ||   up->isInvisible()) &&
+          (down == NULL || down->isInvisible())) // vert neighbors
       && (  // some combo of horiz neighbors
-         ((m[cX+1][cY][cZ] == NULL || m[cX+1][cY][cZ]->isInvisible()) &&
-          (m[cX-1][cY][cZ] == NULL || m[cX-1][cY][cZ]->isInvisible())) // x neighbors
-      || ((m[cX][cY][cZ+1] == NULL || m[cX][cY][cZ+1]->isInvisible()) &&
-          (m[cX][cY][cZ-1] == NULL || m[cX][cY][cZ-1]->isInvisible())) // z neighbors
+         ((left  == NULL ||  left->isInvisible()) &&
+          (right == NULL || right->isInvisible())) // x neighbors
+      || ((front == NULL || front->isInvisible()) &&
+          (back  == NULL ||  back->isInvisible())) // z neighbors
+      ));
+  } else {
+    // edge cases always count as clearings
+    // FIXME: haven't really thought this through too well, to be honest
+    return false;
+  }
+}
+
+// Check if equiv of isVertWall, but all spaces empty
+bool isVertSpace(Map* m, int cX, int cY, int cZ) {
+  CubeObj* self  = m->getCubeAt(cX,cY,cZ);
+  CubeObj* left  = m->getCubeAt(cX+1,cY,cZ);
+  CubeObj* right = m->getCubeAt(cX-1,cY,cZ);
+  CubeObj* up    = m->getCubeAt(cX,cY+1,cZ);
+  CubeObj* down  = m->getCubeAt(cX,cY-1,cZ);
+  CubeObj* front = m->getCubeAt(cX,cY,cZ+1);
+  CubeObj* back  = m->getCubeAt(cX,cY,cZ-1);
+  // if not at an edge
+  if ((cX<maxWidth && cX>0) && (cY<maxHeight && cY>0) && (cZ<maxDepth && cZ>0)){
+    return ((self == NULL || self->isInvisible()) // center space
+      && ((up   == NULL ||   up->isInvisible()) &&
+          (down == NULL || down->isInvisible())) // vert neighbors
+      && (  // some combo of horiz neighbors
+         ((left  == NULL ||  left->isInvisible()) &&
+          (right == NULL || right->isInvisible())) // x neighbors
+      || ((front == NULL || front->isInvisible()) &&
+          (back  == NULL ||  back->isInvisible())) // z neighbors
       ));
   } else {
     // edge cases always count as clearings
@@ -972,7 +1045,8 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     int cX = getCollisionMapSlot(&cubior[i],0);
     int cY = getCollisionMapSlot(&cubior[i],1);
     int cZ = getCollisionMapSlot(&cubior[i],2);            
-    if (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible())) {
+    //if (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible())) {
+    if (playerVisible(i) && (permanentMap->getCubeAt(cX,cY,cZ) == NULL || permanentMap->getCubeAt(cX,cY,cZ)->isInvisible())) {
       // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
       // since the camera kind of jumps when it starts to readjust every angle
       //camera[i].tick();
@@ -1087,7 +1161,7 @@ void rotateAroundPlayer(int i, int hyp) {
   camera[i].updateMeans();
 }
 
-
+// See if a path is clear between two positions in the 3d grid
 bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, CubeObj* m[][maxHeight][maxDepth]) {
   
   bool showData = false;
@@ -1129,9 +1203,10 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   // While not arrived, search
   while(cX != gX || cY != gY || cZ != gZ) {
 
+    CubeObj* focusedCube = m[cX][cY][cZ];
     // Found something there? Make sure it has 2D of neighbors (is a real threat)
     if ((cX < maxWidth && cX >= 0 && cY < maxHeight && cY >= 0 && cZ < maxDepth && cZ >= 0) && 
-      m[cX][cY][cZ] != NULL && !(m[cX][cY][cZ]->isInvisible()) && m[cX][cY][cZ]->isWall()) {
+      focusedCube != NULL && !(focusedCube->isInvisible()) && focusedCube->isWall()) {
       if (showData) {
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
         cout << "!!!!!!!!!!!!!!!!!!! NOT VISIBLE !!!!!!!!!!!!!!!" << endl;
@@ -1192,6 +1267,57 @@ bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Cub
   return true;
 }
 
+// Same as above, only for maps instead of arrays
+bool checkSlotPathVisibility(int aX, int aY, int aZ, int gX, int gY, int gZ, Map* m) {
+  bool showData = false;
+  int cX = aX, cY = aY, cZ = aZ;
+
+  // Tracker moves along the line, getting as close as possible
+  CubeObj tracker;
+  tracker.setPos(slotToPosition(cX,0), slotToPosition(cY,1), slotToPosition(cZ,2));
+  
+  // if still dropping in or too far, just say "Yes, they're visible"
+  if (abs(cX) > maxHeight || abs(cY) > maxHeight || abs(cZ) > maxHeight) {
+    return true;
+  }
+
+  // Only tolerate not moving up to six times before quitting
+  int sameSpot = 0;
+  const int sameMax = 5;
+  int sameX[sameMax];
+  int sameY[sameMax];
+  int sameZ[sameMax];
+  sameX[0] = cX;
+  sameY[0] = cY;
+  sameZ[0] = cZ;
+  sameSpot++;
+
+  // While not arrived, search
+  while(cX != gX || cY != gY || cZ != gZ) {
+
+    CubeObj* focusedCube = m->getCubeAt(cX,cY,cZ);
+    // Found something there? Make sure it has 2D of neighbors (is a real threat)
+    if ((cX < maxWidth && cX >= 0 && cY < maxHeight && cY >= 0 && cZ < maxDepth && cZ >= 0) && 
+      focusedCube != NULL && !(focusedCube->isInvisible()) && focusedCube->isWall()) {
+      return false;
+    }
+    // Otherwise, if *something* is a bigger dist than one away, keep moving closer!
+    if (abs(cX-gX)>1 || abs(cY-gY)>1 || abs(cZ-gZ)>1) {
+      tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/16.0); // was /4
+    } else {
+      // But if not, well, close enough! Next move would have been there anyways
+        tracker.changePosTowards(slotToPosition(gX,0),slotToPosition(gY,1),slotToPosition(gZ,2),tileSize/32.0); // was /4
+    }
+
+    // Then Reset Cam Tracker Pos
+    cX = getCollisionMapSlot(&tracker,0);
+    cY = getCollisionMapSlot(&tracker,1);
+    cZ = getCollisionMapSlot(&tracker,2);
+  }
+  return true;
+}
+
+// Check if line between two spots on grid is empty or full of invisible cubes only
 bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][maxDepth]) {
   // Used to check all spaces between cam and target,
   // it will follow a line from the cameraObj to the player within the perm map
@@ -1199,6 +1325,29 @@ bool checkPathVisibility(CubeObj* c2, CubeObj* target, CubeObj* m[][maxHeight][m
   // occupation before the player is reached.
   
   //cout << "camera currently at " << (c2->getX()) << ", " << (c2->getY()) << ", " << (c2->getZ()) << endl;
+  // Cam Tracker Pos
+  // will check out all the spots before trying to move into them
+  int cX, cY, cZ; 
+  cX = getCollisionMapSlot(c2,0);
+  cY = getCollisionMapSlot(c2,1);
+  cZ = getCollisionMapSlot(c2,2);
+  // Goal Pos
+  // where the player is, and we want to go eventually
+  int gX = getCollisionMapSlot(target,0);
+  int gY = getCollisionMapSlot(target,1);
+  int gZ = getCollisionMapSlot(target,2);
+  //cout << "Checking slots visibility " << cX << ", " << cY << ", " << cZ << " against " << gX << ", " << gY << ", " << gZ << endl;
+  
+  return checkSlotPathVisibility(cX,cY,cZ,gX,gY,gZ,m);
+}
+
+// Same as above, only maps instead of arrays
+bool checkPathVisibility(CubeObj* c2, CubeObj* target, Map* m) {
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+  
   // Cam Tracker Pos
   // will check out all the spots before trying to move into them
   int cX, cY, cZ; 
@@ -1227,8 +1376,35 @@ void checkCameraLOS(CameraObj* c, CubeObj* m[][maxHeight][maxDepth]) {
   c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
 }
 
+// Same as above, just maps instead of arrays
+void checkCameraLOS(CameraObj* c, Map* m) {
+  
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+  CubeObj tracker;
+  tracker.setPos(c->getX(), c->getY(), c->getZ());
+  c->setLOS(checkPathVisibility(&tracker,c->getPermanentTarget(),m));
+}
+
 // Tells Camera if it can see a specific cube or not, sets up Line of Sight
 bool getCameraToCubeLOS(CameraObj* c, CubeObj* d, CubeObj* m[][maxHeight][maxDepth]) {
+
+  // Used to check all spaces between cam and target,
+  // it will follow a line from the cameraObj to the player within the perm map
+  // checking each slot along that line, and returning false if there is an
+  // occupation before the player is reached.
+
+  CubeObj tracker;
+  tracker.setPos(c->getX(), c->getY(), c->getZ());
+  // FIXME: Feeling rusty, do I need to delete tracker again to avoid a mem leak, or is containment in function ample?
+  
+  return checkPathVisibility(&tracker,d,m);
+}
+
+// Same as above, but with maps instead of arrays
+bool getCameraToCubeLOS(CameraObj* c, CubeObj* d, Map* m) {
 
   // Used to check all spaces between cam and target,
   // it will follow a line from the cameraObj to the player within the perm map
@@ -1246,6 +1422,13 @@ bool getCameraToCubeLOS(CameraObj* c, CubeObj* d, CubeObj* m[][maxHeight][maxDep
 void tryCheckAndBounce(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
     if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
         Collision::checkAndBounce(i,m[cX][cY][cZ]);
+    }
+}
+
+// Same as above, but with maps instead of arrays
+void tryCheckAndBounce(CubeObj* i, Map* m, int cX, int cY, int cZ) {
+    if (cX >= 0 && cX < maxWidth && cY >= 0 && cY < maxHeight && cZ >=0 && cZ < maxDepth) {
+        Collision::checkAndBounce(i,m->getCubeAt(cX,cY,cZ));
     }
 }
 
@@ -1308,6 +1491,44 @@ void explodingDiamondCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], in
   }
 }
 
+// Same as above, only with a map instead of an array
+void explodingDiamondCollision(CubeObj* i, Map* m, int cX, int cY, int cZ) {
+  // Then check slots in relation to cXYZ
+  for (int x = 0; x<mapEdge; x++) {
+    for (int y = 0; y<=x; y++) {
+      for (int z = 0; z<=x; z++) {
+        if (x >= y+z) {
+			/*
+			 * YUCK! Lots of ugly breaks in case one collision is a levelChange.
+			 * TODO: Fix so that a flag is set when goal collided with, then act
+			 *       on it after the current loop ends.
+			 */
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY+y,cZ+z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY+y,cZ+z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY-y,cZ+z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY-y,cZ+z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY+y,cZ-z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY+y,cZ-z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX+x-(y+z),cY-y,cZ-z);
+			if (changeLevel) { break; }
+			tryCheckAndBounce(i,m,cX-x+(y+z),cY-y,cZ-z);
+			if (changeLevel) { break; }
+		}
+		  if (changeLevel) { break; }
+	  }
+		if (changeLevel) { break; }
+	}
+	  if (changeLevel) { break; }
+  }
+}
+
 // Takes cubior, and its slot, then checks collision
 // called unintelligent because it checks by array slot, not distance
 void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int cX, int cY, int cZ) {
@@ -1333,6 +1554,29 @@ void unintelligentCollision(CubeObj* i, CubeObj* m[][maxHeight][maxDepth], int c
     } } }
 }
 
+// Same as above, only with maps instead of arrays
+void unintelligentCollision(CubeObj* i, Map* m, int cX, int cY, int cZ) {
+    // First, check collision on all immediate directions
+    // on X axis...
+    for (int a = -2; a<3; a++) {
+    tryCheckAndBounce(i,m,cX+a,cY,cZ);
+    }
+    // ...Y axis...
+    for (int b = -2; b<3; b++) {
+    tryCheckAndBounce(i,m,cX,cY+b,cZ);
+    }
+    // ...and Z axis
+    for (int c = -2; c<3; c++) {
+    tryCheckAndBounce(i,m,cX,cY,cZ+c);
+    }
+    // Then check the diagonals too
+    // (this technique is a bit wasteful here, will clean up later if I have time)
+    for (int a = -2; a<3; a++) {
+    for (int b = -2; b<3; b++) {
+    for (int c = -2; c<3; c++) {
+    tryCheckAndBounce(i,m,cX+a,cY+b,cZ+c);
+    } } }
+}
 
 // Put a cube in the collision map
 void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
@@ -1342,29 +1586,74 @@ void addToCollisionMap(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
 	map[cX][cY][cZ] = c1;
 }
 
+// Same as above, only for maps instead of arrays
+void addToCollisionMap(CubeObj* c1, Map* map) {
+	int cX = getCollisionMapSlot(c1,0);
+	int cY = getCollisionMapSlot(c1,1);
+	int cZ = getCollisionMapSlot(c1,2);
+  permanentMap->addCube(c1,cX,cY,cZ);
+}
+
+// Find all cubes surrounding one cube, and assign them to that cube as neighbors
 void findNeighbors(CubeObj* c1, CubeObj* map[][maxHeight][maxDepth]) {
   int cX = getCollisionMapSlot(c1,0);
   int cY = getCollisionMapSlot(c1,1);
   int cZ = getCollisionMapSlot(c1,2);
+  CubeObj* left  = map[cX+1][cY][cZ];
+  CubeObj* right = map[cX-1][cY][cZ];
+  CubeObj* up    = map[cX][cY+1][cZ];
+  CubeObj* down  = map[cX][cY-1][cZ];
+  CubeObj* front = map[cX][cY][cZ+1];
+  CubeObj* back  = map[cX][cY][cZ-1];
   // The top/bot order on these might be wrong, but it shouldn't really matter too much
   // since used to check if surrounded on a plane anyways
-  bool n0 = insideMap(cX+1, cY, cZ) && map[cX+1][cY][cZ] != 0;
-  bool n1 = insideMap(cX-1, cY, cZ) && map[cX-1][cY][cZ] != 0;
-  bool n2 = insideMap(cX, cY+1, cZ) && map[cX][cY+1][cZ] != 0;
-  bool n3 = insideMap(cX, cY-1, cZ) && map[cX][cY-1][cZ] != 0;
-  bool n4 = insideMap(cX, cY, cZ+1) && map[cX][cY][cZ+1] != 0;
-  bool n5 = insideMap(cX, cY, cZ-1) && map[cX][cY][cZ-1] != 0;
+  bool n0 = insideMap(cX+1, cY, cZ) && left != 0;
+  bool n1 = insideMap(cX-1, cY, cZ) && right != 0;
+  bool n2 = insideMap(cX, cY+1, cZ) && up != 0;
+  bool n3 = insideMap(cX, cY-1, cZ) && down != 0;
+  bool n4 = insideMap(cX, cY, cZ+1) && front != 0;
+  bool n5 = insideMap(cX, cY, cZ-1) && back != 0;
   c1->setNeighbors(n0,n1,n2,n3,n4,n5);
   // Then add invisibility to the mix, and set visible neighbors
-  if (n0) { n0 = n0 && !(map[cX+1][cY][cZ]->isInvisible()); }
-  if (n1) { n1 = n1 && !(map[cX-1][cY][cZ]->isInvisible()); }
-  if (n2) { n2 = n2 && !(map[cX][cY+1][cZ]->isInvisible()); }
-  if (n3) { n3 = n3 && !(map[cX][cY-1][cZ]->isInvisible()); }
-  if (n4) { n4 = n4 && !(map[cX][cY][cZ+1]->isInvisible()); }
-  if (n5) { n5 = n5 && !(map[cX][cY][cZ-1]->isInvisible()); }
+  if (n0) { n0 = n0 && !(left->isInvisible()); }
+  if (n1) { n1 = n1 && !(right->isInvisible()); }
+  if (n2) { n2 = n2 && !(up->isInvisible()); }
+  if (n3) { n3 = n3 && !(down->isInvisible()); }
+  if (n4) { n4 = n4 && !(front->isInvisible()); }
+  if (n5) { n5 = n5 && !(back->isInvisible()); }
   c1->setVisibleNeighbors(n0,n1,n2,n3,n4,n5);
-  c1->setVisibleNeighborObjects(map[cX+1][cY][cZ],map[cX-1][cY][cZ],map[cX][cY+1][cZ],map[cX][cY-1][cZ],map[cX][cY][cZ+1],map[cX][cY][cZ-1]);
+  c1->setVisibleNeighborObjects(left,right,up,down,front,back);
+}
 
+// Same as above, but with a map object
+void findNeighbors(CubeObj* c1, Map* map) {
+  int cX = getCollisionMapSlot(c1,0);
+  int cY = getCollisionMapSlot(c1,1);
+  int cZ = getCollisionMapSlot(c1,2);
+  CubeObj* left  = map->getCubeAt(cX+1,cY,cZ);
+  CubeObj* right = map->getCubeAt(cX-1,cY,cZ);
+  CubeObj* up    = map->getCubeAt(cX,cY+1,cZ);
+  CubeObj* down  = map->getCubeAt(cX,cY-1,cZ);
+  CubeObj* front = map->getCubeAt(cX,cY,cZ+1);
+  CubeObj* back  = map->getCubeAt(cX,cY,cZ-1);
+  // The top/bot order on these might be wrong, but it shouldn't really matter too much
+  // since used to check if surrounded on a plane anyways
+  bool n0 = insideMap(cX+1, cY, cZ) && left != 0;
+  bool n1 = insideMap(cX-1, cY, cZ) && right != 0;
+  bool n2 = insideMap(cX, cY+1, cZ) && up != 0;
+  bool n3 = insideMap(cX, cY-1, cZ) && down != 0;
+  bool n4 = insideMap(cX, cY, cZ+1) && front != 0;
+  bool n5 = insideMap(cX, cY, cZ-1) && back != 0;
+  c1->setNeighbors(n0,n1,n2,n3,n4,n5);
+  // Then add invisibility to the mix, and set visible neighbors
+  if (n0) { n0 = n0 && !(left->isInvisible()); }
+  if (n1) { n1 = n1 && !(right->isInvisible()); }
+  if (n2) { n2 = n2 && !(up->isInvisible()); }
+  if (n3) { n3 = n3 && !(down->isInvisible()); }
+  if (n4) { n4 = n4 && !(front->isInvisible()); }
+  if (n5) { n5 = n5 && !(back->isInvisible()); }
+  c1->setVisibleNeighbors(n0,n1,n2,n3,n4,n5);
+  c1->setVisibleNeighborObjects(left,right,up,down,front,back);
 }
 
 // If a position is not
@@ -1382,6 +1671,19 @@ void wipeCurrentMap(CubeObj* map[][maxHeight][maxDepth]){
       // FIXME: Can't delete this? Memory leak caused because of it?
       //delete map[a][b][c];
       map[a][b][c] = NULL;
+    }
+  } } }
+}
+
+// Same as above, only maps instead of arrays
+void wipeCurrentMap(Map* map){
+  for (int a=0; a<currentMapWidth; a++) {
+  for (int b=0; b<currentMapHeight;b++) {
+  for (int c=0; c<currentMapDepth; c++) {
+    if (map->getCubeAt(a,b,c) != NULL) {
+      // FIXME: Can't delete this? Memory leak caused because of it?
+      //delete map[a][b][c];
+      map->addCube(NULL,a,b,c);
     }
   } } }
 }
@@ -1436,7 +1738,8 @@ bool freeSpaceAt(int a, int b, int c) {
       slotA >= getMapWidth() || slotB >= getMapHeight() || slotC >= getMapDepth()) {
         return true;
   } else {
-    CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+    //CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+    CubeObj* c1 = permanentMap->getCubeAt(slotA,slotB,slotC);
     return (c1 == NULL || (c1->isInvisible()));
   }
 }
@@ -1679,7 +1982,8 @@ bool getShadow(int i) {
     int slotZ = getCollisionMapSlot(cube[i],2);
     // Check all inbetween slots
     for (int j=slotY-2; j>=0; j--) {
-      if (permanentMap[slotX][j][slotZ] != NULL) {
+      //if (permanentMap[slotX][j][slotZ] != NULL) {
+      if (permanentMap->getCubeAt(slotX,j,slotZ) != NULL) {
         // Found somebody else! You are NOT the last cube down
         return true;
       }      
