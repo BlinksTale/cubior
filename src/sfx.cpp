@@ -20,6 +20,13 @@
 
 #include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
+// Basis for all volumes
+int highVolumeSfx = 100;
+int medVolumeSfx = 66;
+int lowVolumeSfx = 33;
+int offVolumeSfx = 0;
+int baseVolume = highVolumeSfx;
+
 // Buffer Vars (hold song data)
 sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
   menuEnterBuffer, menuExitBuffer, glowBuffer,
@@ -212,10 +219,32 @@ void initSfx(int argc, char** argv) {
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
-    bumpSound[i].setVolume(75);
   }
-  jumpSound[2].setVolume(65);
-  jumpSound[3].setVolume(65);
+  resetVolumes();
+}
+
+// Set all volumes again, since base volume was changed.
+void resetVolumes() {
+  
+  testSound.setVolume(100*baseVolume/100.0);
+  exitSound.setVolume(100*baseVolume/100.0);
+  glowSound.setVolume(100*baseVolume/100.0);
+  menuEnterSound.setVolume(100*baseVolume/100.0);
+  menuExitSound.setVolume(100*baseVolume/100.0);
+  errorSound.setVolume(100*baseVolume/100.0);
+  changeMenuSound.setVolume(100*baseVolume/100.0);
+  changeOptionSound.setVolume(100*baseVolume/100.0);
+  focusCameraSound.setVolume(100*baseVolume/100.0);
+  turnCameraSound.setVolume(100*baseVolume/100.0);
+  failCameraSound.setVolume(100*baseVolume/100.0);
+
+  for (int i=0; i<4; i++) {
+    bumpSound[i].setVolume(75*baseVolume/100.0);
+  }
+  jumpSound[0].setVolume(100*baseVolume/100.0);
+  jumpSound[1].setVolume(100*baseVolume/100.0);
+  jumpSound[2].setVolume( 65*baseVolume/100.0);
+  jumpSound[3].setVolume( 65*baseVolume/100.0);
 }
 
 // Main loop for sound effects, called once per cycle
@@ -229,7 +258,7 @@ void sfxLoop() {
       // Newly visible
       if (sfxLastPlayerVisible[i]) {
         jumpVolumeMultiplier[i] = 100;
-        bumpSound[i].setVolume(100);
+        bumpSound[i].setVolume(100*baseVolume/100.0);
         /*if (i>=2) {
           jumpSound[i].setVolume(65);
           bumpSound[i].setVolume(100);
@@ -240,7 +269,7 @@ void sfxLoop() {
       } else {
         // Newly hidden, half volume
         jumpVolumeMultiplier[i] = 40;
-        bumpSound[i].setVolume(50);
+        bumpSound[i].setVolume(50*baseVolume/100.0);
         /*if (i>=2) {
           jumpSound[i].setVolume(21);
           bumpSound[i].setVolume(50);
@@ -256,7 +285,10 @@ void sfxLoop() {
     }
     // Gets halfway there just by being >0 momentumY
     // but then must push up towards full momentum to get full volume
-    jumpSound[i].setVolume((50+jumpVolumeMultiplier[i]*getPlayer(i)->getMomentumY())/(getPlayer(i)->getMaxJump()*5));
+    jumpSound[i].setVolume(
+      (50+jumpVolumeMultiplier[i]*getPlayer(i)->getMomentumY())
+      /(getPlayer(i)->getMaxJump()*5)*baseVolume/100.0
+    );
     if (getCubiorJustBumped(i)) {
       bumpSound[i].play();
     }
@@ -306,25 +338,39 @@ void sfxLoop() {
     setJustFailedCamera(false);
   }
 }
-// Specific sound effects
-/*void playTestSfx() {
-  testSound.play();
+
+// For a simpler menu setting, cycle through one of three musical volumes
+void cycleSoundVolume() {
+  // Cycle up and around from min to max
+  if (baseVolume == lowVolumeSfx) {
+    baseVolume = medVolumeSfx;
+  } else if (baseVolume == medVolumeSfx) {
+    baseVolume = highVolumeSfx;
+  } else if (baseVolume == highVolumeSfx) {
+    baseVolume = offVolumeSfx;
+  } else if (baseVolume == offVolumeSfx) {
+    baseVolume = lowVolumeSfx;
+  } else {
+    // Not aligned to one of three presets? Make default.
+    baseVolume = medVolumeSfx;
+  }
+  // Now that baseVolume is different, reset all SFX volumes!
+  resetVolumes();
 }
-void playJumpSfx(int i) {
-  playSfx(jumpSource[i]);
+
+int getSoundVolume() {
+  return baseVolume;
 }
-void playExitSfx() {
-  playSfx(exitSource);
+
+int getSoundVolumeNum() {
+  if (baseVolume == offVolumeSfx) {
+    return 0;
+  } else if (baseVolume == lowVolumeSfx) {
+    return 1;
+  } else if (baseVolume == highVolumeSfx) {
+    return 3;
+  } else {
+    // Default or anything else? Return Med
+    return 2;
+  }
 }
-void playBumpSfx() {
-  playSfx(bumpSource);
-}
-void playMenuEnterSfx() {
-  playSfx(menuEnterSource);
-}
-void playMenuExitSfx() {
-  playSfx(menuExitSource);
-}
-void playErrorSfx() {
-  playSfx(errorSource);
-}*/

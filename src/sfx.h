@@ -15,11 +15,9 @@
   void initSfx(int, char**);
   void sfxLoop();
   void playTestSfx();
-  /*void playJumpSfx();
-  void playExitSfx();
-  void playBumpSfx();
-  void playMenuEnterSfx();
-  void playMenuExitSfx();
-  void playErrorSfx();*/
+  void cycleSoundVolume();
+  void resetVolumes();
+  int getSoundVolume();
+  int getSoundVolumeNum();
 
 #endif

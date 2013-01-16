@@ -15,6 +15,7 @@
 #include "mapReader.h"
 #include "flatRender.h"
 #include "music.h"
+#include "sfx.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -76,7 +77,14 @@ bool justFocusedCamera = false;
 
 // Pause option value
 int option[4];
-int maxOption[] = {1,4,4,4,1,1,2};
+int maxOption[] = {1, // Title Screen
+  4, // Main Menu
+  4, // Pause
+  4, // Options
+  1, // Controls
+  1, // Start Controls
+  3 // Volume Settings
+};
 // And menu in which we are selecting said option
 int menu[4];
 /* Menus are as follows:
@@ -1935,6 +1943,10 @@ void chooseOption(int i) {
         cycleMusicVolume();
         break;
       case 1:
+        // Toggle Volume Settings
+        cycleSoundVolume();
+        break;
+      case 2:
         // Return to options menu
         setMenu(i, 3);//menu[controller] = 1;
         break;

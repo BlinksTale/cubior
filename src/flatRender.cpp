@@ -5,7 +5,6 @@
  * 2d Visuals for cubior
  */
 #include "flatRender.h"
-#include "sfx.h"
 #include "music.h"
 #include "gameplay.h"
 #include "keyboard.h"
@@ -15,6 +14,7 @@
 #include "image.h"
 #include "creditsReader.h"
 #include "music.h" // to show visuals in menus for music volume
+#include "sfx.h" // to show visuals in menus for sfx volume
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -142,7 +142,7 @@ Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
   resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
   controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
   keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage,
-  volumeImage, offImage, lowImage, medImage, highImage;
+  volumeImage, offImage, lowImage, medImage, highImage, soundImage, musicImage;
 float menuSize = 0.75;
 int menuSpacing = 200;
 
@@ -1105,6 +1105,8 @@ void initMenu() {
   gamepadControlsImage   = Image((extraPath + "./images/CubiorControlsGamepad720.png").c_str(),1);
   
   volumeImage = Image((extraPath + "./images/CubiorVolume720.png").c_str(),menuSize);
+  soundImage  = Image((extraPath + "./images/CubiorSound720.png").c_str(),menuSize);
+  musicImage  = Image((extraPath + "./images/CubiorMusic720.png").c_str(),menuSize);
   offImage    = Image((extraPath + "./images/CubiorOff720.png").c_str(),menuSize);
   lowImage    = Image((extraPath + "./images/CubiorLow720.png").c_str(),menuSize);
   medImage    = Image((extraPath + "./images/CubiorMed720.png").c_str(),menuSize);
@@ -1214,17 +1216,29 @@ void drawMenu(int i, bool doubleWidth) {
       // (Ctrl+F "Rolando" will find that part of the code)
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
     } else if (getMenu(i) == 6) { // Volume Controls Display
-      volumeImage.draw(  0,-0.5*menuSpacing,aspect,false);
-      if (getMusicVolumeNum() == 0) {
-        offImage.draw( 0, 0.5*menuSpacing,aspect,(option==0)*rotation);
-      } else if (getMusicVolumeNum() == 1) {
-        lowImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
-      } else if (getMusicVolumeNum() == 3) {
-        highImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
-      } else {
-        medImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
+      musicImage.draw(  0,-2.0*menuSpacing,aspect,false);
+      switch (getMusicVolumeNum()) {
+      case 0:
+        offImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+      case 1:
+        lowImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+      case 3:
+        highImage.draw(0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+      default:
+        medImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       }
-      backImage.draw(0, 400,aspect,(option==1)*rotation);
+      soundImage.draw( 0, 0.0*menuSpacing,aspect,false);
+      switch (getSoundVolumeNum()) {
+      case 0:
+        offImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+      case 1:
+        lowImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+      case 3:
+        highImage.draw(0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+      default:
+        medImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+      }
+      backImage.draw(0, 2.0*menuSpacing,aspect,(option==2)*rotation);
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
