@@ -76,7 +76,7 @@ bool justFocusedCamera = false;
 
 // Pause option value
 int option[4];
-int maxOption[] = {1,4,4,3,1,1};
+int maxOption[] = {1,4,4,4,1,1,2};
 // And menu in which we are selecting said option
 int menu[4];
 /* Menus are as follows:
@@ -1884,6 +1884,10 @@ void chooseOption(int i) {
         setMenu(i, 4);//menu[controller] = 4;
         break;
       case 2:
+        // Enter Volume Settings
+        setMenu(i, 6);
+        break;
+      case 3:
         // Return to pause or start menu
         if (getLastPause() == -1) { // start menu
           setMenu(i, 1);//menu[controller] = 1;
@@ -1920,6 +1924,19 @@ void chooseOption(int i) {
       case 0:
         // Return to start menu
         setMenu(i, 1);//menu[controller] = 1;
+        break;
+      default:
+        break;
+    }
+  } else if (menu[i] == 6) { // Volume Settings
+    switch(option[i]) {
+      case 0:
+        // Toggle Volume Settings
+        cycleMusicVolume();
+        break;
+      case 1:
+        // Return to options menu
+        setMenu(i, 3);//menu[controller] = 1;
         break;
       default:
         break;

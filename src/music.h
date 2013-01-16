@@ -23,5 +23,8 @@
   void toggleMute();
   void increaseMusicVolume();
   void decreaseMusicVolume();
+  void cycleMusicVolume();
+  int getMusicVolume();
+  int getMusicVolumeNum();
 
 #endif

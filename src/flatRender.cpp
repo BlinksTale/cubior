@@ -14,6 +14,7 @@
 #include "cubiorShape.h"
 #include "image.h"
 #include "creditsReader.h"
+#include "music.h" // to show visuals in menus for music volume
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -140,7 +141,8 @@ CameraObj* cameraPointer[cubiorNum];
 Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
   resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
   controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
-  keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage;
+  keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage,
+  volumeImage, offImage, lowImage, medImage, highImage;
 float menuSize = 0.75;
 int menuSpacing = 200;
 
@@ -1102,6 +1104,12 @@ void initMenu() {
   keyboardControlsImage  = Image((extraPath + "./images/CubiorControlsKeyboard720.png").c_str(),1);
   gamepadControlsImage   = Image((extraPath + "./images/CubiorControlsGamepad720.png").c_str(),1);
   
+  volumeImage = Image((extraPath + "./images/CubiorVolume720.png").c_str(),menuSize);
+  offImage    = Image((extraPath + "./images/CubiorOff720.png").c_str(),menuSize);
+  lowImage    = Image((extraPath + "./images/CubiorLow720.png").c_str(),menuSize);
+  medImage    = Image((extraPath + "./images/CubiorMed720.png").c_str(),menuSize);
+  highImage   = Image((extraPath + "./images/CubiorHigh720.png").c_str(),menuSize);
+  
   creditsImage         = Image((extraPath + "./images/CubiorCredits720.png").c_str(),menuSize);//128.png",3.0);
   // Credits text image was having trouble loading, going to just use printed text for now
   //creditsTextImage     = Image((extraPath + "./images/CubiorCreditsThemselves720.png").c_str(),1);//Text1080.png",1);
@@ -1179,14 +1187,15 @@ void drawMenu(int i, bool doubleWidth) {
       optionsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation); 
       quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
-      cameraControlsImage.draw( 0,-1.5*menuSpacing,aspect,false);
+      cameraControlsImage.draw( 0,-2.0*menuSpacing,aspect,false);
       if (getIndependentMovement(i)) {
-        cameraControlsProImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        cameraControlsProImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation);
       } else {
-        cameraControlsEasyImage.draw( 0,-0.5*menuSpacing,aspect,(option==0)*rotation);
+        cameraControlsEasyImage.draw(0,-1.0*menuSpacing,aspect,(option==0)*rotation);
       }
-      controlsImage.draw(       0, 0.5*menuSpacing,aspect,(option==1)*rotation); 
-      backImage.draw(           0, 1.5*menuSpacing,aspect,(option==2)*rotation);
+      controlsImage.draw(0, 0.0*menuSpacing,aspect,(option==1)*rotation); 
+      volumeImage.draw(  0, 1.0*menuSpacing,aspect,(option==2)*rotation);
+      backImage.draw(  0, 2.0*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 4) { // Controls Display
       if (joystickConnected()) {
         gamepadControlsImage.draw(0,-100,aspect,false);
@@ -1194,9 +1203,9 @@ void drawMenu(int i, bool doubleWidth) {
         keyboardControlsImage.draw(0,-100,aspect,false);
       }
       if (getJustHitStart()) {
-        startImage.draw(           0, 400,aspect,(option==0)*rotation);
+        startImage.draw(0, 400,aspect,(option==0)*rotation);
       } else {
-        backImage.draw(           0, 400,aspect,(option==0)*rotation);
+        backImage.draw( 0, 400,aspect,(option==0)*rotation);
       }
     } else if (getMenu(i) == 5) { // Start Controls Display
       //creditsTextImage.draw(0,-100,aspect,false);
@@ -1204,6 +1213,18 @@ void drawMenu(int i, bool doubleWidth) {
       // except that this gets drawn in the same place the splash screen text does
       // (Ctrl+F "Rolando" will find that part of the code)
       backImage.draw(           0, 400,aspect,(option==0)*rotation);
+    } else if (getMenu(i) == 6) { // Volume Controls Display
+      volumeImage.draw(  0,-0.5*menuSpacing,aspect,false);
+      if (getMusicVolumeNum() == 0) {
+        offImage.draw( 0, 0.5*menuSpacing,aspect,(option==0)*rotation);
+      } else if (getMusicVolumeNum() == 1) {
+        lowImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
+      } else if (getMusicVolumeNum() == 3) {
+        highImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
+      } else {
+        medImage.draw(0, 0.5*menuSpacing,aspect,(option==0)*rotation);
+      }
+      backImage.draw(0, 400,aspect,(option==1)*rotation);
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);

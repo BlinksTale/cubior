@@ -23,9 +23,13 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = true; //false;
+bool mute = false;
 bool lastMute = mute;
-int defaultVolume = 50; // 40 Sounds really good! Might be a hint too quiet? 50 is perfect!
+int highVolume = 50;
+int medVolume = 30;
+int lowVolume = 15;
+int offVolume = 0;
+int defaultVolume = highVolume; // 50 is perfect!
 
 // List of songs
 // Extra path ensures Resources folder is accessed for .app on Mac
@@ -114,4 +118,39 @@ void decreaseMusicVolume() {
       currentVolume = minVolume;
   }
   music.setVolume(currentVolume);
+}
+
+// For a simpler menu setting, cycle through one of three musical volumes
+void cycleMusicVolume() {
+  // Cycle up and around from min to max
+  if (currentVolume == lowVolume) {
+    currentVolume = medVolume;
+  } else if (currentVolume == medVolume) {
+    currentVolume = highVolume;
+  } else if (currentVolume == highVolume) {
+    currentVolume = offVolume;
+  } else if (currentVolume == offVolume) {
+    currentVolume = lowVolume;
+  } else {
+    // Not aligned to one of three presets? Make default.
+    currentVolume = medVolume;
+  }
+  music.setVolume(currentVolume);
+}
+
+int getMusicVolume() {
+  return currentVolume;
+}
+
+int getMusicVolumeNum() {
+  if (currentVolume == offVolume) {
+    return 0;
+  } else if (currentVolume == lowVolume) {
+    return 1;
+  } else if (currentVolume == highVolume) {
+    return 3;
+  } else {
+    // Default or anything else? Return Med
+    return 2;
+  }
 }
