@@ -49,6 +49,7 @@ Map* MapReader::readMap(const string& s) {
     delete map;
   }
   #endif
+  
   map = new Map;
   mapMade = true;
 	

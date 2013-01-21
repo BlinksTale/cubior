@@ -30,8 +30,14 @@ using namespace std;
 bool cubiorPlayable[cubiorCount] = {false,false,false,false};
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
-//CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
-Map* permanentMap = new Map(maxWidth,maxHeight,maxDepth);
+
+//#define newPermanentMap true;
+#ifdef newPermanentMap
+  Map* permanentMap = new Map(maxWidth,maxHeight,maxDepth);
+#else
+  CubeObj* permanentMap[maxWidth][maxHeight][maxDepth];
+#endif
+
 CubeObj cameraCube; // FIXME: Seems to only be here for collision purposes
 Map* levelMap;
 
@@ -177,6 +183,7 @@ void gameplayStart(string levelToLoad) {
 
   // If first running, disable all cubiors
   if (gameplayFirstRunning) {
+    //permanentMap = NULL;
     //playerPause(-1, true);
     for (int i=0; i<4; i++) {
       cubiorPlayable[i] = 0;
@@ -1052,9 +1059,12 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     // May need to fix this later, as requires setting cam pos every time
     int cX = getCollisionMapSlot(&cubior[i],0);
     int cY = getCollisionMapSlot(&cubior[i],1);
-    int cZ = getCollisionMapSlot(&cubior[i],2);            
-    //if (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible())) {
-    if (playerVisible(i) && (permanentMap->getCubeAt(cX,cY,cZ) == NULL || permanentMap->getCubeAt(cX,cY,cZ)->isInvisible())) {
+    int cZ = getCollisionMapSlot(&cubior[i],2);  
+    #ifdef newPermanentMap
+      if (playerVisible(i) && (permanentMap->getCubeAt(cX,cY,cZ) == NULL || permanentMap->getCubeAt(cX,cY,cZ)->isInvisible())) {
+    #else
+        if (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible())) {
+    #endif
       // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
       // since the camera kind of jumps when it starts to readjust every angle
       //camera[i].tick();
@@ -1599,7 +1609,7 @@ void addToCollisionMap(CubeObj* c1, Map* map) {
 	int cX = getCollisionMapSlot(c1,0);
 	int cY = getCollisionMapSlot(c1,1);
 	int cZ = getCollisionMapSlot(c1,2);
-  permanentMap->addCube(c1,cX,cY,cZ);
+  map->addCube(c1,cX,cY,cZ);
 }
 
 // Find all cubes surrounding one cube, and assign them to that cube as neighbors
@@ -1685,15 +1695,33 @@ void wipeCurrentMap(CubeObj* map[][maxHeight][maxDepth]){
 
 // Same as above, only maps instead of arrays
 void wipeCurrentMap(Map* map){
-  for (int a=0; a<currentMapWidth; a++) {
+  /*for (int a=0; a<currentMapWidth; a++) {
   for (int b=0; b<currentMapHeight;b++) {
   for (int c=0; c<currentMapDepth; c++) {
     if (map->getCubeAt(a,b,c) != NULL) {
       // FIXME: Can't delete this? Memory leak caused because of it?
-      //delete map[a][b][c];
-      map->addCube(NULL,a,b,c);
+      map->removeCubeAt(a,b,c);
+      //map->addCube(NULL,a,b,c);
     }
-  } } }
+  } } }*/
+
+  map->wipeMap();
+  
+  /*
+  #ifdef __APPLE_CC__
+  #else 
+  if (NULL != map) {
+    // Alright, so… this breaks the game for Macs
+    // so even though it looks like a memory leak otherwise,
+    // to get the game functioning right now, we can only delete
+    // the old map on Windows
+    delete map;
+    map = NULL;
+  }
+  #endif
+  
+  map = new Map;
+  */
 }
 
 // Wipe the full collision map to prep for repopulating it
@@ -1746,8 +1774,11 @@ bool freeSpaceAt(int a, int b, int c) {
       slotA >= getMapWidth() || slotB >= getMapHeight() || slotC >= getMapDepth()) {
         return true;
   } else {
-    //CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+  #ifdef newPermanentMap
     CubeObj* c1 = permanentMap->getCubeAt(slotA,slotB,slotC);
+  #else
+    CubeObj* c1 = permanentMap[slotA][slotB][slotC];
+  #endif
     return (c1 == NULL || (c1->isInvisible()));
   }
 }
@@ -2011,9 +2042,12 @@ bool getShadow(int i) {
     int slotZ = getCollisionMapSlot(cube[i],2);
     // Check all inbetween slots
     for (int j=slotY-2; j>=0; j--) {
-      //if (permanentMap[slotX][j][slotZ] != NULL) {
+    #ifdef newPermanentMap
       if (permanentMap->getCubeAt(slotX,j,slotZ) != NULL) {
-        // Found somebody else! You are NOT the last cube down
+    #else
+      if (permanentMap[slotX][j][slotZ] != NULL) {
+    #endif
+      // Found somebody else! You are NOT the last cube down
         return true;
       }      
     }

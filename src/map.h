@@ -16,7 +16,7 @@ class Map {
   protected:
     CubeObj* map[maxWidth][maxHeight][maxDepth];
     int width, height, depth, cubeCount, goalWidth, goalHeight, goalDepth;
-    bool customColors;
+    bool customColors, empty;
     float red, green, blue;
   public:
     Map();

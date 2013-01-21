@@ -39,12 +39,15 @@ void Map::addCube(CubeObj* cube, int w, int h, int d) {
 }
 
 void Map::removeCubeAt(int w, int h, int d) {
-  delete map[w][h][d];
-  map[w][h][d] = 0;//NULL;
-  cubeCount--;
+  //if (map[w][h][d] != 0) {
+    delete map[w][h][d];
+    map[w][h][d] = 0;
+    cubeCount--;
+  //}
 }
 
 void Map::wipeMap() {
+  //if (!empty) {
   // Have some size first
   if (width>0 && height>0 && depth>0) {
     // Then delete contents in all slots
@@ -56,6 +59,8 @@ void Map::wipeMap() {
       }
     }
   }
+  //empty = true;
+  //}
 }
 
 bool Map::isSurrounded(int cX, int cY, int cZ) {
@@ -110,13 +115,13 @@ int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
-  if (w >= 0 && w < width  &&
+  /*if (w >= 0 && w < width  &&
       h >= 0 && h < height &&
-      d >= 0 && d < depth) {
+      d >= 0 && d < depth) {*/
     return map[w][h][d];
-  } else {
+  /*} else {
     return NULL;
-  }
+  }*/
 }
 
 // Background's solid color!
