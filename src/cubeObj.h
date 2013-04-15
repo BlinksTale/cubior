@@ -141,8 +141,8 @@ class CubeObj {
     float getDirection();
     float getToldDirection();
     int getCamDirection(); // translated to camera numbers
-    void setInvisible(bool b) { invisible = b; }
-    bool isInvisible() { return invisible; }
+    void setInvisible(bool);
+    bool isInvisible();
 
     float myFpsRate();
     bool getLastToldToMove();

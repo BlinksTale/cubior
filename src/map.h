@@ -10,13 +10,17 @@
 
 #include "constraints.h" // for max width/depth/height
 #include "cubeObj.h"
+#include <unordered_map>
 //#include "gameplay.h"
+
+using namespace std;
 
 class Map {
   protected:
     CubeObj* map[maxWidth][maxHeight][maxDepth];
+    unordered_map<int, CubeObj*> map_unordered;
     int width, height, depth, cubeCount, goalWidth, goalHeight, goalDepth;
-    bool customColors, empty;
+    bool customColors, empty, exists;
     float red, green, blue;
   public:
     Map();
@@ -34,6 +38,7 @@ class Map {
     void setHeight(int);
     void setDepth(int);
     void setCubeCount(int);
+    void setGoalPosition(int,int,int);
     void setGoalWidth(int);
     void setGoalHeight(int);
     void setGoalDepth(int);
@@ -51,6 +56,7 @@ class Map {
     float getGreen();
     float getBlue();
     CubeObj* getCubeAt(int,int,int);
+    int getSlot(int,int,int);
 };
 
 #endif 

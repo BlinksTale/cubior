@@ -781,6 +781,7 @@ void setPerspective(int x, int y) {
 // main loop for rendering. Also calls gameplay loop,
 // updates graphics, and calls itself again
 // BASICALLY: main loop for everything
+// (tick or void draw or void draw() or tick() etc)
 void renderLoop() {
   //time_t seconds;
   //seconds = time(NULL);
@@ -853,6 +854,14 @@ void renderLoop() {
     int dTime7 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("glutPostRedisplay() time: %d\n",dTime7-dTime6);
     printf("renderLoop() time: %d\n",dTime7-dTime1);
+  }*/
+
+  // Check for errors
+  // Code copied from datenwolf on StackOverflow:
+  // http://stackoverflow.com/questions/7857527/why-is-gldrawelements-giving-me-gl-out-of-memory
+  /*int er = 0;
+  while( (er = glGetError()) != GL_NO_ERROR ) {
+    std::cerr << gluErrorString(er) << std::endl;
   }*/
 }
 

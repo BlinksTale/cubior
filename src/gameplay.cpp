@@ -31,6 +31,8 @@ bool cubiorPlayable[cubiorCount] = {false,false,false,false};
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 
+//#define newPermanentMap true
+
 //#define newPermanentMap true;
 #ifdef newPermanentMap
   Map* permanentMap = new Map(maxWidth,maxHeight,maxDepth);
@@ -193,9 +195,11 @@ void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
+    
     // This one does not work for some reason. permanentMap->wipeMap();
     // and thus the memory leak was vanquished, and it was good.
-      
+    delete levelMap;
+
     // And reset goal glow
     goal.setGlow(false);
 

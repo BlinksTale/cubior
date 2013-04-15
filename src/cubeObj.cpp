@@ -777,3 +777,7 @@ float CubeObj::myFpsRate() {
 bool CubeObj::getLastToldToMove() { return lastToldToMove; }
 
 int CubeObj::getMaxSpeed() { return maxSpeed * movementDivision; }
+
+void CubeObj::setInvisible(bool b) { invisible = b; }
+
+bool CubeObj::isInvisible() { return invisible; }
