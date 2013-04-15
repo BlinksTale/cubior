@@ -120,6 +120,10 @@ static const int playerVisibleMax = 10;
     // Sfx triggers
     bool getCubiorJustJumped(int);
     bool getCubiorJustBumped(int);
+    int getCubiorJustLanded(int);
+    int getCubiorJustSkidded(int);
+    int getCubiorJustFlipped(int);
+    int getCubiorJustMoved(int);
     bool getJustExited();
     bool getJustPaused();
     bool getJustUnpaused();

@@ -35,6 +35,8 @@ CubeObj::CubeObj() {
   // And movement limits & ratios
   maxSpeed = 25 ;
   movementSpeed = 0.4;//0.3;
+  minFalling = 10;
+  falling = 0;
 
   // material default
   material = 0;
@@ -347,6 +349,7 @@ void CubeObj::calculateDiff() {
 }
 // Apply gravity!
 void CubeObj::fall() {
+  falling++;
   momentumY -= gravity*myFpsRate();
   doubleLastGrounded = lastGrounded;
   lastGrounded = grounded;
@@ -367,6 +370,11 @@ void CubeObj::fall() {
 
 // Act as if you landed on ground
 void CubeObj::land() {
+  if (falling > minFalling) {
+    justLandedBool = true;
+    justLandedInt = falling;
+  }
+  falling = 0;
   momentumY = 0;
   lockable = true;
   jumping = false;
@@ -485,6 +493,7 @@ bool CubeObj::getPermalock() { return permalocked; }
 // and for Grounding
 bool CubeObj::getGrounded() { return grounded; }
 bool CubeObj::getStillGrounded() { return lastGrounded || grounded || doubleLastGrounded; }
+bool CubeObj::getStillJumping() { return !lastGrounded && !grounded && !doubleLastGrounded; }
 bool CubeObj::getNotGrounded() { return !getStillGrounded(); }
 bool CubeObj::getLanded() { return grounded; }
 bool CubeObj::justJumped() {
@@ -495,6 +504,45 @@ bool CubeObj::justJumped() {
 bool CubeObj::justBumped() {
   bool result = collision && !lastCollision;
   lastCollision = collision;
+  return result;
+}
+// This one returns a volume out of 100
+int CubeObj::justLanded() {
+  int result = justLandedInt;
+  if (justLandedInt > 0) {
+    justLandedInt = 0;
+  }
+  return result;
+}
+int CubeObj::justSkidded() {
+  bool directionConflict = getDirectionConflict();
+  bool conflict = getStillGrounded() && directionConflict && !lastDirectionConflict;
+  lastDirectionConflict = directionConflict;
+  int result = 0;
+  if (conflict) {
+    result = getDirectionConflictSeverity()*getDirectionConflictSeverity()*100;
+  }
+  return result;
+}
+int CubeObj::justFlipped() {
+  bool directionFlip = getDirectionConflict();
+  bool conflict = getStillJumping() && directionFlip && !lastDirectionFlip;
+  lastDirectionFlip = directionFlip;
+  int result = 0;
+  if (conflict) {
+    result = getDirectionConflictSeverity()*getDirectionConflictSeverity()*100;
+  }
+  return result;
+}
+int CubeObj::justMoved() {
+  bool conflict = getStillGrounded() && (momentumX != 0 || momentumZ != 0);
+  int result = lastMoved;
+  if (conflict) {
+    result = strength*2;
+  } else if (result != 0) {
+    result = 0;
+  }
+  lastMoved = result;
   return result;
 }
 

@@ -1812,6 +1812,10 @@ void setCubiorPlayable(int i, bool b) {
 // Sfx triggers
 bool getCubiorJustJumped(int i) { return cubior[i].justJumped(); }
 bool getCubiorJustBumped(int i) { return cubior[i].justBumped(); }
+int getCubiorJustLanded(int i) { return cubior[i].justLanded(); }
+int getCubiorJustSkidded(int i) { return cubior[i].justSkidded(); }
+int getCubiorJustFlipped(int i) { return cubior[i].justFlipped(); }
+int getCubiorJustMoved(int i) { return cubior[i].justMoved(); }
 bool getJustExited() { return justExited; }
 bool getJustPaused() { return justPaused; }
 bool getJustUnpaused() { return justUnpaused; }
