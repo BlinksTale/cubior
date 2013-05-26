@@ -28,7 +28,23 @@ using namespace std;
 /* JUST FOR NOW, COMING BACK AS SOON AS SFML TEST RUNS*/
 int main(int argc, char** argv) {
     
-    
+    // Ask first for any other PC to connect to
+    string boundAddress;
+    cout << "Would you like to play networked multiplayer? (y/n)" << endl;
+    cin >> boundAddress;
+    if (boundAddress.compare("y") == 0) {
+        // Bind to a specific address
+        cout << "What address would you like to bind to? (eg. 127.0.0.1)" << endl;
+        cin >> boundAddress;
+
+        // Shortcut for Home is "n"
+        if (boundAddress.compare("n") == 0) {
+          boundAddress = "127.0.0.1";
+        }
+    } else {
+      boundAddress = "n";
+    }
+
     // Create a test file for cubior to see where working dir is in xcode
     /*FILE *f = fopen("cubiorTestFile.txt","w+"); fprintf(f, "hello I am a cubior test file"); fclose(f);
     
@@ -45,7 +61,7 @@ int main(int argc, char** argv) {
   #ifdef __APPLE_CC__
     extraPath = resourcePath();  
   #endif  
-  gameplayStart(extraPath + "./maps/cubiorMap0.cubior");
+  gameplayStart(extraPath + "./maps/cubiorMap0.cubior", boundAddress);
   initRender(argc, argv); // nothing gets called after this
   //tick();
 }

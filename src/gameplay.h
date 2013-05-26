@@ -1,4 +1,4 @@
- /*
+/*
  * Gameplay header for Cubior
  * by Brian Handy
  * 1/23/12
@@ -36,7 +36,7 @@ const int invisibleMax = 5;
 // keep track of how regularly player is visible
 static const int playerVisibleMax = 10;
 
-    void gameplayStart(string);
+    void gameplayStart(string, string);
     void nextLevelCountdown(int);
     void nextLevel();
     void lastLevel();
