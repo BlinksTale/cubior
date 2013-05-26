@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
   // Extra path ensures Resources folder is accessed for .app on Mac
   std::string extraPath = "";
   #ifdef __APPLE_CC__
-    extraPath = resourcePath();  
+    //extraPath = resourcePath();
   #endif  
   gameplayStart(extraPath + "./maps/cubiorMap0.cubior", boundAddress);
   initRender(argc, argv); // nothing gets called after this

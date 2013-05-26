@@ -1092,7 +1092,7 @@ void initMenu() {
   // Extra path ensures Resources folder is accessed for .app on Mac
   std::string extraPath = "";
   #ifdef __APPLE_CC__
-    extraPath = resourcePath();  
+    //extraPath = resourcePath();
   #endif  
     
   // These need to be converted to const char* with c_str for Image to accept them
@@ -1262,7 +1262,7 @@ void initFlat(int argc, char** argv) {
   // Extra path ensures Resources folder is accessed for .app on Mac
   std::string extraPath = "";
   #ifdef __APPLE_CC__
-    extraPath = resourcePath();  
+    //extraPath = resourcePath();
   #endif  
   
   // Read in Credits doc real quick first, before images even

@@ -212,3 +212,10 @@ error: if you use a joystick, then switch back to keyboard, two dir at once != n
 4/15/13
 todo: make a todo file for the project next time, not a log. My todos are sloppy and beautiful. This log is too clean, I never use it.
 todo: try switching on/off the new/old map systems (and map_unordered) in gameplay/mapReader/map files. Memory problem still. Try splitting things up into smaller chunks to send to the graphics card, too big a chunk (though fast to process) can get stuck with no unified space in memory to land in, and give up on itself and die. That's no good!
+
+---
+5/26/13
+
+Priorities: make camera movement XOR player movement (one or the other, never both)
+finish LAN gameplay
+add gates/bridges and buttons gameplay

@@ -10,10 +10,15 @@
 
 #include "constraints.h" // for max width/depth/height
 #include "cubeObj.h"
+#ifdef __APPLE__
+#include <tr1/unordered_map>
+#else
 #include <unordered_map>
+#endif
 //#include "gameplay.h"
 
 using namespace std;
+using namespace std::tr1;
 
 class Map {
   protected:

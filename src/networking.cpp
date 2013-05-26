@@ -37,6 +37,7 @@ bool choseHost;
 bool keepLooping;
 string oldAddress = "127.0.0.1";
 int ticks = 0;
+bool hostExists = false;
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -91,8 +92,12 @@ void networkTick() {
       //cout << "Send > ";
       //cin.getline(message, messageSize);
       //message = memcpy(message,newString.c_str(),newString.size());ticks;
-      itoa(ticks, message, 10);
-
+      //itoa(ticks, message, 10);
+      //string ticksString = to_string(ticks);
+      //message = memcpy(message, ticksString.c_str(), ticksString.size());
+    
+      sprintf(message, "%d", ticks);
+    
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
       if (strlen(message) > 0) {
@@ -104,6 +109,7 @@ void networkTick() {
 
 int connectTo(string newAddress)
 {
+    if (!hostExists) {
     // Initialize Enet
     if (enet_initialize () != 0)
     {
@@ -167,6 +173,9 @@ int connectTo(string newAddress)
     while (keepLooping) {
         tick();
     }*/
+    
+    hostExists = true;
+    }
 
     return 0;
 }
