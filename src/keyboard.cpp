@@ -39,14 +39,28 @@ bool independentMovement[] = { // move separately from camera angle after start 
 int altFrame = 0;
 int altMax = 5;
 
+// temp var until we can detect PS3 controllers
+#define PS3Controls true
+#define cameraButtonDisabled true
 /* Change which 360 buttons we use on Mac vs PC */
 /* (they read the controller differently) */
 #ifdef __APPLE_CC__
+#ifdef PS3Controls
+// DS3 (PS3) controller support here
+int joinButtonNum = 0; // select
+int pauseButtonNum = 3; // start
+// These two disabled for now since camera button causes problems
+int cameraBumperButtonNum = -1;//10; // left bumper
+int cameraStickButtonNum = -1;//2; // right stick click down
+#else
+// 360 Controller support
 int joinButtonNum = 11 - 1;
 int pauseButtonNum = 10 - 1;
 int cameraBumperButtonNum = 14 - 1;
 int cameraStickButtonNum = 13 - 1;
+#endif
 #else
+// 360 controller on Windows
 int joinButtonNum = 6;
 int pauseButtonNum = 7;
 int cameraBumperButtonNum = 4;
@@ -384,6 +398,10 @@ void joystickCommands(int i) {
   
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
+        // Println joystick controls
+        //if (sf::Joystick::isButtonPressed(joystick, b)) {
+        //    cout << "Key " << b << " was pressed" << endl;
+        //}
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == pauseButtonNum) { // Pause pauseButton
@@ -409,9 +427,20 @@ void joystickCommands(int i) {
 	leftButton[i] = joyX[i] <-15;
 	rightButton[i]= joyX[i] > 15;
   
-  int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  // Right joystick X
+  #ifdef PS3Controls
+    int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
+  #else
+    int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  #endif
+    
+  // Right joystick Y
   #ifdef __APPLE_CC__
+  #ifdef PS3Controls
+    int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+  #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+  #endif
   #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
   #endif

@@ -37,7 +37,7 @@
 
 // Starting values that change often in testing
 bool printFPS = false;
-bool fullscreen = false;//true;
+bool fullscreen = true;
 bool drawOutlines = false;
 bool levelShadows = true; // at this point, shadows do not influence lag
 

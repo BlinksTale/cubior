@@ -1,4 +1,4 @@
-/*
+ /*
  * Music for Cubior
  * by Brian Handy
  * (Music itself by Waterflame)
@@ -29,7 +29,7 @@ int highVolume = 50;
 int medVolume = 30;
 int lowVolume = 15;
 int offVolume = 0;
-int defaultVolume = offVolume;//highVolume; // 50 is perfect!
+int defaultVolume = medVolume;//highVolume; // 50 is perfect!
 
 // List of songs
 // Extra path ensures Resources folder is accessed for .app on Mac
