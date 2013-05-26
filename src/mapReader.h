@@ -13,6 +13,7 @@
 
 class MapReader {
   public:
+    static void init();
     static Map* readMap(const std::string&);
     static void fillSpotWithInvisible(Map*,int,int,int);
     static int getPadding() { return padding; }

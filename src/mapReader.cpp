@@ -27,6 +27,12 @@ Map* MapReader::readMap(const string& s) {
   bool widthFound = false;
   bool heightFound= false;
   bool depthFound = false;
+  int foundWidth = 0;
+  int foundHeight = 0;
+  int foundDepth = 0;
+  int foundGoalWidth = 0;
+  int foundGoalHeight = 0;
+  int foundGoalDepth = 0;
   bool goalWidthFound = false;
   bool goalHeightFound = false;
   bool goalDepthFound = false;
@@ -38,19 +44,19 @@ Map* MapReader::readMap(const string& s) {
   int h = padding;
   int d = padding;
   // To return map
-  
+
   #ifdef __APPLE_CC__
   #else 
   if (map != NULL) {
     // Alright, so… this breaks the game for Macs
     // so even though it looks like a memory leak otherwise,
     // to get the game functioning right now, we can only delete
-    // the old map on Windows
-    delete map;
+    // the old map on Windows. And we must, or it breaks.
+    //delete map;
   }
   #endif
   
-  map = new Map;
+  //map = new Map;//()
   mapMade = true;
 	
   // Stream in the file
@@ -64,27 +70,33 @@ Map* MapReader::readMap(const string& s) {
       // Find initial properties
       if (!widthFound && !row.substr(0,6).compare("width:")) {
         widthFound = true;
-        map->setWidth(2*padding+atoi((row.substr(6,row.length()-6)).c_str()));
+        foundWidth = 2*padding+atoi((row.substr(6,row.length()-6)).c_str());
+        //map->setWidth(foundWidth);
       }
       if (!heightFound && !row.substr(0,7).compare("height:")){
         heightFound = true;
-        map->setHeight(2*padding+atoi((row.substr(7,row.length()-7)).c_str()));
+        foundHeight = 2*padding+atoi((row.substr(7,row.length()-7)).c_str());
+        //map->setHeight(foundHeight);
       }
       if (!depthFound && !row.substr(0,6).compare("depth:")) {
         depthFound = true;
-        map->setDepth(2*padding+atoi((row.substr(6,row.length()-6)).c_str()));
+        foundDepth = 2*padding+atoi((row.substr(6,row.length()-6)).c_str());
+        //map->setDepth(foundDepth);
       }
       if (!goalWidthFound && !row.substr(0,10).compare("goalWidth:")) {
         goalWidthFound = true;
-        map->setGoalWidth(atoi((row.substr(10,row.length()-10)).c_str()));
+        foundGoalWidth = atoi((row.substr(10,row.length()-10)).c_str());
+        //map->setGoalWidth(foundGoalWidth);
       }
       if (!goalHeightFound && !row.substr(0,11).compare("goalHeight:")) {
         goalHeightFound = true;
-        map->setGoalHeight(atoi((row.substr(11,row.length()-11)).c_str()));
+        foundGoalHeight = atoi((row.substr(11,row.length()-11)).c_str());
+        //map->setGoalHeight(foundGoalHeight);
       }
       if (!goalDepthFound && !row.substr(0,10).compare("goalDepth:")) {
         goalDepthFound = true;
-        map->setGoalDepth(atoi((row.substr(10,row.length()-10)).c_str()));
+        foundGoalDepth = atoi((row.substr(10,row.length()-10)).c_str());
+        //map->setGoalDepth(foundGoalDepth);
       }
       // Find background color
       if (!haveRed && !row.substr(0,4).compare("red:")) {
@@ -103,6 +115,21 @@ Map* MapReader::readMap(const string& s) {
       // (read in the cubes from their individual spots)
       if (row.length()==0 && !readingMap && widthFound && heightFound && depthFound) {
         readingMap = true;
+        // And in beginning to read the map,
+        // also assign the map var with a new map of the appropriate size
+        map = new Map(foundWidth, foundHeight, foundDepth);
+
+        // Then try to set each of the goal position dimensions
+        if (foundGoalWidth) {
+          map->setGoalWidth(foundGoalWidth);
+        }
+        if (foundGoalHeight) {
+          map->setGoalHeight(foundGoalHeight);
+        }
+        if (foundGoalDepth) {
+          map->setGoalDepth(foundGoalDepth);
+        }
+        
         // But also check to see if we have a full set of new colors
         if (haveRed && haveGreen && haveBlue) {
           map->setCustomColors(red, green, blue);
@@ -142,13 +169,20 @@ Map* MapReader::readMap(const string& s) {
 
   else cout << "Unable to open " << file << endl; 
 
+  int newWidth = foundWidth;
+  int newHeight = foundHeight;
+  int newDepth = foundDepth;
+  int altWidth = map->getWidth();
+  int altHeight = map->getHeight();
+  int altDepth = map->getDepth();
+
   // Finally, just before returning it, add invisible walls
   // Z wallz first
-  for (int w=0; w<map->getWidth(); w++) {
-    for (int h=0; h<map->getHeight(); h++) {
+  for (int w=0; w<newWidth; w++) {
+    for (int h=0; h<newHeight; h++) {
       // Rear Wall
       for (int d=0; d<padding; d++) {
-        fillSpotWithInvisible(map,w,h,map->getDepth()-padding+d); // THIS IS CORRECT ON LEVEL 0
+        fillSpotWithInvisible(map,w,h,newDepth-padding+d); // THIS IS CORRECT ON LEVEL 0
       }
       // Front Wall
       for (int d=0; d<padding; d++) {
@@ -157,11 +191,11 @@ Map* MapReader::readMap(const string& s) {
     }
   }
   // Then X walls
-  for (int d=0; d<map->getDepth(); d++) {
-    for (int h=0; h<map->getHeight(); h++) {
+  for (int d=0; d<newDepth; d++) {
+    for (int h=0; h<newHeight; h++) {
       // Right Wall
       for (int w=0; w<padding; w++) {
-        fillSpotWithInvisible(map,map->getWidth()-padding+w,h,d);
+        fillSpotWithInvisible(map,newWidth-padding+w,h,d);
       }
       // Left Wall
       for (int w=0; w<padding; w++) {
@@ -180,10 +214,13 @@ Map* MapReader::readMap(const string& s) {
 
 // Put invisible blot in a spot, or make current block invisible
 void MapReader::fillSpotWithInvisible(Map* map, int spotX, int spotY, int spotZ) {
-  if (map->getCubeAt(spotX,spotY,spotZ) != NULL) {
-    map->getCubeAt(spotX,spotY,spotZ)->setInvisible(true);
-    map->getCubeAt(spotX,spotY,spotZ)->setMaterial(8);
-    map->getCubeAt(spotX,spotY,spotZ)->tick();
+  CubeObj* focus = map->getCubeAt(spotX,spotY,spotZ);
+  if (focus != NULL) {
+    if (!focus->isInvisible()) {
+      focus->setInvisible(true);
+      focus->setMaterial(8);
+      focus->tick();
+    }
   } else {
     CubeObj* newCube = new CubeObj();
     newCube->setInvisible(true);

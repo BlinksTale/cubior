@@ -25,10 +25,11 @@ class CubeObj {
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
-    int maxSpeed, friction;
+    int maxSpeed, friction, falling, minFalling;
     float maxJump, jumpSpeed, jumpSpeedRatio, gravity;
-    int material;
-    bool jumping, lastJumping, collision, lastCollision;
+    int material, justLandedInt, lastMoved;
+    bool jumping, lastJumping, collision, lastCollision, justLandedBool;
+    bool lastDirectionConflict, lastDirectionFlip;
     CubeObj* landedOn;
     //CameraObj* camera; // for camera cubes to ID their cameras
     float landedOnDirectionDiff, landedOnToldDirectionDiff;
@@ -66,10 +67,15 @@ class CubeObj {
     bool getPermalock();
     bool getGrounded();
     bool getStillGrounded();
+    bool getStillJumping();
     bool getNotGrounded();
     bool getLanded();
     bool justJumped();
     bool justBumped();
+    int justLanded();
+    int justSkidded();
+    int justFlipped();
+    int justMoved();
 
     void setPos(int,int,int);
     void setX(int);
@@ -141,8 +147,8 @@ class CubeObj {
     float getDirection();
     float getToldDirection();
     int getCamDirection(); // translated to camera numbers
-    void setInvisible(bool b) { invisible = b; }
-    bool isInvisible() { return invisible; }
+    void setInvisible(bool);
+    bool isInvisible();
 
     float myFpsRate();
     bool getLastToldToMove();

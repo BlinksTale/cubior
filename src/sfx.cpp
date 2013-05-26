@@ -32,18 +32,21 @@ sf::SoundBuffer testBuffer, exitBuffer, errorBuffer,
   menuEnterBuffer, menuExitBuffer, glowBuffer,
   changeMenuBuffer, changeOptionBuffer,
   focusCameraBuffer, turnCameraBuffer, failCameraBuffer;
-sf::SoundBuffer jumpBuffer[4], bumpBuffer[4];
+sf::SoundBuffer jumpBuffer[4], bumpBuffer[4], landBuffer[4],
+  skidBuffer[4], flipBuffer[4], moveBuffer[4];
 
 // Sound Vars (play what's in buffer)
 sf::Sound testSound, exitSound, errorSound,
   menuEnterSound, menuExitSound, glowSound,
   changeMenuSound, changeOptionSound,
   focusCameraSound, turnCameraSound, failCameraSound;
-sf::Sound jumpSound[4], bumpSound[4];
+sf::Sound jumpSound[4], bumpSound[4], landSound[4],
+  skidSound[4], flipSound[4], moveSound[4];
 
 // Sound muffling variables
 bool sfxLastPlayerVisible[4];
 int jumpVolumeMultiplier[] = {100,100,100,100};
+int landVolume[4], skidVolume[4], flipVolume[4], moveVolume[4];
 
 // Setup for sound effects
 void initSfx(int argc, char** argv) {
@@ -198,6 +201,22 @@ void initSfx(int argc, char** argv) {
   bumpBuffer[1].loadFromFile(     extraPath + "./sfx/Collision/Bump 4.wav");//Hit 4.wav");
   bumpBuffer[2].loadFromFile(     extraPath + "./sfx/Collision/Bump 1.wav");//Hit 6.wav"); // Original one true bump
   bumpBuffer[3].loadFromFile(     extraPath + "./sfx/Collision/Bump 5.wav");//Hit 14.wav");
+  landBuffer[0].loadFromFile(     extraPath + "./sfx/Movement/Land 1.wav");
+  landBuffer[1].loadFromFile(     extraPath + "./sfx/Movement/Land 2.wav");
+  landBuffer[2].loadFromFile(     extraPath + "./sfx/Movement/Land 3.wav");
+  landBuffer[3].loadFromFile(     extraPath + "./sfx/Movement/Land 4.wav");
+  skidBuffer[0].loadFromFile(     extraPath + "./sfx/Movement/Skid 1.wav");
+  skidBuffer[1].loadFromFile(     extraPath + "./sfx/Movement/Skid 2.wav");
+  skidBuffer[2].loadFromFile(     extraPath + "./sfx/Movement/Skid 3.wav");
+  skidBuffer[3].loadFromFile(     extraPath + "./sfx/Movement/Skid 4.wav");
+  flipBuffer[0].loadFromFile(     extraPath + "./sfx/Movement/Flip 1.wav");
+  flipBuffer[1].loadFromFile(     extraPath + "./sfx/Movement/Flip 2.wav");
+  flipBuffer[2].loadFromFile(     extraPath + "./sfx/Movement/Flip 3.wav");
+  flipBuffer[3].loadFromFile(     extraPath + "./sfx/Movement/Flip 4.wav");
+  moveBuffer[0].loadFromFile(     extraPath + "./sfx/Movement/Move 1.ogg");
+  moveBuffer[1].loadFromFile(     extraPath + "./sfx/Movement/Move 2.ogg");
+  moveBuffer[2].loadFromFile(     extraPath + "./sfx/Movement/Move 3.ogg");
+  moveBuffer[3].loadFromFile(     extraPath + "./sfx/Movement/Move 4.ogg");
   changeMenuBuffer.loadFromFile(  extraPath + "./sfx/Menu-Game/Menu 4.wav");
   changeOptionBuffer.loadFromFile(extraPath + "./sfx/Menu-Game/Menu 1.wav");
   focusCameraBuffer.loadFromFile( extraPath + "./sfx/Movement/Turn 10.wav");
@@ -219,8 +238,18 @@ void initSfx(int argc, char** argv) {
   for (int i=0; i<4; i++) {
     jumpSound[i].setBuffer(jumpBuffer[i]);
     bumpSound[i].setBuffer(bumpBuffer[i]);
+    landSound[i].setBuffer(landBuffer[i]);
+    skidSound[i].setBuffer(skidBuffer[i]);
+    flipSound[i].setBuffer(flipBuffer[i]);
+    moveSound[i].setBuffer(moveBuffer[i]);
   }
   resetVolumes();
+
+  // And finally, start playing the looping movement sounds!
+  for (int i=0; i<4; i++) {
+    moveSound[i].play();
+    moveSound[i].setLoop(true);
+  }
 }
 
 // Set all volumes again, since base volume was changed.
@@ -240,6 +269,11 @@ void resetVolumes() {
 
   for (int i=0; i<4; i++) {
     bumpSound[i].setVolume(75*baseVolume/100.0);
+    landSound[i].setVolume(25*baseVolume/100.0);
+    // These have volumes dependent on when they are called
+    skidSound[i].setVolume(0*baseVolume/100.0);
+    flipSound[i].setVolume(0*baseVolume/100.0);
+    moveSound[i].setVolume(0*baseVolume/100.0);
   }
   jumpSound[0].setVolume(100*baseVolume/100.0);
   jumpSound[1].setVolume(100*baseVolume/100.0);
@@ -259,6 +293,8 @@ void sfxLoop() {
       if (sfxLastPlayerVisible[i]) {
         jumpVolumeMultiplier[i] = 100;
         bumpSound[i].setVolume(100*baseVolume/100.0);
+        //landSound[i].setVolume(landVolume[i]*baseVolume/100.0);
+        //skidSound[i].setVolume(100*baseVolume/100.0);
         /*if (i>=2) {
           jumpSound[i].setVolume(65);
           bumpSound[i].setVolume(100);
@@ -270,6 +306,8 @@ void sfxLoop() {
         // Newly hidden, half volume
         jumpVolumeMultiplier[i] = 40;
         bumpSound[i].setVolume(50*baseVolume/100.0);
+        //landSound[i].setVolume(0.5*landVolume[i]*baseVolume/100.0);
+        //skidSound[i].setVolume(50*baseVolume/100.0);
         /*if (i>=2) {
           jumpSound[i].setVolume(21);
           bumpSound[i].setVolume(50);
@@ -289,8 +327,52 @@ void sfxLoop() {
       (50+jumpVolumeMultiplier[i]*getPlayer(i)->getMomentumY())
       /(getPlayer(i)->getMaxJump()*5)*baseVolume/100.0
     );
+    // Bumping SFX
     if (getCubiorJustBumped(i)) {
       bumpSound[i].play();
+    }
+    // Landing SFX
+    int newLandVol = getCubiorJustLanded(i);
+    if (newLandVol > 0) {
+      landVolume[i] = newLandVol;
+      if (sfxLastPlayerVisible[i]) {
+        landSound[i].setVolume(landVolume[i]*baseVolume/100.0);
+      } else {
+        landSound[i].setVolume(landVolume[i]*0.5*baseVolume/100.0);
+      }
+      landSound[i].play();
+    }
+    // Skidding SFX
+    int newSkidVol = getCubiorJustSkidded(i);
+    if (newSkidVol > 0) {
+      skidVolume[i] = newSkidVol;
+      if (sfxLastPlayerVisible[i]) {
+        skidSound[i].setVolume(skidVolume[i]*baseVolume/100.0);
+      } else {
+        skidSound[i].setVolume(skidVolume[i]*0.5*baseVolume/100.0);
+      }
+      skidSound[i].play();
+    }
+    // Flipping SFX
+    int newFlipVol = getCubiorJustFlipped(i);
+    if (newFlipVol > 0) {
+      flipVolume[i] = newFlipVol;
+      if (sfxLastPlayerVisible[i]) {
+        flipSound[i].setVolume(flipVolume[i]*baseVolume/100.0);
+      } else {
+        flipSound[i].setVolume(flipVolume[i]*0.5*baseVolume/100.0);
+      }
+      flipSound[i].play();
+    }
+    // Moving SFX
+    int newMoveVol = getCubiorJustMoved(i);
+    if (newMoveVol != moveVolume[i]) {
+      moveVolume[i] = newMoveVol;
+      if (sfxLastPlayerVisible[i]) {
+        moveSound[i].setVolume(moveVolume[i]*baseVolume/100.0);
+      } else {
+        moveSound[i].setVolume(moveVolume[i]*0.5*baseVolume/100.0);
+      }
     }
   }
   // Win Level
@@ -324,15 +406,17 @@ void sfxLoop() {
     errorSound.play();
     setJustCausedError(false);
   }
-  // Camera focused
+  // Camera Focused
   if (getJustFocusedCamera()) {
     focusCameraSound.play();
     setJustFocusedCamera(false);
   }
+  // Camera Turned
   if (getJustTurnedCamera()) {
     turnCameraSound.play();
     setJustTurnedCamera(false);
   }
+  // Camera Turn Failed
   if (getJustFailedCamera()) {
     failCameraSound.play();
     setJustFailedCamera(false);

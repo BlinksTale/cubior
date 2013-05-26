@@ -8,6 +8,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cameraObj.h"
+#include "networking.h"
 #include "cubeObj.h"
 #include "goalObj.h"
 #include "cubiorObj.h"
@@ -30,6 +31,8 @@ using namespace std;
 bool cubiorPlayable[cubiorCount] = {false,false,false,false};
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
+
+//#define newPermanentMap true
 
 //#define newPermanentMap true;
 #ifdef newPermanentMap
@@ -55,6 +58,7 @@ bool winningShot = false;
 int winningHyp = 0;
 float winningZoom = 0.9985;
 int winningRotations = 256;
+bool networkingEnabled = false;
 
 CubiorObj cubior[cubiorCount];
 CubeObj* cube[maxCubeCount];
@@ -179,7 +183,7 @@ void resetCubior(int i) {
 }
 
 // Load in a level and set it up
-void gameplayStart(string levelToLoad) {
+void gameplayStart(string levelToLoad, string addressToJoin) {
 
   // If first running, disable all cubiors
   if (gameplayFirstRunning) {
@@ -193,9 +197,11 @@ void gameplayStart(string levelToLoad) {
   if (gameplayRunning) {
     // First wipe the current map
     wipeCurrentMap(permanentMap);
+    
     // This one does not work for some reason. permanentMap->wipeMap();
     // and thus the memory leak was vanquished, and it was good.
-      
+    delete levelMap;
+
     // And reset goal glow
     goal.setGlow(false);
 
@@ -307,6 +313,16 @@ void gameplayStart(string levelToLoad) {
     }
     playerPause(-1,true);
   }
+
+  // Gameplay Start network stuff!
+  // Only change networkingEnabled status if told to.
+  // Empty string means no change
+  if (addressToJoin.compare("") != 0) {
+    networkingEnabled = (addressToJoin.compare("n") != 0);
+  }
+  if (networkingEnabled) {
+    connectTo(addressToJoin);
+  }
 }
 
 // To count down to loading the next level
@@ -384,7 +400,7 @@ void loadLevel(int levelNum) {
   int n;
   char buffer[100];
   n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); // should be relative/local but... for now, doing this so that trailer can get made in a timely matter
-  gameplayStart(buffer);
+  gameplayStart(buffer, "");
   initVisuals();
 }
 
@@ -544,6 +560,10 @@ void gameplayLoop() {
   }
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
+  // Lastly, network stuff!
+  if (networkingEnabled) {
+    networkTick();
+  }
 }
 
 // See if you can line the camera up against a wall
@@ -1808,6 +1828,10 @@ void setCubiorPlayable(int i, bool b) {
 // Sfx triggers
 bool getCubiorJustJumped(int i) { return cubior[i].justJumped(); }
 bool getCubiorJustBumped(int i) { return cubior[i].justBumped(); }
+int getCubiorJustLanded(int i) { return cubior[i].justLanded(); }
+int getCubiorJustSkidded(int i) { return cubior[i].justSkidded(); }
+int getCubiorJustFlipped(int i) { return cubior[i].justFlipped(); }
+int getCubiorJustMoved(int i) { return cubior[i].justMoved(); }
 bool getJustExited() { return justExited; }
 bool getJustPaused() { return justPaused; }
 bool getJustUnpaused() { return justUnpaused; }
