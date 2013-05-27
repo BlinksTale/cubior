@@ -42,6 +42,7 @@ int ticks = 0;
 bool hostExists = false;
 string latestData;
 int posY;
+int myPosY;
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -82,6 +83,9 @@ void pollFor(ENetHost * host, ENetAddress address) {
     enet_packet_destroy(event.packet);
 }
 
+void setPosY(int i) {
+    myPosY = i;
+}
 int getPosY() {
     cout << "Returning " << posY << endl;
     return posY;
@@ -108,8 +112,8 @@ void networkTick() {
       //string ticksString = to_string(ticks);
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
-      int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d", posY);
+      //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
+      sprintf(message, "%d", myPosY);
     
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 

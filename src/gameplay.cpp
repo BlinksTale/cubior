@@ -598,6 +598,10 @@ void gameplayLoop() {
   // Lastly, network stuff!
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
     cout << "Networking enabled" << endl;
+    
+    // Prep your own position to send out
+    setPosY(cubior[0].getY());
+    
     networkTick();
     
     bool anyoneOnline = false;
@@ -605,7 +609,7 @@ void gameplayLoop() {
         if (cubiorOnline[i]) {
             anyoneOnline = true;
             cout << "Player " << i << " is online" << endl;
-            cubior[i].setPos(20, getPosY(), 0);
+            cubior[i].setPos(200, getPosY(), 200);
         }
     }
       if (!anyoneOnline) {
