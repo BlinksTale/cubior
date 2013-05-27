@@ -219,3 +219,11 @@ todo: try switching on/off the new/old map systems (and map_unordered) in gamepl
 Priorities: make camera movement XOR player movement (one or the other, never both)
 finish LAN gameplay
 add gates/bridges and buttons gameplay
+
+---
+5/27/13
+WARNING: Installing Enet 1.3.7 breaks Xcode's ability to do stuff. "No member named 'clock_t' in the global namespace" appears only after installing enet. Maybe it's not caused by Enet… but these errors did not appear before enet was installed
+
+WARNING: Yes, even older builds become corrupted once enet is installed. Enet is the source of these problems. Uninstall immediately? Use SFML's networking options instead if at all possible, or try an older enet
+
+FIX: in enet folder, sudo make uninstall will fix it all
