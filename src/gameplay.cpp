@@ -28,7 +28,8 @@
 
 using namespace std;
 
-bool cubiorPlayable[cubiorCount] = {false,false,false,false};
+bool cubiorPlayable[cubiorCount];// = {false,false,false,false};
+bool cubiorOnline[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 
@@ -182,16 +183,135 @@ void resetCubior(int i) {
 
 }
 
+void setupPlayers() {
+    // Give initial positions/camera positions
+    for (int i=0; i<cubiorCount; i++) {
+        
+        // Start camera!
+        camera[i].alwaysFollow(&cubior[i],&goal,i);
+        cameraDroppingIn[i] = true;
+        
+        // After set to always follow, THEN position camera and cubior
+        // Starting camera and player pos
+        resetCubior(i);
+        keepInBounds(&cubior[i]);
+	    camera[i].resetPos();
+        cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+        
+        // Cubior Start State
+        cubior[i].setCubiorNum(i);
+        cubior[i].setHappiness(1.0-(i%4)*1.0/4); // was 1.0-i*1.0/cubiorCount before,
+                                                 // now made to loop every 4 cubes
+    }
+    
+    // Load nobody if only first running!
+    //if (!gameplayFirstRunning) {
+    bool anyonePlaying = false;
+    for (int i=0; i<cubiorCount; i++) {
+        anyonePlaying = anyonePlaying || cubiorPlayable[i];
+    }
+    // If NOBODY playing...
+    if (!anyonePlaying) {
+        // Use the chosen player
+        int chosenOne = getPlayerChosen();
+        if (chosenOne > -1 && chosenOne < cubiorCount) {
+            cubiorPlayable[chosenOne] = true;
+        } else {
+            // Then ensure at least P1 is playing
+            cubiorPlayable[0] = true;
+        }
+    }
+    //}
+}
+
+void disablePlayers() {
+    //playerPause(-1, true);
+    for (int i=0; i<cubiorCount; i++) {
+        cubiorPlayable[i] = 0;
+        cubiorOnline[i] = 0;
+    }
+}
+
+void setupNetworking(string addressToJoin) {
+    // Gameplay Start network stuff!
+    // Only change networkingEnabled status if told to.
+    // Empty string means no change
+    if (addressToJoin.compare("") != 0) {
+        networkingEnabled = (addressToJoin.compare("n") != 0);
+    }
+    if (networkingEnabled) {
+        connectTo(addressToJoin);
+    }
+}
+
+void setupNetworkedPlayers() {
+    // FIXME: have a real implementation here later. This is just for testing
+    //bool networkedPlayer = true;
+    //addPlayer(networkedPlayer);
+    // changed my mind, going to do this later so it starts after first level starts...?
+    
+    // Need a new system for menu navigation so it's not based on players playing
+}
+
+void readLevel(string levelToLoad) {
+    levelMap = MapReader::readMap(levelToLoad); // now load that level!
+    currentMapWidth = levelMap->getWidth();
+    currentMapHeight= levelMap->getHeight();
+    currentMapDepth = levelMap->getDepth();
+    cubeCount = levelMap->getCubeCount();
+    if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
+    if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
+    if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
+    if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
+}
+
+void setupLevel() {
+    // Load cubes in from level reader
+    int currentCube = 0;
+    for (int z=0; z<levelMap->getDepth(); z++) {
+        for (int x=0; x<levelMap->getWidth(); x++) {
+            for (int y=0; y<levelMap->getHeight(); y++) {
+                if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
+                    // Removing surrounded cubes increases lag, actually
+                    //if (!levelMap->isSurrounded(x,y,z)) {
+                    // FIXME: Should just grab cubeAt and put it in cube array. Cube array must be pointer then?
+                    cube[currentCube] = levelMap->getCubeAt(x,y,z);
+                    cube[currentCube]->setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
+                    //cube[currentCube]->setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
+                    //cube[currentCube]->setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
+                    currentCube++;
+                    //}
+                }
+            }
+        }
+    }
+    
+    // Then the goal
+    goal.setPos(levelMap->getGoalWidth(),levelMap->getGoalHeight(),levelMap->getGoalDepth());
+    
+    // Then populate permamap
+    // ... with permanent Cubes
+    for (int i = 0; i<cubeCount; i++) {
+        cube[i]->tick();
+        //keepInBounds(&cube[i]);
+        addToCollisionMap(cube[i], permanentMap);
+    }
+    // Then set their neighbors, for more efficient rendering
+    for (int i = 0; i<cubeCount; i++) {
+        findNeighbors(cube[i], permanentMap);
+        findEdges(cube[i], permanentMap);
+    }
+}
+
 // Load in a level and set it up
 void gameplayStart(string levelToLoad, string addressToJoin) {
 
   // If first running, disable all cubiors
   if (gameplayFirstRunning) {
     //permanentMap = NULL;
-    //playerPause(-1, true);
-    for (int i=0; i<4; i++) {
-      cubiorPlayable[i] = 0;
-    }
+      disablePlayers();
+      
+      setupNetworking(addressToJoin);
   }
     
   if (gameplayRunning) {
@@ -206,96 +326,19 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     goal.setGlow(false);
 
     // Then read in a new map
-    levelMap = MapReader::readMap(levelToLoad); // now load that level!
-    currentMapWidth = levelMap->getWidth();
-    currentMapHeight= levelMap->getHeight();
-    currentMapDepth = levelMap->getDepth();
-    cubeCount = levelMap->getCubeCount();
-    if (currentMapWidth > playableWidth) { currentMapWidth = playableWidth; }
-    if (currentMapHeight> playableHeight){ currentMapHeight= playableHeight;}
-    if (currentMapDepth > playableDepth) { currentMapDepth = playableDepth; }
-    if (cubeCount > maxCubeCount) { cubeCount = maxCubeCount; }
-
+    readLevel(levelToLoad);
+      
     // Setup player positions and cameras
-    for (int i=0; i<cubiorCount; i++) {
-  
-      // Start camera!
-      camera[i].alwaysFollow(&cubior[i],&goal,i);
-      cameraDroppingIn[i] = true;
-
-      // After set to always follow, THEN position camera and cubior
-      // Starting camera and player pos
-      resetCubior(i);
-      keepInBounds(&cubior[i]);
-	    camera[i].resetPos();
-      cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-  
-      // Cubior Start State
-      cubior[i].setCubiorNum(i);
-      cubior[i].setHappiness(1.0-i*1.0/cubiorCount);
-    }
-
-    // Load nobody if only first running!
-    //if (!gameplayFirstRunning) {
-      // If NOBODY playing...
-      if (!cubiorPlayable[0] && 
-          !cubiorPlayable[1] && 
-          !cubiorPlayable[2] && 
-          !cubiorPlayable[3]) { 
-        // Use the chosen player
-        int chosenOne = getPlayerChosen();
-        if (chosenOne > -1 && chosenOne < 4) {
-          cubiorPlayable[chosenOne] = true;
-        } else {
-          // Then ensure at least P1 is playing
-          cubiorPlayable[0] = true;
-        }
-      }
-    //}
-
-    // and Cube Obstacle start states
-    /*for (int i=0; i<cubeCount; i++) {
-      cube[i]->setPermalock(true);
-    }*/
-            
-    // Load cubes in from level reader
-    int currentCube = 0;
-    for (int z=0; z<levelMap->getDepth(); z++) {
-      for (int x=0; x<levelMap->getWidth(); x++) {
-        for (int y=0; y<levelMap->getHeight(); y++) {
-          if (levelMap->getCubeAt(x,y,z) != 0 && currentCube < cubeCount) {
-            // Removing surrounded cubes increases lag, actually
-            //if (!levelMap->isSurrounded(x,y,z)) {
-              // FIXME: Should just grab cubeAt and put it in cube array. Cube array must be pointer then?
-              cube[currentCube] = levelMap->getCubeAt(x,y,z);
-              cube[currentCube]->setPos(tileSize*(x-levelMap->getWidth()/2),tileSize*(y-levelMap->getHeight()/2),tileSize*(z-levelMap->getDepth()/2));
-              //cube[currentCube]->setMaterial(levelMap->getCubeAt(x,y,z)->getMaterial());
-              //cube[currentCube]->setInvisible(levelMap->getCubeAt(x,y,z)->isInvisible());
-              currentCube++;
-            //}
-          }
-        }
-      }
+    setupPlayers();
+    
+    // And networked players
+    if (networkingEnabled) {
+        setupNetworkedPlayers();
     }
     
-    // Then the goal
-    goal.setPos(levelMap->getGoalWidth(),levelMap->getGoalHeight(),levelMap->getGoalDepth());
-    
-    // Then populate permamap
-    // ... with permanent Cubes
-    for (int i = 0; i<cubeCount; i++) {
-      cube[i]->tick();
-      //keepInBounds(&cube[i]);
-      addToCollisionMap(cube[i], permanentMap);
-    }
-    // Then set their neighbors, for more efficient rendering
-    for (int i = 0; i<cubeCount; i++) {
-      findNeighbors(cube[i], permanentMap);
-      findEdges(cube[i], permanentMap);
-    }
-
+    // Setup level geometry and goal
+    setupLevel();
   }
-  
     
   // Temp fix for title screen, auto pause on start
   if (gameplayFirstRunning) {
@@ -304,25 +347,16 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     // Reset everyone except p1's playability to false
     // So that we only see one view of the title screen
     cubiorPlayable[0] = true;
-    cubiorPlayable[1] = false;
-    cubiorPlayable[2] = false;
-    cubiorPlayable[3] = false;
+      for (int i=1; i<cubiorCount; i++) {
+          cubiorPlayable[i] = false;
+      }
     // Reset all to splash screen menu
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<cubiorCount; i++) {
       menu[i] = 0;
     }
     playerPause(-1,true);
   }
-
-  // Gameplay Start network stuff!
-  // Only change networkingEnabled status if told to.
-  // Empty string means no change
-  if (addressToJoin.compare("") != 0) {
-    networkingEnabled = (addressToJoin.compare("n") != 0);
-  }
-  if (networkingEnabled) {
-    connectTo(addressToJoin);
-  }
+  
 }
 
 // To count down to loading the next level
@@ -447,6 +481,7 @@ void gameplayLoop() {
 
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
+          cout << "This cubior " << i << " has online status " << cubior[i].getOnline() << endl;
       if (cubiorPlayable[i]) {
 
         // First, stop that dropping in if it's no longer happening
@@ -561,8 +596,21 @@ void gameplayLoop() {
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
   // Lastly, network stuff!
-  if (networkingEnabled) {
+  if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
+    cout << "Networking enabled" << endl;
     networkTick();
+    
+    bool anyoneOnline = false;
+    for (int i=0; i<cubiorCount; i++) {
+        if (cubiorOnline[i]) {
+            anyoneOnline = true;
+            cout << "Player " << i << " is online" << endl;
+            cubior[i].setPos(20, getPosY(), 0);
+        }
+    }
+      if (!anyoneOnline) {
+          addPlayer(true);
+      }
   }
 }
 
@@ -1812,6 +1860,9 @@ GoalObj* getGoal() { return &goal; }
 // Total Cubiors that can be played
 const int getCubiorCount() { return cubiorCount; }
 bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
+bool getCubiorOnline(int i) { return cubiorOnline[i]; }
+bool getCubiorLocal(int i) { return cubiorPlayable[i] && !cubiorOnline[i]; }
+
 // How many are in play total
 int getCubiorsPlayable() {
   int results = 0;
@@ -1820,11 +1871,50 @@ int getCubiorsPlayable() {
   }
   return results;
 }
+
+// How many are online total
+int getCubiorsOnline() {
+    int results = 0;
+    for (int i=0; i<cubiorCount; i++) {
+        if (cubiorOnline[i]) { results++; }
+    }
+    return results;
+}
+
+    
+int addPlayer(bool online) {
+    // Add first player you can find
+    for (int i=0; i<cubiorCount; i++) {
+        if (!cubiorPlayable[i]) {
+            setCubiorPlayable(i, true);
+            setCubiorOnline(i, online);
+            return 0;
+        }
+    }
+    // Couldn't find an empty player slot, game is full
+    return 1;
+}
+
+int removePlayer(int i) {
+    if (cubiorPlayable[i]) {
+        setCubiorPlayable(i, false);
+        setCubiorOnline(i, false);
+        return 0;
+    } else {
+        // Player not available to be removed
+        return 1;
+    }
+}
+
 void setCubiorPlayable(int i, bool b) {
   resetCubior(i);
   cubiorPlayable[i] = b;
 }
-
+void setCubiorOnline(int i, bool b) {
+    cubiorOnline[i] = b;
+    cubior[i].setOnline(b);
+}
+    
 // Sfx triggers
 bool getCubiorJustJumped(int i) { return cubior[i].justJumped(); }
 bool getCubiorJustBumped(int i) { return cubior[i].justBumped(); }

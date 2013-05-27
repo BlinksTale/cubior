@@ -14,6 +14,7 @@ CubiorObj::CubiorObj() {
   happiness = 1.0;
   invincible = false;
   playerStatus = true;
+  online = false;
   
 }
 
@@ -23,6 +24,15 @@ void CubiorObj::setHappiness(float n) {
 
 void CubiorObj::setInvincibility(bool n) {
   invincible = n;
+}
+
+void CubiorObj::setOnline(bool b) {
+    cout << "ONline set to " << b << endl;
+    online = b;
+}
+
+bool CubiorObj::getOnline() {
+    return online;
 }
 
 int CubiorObj::getWidth() { return 100*(1+locked*1); }

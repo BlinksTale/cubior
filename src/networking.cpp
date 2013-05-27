@@ -15,9 +15,11 @@
 
 // This now works with itself, but not with a copy on the same machine. How about another machine?
 
+#include <cstdlib> // atoi
 #include <iostream>
 #include <enet/enet.h>
 #include <string>
+#include <cmath>
 #include "networking.h"
 
 using namespace std;
@@ -38,6 +40,8 @@ bool keepLooping;
 string oldAddress = "127.0.0.1";
 int ticks = 0;
 bool hostExists = false;
+string latestData;
+int posY;
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -59,6 +63,9 @@ void pollFor(ENetHost * host, ENetAddress address) {
               " containing " << event.packet -> data << " was received from " << 
               event.peer -> data << " on channel " << event.channelID << ".\n";*/
             cout << event.peer -> data << ": " << event.packet -> data << "\n";
+            // Save some data for later
+            latestData = ((const char*)event.packet -> data);
+            posY = atoi((const char*)event.packet -> data);
             /* Clean up the packet now that we're done using it. */
             enet_packet_destroy (event.packet);
             break;
@@ -73,6 +80,11 @@ void pollFor(ENetHost * host, ENetAddress address) {
     }
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+int getPosY() {
+    cout << "Returning " << posY << endl;
+    return posY;
 }
 
 // The main loop, called repeatedly
@@ -96,7 +108,8 @@ void networkTick() {
       //string ticksString = to_string(ticks);
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
-      sprintf(message, "%d", ticks);
+      int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
+      sprintf(message, "%d", posY);
     
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 

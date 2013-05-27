@@ -12,6 +12,7 @@ class CubiorObj : public CubeObj {
     float happiness;
     bool invincible;
     int cubiorNum;
+    bool online;
   public:
     CubiorObj();
     float getHappiness() { return happiness; }
@@ -21,6 +22,9 @@ class CubiorObj : public CubeObj {
 
     int getWidth();
     int getHeight();
+    
+    void setOnline(bool);
+    bool getOnline();
     
     void setCubiorNum(int);
     int getCubiorNum();

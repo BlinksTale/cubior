@@ -37,6 +37,13 @@ const int invisibleMax = 5;
 static const int playerVisibleMax = 10;
 
     void gameplayStart(string, string);
+    void readLevel(string);
+    void setupLevel();
+    void setupPlayers();
+    void disablePlayers();
+    void setupNetworking(string);
+    void setupNetworkedPlayers();
+
     void nextLevelCountdown(int);
     void nextLevel();
     void lastLevel();
@@ -114,9 +121,17 @@ static const int playerVisibleMax = 10;
     CubeObj* getCube(int);
     const int getCubiorCount();
     bool getCubiorPlayable(int);
+    bool getCubiorOnline(int);
+    bool getCubiorLocal(int);
     int getCubiorsPlayable();
+    int getCubiorsOnline();
+    int getCubiorsLocal();
+
+    int addPlayer(bool);
+    int removePlayer(int);
     void setCubiorPlayable(int,bool);
-    
+    void setCubiorOnline(int,bool);
+
     // Sfx triggers
     bool getCubiorJustJumped(int);
     bool getCubiorJustBumped(int);

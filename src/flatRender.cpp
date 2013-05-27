@@ -186,12 +186,15 @@ void display() {
   
   
   int cubiorsPlayable = getCubiorsPlayable();
-  
+  int cubiorsOnline = getCubiorsOnline();
+  int cubiorsLocal = cubiorsPlayable - cubiorsOnline;
+    cout << "Currently " << cubiorsLocal << " players are local" << endl;
+    
   //cout << "Before the loop calls:  " << getTimePassed() << endl;
   // Draw all playing Cubior views
   for (int i=0; i<getCubiorCount(); i++) {
     
-    if (getCubiorPlayable(i)) {
+    if (getCubiorPlayable(i) && !getCubiorOnline(i)) {
       //cout << "To setup player " << i << ": \t" << getTimePassed() << endl;
       
       int w=i%2;
@@ -215,17 +218,17 @@ void display() {
       bool doubleWidth = false; // assume that it will not!
 
       // Splitscreen math below!
-      if (cubiorsPlayable == 1) {
+      if (cubiorsLocal == 1) {
         // All alone? Fill all the screen space!
         viewW *= 2;
         viewH *= 2;
         posX = 0;
         posY = 0;
         setPerspective(2,2);
-      } else if (cubiorsPlayable == 4) {
+      } else if (cubiorsLocal == 4) {
         // Quick exit for 4player mode, run faster!
         setPerspective(1,1);
-      } else if (cubiorsPlayable == 2) {
+      } else if (cubiorsLocal == 2) {
         // Both flush left
         posX = 0;
         // Both are full width, no height
@@ -241,12 +244,12 @@ void display() {
         // Second of the two? Put on bottom, else top
         posY = other > i ? windowHeight*1/2+1 : -1;
         setPerspective(2,1);
-      } else if (!getCubiorPlayable(altY) && !getCubiorPlayable(altXY)) {
+      } else if (!getCubiorLocal(altY) && !getCubiorLocal(altXY)) {
         // Space Vertically? Fill the height
         viewH *= 2;
         posY = 0;
         setPerspective(1,2);
-      } else if (!getCubiorPlayable(altX)) {
+      } else if (!getCubiorLocal(altX)) {
         // Space Horizontally? Fill the width
         viewW *= 2;
         doubleWidth = true;
