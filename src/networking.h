@@ -20,6 +20,7 @@ const bool networkingAllowed = true;
     void disconnectFrom(string);
     void networkTick();
     void pollFor(ENetHost *, ENetAddress);
+    int findComma(int, string);
     void setPosX(int);
     void setPosY(int);
     void setPosZ(int);

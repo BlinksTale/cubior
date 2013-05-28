@@ -188,7 +188,6 @@ void display() {
   int cubiorsPlayable = getCubiorsPlayable();
   int cubiorsOnline = getCubiorsOnline();
   int cubiorsLocal = cubiorsPlayable - cubiorsOnline;
-    cout << "Currently " << cubiorsLocal << " players are local" << endl;
     
   //cout << "Before the loop calls:  " << getTimePassed() << endl;
   // Draw all playing Cubior views

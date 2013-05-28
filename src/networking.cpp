@@ -47,6 +47,7 @@ int myPosX, myPosY, myPosZ;
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
     ENetEvent event;
+    bool updatePos = false;
     /* Wait up to 1000 milliseconds for an event. */
     while (enet_host_service (host, & event, 1) > 0) // used to be 1000, not 1 (update 1/sec. Now it's 1000/sec)
     {
@@ -63,14 +64,10 @@ void pollFor(ENetHost * host, ENetAddress address) {
             /*cout << "A packet of length " << event.packet -> dataLength <<
               " containing " << event.packet -> data << " was received from " << 
               event.peer -> data << " on channel " << event.channelID << ".\n";*/
-            cout << event.peer -> data << ": " << event.packet -> data << "\n";
+            //cout << event.peer -> data << ": " << event.packet -> data << "\n";
             // Save some data for later
             latestData = ((const char*)event.packet -> data);
-            posX = atoi((const char*)event.packet -> data);
-            posZ = posX % 10000;
-            posX = posX / 10000;
-            posY = posX % 10000;
-            posX = posX / 10000;
+            updatePos = true;
             /* Clean up the packet now that we're done using it. */
             enet_packet_destroy (event.packet);
             break;
@@ -83,8 +80,32 @@ void pollFor(ENetHost * host, ENetAddress address) {
             cout << "No new data" << endl;
         }
     }
+    
+    if (updatePos) {
+      int commaOne, commaTwo;
+      string str(latestData);
+      commaOne = findComma(1, str);
+      commaTwo = findComma(2, str);
+      posX = atoi(str.substr(0,commaOne).c_str());
+      posY = atoi(str.substr(commaOne+1,commaTwo-commaOne).c_str());
+      posZ = atoi(str.substr(commaTwo+1,str.length()-commaTwo).c_str());
+      //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
+
+    }
+
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+int findComma(int commaNum, string text) {
+  for (int i=0; i<text.length(); i++) {
+    if (text.at(i) == ',') {
+      commaNum--;
+      if (commaNum == 0) {
+        return i;
+      }
+    }
+  }
 }
 
 void setPosX(int i) {
@@ -128,7 +149,7 @@ void networkTick() {
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d", myPosX * 10000 * 10000 + myPosY * 10000 + myPosZ);
+      sprintf(message, "%d,%d,%d", myPosX, myPosY, myPosZ);
     
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 

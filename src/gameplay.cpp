@@ -59,7 +59,6 @@ bool winningShot = false;
 int winningHyp = 0;
 float winningZoom = 0.9985;
 int winningRotations = 256;
-bool networkingEnabled = false;
 
 CubiorObj cubior[cubiorCount];
 CubeObj* cube[maxCubeCount];
@@ -117,6 +116,10 @@ bool justHitStart = false; // Whether you just tried to start the game (forces y
 // Keep track of player's visibility
 int playerVisibleSlot = 0;
 bool playerVisibleArray[4][playerVisibleMax];
+
+// Networking
+bool networkingEnabled = false;
+bool onlineAlone = false;
 
 // Quick math function for keepInBounds
 int getEdge(int dimension, int neg) {
@@ -241,6 +244,9 @@ void setupNetworking(string addressToJoin) {
     }
     if (networkingEnabled) {
         connectTo(addressToJoin);
+        if (addressToJoin.compare("127.0.0.1") == 0) {
+            onlineAlone = true;
+        }
     }
 }
 
@@ -481,7 +487,7 @@ void gameplayLoop() {
 
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
-          cout << "This cubior " << i << " has online status " << cubior[i].getOnline() << endl;
+          //cout << "This cubior " << i << " has online status " << cubior[i].getOnline() << endl;
       if (cubiorPlayable[i]) {
 
         // First, stop that dropping in if it's no longer happening
@@ -597,19 +603,21 @@ void gameplayLoop() {
   
   // Lastly, network stuff!
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
-    cout << "Networking enabled" << endl;
     
     // Prep your own position to send out
+    setPosX(cubior[0].getX());
     setPosY(cubior[0].getY());
+    setPosZ(cubior[0].getZ());
     
     networkTick();
     
+    int modifier = onlineAlone ? 200 : 0;
+
     bool anyoneOnline = false;
     for (int i=0; i<cubiorCount; i++) {
         if (cubiorOnline[i]) {
             anyoneOnline = true;
-            cout << "Player " << i << " is online" << endl;
-            cubior[i].setPos(200, getPosY(), 200);
+            cubior[i].setPos(getPosX()+modifier, getPosY(), getPosZ()+modifier);
         }
     }
       if (!anyoneOnline) {
