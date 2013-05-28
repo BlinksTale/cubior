@@ -41,8 +41,8 @@ string oldAddress = "127.0.0.1";
 int ticks = 0;
 bool hostExists = false;
 string latestData;
-int posY;
-int myPosY;
+int posX, posY, posZ;
+int myPosX, myPosY, myPosZ;
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -55,7 +55,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
         case ENET_EVENT_TYPE_CONNECT:
             /*cout << "A new client connected from " << event.peer -> addressServer.host <<
               ":" << event.peer -> addressServer.port << ".\n";*/
-            cout << event.peer -> address.host << " joined the chat\n";
+            cout << event.peer -> address.host << " joined the game\n";
             /* Store any relevant client information here. */
             //event.peer -> data = "Client information";
             break;
@@ -66,7 +66,11 @@ void pollFor(ENetHost * host, ENetAddress address) {
             cout << event.peer -> data << ": " << event.packet -> data << "\n";
             // Save some data for later
             latestData = ((const char*)event.packet -> data);
-            posY = atoi((const char*)event.packet -> data);
+            posX = atoi((const char*)event.packet -> data);
+            posZ = posX % 10000;
+            posX = posX / 10000;
+            posY = posX % 10000;
+            posX = posX / 10000;
             /* Clean up the packet now that we're done using it. */
             enet_packet_destroy (event.packet);
             break;
@@ -83,12 +87,23 @@ void pollFor(ENetHost * host, ENetAddress address) {
     enet_packet_destroy(event.packet);
 }
 
+void setPosX(int i) {
+    myPosX = i;
+}
 void setPosY(int i) {
     myPosY = i;
 }
+void setPosZ(int i) {
+    myPosZ = i;
+}
+int getPosX() {
+    return posX;
+}
 int getPosY() {
-    cout << "Returning " << posY << endl;
     return posY;
+}
+int getPosZ() {
+    return posZ;
 }
 
 // The main loop, called repeatedly
@@ -113,7 +128,7 @@ void networkTick() {
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d", myPosY);
+      sprintf(message, "%d", myPosX * 10000 * 10000 + myPosY * 10000 + myPosZ);
     
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 

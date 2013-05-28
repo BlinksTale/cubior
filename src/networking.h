@@ -20,7 +20,11 @@ const bool networkingAllowed = true;
     void disconnectFrom(string);
     void networkTick();
     void pollFor(ENetHost *, ENetAddress);
+    void setPosX(int);
     void setPosY(int);
+    void setPosZ(int);
+    int getPosX();
     int getPosY();
+    int getPosZ();
 
 #endif

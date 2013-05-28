@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
         cin >> boundAddress;
 
         // Shortcut for Home is "n"
-        if (boundAddress.compare("n") == 0) {
+        if (boundAddress.compare("n") == 0 || boundAddress.compare("y") == 0) {
           boundAddress = "127.0.0.1";
         }
     } else {
