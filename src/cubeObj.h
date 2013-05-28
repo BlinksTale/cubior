@@ -9,6 +9,8 @@
 #define CUBEOBJ
 
 //#include "cameraObj.h"
+#include <vector>
+using namespace std;
 
 class CubeObj {
   protected:
@@ -94,6 +96,7 @@ class CubeObj {
     void setMomentumX(float);
     void setMomentumY(float);
     void setMomentumZ(float);
+    void setMomentum(vector<float>);
     
     void resetToldToMove();
     void movePos(float,float,float);
@@ -111,6 +114,7 @@ class CubeObj {
     int getMomentumX();
     int getMomentumY();
     int getMomentumZ();
+    vector<float> getMomentum();
     int getMomentumGround();
     int getMaxJump();
     
@@ -145,7 +149,9 @@ class CubeObj {
 
     float getStrength();
     float getDirection();
+    void setDirection(float);
     float getToldDirection();
+    void setToldDirection(float);
     int getCamDirection(); // translated to camera numbers
     void setInvisible(bool);
     bool isInvisible();

@@ -13,6 +13,7 @@
 #include <cmath> // for atan, max()/min()
 #define _USE_MATH_DEFINES // for M_PI
 #include <math.h> // for M_PI
+#include <vector>
 
 using namespace std;
 
@@ -314,6 +315,9 @@ float CubeObj::getDirection() {
   }
   return result;
 }
+void CubeObj::setDirection(float f) {
+  direction = f;
+}
 // Return the last direction you were told (by keyboard/joystick) to move in
 float CubeObj::getToldDirection() {
   float result = toldDirection;
@@ -322,6 +326,9 @@ float CubeObj::getToldDirection() {
     result = landedOn->getToldDirection() + landedOnToldDirectionDiff;
   }
   return result;
+}
+void CubeObj::setToldDirection(float f) {
+  toldDirection = f;
 }
 
 // Return direction by camera's angle system, and in degrees
@@ -615,6 +622,12 @@ void CubeObj::setMomentumX(float n) { momentumX = n * movementSpeed / movementDi
 void CubeObj::setMomentumY(float n) { momentumY = n * movementSpeed / movementDivision; }
 void CubeObj::setMomentumZ(float n) { momentumZ = n * movementSpeed / movementDivision; }
 
+void CubeObj::setMomentum(vector<float> m) { 
+  momentumX = m.at(0) * movementSpeed / movementDivision;
+  momentumY = m.at(1) * movementSpeed / movementDivision;
+  momentumZ = m.at(2) * movementSpeed / movementDivision;
+}
+
 // Just wipe out any old toldToMove commands
 void CubeObj::resetToldToMove() {
   toldToMove = false;
@@ -694,6 +707,16 @@ int CubeObj::getAngleZ() { return 0; }
 int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
+vector<float> CubeObj::getMomentum() {
+    float momentumArray[] = {
+        momentumX * movementDivision,
+        momentumY * movementDivision,
+        momentumZ * movementDivision
+    };
+    std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+
+    return newMomentum;
+}
 int CubeObj::getMaxJump() { return maxJump; }
 // How fast we are travelling on the ground
 int CubeObj::getMomentumGround() {

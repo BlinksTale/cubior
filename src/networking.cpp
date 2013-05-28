@@ -20,6 +20,7 @@
 #include <enet/enet.h>
 #include <string>
 #include <cmath>
+#include <vector>
 #include "networking.h"
 
 using namespace std;
@@ -43,6 +44,10 @@ bool hostExists = false;
 string latestData;
 int posX, posY, posZ;
 int myPosX, myPosY, myPosZ;
+vector<float> momentum (3, 0);
+vector<float> myMomentum (3, 0);
+float direction;
+float myDirection;
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -82,19 +87,57 @@ void pollFor(ENetHost * host, ENetAddress address) {
     }
     
     if (updatePos) {
-      int commaOne, commaTwo;
+      int commaOne, commaTwo, commaThree;
+      float momentumX, momentumY, momentumZ;
       string str(latestData);
-      commaOne = findComma(1, str);
-      commaTwo = findComma(2, str);
-      posX = atoi(str.substr(0,commaOne).c_str());
-      posY = atoi(str.substr(commaOne+1,commaTwo-commaOne).c_str());
-      posZ = atoi(str.substr(commaTwo+1,str.length()-commaTwo).c_str());
+      const int resultSize = 10;
+      string dataArray[resultSize];
+      stringToArray(str, dataArray, resultSize);
+      
+      /*for (int i=0; i<resultSize; i++) {
+        cout << "Line " << i << " is " << dataArray[i] << endl;
+      }*/
+
+      posX      = atoi(dataArray[0].c_str());
+      posY      = atoi(dataArray[1].c_str());
+      posZ      = atoi(dataArray[2].c_str());
+      momentumX = atof(dataArray[3].c_str());
+      momentumY = atof(dataArray[4].c_str());
+      momentumZ = atof(dataArray[5].c_str());
+      direction = atof(dataArray[6].c_str());
+      
+      float momentumArray[] = { momentumX, momentumY, momentumZ };
+      std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+      momentum.swap(newMomentum);
+
       //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
 
     }
 
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+string* stringToArray(string str, string* result, int resultSize) {
+    int leftComma = 0;
+    int rightComma = 0;
+
+    //cout << "String " << str << endl;
+    
+    for (int i=0; i<resultSize; i++) {
+        result[i] = "\0";
+    }
+
+    for (int i=0; i<resultSize; i++) {
+        string focus = str.substr(leftComma, str.length()-leftComma);
+        rightComma = focus.find(',');
+        result[i] = str.substr(leftComma, rightComma);
+        if (rightComma == string::npos) {
+          return result;
+        }
+        leftComma += rightComma+1;
+    }
+    return result;
 }
 
 int findComma(int commaNum, string text) {
@@ -127,6 +170,20 @@ int getPosZ() {
     return posZ;
 }
 
+void setMomentum(vector<float> m) {
+  myMomentum = m;
+}
+vector<float> getMomentum() {
+  return momentum;
+}
+
+void setDirection(float f) {
+  myDirection = f;
+}
+float getDirection() {
+  return direction;
+}
+
 // The main loop, called repeatedly
 void networkTick() {
   
@@ -149,8 +206,11 @@ void networkTick() {
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d,%d,%d", myPosX, myPosY, myPosZ);
-    
+      sprintf(message, "%d,%d,%d,%f,%f,%f,%f", 
+        myPosX, myPosY, myPosZ,
+        myMomentum.at(0), myMomentum.at(1), myMomentum.at(2),
+        myDirection);
+
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
       if (strlen(message) > 0) {

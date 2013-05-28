@@ -25,6 +25,7 @@
 #include <cstdio>
 #include <stdlib.h> // for NULL
 #include <string> // for loading a level by var passed
+#include <vector>
 
 using namespace std;
 
@@ -608,6 +609,8 @@ void gameplayLoop() {
     setPosX(cubior[0].getX());
     setPosY(cubior[0].getY());
     setPosZ(cubior[0].getZ());
+    setMomentum(cubior[0].getMomentum());
+    setDirection(cubior[0].getToldDirection());
     
     networkTick();
     
@@ -618,6 +621,8 @@ void gameplayLoop() {
         if (cubiorOnline[i]) {
             anyoneOnline = true;
             cubior[i].setPos(getPosX()+modifier, getPosY(), getPosZ()+modifier);
+            cubior[i].setMomentum(getMomentum());
+            cubior[i].setToldDirection(getDirection());
         }
     }
       if (!anyoneOnline) {
