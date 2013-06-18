@@ -8,11 +8,7 @@
 #include "map.h"
 #include "cubeObj.h"
 #include "gameplay.h"
-#ifdef __APPLE__
-#include <tr1/unordered_map>
-#else
-#include <unordered_map>
-#endif
+//#include <unordered_map>
 
 #define oldMap true
 

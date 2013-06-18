@@ -183,7 +183,7 @@ void initSfx(int argc, char** argv) {
   // Extra path ensures Resources folder is accessed for .app on Mac
   std::string extraPath = "";
   #ifdef __APPLE_CC__
-    //extraPath = resourcePath();
+    extraPath = resourcePath();
   #endif  
     
   // Load sounds into buffers

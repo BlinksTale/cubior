@@ -68,23 +68,6 @@
 
 
 ////////////////////////////////////////////////////////////
-// Identify the endianness
-////////////////////////////////////////////////////////////
-#if defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || (defined(__MIPS__) && defined(__MISPEB__)) || \
-    defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__sparc__) || defined(__hppa__)
-
-    // Big endian
-    #define SFML_ENDIAN_BIG
-
-#else
-
-    // Little endian
-    #define SFML_ENDIAN_LITTLE
-
-#endif
-
-
-////////////////////////////////////////////////////////////
 // Define a portable debug macro
 ////////////////////////////////////////////////////////////
 #if !defined(NDEBUG)
@@ -171,6 +154,22 @@ namespace sf
     #endif
 
 } // namespace sf
+
+
+//#endif // SFML_CONFIG_HPP
+//32;
+    typedef unsigned int Uint32;
+
+    // 64 bits integer types
+    #if defined(_MSC_VER)
+        typedef signed   __int64 Int64;
+        typedef unsigned __int64 Uint64;
+    #else
+        typedef signed   long long Int64;
+        typedef unsigned long long Uint64;
+    #endif
+
+//} // namespace sf
 
 
 #endif // SFML_CONFIG_HPP

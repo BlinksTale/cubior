@@ -53,32 +53,33 @@ void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
     ENetEvent event;
     bool updatePos = false;
-    /* Wait up to 1000 milliseconds for an event. */
+    // Wait up to 1000 milliseconds for an event.
     while (enet_host_service (host, & event, 1) > 0) // used to be 1000, not 1 (update 1/sec. Now it's 1000/sec)
     {
         switch (event.type)
         {
         case ENET_EVENT_TYPE_CONNECT:
-            /*cout << "A new client connected from " << event.peer -> addressServer.host <<
-              ":" << event.peer -> addressServer.port << ".\n";*/
+            //cout << "A new client connected from " << event.peer -> addressServer.host <<
+            //  ":" << event.peer -> addressServer.port << ".\n";
             cout << event.peer -> address.host << " joined the game\n";
-            /* Store any relevant client information here. */
+            // Store any relevant client information here.
             //event.peer -> data = "Client information";
             break;
         case ENET_EVENT_TYPE_RECEIVE:
-            /*cout << "A packet of length " << event.packet -> dataLength <<
-              " containing " << event.packet -> data << " was received from " << 
-              event.peer -> data << " on channel " << event.channelID << ".\n";*/
+            //cout << "A packet of length " << event.packet -> dataLength <<
+            //  " containing " << event.packet -> data << " was received from " <<
+            //  event.peer -> data << " on channel " << event.channelID << ".\n";
+
             //cout << event.peer -> data << ": " << event.packet -> data << "\n";
             // Save some data for later
             latestData = ((const char*)event.packet -> data);
             updatePos = true;
-            /* Clean up the packet now that we're done using it. */
+            // Clean up the packet now that we're done using it.
             enet_packet_destroy (event.packet);
             break;
         case ENET_EVENT_TYPE_DISCONNECT:
             cout << event.peer -> data << " disconected.\n";
-            /* Reset the peer's client information. */
+            // Reset the peer's client information.
             event.peer -> data = NULL;
             break;
         default:
@@ -94,9 +95,9 @@ void pollFor(ENetHost * host, ENetAddress address) {
       string dataArray[resultSize];
       stringToArray(str, dataArray, resultSize);
       
-      /*for (int i=0; i<resultSize; i++) {
-        cout << "Line " << i << " is " << dataArray[i] << endl;
-      }*/
+      //for (int i=0; i<resultSize; i++) {
+      //  cout << "Line " << i << " is " << dataArray[i] << endl;
+      //}
 
       posX      = atoi(dataArray[0].c_str());
       posY      = atoi(dataArray[1].c_str());
@@ -149,6 +150,7 @@ int findComma(int commaNum, string text) {
       }
     }
   }
+  return -1;
 }
 
 void setPosX(int i) {
@@ -233,17 +235,18 @@ int connectTo(string newAddress)
 
     //if (choseHost) {
 
-        /* Bind the server to the default localhost.     */
-        /* A specific host address can be specified by   */
-        /* enet_address_set_host (& addressServer, "x.x.x.x"); */
+        // Bind the server to the default localhost.
+        // A specific host address can be specified by
+        // enet_address_set_host (& addressServer, "x.x.x.x");
         addressServer.host = ENET_HOST_ANY;
-        /* Bind the server to port 1234. */
+        // Bind the server to port 1234.
         addressServer.port = 1234;
-        server = enet_host_create (& addressServer /* the address to bind the server host to */, 
-                                     32      /* allow up to 32 clients and/or outgoing connections */,
-                                      2      /* allow up to 2 channels to be used, 0 and 1 */,
-                                      0      /* assume any amount of incoming bandwidth */,
-                                      0      /* assume any amount of outgoing bandwidth */);
+        server = enet_host_create (& addressServer, // the address to bind the server host to
+                                     32,      // allow up to 32 clients and/or outgoing connections
+                                      2,      // allow up to 2 channels to be used, 0 and 1
+                                      0,      // assume any amount of incoming bandwidth
+                                      0       // assume any amount of outgoing bandwidth
+                                  );
         if (server == NULL)
         {
             fprintf (stderr, 
@@ -252,11 +255,12 @@ int connectTo(string newAddress)
         }
 
     //} else {
-        client = enet_host_create (NULL /* create a client host */,
-                    1 /* only allow 1 outgoing connection */,
-                    2 /* allow up 2 channels to be used, 0 and 1 */,
-                    57600 / 8 /* 56K modem with 56 Kbps downstream bandwidth */,
-                    14400 / 8 /* 56K modem with 14 Kbps upstream bandwidth */);
+        client = enet_host_create (NULL, // create a client host
+                    1, // only allow 1 outgoing connection
+                    2, // allow up 2 channels to be used, 0 and 1
+                    57600 / 8, // 56K modem with 56 Kbps downstream bandwidth
+                    14400 / 8  // 56K modem with 14 Kbps upstream bandwidth
+                    );
         if (client == NULL)
         {
             fprintf (stderr, 
@@ -282,10 +286,10 @@ int connectTo(string newAddress)
     //}
 
     // Main Loop
-    /*keepLooping = true;
-    while (keepLooping) {
-        tick();
-    }*/
+    //keepLooping = true;
+    //while (keepLooping) {
+    //    tick();
+    //}
     
     hostExists = true;
     }

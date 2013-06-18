@@ -10,20 +10,20 @@
 
 #include "constraints.h" // for max width/depth/height
 #include "cubeObj.h"
-#ifdef __APPLE__
-#include <tr1/unordered_map>
-#else
-#include <unordered_map>
-#endif
+//#ifdef __APPLE__
+//#include <tr1/unordered_map>
+//#else
+//#include <unordered_map>
+//#endif
 //#include "gameplay.h"
 
 using namespace std;
-using namespace std::tr1;
+//using namespace std::tr1;
 
 class Map {
   protected:
     CubeObj* map[maxWidth][maxHeight][maxDepth];
-    unordered_map<int, CubeObj*> map_unordered;
+    //unordered_map<int, CubeObj*> map_unordered;
     int width, height, depth, cubeCount, goalWidth, goalHeight, goalDepth;
     bool customColors, empty, exists;
     float red, green, blue;
