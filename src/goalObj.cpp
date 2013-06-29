@@ -26,7 +26,7 @@ void GoalObj::collisionEffect(CubeObj* c) {
     
     // Then start player anim sequence
     CubiorObj* temp = (CubiorObj*)c;
-    int theNum = temp->getCubiorNum();
+    int theNum = temp->getPlayerNum();
     nextLevelCountdown(theNum);
 
     // And play sound

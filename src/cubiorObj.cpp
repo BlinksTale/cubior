@@ -27,7 +27,7 @@ void CubiorObj::setInvincibility(bool n) {
 }
 
 void CubiorObj::setOnline(bool b) {
-    cout << "ONline set to " << b << endl;
+    cout << "Online set to " << b << endl;
     online = b;
 }
 
@@ -37,5 +37,5 @@ bool CubiorObj::getOnline() {
 
 int CubiorObj::getWidth() { return 100*(1+locked*1); }
 int CubiorObj::getHeight() { return 100*(1-locked*1); }
-int CubiorObj::getCubiorNum() { return cubiorNum; }
-void CubiorObj::setCubiorNum(int n) { cubiorNum = n; }
+int CubiorObj::getPlayerNum() { return playerNum; }
+void CubiorObj::setPlayerNum(int n) { playerNum = n; }

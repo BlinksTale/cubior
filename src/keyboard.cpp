@@ -68,7 +68,8 @@ int cameraStickButtonNum = 9;
 #endif
 
 // For pressing start to see who goes first
-int playerChosen = -1;
+int controlsChosen = -1;
+int controlsPlayer[] = {-1, -1, -1, -1}; // Controls x move player y
 
 bool directionsPressed[playerCount]; // whether movement has started for this player
 int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
@@ -171,26 +172,30 @@ void playerPause(int p, bool newBool) {
       // title screen
       // choose who pressed start and set them as playable
       if (getGameplayFirstRunning()) {
-        playerChosen = p;
+        int o = 0;
+        controlsPlayer[p] = o;
+        controlsChosen = o;
         for (int i=0; i<4; i++) {
           setCubiorPlayable(i,false);
           resetCubior(i);
         }
-        setCubiorPlayable(p,true);
-        resetCubior(p);
+        setCubiorPlayable(o,true);
+        resetCubior(o);
         setGameplayFirstRunning(false);
-        setMenu(p,1);
+        setMenu(o,1);
       // Otherwise, paused and selecting option
       } else if (lastPause == p || lastPause == -1) {
-				chooseOption(p);
+        int o = controlsPlayer[p];
+				chooseOption(o);
 			}
     // Or handle all un-pause actions
     } else {
+      int o = controlsPlayer[p];
       // Gameplay is running!
-      if (p<0 || p>3 || getCubiorPlayable(p)) {
+      if (o<0 || p>3 || getCubiorPlayable(o)) {
         // Can pause if playing
-        setMenu(p,2); // pause menu
-		    stopGameplay(p);
+        setMenu(o,2); // pause menu
+		    stopGameplay(o);
         setJustPaused(true);
 		    lastPause = p;
       } else {
@@ -202,9 +207,28 @@ void playerPause(int p, bool newBool) {
 	pauseKey[p] = newBool;
 }
 
-void playerJoin(int p, bool newBool) {
-	if (!joinKey[p] && newBool) { setCubiorPlayable(p,!getCubiorPlayable(p)); }
-	joinKey[p] = newBool;
+void playerJoin(int k, bool newBool) {
+	if (!joinKey[k] && newBool) {
+    if (controlsPlayer[k] == -1) {
+      if (getCubiorsPlayable() > 0) { 
+        int p = getNewPlayer();
+        controlsPlayer[k] = p;
+        setCubiorPlayable(p,!getCubiorPlayable(p));
+      }
+    } else if (getCubiorsPlayable() > 1) {
+      setCubiorPlayable(controlsPlayer[k],false);
+      resetControlsPlayer(controlsPlayer[k]);
+    }
+  }
+	joinKey[k] = newBool;
+}
+
+void resetControlsPlayer(int k) {
+  for (int i=0; i<4; i++) {
+    if (controlsPlayer[i] == k) {
+      controlsPlayer[i] = -1;
+    }
+  }
 }
 
 int getLastPause() { return lastPause; }
@@ -513,12 +537,17 @@ void lastLevelPressed(bool b) {
 }
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
+  int a = controlsPlayer[0];
+  int b = controlsPlayer[1];
+  int c = controlsPlayer[2];
+  int d = controlsPlayer[3];
 	switch(key) {
 		// SYSTEM CONTROLS
 	case '0': playerFullscreen(newBool); break;//enableGoodCollision(); break;
 	case '9': playerLevelShadows(newBool); break;
 		//case '9': disableGoodCollision(); break;
 	case 13 : // Press Enter to pause from p1
+	case 27 : // Or Esc
 	case '5': playerPause(0,newBool); break;
 	case '6': playerPause(1,newBool); break;
 	case '7': playerPause(2,newBool); break;
@@ -534,64 +563,64 @@ void handleInput(unsigned char key, bool newBool) {
   case '=': increaseMusicVolume(); break;
 
 		// OLD PLAYER 1 CONTROLS 
-	case 'c': case 'C': setSuper(0,newBool); break;
-	case 'x': case 'X':  setLock(0,newBool); break;
-	case 'z': case 'Z':  setJump(0,newBool); break;
+	case 'c': case 'C': setSuper(a,newBool); break;
+	case 'x': case 'X':  setLock(a,newBool); break;
+	case 'z': case 'Z':  setJump(a,newBool); break;
 		// NEW PLAYER 1
-	case 'm': case 'M': setSuper(0,newBool); break;
-	case ',': case '<': setLock(0,newBool); break;
-	case '.': case '>': setJump(0,newBool); break;
-	case ' ':           setJump(0,newBool); break;
+	case 'm': case 'M': setSuper(a,newBool); break;
+	case ',': case '<': setLock(a,newBool); break;
+	case '.': case '>': setJump(a,newBool); break;
+	case ' ':           setJump(a,newBool); break;
     // CAMERA CONTROLS (single player)
   case 9: // press tab to center cam for P1
-  case '\\': setCenterCommand(0,newBool); break;
+  case '\\': setCenterCommand(a,newBool); break;
 
 		// PLAYER 2
 	case 'w': case 'W':    
-    if (getCubiorPlayable(1)) {
-      upKey[1] = newBool;
+    if (getCubiorPlayable(b)) {
+      upKey[b] = newBool;
     } else {
-      setUpCommand(0,newBool);
+      setUpCommand(a,newBool);
     }
     break;
 	case 'a': case 'A':
-    if (getCubiorPlayable(1)) {
-      leftKey[1] = newBool;
+    if (getCubiorPlayable(b)) {
+      leftKey[b] = newBool;
     } else {
-      setLeftCommand(0,newBool);
+      setLeftCommand(a,newBool);
     }
     break;
 	case 's': case 'S':
-    if (getCubiorPlayable(1)) {
-      downKey[1] = newBool;
+    if (getCubiorPlayable(b)) {
+      downKey[b] = newBool;
     } else {
-      setDownCommand(0,newBool);
+      setDownCommand(a,newBool);
     }
     break;
 	case 'd': case 'D':
-    if (getCubiorPlayable(1)) {
-      rightKey[1] = newBool;
+    if (getCubiorPlayable(b)) {
+      rightKey[b] = newBool;
     } else {
-      setRightCommand(0,newBool);
+      setRightCommand(a,newBool);
     }
     break;
-	case 'f': case 'F':    setJump(1,newBool); break;
-	case 'g': case 'G':    setLock(1,newBool); break;
-	case 'h': case 'H':   setSuper(1,newBool); break;
+	case 'f': case 'F':    setJump(b,newBool); break;
+	case 'g': case 'G':    setLock(b,newBool); break;
+	case 'h': case 'H':   setSuper(b,newBool); break;
 
 		// PLAYER 3
-	case 'i': case 'I':       upKey[2] = newBool; break;
-	case 'u': case 'U':    leftKey[2] = newBool; break;
-	case 'o': case 'O': downKey[2] = newBool; break;
-	case 'p': case 'P':  rightKey[2] = newBool; break;
-	case '[':  case '{':  setJump(2,newBool); break;
+	case 'i': case 'I':       upKey[c] = newBool; break;
+	case 'u': case 'U':    leftKey[c] = newBool; break;
+	case 'o': case 'O': downKey[c] = newBool; break;
+	case 'p': case 'P':  rightKey[c] = newBool; break;
+	case '[':  case '{':  setJump(c,newBool); break;
 
 		// PLAYER 4
-	case 'k': case 'K':    upKey[3] = newBool; break;
-	case 'j': case 'J':    leftKey[3] = newBool; break;
-	case 'l': case 'L': downKey[3] = newBool; break;
-	case ';': case ':':  rightKey[3] = newBool; break;
-	case '\'':  case '"':  setJump(3,newBool); break;
+	case 'k': case 'K':    upKey[d] = newBool; break;
+	case 'j': case 'J':    leftKey[d] = newBool; break;
+	case 'l': case 'L': downKey[d] = newBool; break;
+	case ';': case ':':  rightKey[d] = newBool; break;
+	case '\'':  case '"':  setJump(d,newBool); break;
 		/*
 		case '1': case '!':
 		playerCount = 1;
@@ -600,9 +629,6 @@ void handleInput(unsigned char key, bool newBool) {
 		playerCount = 2;
 		break;
 		*/
-		// QUIT w/ Esc
-    // Now changed to pause p1
-	case 27: playerPause(0,newBool); break;//exit(0); break;
 	default: break;
 	}
 }
@@ -612,11 +638,12 @@ void inputUp(unsigned char key, int x, int y) { handleInput(key, false); }
 
 // nonASCII keys go here
 void handleSpecialInput(int key, bool newBool) {
+  int a = controlsPlayer[0];
 	switch(key) {
-	case GLUT_KEY_UP:          upKey[0] = newBool; break; 
-	case GLUT_KEY_DOWN: downKey[0] = newBool; break;
-	case GLUT_KEY_LEFT:       leftKey[0] = newBool; break;
-	case GLUT_KEY_RIGHT:   rightKey[0] = newBool; break;
+	case GLUT_KEY_UP:          upKey[a] = newBool; break; 
+	case GLUT_KEY_DOWN:      downKey[a] = newBool; break;
+	case GLUT_KEY_LEFT:      leftKey[a] = newBool; break;
+	case GLUT_KEY_RIGHT:    rightKey[a] = newBool; break;
 	default: break;
 	}
 }
@@ -626,7 +653,7 @@ void specialInputUp(int key, int x, int y)   { handleSpecialInput(key, false); }
 
 // Give who was chosen as first person to play
 int getPlayerChosen() {
-  return playerChosen;
+  return controlsChosen;
 }
 
 /* No need now that we use SFML instead of OpenGL for this

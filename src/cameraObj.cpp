@@ -19,6 +19,9 @@
 
 using namespace std;
 
+// When true, camera will look between goal and player when player 
+// is near, so that only 2d navigation is required to reach the goal
+bool followBothEnabled = false;
 
 CameraObj::CameraObj() {
   // Pos vars
@@ -610,11 +613,12 @@ void CameraObj::tick() {
   }
 
   // If you are following one target every frame,
+  // (you usually are: the player)
 	if (permanentTarget) {
     // make sure to update the item that's following the target
 	  tracker->tick();
 
-    // Finally in vertical range?
+    // Finally in vertical range? (after dropping in)
     if (y - permanentTarget->getY() <= camHeight) {
       // No longer dropping in!
       droppingIn = false;
@@ -1088,7 +1092,8 @@ void CameraObj::lookAtPlayer(int a, int b, int c, int playerAngle, bool landed, 
 
     // Figure out follow-just-the-player mode
     // can do this if you just fixed visibility too
-    if (!followingBoth || justFixedVisibility || playerCommandActive || lockedToPlayerX || lockedToPlayerZ || lockedToPlayer) {
+    if (!followBothEnabled || !followingBoth || justFixedVisibility || playerCommandActive ||
+        lockedToPlayerX || lockedToPlayerZ || lockedToPlayer) {
       // Only point the way the player faces if you're moving
       if (abs(permanentTarget->getMomentumX())>10 || abs(permanentTarget->getMomentumZ())>10) {
         angleYToBe = followOne(angleYToBe, playerAngle, num, den);

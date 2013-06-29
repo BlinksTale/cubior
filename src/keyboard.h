@@ -12,6 +12,7 @@
     void playerPause(int, bool);
     int getLastPause();
     void playerJoin(int, bool);
+    void resetControlsPlayer(int);
 
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);

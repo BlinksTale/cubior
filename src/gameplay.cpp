@@ -162,6 +162,12 @@ void findEdges(CubeObj* c1, Map* map) {
   );
 }
 
+void resetCubiors() {
+  for (int i=0; i<cubiorCount; i++) {
+    resetCubior(i);
+  }
+}
+
 // Put a Cubior back in its start spot
 void resetCubior(int i) {
   // And reset its visible-yet-intended count
@@ -203,7 +209,7 @@ void setupPlayers() {
         cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
         
         // Cubior Start State
-        cubior[i].setCubiorNum(i);
+        cubior[i].setPlayerNum(i);
         cubior[i].setHappiness(1.0-(i%4)*1.0/4); // was 1.0-i*1.0/cubiorCount before,
                                                  // now made to loop every 4 cubes
     }
@@ -398,7 +404,12 @@ void restartGame(int i) {
   //setMenu(i, 0);
   //gameplayRunning = false;
   //gameplayFirstRunning = true;
+  resetCubiors();
   loadLevel(0);
+
+  for (int i=0; i<cubiorCount; i++) {
+    setMenu(i,0); // start menu
+  }
 }
 
 // To load the next level
@@ -1898,7 +1909,16 @@ int getCubiorsOnline() {
     return results;
 }
 
-    
+// Find if player is add-able
+int getNewPlayer() {
+  for (int i=0; i<cubiorCount; i++) {
+    if (!cubiorPlayable[i]) {
+      return i;
+    }
+  }
+  return -1; 
+}
+
 int addPlayer(bool online) {
     // Add first player you can find
     for (int i=0; i<cubiorCount; i++) {
@@ -2028,6 +2048,7 @@ void chooseOption(int i) {
           startGameplay();
           setJustUnpaused(true);
           setCubiorPlayable(i,false);
+          resetControlsPlayer(i);
         } else {
           justCausedError = true;
         }
