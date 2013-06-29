@@ -192,7 +192,7 @@ void playerPause(int p, bool newBool) {
     } else {
       int o = controlsPlayer[p];
       // Gameplay is running!
-      if (o<0 || p>3 || getCubiorPlayable(o)) {
+      if (p<0 || p>3 || getCubiorPlayable(o)) {
         // Can pause if playing
         setMenu(o,2); // pause menu
 		    stopGameplay(o);

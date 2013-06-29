@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     }*/
     
   // Extra path ensures Resources folder is accessed for .app on Mac
-  std::string extraPath = "";
+  std::string extraPath = ".";
   #ifdef __APPLE_CC__
     extraPath = resourcePath();
   #endif
