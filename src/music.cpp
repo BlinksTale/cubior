@@ -34,7 +34,7 @@ int defaultVolume = medVolume;//highVolume; // 50 is perfect!
 // List of songs
 // Extra path ensures Resources folder is accessed for .app on Mac
 #ifdef __APPLE_CC__
-  string songs[] = { /*resourcePath() +*/ "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };
+  string songs[] = { resourcePath() + "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };
 #else
   string songs[] = { "./music/Waterflame_MakeARunForIt+Cats+Orange.ogg" };
 #endif
