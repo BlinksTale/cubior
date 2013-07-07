@@ -370,6 +370,9 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     playerPause(-1,true);
   }
   
+  // TEMPFIX: this fixes the title screen issue from the new addPlayer system
+  menu[0] = 0;
+    
 }
 
 // To count down to loading the next level
@@ -464,6 +467,7 @@ int getLevelNum() {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
+    
   /*cout << "New loop!" << endl;
   for (int i=0; i<4; i++) {
     cout << "Menu[" << i << "] = " << menu[i] << endl;
