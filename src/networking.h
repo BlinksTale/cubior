@@ -23,12 +23,18 @@ const bool networkingAllowed = true;
     void pollFor(ENetHost *, ENetAddress);
     int findComma(int, string);
     string* stringToArray(string, string*, int);
+
+    void resetSlots();
+    int getNextSlot(string[]);
+
     void setPosX(int);
     void setPosY(int);
     void setPosZ(int);
     int getPosX();
     int getPosY();
     int getPosZ();
+    void setOnline(int);
+    bool getOnline(int);
     void setMomentum(vector<float>);
     vector<float> getMomentum();
     void setDirection(float);

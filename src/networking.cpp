@@ -22,6 +22,7 @@
 #include <cmath>
 #include <vector>
 #include "networking.h"
+#include "gameplay.h" // only for CubiorCount
 
 using namespace std;
 
@@ -42,12 +43,19 @@ string oldAddress = "127.0.0.1";
 int ticks = 0;
 bool hostExists = false;
 string latestData;
+// Recieving
+int player;
 int posX, posY, posZ;
+// Sending
+int myPlayer;
 int myPosX, myPosY, myPosZ;
+bool onlineStatus[cubiorCount];
 vector<float> momentum (3, 0);
 vector<float> myMomentum (3, 0);
 float direction;
 float myDirection;
+
+int currentMessageSlot = 0; // for reading in data from a message
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -98,14 +106,16 @@ void pollFor(ENetHost * host, ENetAddress address) {
       //for (int i=0; i<resultSize; i++) {
       //  cout << "Line " << i << " is " << dataArray[i] << endl;
       //}
-
-      posX      = atoi(dataArray[0].c_str());
-      posY      = atoi(dataArray[1].c_str());
-      posZ      = atoi(dataArray[2].c_str());
-      momentumX = atof(dataArray[3].c_str());
-      momentumY = atof(dataArray[4].c_str());
-      momentumZ = atof(dataArray[5].c_str());
-      direction = atof(dataArray[6].c_str());
+      
+      resetSlots();
+      player    = getNextSlot(dataArray);
+      posX      = getNextSlot(dataArray);
+      posY      = getNextSlot(dataArray);
+      posZ      = getNextSlot(dataArray);
+      momentumX = getNextSlot(dataArray);
+      momentumY = getNextSlot(dataArray);
+      momentumZ = getNextSlot(dataArray);
+      direction = getNextSlot(dataArray);
       
       float momentumArray[] = { momentumX, momentumY, momentumZ };
       std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
@@ -117,6 +127,16 @@ void pollFor(ENetHost * host, ENetAddress address) {
 
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+void resetSlots() {
+  currentMessageSlot = 0;
+}
+
+int getNextSlot(string dataArray[]) {
+  int result = atoi(dataArray[currentMessageSlot].c_str());
+  currentMessageSlot++;
+  return result;
 }
 
 string* stringToArray(string str, string* result, int resultSize) {
@@ -153,6 +173,9 @@ int findComma(int commaNum, string text) {
   return -1;
 }
 
+void setOnline(int i) {
+    myPlayer = i;
+}
 void setPosX(int i) {
     myPosX = i;
 }
@@ -170,6 +193,9 @@ int getPosY() {
 }
 int getPosZ() {
     return posZ;
+}
+bool getOnline(int i) {
+    return onlineStatus[i];
 }
 
 void setMomentum(vector<float> m) {
@@ -208,7 +234,8 @@ void networkTick() {
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d,%d,%d,%f,%f,%f,%f", 
+      sprintf(message, "%i,%d,%d,%d,%f,%f,%f,%f", 
+        myPlayer,
         myPosX, myPosY, myPosZ,
         myMomentum.at(0), myMomentum.at(1), myMomentum.at(2),
         myDirection);

@@ -129,6 +129,7 @@ static const int playerVisibleMax = 10;
     
     int getNewPlayer();
     int addPlayer(bool);
+    int addPlayer(int, bool);
     int removePlayer(int);
     void setCubiorPlayable(int,bool);
     void setCubiorOnline(int,bool);

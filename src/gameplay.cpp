@@ -621,28 +621,42 @@ void gameplayLoop() {
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
     
     // Prep your own position to send out
-    setPosX(cubior[0].getX());
-    setPosY(cubior[0].getY());
-    setPosZ(cubior[0].getZ());
-    setMomentum(cubior[0].getMomentum());
-    setDirection(cubior[0].getToldDirection());
-    
+    // (only sending first player's position atm)
+    for (int i = 0; i<cubiorCount; i++) {
+      // Check if local before sending out
+      // (FIXME: right now, only the last in order gets counted)
+      // (by overriding all others, being the last to be true)
+      if (cubiorPlayable[i] && !cubiorOnline[i]) {
+        setOnline(i);
+        setPosX(cubior[i].getX());
+        setPosY(cubior[i].getY());
+        setPosZ(cubior[i].getZ());
+        setMomentum(cubior[i].getMomentum());
+        setDirection(cubior[i].getToldDirection());
+      }
+    }
+
     networkTick();
     
     int modifier = onlineAlone ? 200 : 0;
 
-    bool anyoneOnline = false;
+    // Find other players that are online, and represent them
     for (int i=0; i<cubiorCount; i++) {
+        if (cubiorOnline[i] != getOnline(i)) {
+          cubiorOnline[i] = getOnline(i);
+          // Newly added? Add! Newly deleted? Delete!
+          if (cubiorOnline[i]) {
+            addPlayer(i, true);
+          } else {
+            removePlayer(i);
+          }
+        }
         if (cubiorOnline[i]) {
-            anyoneOnline = true;
             cubior[i].setPos(getPosX()+modifier, getPosY(), getPosZ()+modifier);
             cubior[i].setMomentum(getMomentum());
             cubior[i].setToldDirection(getDirection());
         }
     }
-      if (!anyoneOnline) {
-          addPlayer(true);
-      }
   }
 }
 
@@ -1935,6 +1949,15 @@ int addPlayer(bool online) {
     // Couldn't find an empty player slot, game is full
     return 1;
 }
+
+int addPlayer(int i, bool online) {
+  if (!cubiorPlayable[i]) {
+    setCubiorPlayable(i, true);
+    setCubiorOnline(i, online);
+    return 0;
+  }
+  return 1;
+};
 
 int removePlayer(int i) {
     if (cubiorPlayable[i]) {
