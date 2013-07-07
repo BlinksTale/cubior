@@ -618,6 +618,21 @@ void gameplayLoop() {
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
   // Lastly, network stuff!
+
+  // Networking anytime loop
+  for (int i=0; i<cubiorCount; i++) {
+    cout << "player " << i << " is " << getOnline(i) << ", ";
+    if (cubiorOnline[i] != getOnline(i)) {
+      cubiorOnline[i] = getOnline(i);
+      // Newly added? Add! Newly deleted? Delete!
+      if (cubiorOnline[i]) {
+        addPlayer(i, true);
+      } else {
+        removePlayer(i);
+      }
+    }
+  }
+  // Networking gameplay loop
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
     
     // Prep your own position to send out
@@ -642,21 +657,13 @@ void gameplayLoop() {
 
     // Find other players that are online, and represent them
     for (int i=0; i<cubiorCount; i++) {
-        if (cubiorOnline[i] != getOnline(i)) {
-          cubiorOnline[i] = getOnline(i);
-          // Newly added? Add! Newly deleted? Delete!
-          if (cubiorOnline[i]) {
-            addPlayer(i, true);
-          } else {
-            removePlayer(i);
-          }
-        }
         if (cubiorOnline[i]) {
             cubior[i].setPos(getPosX()+modifier, getPosY(), getPosZ()+modifier);
             cubior[i].setMomentum(getMomentum());
             cubior[i].setToldDirection(getDirection());
         }
     }
+    cout << endl;
   }
 }
 
@@ -1940,7 +1947,7 @@ int getNewPlayer() {
 int addPlayer(bool online) {
     // Add first player you can find
     for (int i=0; i<cubiorCount; i++) {
-        if (!cubiorPlayable[i]) {
+        if (!cubiorPlayable[i] && !cubiorOnline[i]) {
             setCubiorPlayable(i, true);
             setCubiorOnline(i, online);
             return 0;

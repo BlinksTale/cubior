@@ -107,6 +107,11 @@ void pollFor(ENetHost * host, ENetAddress address) {
       //  cout << "Line " << i << " is " << dataArray[i] << endl;
       //}
       
+      for (int v = 0; v<resultSize; v++) {
+        cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
+      }
+      cout << endl;
+
       resetSlots();
       player    = getNextSlot(dataArray);
       posX      = getNextSlot(dataArray);
@@ -195,7 +200,7 @@ int getPosZ() {
     return posZ;
 }
 bool getOnline(int i) {
-    return onlineStatus[i];
+    return player == i;
 }
 
 void setMomentum(vector<float> m) {
@@ -234,13 +239,15 @@ void networkTick() {
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%i,%d,%d,%d,%f,%f,%f,%f", 
+      sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f", 
         myPlayer,
         myPosX, myPosY, myPosZ,
         myMomentum.at(0), myMomentum.at(1), myMomentum.at(2),
         myDirection);
 
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
+
+      cout << "Sending msg " << message << endl;
 
       if (strlen(message) > 0) {
           enet_peer_send(peer, 0, packet);
