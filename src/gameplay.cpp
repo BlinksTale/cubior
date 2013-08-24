@@ -675,7 +675,7 @@ void gameplayLoop() {
             cubior[i].setToldDirection(getDirection());
         }
     }
-    cout << endl;
+    //cout << endl;
   }
 }
 
@@ -975,7 +975,7 @@ void rotateToAngle(int i, float targetAngle, int hyp) {
   int oldZ = camera[i].getZ();
   int newX = oldX;
   int newZ = oldZ;
-  
+  	
   // Angle that we will be moving away from, pivot point side
   //cout << "targetAngle is " << targetAngle << endl;
   float baseAngle = getAngleBetween(camera[i].getX(),camera[i].getZ(),targetX,targetZ);

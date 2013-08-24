@@ -26,6 +26,9 @@
 
 using namespace std;
 
+// Preset variables
+bool reconnectOnDisconnect = true;
+
 // Declare Enet Variables
 ENetAddress addressServer;
 ENetAddress addressClient;
@@ -89,6 +92,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
             cout << event.peer -> data << " disconected.\n";
             // Reset the peer's client information.
             event.peer -> data = NULL;
+            connectTo(oldAddress);
             break;
         default:
             cout << "No new data" << endl;
@@ -110,7 +114,9 @@ void pollFor(ENetHost * host, ENetAddress address) {
       for (int v = 0; v<resultSize; v++) {
         cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
       }
-      cout << endl;
+      if (resultSize > 0) {
+        cout << endl;
+      }
 
       resetSlots();
       player    = getNextSlot(dataArray);
@@ -247,7 +253,7 @@ void networkTick() {
 
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
-      cout << "Sending msg " << message << endl;
+      //cout << "Sending msg " << message << endl;
 
       if (strlen(message) > 0) {
           enet_peer_send(peer, 0, packet);
@@ -259,7 +265,7 @@ void networkTick() {
 int connectTo(string newAddress)
 {
     if (!hostExists) {
-    // Initialize Enet
+    // Initialize Enety
     if (enet_initialize () != 0)
     {
         fprintf (stderr, "An error occurred while initializing ENet.\n");
@@ -326,6 +332,7 @@ int connectTo(string newAddress)
     //}
     
     hostExists = true;
+    oldAddress = newAddress;
     }
 
     return 0;
