@@ -39,5 +39,6 @@ const bool networkingAllowed = true;
     vector<float> getMomentum();
     void setDirection(float);
     float getDirection();
+    bool isConnected();
 
 #endif

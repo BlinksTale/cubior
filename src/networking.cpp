@@ -43,6 +43,7 @@ string role;
 bool choseHost;
 bool keepLooping;
 string oldAddress = "127.0.0.1";
+bool connected = false;
 int ticks = 0;
 bool hostExists = false;
 string latestData;
@@ -75,6 +76,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
             cout << event.peer -> address.host << " joined the game\n";
             // Store any relevant client information here.
             //event.peer -> data = "Client information";
+            connected = true;
             break;
         case ENET_EVENT_TYPE_RECEIVE:
             //cout << "A packet of length " << event.packet -> dataLength <<
@@ -92,7 +94,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
             cout << event.peer -> data << " disconected.\n";
             // Reset the peer's client information.
             event.peer -> data = NULL;
-            connectTo(oldAddress);
+            connected = false;
             break;
         default:
             cout << "No new data" << endl;
@@ -111,12 +113,13 @@ void pollFor(ENetHost * host, ENetAddress address) {
       //  cout << "Line " << i << " is " << dataArray[i] << endl;
       //}
       
+        /*
       for (int v = 0; v<resultSize; v++) {
         cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
       }
       if (resultSize > 0) {
         cout << endl;
-      }
+      }*/
 
       resetSlots();
       player    = getNextSlot(dataArray);
@@ -225,6 +228,8 @@ float getDirection() {
 
 // The main loop, called repeatedly
 void networkTick() {
+    
+    //cout << "Network is " << (connected ? "" : "not ") << "connected" << endl;
   
     ticks++;
 
@@ -234,6 +239,11 @@ void networkTick() {
     //} else {
         pollFor(client, addressClient);
     //}
+    
+    // If you need to, feel free to reconnect on a connection loss
+    if (!connected && reconnectOnDisconnect) {
+        connectTo(oldAddress);
+    }
     
     // Then send data if client
     //if (!choseHost) {
@@ -264,14 +274,17 @@ void networkTick() {
 
 int connectTo(string newAddress)
 {
+    //cout << "Trying to connect to " << newAddress << endl;
     if (!hostExists) {
-    // Initialize Enety
-    if (enet_initialize () != 0)
-    {
-        fprintf (stderr, "An error occurred while initializing ENet.\n");
-        return EXIT_FAILURE;
-    }
-    atexit (enet_deinitialize);
+        //cout << "No host yet" << endl;
+        // Initialize Enety
+        if (enet_initialize () != 0)
+        {
+            fprintf (stderr, "An error occurred while initializing ENet.\n");
+            return EXIT_FAILURE;
+        }
+        atexit (enet_deinitialize);
+        //cout << "Setup the exit route" << endl;
 
     //if (choseHost) {
 
@@ -323,16 +336,26 @@ int connectTo(string newAddress)
                      "No available peers for initializing an ENet connection");
             exit (EXIT_FAILURE);
         }
-    //}
+        //}
 
-    // Main Loop
-    //keepLooping = true;
-    //while (keepLooping) {
-    //    tick();
-    //}
+        // Main Loop
+        //keepLooping = true;
+        //while (keepLooping) {
+        //    tick();
+        //}
     
-    hostExists = true;
-    oldAddress = newAddress;
+        hostExists = true;
+        oldAddress = newAddress;
+        connected  = true;
+    } else {
+        peer = enet_host_connect(client, & addressClient, 2, 0);
+        
+        if (peer == NULL) {
+            fprintf (stderr,
+                     "No available peers for initializing an ENet connection");
+            exit (EXIT_FAILURE);
+        }
+        connected = true;
     }
 
     return 0;
@@ -343,4 +366,8 @@ void disconnectFrom(string newAddress) {
     enet_host_destroy(client);
     enet_host_destroy(server);
 
+}
+
+bool isConnected() {
+    return connected;
 }

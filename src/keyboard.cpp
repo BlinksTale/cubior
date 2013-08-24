@@ -547,7 +547,7 @@ void lastLevelPressed(bool b) {
 }
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
-    cout << "Key pressed " << key << endl;
+  // cout << "Key pressed " << key << endl;
   int a = controlsPlayer[0];
   int b = controlsPlayer[1];
   int c = controlsPlayer[2];
