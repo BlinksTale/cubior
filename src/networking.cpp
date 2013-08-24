@@ -276,7 +276,7 @@ void networkTick() {
 int connectTo(string newAddress)
 {
     //cout << "Trying to connect to " << newAddress << endl;
-    if (!hostExists) {
+    if (!hostExists && !connected) {
         //cout << "No host yet" << endl;
         // Initialize Enety
         if (enet_initialize () != 0)
@@ -329,6 +329,7 @@ int connectTo(string newAddress)
 
         enet_address_set_host (& addressClient, newAddress.c_str());
         addressClient.port = 1234;
+        
 
         peer = enet_host_connect(client, & addressClient, 2, 0);
 
@@ -348,7 +349,7 @@ int connectTo(string newAddress)
         hostExists = true;
         oldAddress = newAddress;
         connected  = true;
-    } else {
+    } else if (!connected) {
         peer = enet_host_connect(client, & addressClient, 2, 0);
         
         if (peer == NULL) {

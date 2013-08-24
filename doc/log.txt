@@ -244,3 +244,8 @@ problem: only the first game to boot gets any incoming data. All send, only the 
 ---
 7/13/13
 added what should support joysticks in any order, not sure if working though (need testing hardware)
+
+---
+8/24/13
+Problem when returning to title screen: "No available peers for initializing an ENet connection"
+Fix: perhaps disabling networking on title screen? Resetting it?
