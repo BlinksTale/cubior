@@ -44,7 +44,7 @@ int ticks = 0;
 bool hostExists = false;
 string latestData;
 // Recieving
-int player;
+int player = -1;
 int posX, posY, posZ;
 // Sending
 int myPlayer;

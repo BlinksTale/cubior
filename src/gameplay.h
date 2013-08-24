@@ -52,6 +52,8 @@ static const int playerVisibleMax = 10;
     void restartGame(int);
     void gameplayLoop();
 
+    void resetCubiors();
+    void resetLocalCubiors();
     void resetCubior(int);
 
     // Looks for vertical walls or clearings along 1 dimension of player
@@ -128,6 +130,7 @@ static const int playerVisibleMax = 10;
     int getCubiorsLocal();
     
     int getNewPlayer();
+    int getNewLocalPlayer();
     int addPlayer(bool);
     int addPlayer(int, bool);
     int removePlayer(int);

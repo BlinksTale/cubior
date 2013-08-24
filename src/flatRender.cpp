@@ -376,7 +376,7 @@ void displayFor(int player) {
       printStringFlat(pausedText,player,260,-0 - startingHeight);
       n=sprintf(pausedText, "Music by Waterflame");
       printStringFlat(pausedText,player,225,25 - startingHeight);
-      n=sprintf(pausedText, "Copyright 2012");
+      n=sprintf(pausedText, "Copyright 2013");
       printStringFlat(pausedText,player,225,450 - startingHeight);
 
       //n=sprintf(pausedText, "Press Start/Enter!");

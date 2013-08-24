@@ -136,12 +136,13 @@ bool joystickRecentlyConnected = false;
 
 // Camera commands
 void setCenterCommand(int p, bool b) {
+  /* TEMPORARILY DISABLED
   if (b && !cameraButton[p]) {
     playerCenterCam(p);
   }
   if (cameraButton[p] != b) {
     cameraButton[p] = b;
-  }
+  }*/
 }
 void setLeftCommand(int p, bool b)   { if (b) { playerLeftCam(p);   } }
 void setRightCommand(int p, bool b)  { if (b) { playerRightCam(p);  } }
@@ -170,15 +171,18 @@ void playerPause(int p, bool newBool) {
   if ((!pauseKey[p] || p == -1) && newBool) { // newly pressing Enter
 		if (!getGameplayRunning()) {
       // title screen
-      // choose who pressed start and set them as playable
       if (getGameplayFirstRunning()) {
-        int o = 0;
-        controlsPlayer[p] = o;
-        controlsChosen = o;
-        for (int i=0; i<4; i++) {
+        // first, remove all local players since joining from title screen
+        //resetLocalCubiors(); // unneccessary
+        for (int i=0; i<cubiorCount; i++) {
           setCubiorPlayable(i,false);
           resetCubior(i);
+          controlsPlayer[i] = -1;
         }
+        // then choose who pressed start and set them as playable
+        int o = getNewLocalPlayer();//0;
+        controlsPlayer[p] = o;
+        controlsChosen = o;
         setCubiorPlayable(o,true);
         resetCubior(o);
         setGameplayFirstRunning(false);
@@ -186,8 +190,8 @@ void playerPause(int p, bool newBool) {
       // Otherwise, paused and selecting option
       } else if (lastPause == p || lastPause == -1) {
         int o = controlsPlayer[p];
-				chooseOption(o);
-			}
+        chooseOption(o);
+      }
     // Or handle all un-pause actions
     } else {
       int o = controlsPlayer[p];
@@ -208,7 +212,7 @@ void playerPause(int p, bool newBool) {
 }
 
 void playerJoin(int k, bool newBool) {
-	if (!joinKey[k] && newBool) {
+  if (!joinKey[k] && newBool) {
     if (controlsPlayer[k] == -1) {
       if (getCubiorsPlayable() > 0) { 
         int p = getNewPlayer();
@@ -220,11 +224,11 @@ void playerJoin(int k, bool newBool) {
       resetControlsPlayer(controlsPlayer[k]);
     }
   }
-	joinKey[k] = newBool;
+  joinKey[k] = newBool;
 }
 
 void resetControlsPlayer(int k) {
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<playerCount; i++) {
     if (controlsPlayer[i] == k) {
       controlsPlayer[i] = -1;
     }
@@ -239,7 +243,7 @@ void sendCommands() {
 	sf::Joystick::update(); 
 
 	// Update each joystick's info before sending commands
-  for (int i=0; i < 4; i++) {
+  for (int i=0; i <playerCount; i++) {
 		joystickCommands(i);
 		mergeInput(i); // then stick it and key inputs together
     // merge still necesary to distinguish new vs old input
@@ -414,7 +418,13 @@ int joystickNum(int i) {
 }
 
 // Figure out all joystick input translations to key presses, for now
+// handleJoystickInput equivalent
 void joystickCommands(int i) {
+
+    // For any buttons press on controllers that are already set,
+    // associate with the proper player
+    int a = controlsPlayer[i];
+
 	int joystick = joystickNum(i);
   // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
@@ -423,33 +433,33 @@ void joystickCommands(int i) {
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
         // Println joystick controls
-        //if (sf::Joystick::isButtonPressed(joystick, b)) {
-        //    cout << "Key " << b << " was pressed" << endl;
-        //}
+        if (sf::Joystick::isButtonPressed(joystick, b)) {
+            cout << "Key " << b << " was pressed" << endl;
+        }
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == pauseButtonNum) { // Pause pauseButton
 			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
-      // If either is pressed, add that to camButtonPressed
-      // so we only send one call later
-      camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
-    } else { // All unestablish buttons == jumpButton!
-			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
-    }
+            // If either is pressed, add that to camButtonPressed
+            // so we only send one call later
+            camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
+        } else { // All unestablish buttons == jumpButton!
+			jumpButton[a] = jumpButton[a] || sf::Joystick::isButtonPressed(joystick,b);
+        }
 	}
 
   // Cam button stuff
-  setCenterCommand(i,camButtonPressed);
+  setCenterCommand(a,camButtonPressed);
 
 	// Convert (for now) joystick to direction buttons
-	joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
-	joyY[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
+	joyX[a] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
+	joyY[a] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
   // was at 20 for limits, 15 seems fine too (want more flexibility somewhere for turning)
-	upButton[i]   = joyY[i] <-15;
-	downButton[i] = joyY[i] > 15;
-	leftButton[i] = joyX[i] <-15;
-	rightButton[i]= joyX[i] > 15;
+	upButton[a]   = joyY[i] <-15;
+	downButton[a] = joyY[i] > 15;
+	leftButton[a] = joyX[i] <-15;
+	rightButton[a]= joyX[i] > 15;
   
   // Right joystick X
   #ifdef PS3Controls
@@ -474,21 +484,21 @@ void joystickCommands(int i) {
   bool newSecondaryUp    = newSecondaryY <-secondaryTrigger;
   bool newSecondaryDown  = newSecondaryY > secondaryTrigger;
   // Pass the trigger and have not done this last time to activate the call
-  if (newSecondaryLeft != secondaryJoyLeft[i]) { 
-    setLeftCommand(i,newSecondaryLeft);
-    secondaryJoyLeft[i]  = newSecondaryLeft;
+  if (newSecondaryLeft != secondaryJoyLeft[a]) {
+    setLeftCommand(a,newSecondaryLeft);
+    secondaryJoyLeft[a]  = newSecondaryLeft;
   }
-  if (newSecondaryRight != secondaryJoyRight[i]) { 
-    setRightCommand(i,newSecondaryRight);
-    secondaryJoyRight[i] = newSecondaryRight;
+  if (newSecondaryRight != secondaryJoyRight[a]) {
+    setRightCommand(a,newSecondaryRight);
+    secondaryJoyRight[a] = newSecondaryRight;
   }
-  if (newSecondaryUp != secondaryJoyUp[i]) {
-    setUpCommand(i,newSecondaryUp); 
-    secondaryJoyUp[i] = newSecondaryUp;
+  if (newSecondaryUp != secondaryJoyUp[a]) {
+    setUpCommand(a,newSecondaryUp);
+    secondaryJoyUp[a] = newSecondaryUp;
   }
-  if (newSecondaryDown != secondaryJoyDown[i]) { 
-    setDownCommand(i,newSecondaryDown);
-    secondaryJoyDown[i] = newSecondaryDown;
+  if (newSecondaryDown != secondaryJoyDown[a]) {
+    setDownCommand(a,newSecondaryDown);
+    secondaryJoyDown[a] = newSecondaryDown;
   }
 }
 
@@ -496,7 +506,7 @@ void joystickCommands(int i) {
 bool joystickConnected() {
   bool result = false;
   // check for all four
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<playerCount; i++) {
     result = result || sf::Joystick::isConnected(joystickNum(i));
   }
   joystickRecentlyConnected = result;
@@ -537,6 +547,7 @@ void lastLevelPressed(bool b) {
 }
 // Handle keyboard input.
 void handleInput(unsigned char key, bool newBool) {
+    cout << "Key pressed " << key << endl;
   int a = controlsPlayer[0];
   int b = controlsPlayer[1];
   int c = controlsPlayer[2];

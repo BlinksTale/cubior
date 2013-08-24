@@ -163,9 +163,17 @@ void findEdges(CubeObj* c1, Map* map) {
 }
 
 void resetCubiors() {
-  for (int i=0; i<cubiorCount; i++) {
-    resetCubior(i);
-  }
+    for (int i=0; i<cubiorCount; i++) {
+        resetCubior(i);
+    }
+}
+
+void resetLocalCubiors() {
+    for (int i=0; i<cubiorCount; i++) {
+        if (cubiorPlayable[i] && !cubiorOnline[i]) {
+            resetCubior(i);
+        }
+    }
 }
 
 // Put a Cubior back in its start spot
@@ -325,6 +333,9 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
       disablePlayers();
       
       setupNetworking(addressToJoin);
+      if (networkingEnabled) {
+          networkTick();
+      }
   }
     
   if (gameplayRunning) {
@@ -618,10 +629,10 @@ void gameplayLoop() {
   //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
   
   // Lastly, network stuff!
-
+    
   // Networking anytime loop
   for (int i=0; i<cubiorCount; i++) {
-    cout << "player " << i << " is " << getOnline(i) << ", ";
+    //cout << "player " << i << " is " << getOnline(i) << ", ";
     if (cubiorOnline[i] != getOnline(i)) {
       cubiorOnline[i] = getOnline(i);
       // Newly added? Add! Newly deleted? Delete!
@@ -632,6 +643,7 @@ void gameplayLoop() {
       }
     }
   }
+  //cout << endl;
   // Networking gameplay loop
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
     
@@ -1944,6 +1956,15 @@ int getNewPlayer() {
   return -1; 
 }
 
+// Find if player is add-able
+int getNewLocalPlayer() {
+    for (int i=0; i<cubiorCount; i++) {
+        if (!cubiorPlayable[i] && !cubiorOnline[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
 int addPlayer(bool online) {
     // Add first player you can find
     for (int i=0; i<cubiorCount; i++) {

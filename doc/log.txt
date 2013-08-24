@@ -236,3 +236,11 @@ PROBLEM: Enet does not have 386 support right now in my configure/install/make i
 FIXME: Cubior Mac build architecture was changed from both (32/64) to just 64 bit. This is NOT a real fix.
 Target > Build Settings > Architecture > Standard (32/64) is what it should be
 but it's currently just 64, since ENET is not finding the 386 achitecture stuff somehow?
+
+---
+7/7/13
+problem: only the first game to boot gets any incoming data. All send, only the first booted receives
+
+---
+7/13/13
+added what should support joysticks in any order, not sure if working though (need testing hardware)
