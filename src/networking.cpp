@@ -113,13 +113,13 @@ void pollFor(ENetHost * host, ENetAddress address) {
       //  cout << "Line " << i << " is " << dataArray[i] << endl;
       //}
       
-        /*
+        
       for (int v = 0; v<resultSize; v++) {
         cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
       }
       if (resultSize > 0) {
         cout << endl;
-      }*/
+      }
 
       resetSlots();
       player    = getNextSlot(dataArray);
@@ -265,7 +265,8 @@ void networkTick() {
 
       //cout << "Sending msg " << message << endl;
 
-      if (strlen(message) > 0) {
+      // No packages will be sent until your game is started
+      if (strlen(message) > 0 && getStarted() && !getCubiorOnline(myPlayer)) {
           enet_peer_send(peer, 0, packet);
       }
     //}

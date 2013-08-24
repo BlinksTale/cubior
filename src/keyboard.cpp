@@ -167,15 +167,20 @@ void playerLevelShadows(bool newBool) {
 
 // Pause tied to player who paused
 void playerPause(int p, bool newBool) {
+  // If not a universal pause, set us to started
+  if (newBool) {
+    setStarted(p != -1);
+  }
+    
   // Handle universal pauses and regular pauses
   if ((!pauseKey[p] || p == -1) && newBool) { // newly pressing Enter
-		if (!getGameplayRunning()) {
+    if (!getGameplayRunning()) {
       // title screen
       if (getGameplayFirstRunning()) {
         // first, remove all local players since joining from title screen
         //resetLocalCubiors(); // unneccessary
         for (int i=0; i<cubiorCount; i++) {
-          setCubiorPlayable(i,false);
+          setLocalCubiorPlayable(i,false);
           resetCubior(i);
           controlsPlayer[i] = -1;
         }
@@ -215,11 +220,11 @@ void playerJoin(int k, bool newBool) {
   if (!joinKey[k] && newBool) {
     if (controlsPlayer[k] == -1) {
       if (getCubiorsPlayable() > 0) { 
-        int p = getNewPlayer();
+        int p = getNewLocalPlayer();
         controlsPlayer[k] = p;
         setCubiorPlayable(p,!getCubiorPlayable(p));
       }
-    } else if (getCubiorsPlayable() > 1) {
+    } else if (getLocalCubiorsPlayable() > 1) {
       setCubiorPlayable(controlsPlayer[k],false);
       resetControlsPlayer(controlsPlayer[k]);
     }

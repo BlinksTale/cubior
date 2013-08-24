@@ -8,6 +8,7 @@
 #define FLATRENDER
 
     void display();
+    void displayMenu();
     void displayFor(int); // individual views
     void initVisuals();
     void initMenu();
@@ -41,6 +42,7 @@
     void updateFlat();
     void renderFlat();
     void printStringFlat(char*,int,int,int);
+    void printStringFlat(char*,int,int);
     void printString(char*,int,int,int);
     bool getTiming();
     void toggleFullscreen();

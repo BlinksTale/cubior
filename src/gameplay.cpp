@@ -106,6 +106,8 @@ int menu[4];
  * 4. Controller map, option: Back
  * 5. Credits, option: Back
  */
+// And if you've even started yet
+bool started = false;
 
 // Changing game state variables
 bool gameplayRunning = true;
@@ -229,7 +231,7 @@ void setupPlayers() {
         anyonePlaying = anyonePlaying || cubiorPlayable[i];
     }
     // If NOBODY playing...
-    if (!anyonePlaying) {
+    if (started && !anyonePlaying) {
         // Use the chosen player
         int chosenOne = getPlayerChosen();
         if (chosenOne > -1 && chosenOne < cubiorCount) {
@@ -370,7 +372,7 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     //camera[0].setAngleX(-90);
     // Reset everyone except p1's playability to false
     // So that we only see one view of the title screen
-    cubiorPlayable[0] = true;
+    cubiorPlayable[0] = false;
       for (int i=1; i<cubiorCount; i++) {
           cubiorPlayable[i] = false;
       }
@@ -478,6 +480,7 @@ int getLevelNum() {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
+    cout << "Cubior playable " << 0 << " is " << cubiorPlayable[0] << " with online status " << cubiorOnline[0] << endl;
     
   /*cout << "New loop!" << endl;
   for (int i=0; i<4; i++) {
@@ -631,15 +634,20 @@ void gameplayLoop() {
   // Lastly, network stuff!
     
   // Networking anytime loop
-  for (int i=0; i<cubiorCount; i++) {
-    //cout << "player " << i << " is " << getOnline(i) << ", ";
-    if (cubiorOnline[i] != getOnline(i)) {
-      cubiorOnline[i] = getOnline(i);
-      // Newly added? Add! Newly deleted? Delete!
-      if (cubiorOnline[i]) {
-        addPlayer(i, true);
-      } else {
-        removePlayer(i);
+  if (networkingEnabled) {
+    networkTick();
+    for (int i=0; i<cubiorCount; i++) {
+      //cout << "player " << i << " is " << getOnline(i) << ", ";
+      if (cubiorOnline[i] != getOnline(i)) {
+        cubiorOnline[i] = getOnline(i);
+        // Newly added? Add! Newly deleted? Delete!
+        if (cubiorOnline[i]) {
+          cout << "Added online " << i << endl;
+          addPlayer(i, true);
+        } else {
+          cout << "Removed online " << i << endl;
+          removePlayer(i);
+        }
       }
     }
   }
@@ -663,7 +671,8 @@ void gameplayLoop() {
       }
     }
 
-    networkTick();
+    // Networking was here!
+    // it used to be, that is. Between setting and before setting onlines' pos
     
     int modifier = onlineAlone ? 200 : 0;
 
@@ -1932,11 +1941,18 @@ bool getCubiorLocal(int i) { return cubiorPlayable[i] && !cubiorOnline[i]; }
 int getCubiorsPlayable() {
   int results = 0;
   for (int i=0; i<cubiorCount; i++) {
-    if (cubiorPlayable[i]) { results++; }
+    if (getCubiorPlayable(i)) { results++; }
   }
   return results;
 }
-
+// On in play locally
+int getLocalCubiorsPlayable() {
+    int results = 0;
+    for (int i=0; i<cubiorCount; i++) {
+        if (getCubiorLocal(i)) { results++; }
+    }
+    return results;
+}
 // How many are online total
 int getCubiorsOnline() {
     int results = 0;
@@ -1999,8 +2015,14 @@ int removePlayer(int i) {
 }
 
 void setCubiorPlayable(int i, bool b) {
-  resetCubior(i);
-  cubiorPlayable[i] = b;
+    resetCubior(i);
+    cubiorPlayable[i] = b;
+}
+void setLocalCubiorPlayable(int i, bool b) {
+    if (!cubiorOnline[i]) {
+        resetCubior(i);
+        cubiorPlayable[i] = b;
+    }
 }
 void setCubiorOnline(int i, bool b) {
     cubiorOnline[i] = b;
@@ -2200,6 +2222,9 @@ void chooseOption(int i) {
   }
 }
 
+bool getStarted() { return started; }
+void setStarted(bool b) { started = b; }
+    
 int getMenu() { return menu[0]; }
 int getMenu(int i) { return menu[i]; }
 void setMenu(int i, int j) {

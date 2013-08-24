@@ -127,7 +127,7 @@ static const int playerVisibleMax = 10;
     bool getCubiorLocal(int);
     int getCubiorsPlayable();
     int getCubiorsOnline();
-    int getCubiorsLocal();
+    int getLocalCubiorsPlayable();
     
     int getNewPlayer();
     int getNewLocalPlayer();
@@ -135,6 +135,7 @@ static const int playerVisibleMax = 10;
     int addPlayer(int, bool);
     int removePlayer(int);
     void setCubiorPlayable(int,bool);
+    void setLocalCubiorPlayable(int,bool);
     void setCubiorOnline(int,bool);
 
     // Sfx triggers
@@ -192,6 +193,8 @@ static const int playerVisibleMax = 10;
     void chooseOption(int);
 
     // Menu info
+    bool getStarted();
+    void setStarted(bool);
     int getMenu();
     int getMenu(int);
     void setMenu(int,int);

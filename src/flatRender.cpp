@@ -37,7 +37,7 @@
 
 // Starting values that change often in testing
 bool printFPS = false;
-bool fullscreen = true;
+bool fullscreen = false;
 bool drawOutlines = false;
 bool levelShadows = true; // at this point, shadows do not influence lag
 
@@ -184,108 +184,122 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // do not understand order, but this works
   
-  
-  int cubiorsPlayable = getCubiorsPlayable();
-  int cubiorsOnline = getCubiorsOnline();
-  int cubiorsLocal = cubiorsPlayable - cubiorsOnline;
+  // Only draw Cubior views if game running
+  if (getStarted()) {
     
-  //cout << "Before the loop calls:  " << getTimePassed() << endl;
-  // Draw all playing Cubior views
-  for (int i=0; i<getCubiorCount(); i++) {
+    int cubiorsPlayable = getCubiorsPlayable();
+    int cubiorsOnline = getCubiorsOnline();
+    int cubiorsLocal = cubiorsPlayable - cubiorsOnline;
     
-    if (getCubiorPlayable(i) && !getCubiorOnline(i)) {
-      //cout << "To setup player " << i << ": \t" << getTimePassed() << endl;
+    //cout << "Before the loop calls:  " << getTimePassed() << endl;
+    // Draw all playing Cubior views
+    for (int i=0; i<getCubiorCount(); i++) {
+    
+      if (getCubiorPlayable(i) && !getCubiorOnline(i)) {
+        //cout << "To setup player " << i << ": \t" << getTimePassed() << endl;
       
-      int w=i%2;
-      int h=i>1?1:0;
-      int altX = (h)*2+1-w; // side screen neighbor
-      int altY = (1-h)*2+w; // elevator screen neighbor
-      int altXY = getCubiorCount()-i-1; // diagonal screen neighbor
-      int posX = windowWidth*w/2 +(2*w-1); // screen position
-      int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
-      int viewW = windowWidth*1/2;
-      int viewH = windowHeight*1/2;
+        // Figure out splitscreen values
+        int w=i%2;
+        int h=i>1?1:0;
+        int altX = (h)*2+1-w; // side screen neighbor
+        int altY = (1-h)*2+w; // elevator screen neighbor
+        int altXY = getCubiorCount()-i-1; // diagonal screen neighbor
+        int posX = windowWidth*w/2 +(2*w-1); // screen position
+        int posY = windowHeight*(1-h)/2+(2*(1-h)-1); // screen position
+        int viewW = windowWidth*1/2;
+        int viewH = windowHeight*1/2;
   
-      //cout << "To init player " << i << ": \t" << getTimePassed() << endl;
+        //cout << "To init player " << i << ": \t" << getTimePassed() << endl;
 
-      // Now fill in empty space
-      //if (!getCubiorPlayable(altX)
-      //  &&!getCubiorPlayable(altY)
-      //  &&!getCubiorPlayable(altXY)) {
+        // Now fill in empty space
+        //if (!getCubiorPlayable(altX)
+        //  &&!getCubiorPlayable(altY)
+        //  &&!getCubiorPlayable(altXY)) {
 
-      // Will splitscreen make your view twice as wide?
-      bool doubleWidth = false; // assume that it will not!
+        // Will splitscreen make your view twice as wide?
+        bool doubleWidth = false; // assume that it will not!
 
-      // Splitscreen math below!
-      if (cubiorsLocal == 1) {
-        // All alone? Fill all the screen space!
-        viewW *= 2;
-        viewH *= 2;
-        posX = 0;
-        posY = 0;
-        setPerspective(2,2);
-      } else if (cubiorsLocal == 4) {
-        // Quick exit for 4player mode, run faster!
-        setPerspective(1,1);
-      } else if (cubiorsLocal == 2) {
-        // Both flush left
-        posX = 0;
-        // Both are full width, no height
-        viewW *= 2;
-        doubleWidth = true;
-        // Figure out who the other is
-        int other;
-        for (int j=0; j<4; j++) {
-          if (j != i && getCubiorPlayable(j)) {
-            other = j;
+        // Splitscreen math below!
+        if (cubiorsLocal == 1) {
+          // All alone? Fill all the screen space!
+          viewW *= 2;
+          viewH *= 2;
+          posX = 0;
+          posY = 0;
+          setPerspective(2,2);
+        } else if (cubiorsLocal == 4) {
+          // Quick exit for 4player mode, run faster!
+          setPerspective(1,1);
+        } else if (cubiorsLocal == 2) {
+          // Both flush left
+          posX = 0;
+          // Both are full width, no height
+          viewW *= 2;
+          doubleWidth = true;
+          // Figure out who the other is
+          int other;
+          for (int j=0; j<4; j++) {
+            if (j != i && getCubiorPlayable(j)) {
+              other = j;
+            }
           }
+          // Second of the two? Put on bottom, else top
+          posY = other > i ? windowHeight*1/2+1 : -1;
+          setPerspective(2,1);
+        } else if (!getCubiorLocal(altY) && !getCubiorLocal(altXY)) {
+          // Space Vertically? Fill the height
+          viewH *= 2;
+          posY = 0;
+          setPerspective(1,2);
+        } else if (!getCubiorLocal(altX)) {
+          // Space Horizontally? Fill the width
+          viewW *= 2;
+          doubleWidth = true;
+          posX = 0;
+          setPerspective(2,1);
+        } else {
+          // Nothing abnormal! As you were
+          setPerspective(1,1);
         }
-        // Second of the two? Put on bottom, else top
-        posY = other > i ? windowHeight*1/2+1 : -1;
-        setPerspective(2,1);
-      } else if (!getCubiorLocal(altY) && !getCubiorLocal(altXY)) {
-        // Space Vertically? Fill the height
-        viewH *= 2;
-        posY = 0;
-        setPerspective(1,2);
-      } else if (!getCubiorLocal(altX)) {
-        // Space Horizontally? Fill the width
-        viewW *= 2;
-        doubleWidth = true;
-        posX = 0;
-        setPerspective(2,1);
-      } else {
-        // Nothing abnormal! As you were
-        setPerspective(1,1);
+        //cout << "To fill space " << i << ": \t" << getTimePassed() << endl;
+
+        // Draw some player i
+        glScissor(posX,posY,viewW,viewH);
+        //cout << "To scissor for " << i << ": \t" << getTimePassed() << endl;
+      
+        glViewport(posX, posY, viewW, viewH); // was 12 lag compared to normal 1 for player 0?
+        // might need some efficiency cleanup, FIXME
+        //cout << "To viewport for " << i << ": \t" << getTimePassed() << endl;
+        //cout << "All before disp " << i << ": \t" << getTimePassed() << endl;
+
+        displayFor(i);
+
+        //if (!getGameplayRunning()) {
+          // Lastly, draw menu system for player (if paused, long term)
+      
+        if (!getGameplayRunning()) {
+            glEnable(GL_TEXTURE_2D);
+            drawMenu(i,doubleWidth);
+            glDisable(GL_TEXTURE_2D);
+        }
+      
+        //}
+        //cout << "To display for " << i << ": \t" << getTimePassed() << endl;
+      
       }
-      //cout << "To fill space " << i << ": \t" << getTimePassed() << endl;
-
-      // Draw some player i
-      glScissor(posX,posY,viewW,viewH);
-      //cout << "To scissor for " << i << ": \t" << getTimePassed() << endl;
-      
-      glViewport(posX, posY, viewW, viewH); // was 12 lag compared to normal 1 for player 0?
-      // might need some efficiency cleanup, FIXME
-      //cout << "To viewport for " << i << ": \t" << getTimePassed() << endl;
-      //cout << "All before disp " << i << ": \t" << getTimePassed() << endl;
-
-      displayFor(i);
-
-      //if (!getGameplayRunning()) {
-        // Lastly, draw menu system for player (if paused, long term)
-      
-      if (!getGameplayRunning()) {
-          glEnable(GL_TEXTURE_2D);
-          drawMenu(i,doubleWidth);
-          glDisable(GL_TEXTURE_2D);
-      }
-      
-      //}
-      //cout << "To display for " << i << ": \t" << getTimePassed() << endl;
-      
     }
+  } else {
+      // Nobody playing yet?
+      
+      glScissor(0,0,windowWidth,windowHeight);
+      glViewport(-windowWidth/2,0,windowWidth*2,windowHeight);
+      displayMenu();
+      if (!getGameplayRunning()) {
+        glEnable(GL_TEXTURE_2D);
+        drawMenu(0,windowWidth);
+        glDisable(GL_TEXTURE_2D);
+      }
   }
-  
   //cout << "Player loop ended: \t" << getTimePassed() << endl;
 
   // End with a quick flush, to draw faster
@@ -300,6 +314,103 @@ void display() {
   //cout << "Swap: \t\t\t" << getTimePassed() << endl;
   //cout << "End: \t\t\t" << getTimePassed() << endl;
 
+}
+
+// Draw the start screen
+void displayMenu() {
+    //cout << "Display for " << player << ":    \t\t" << getTimePassed() << endl;
+    
+    // Paint background cyan to neon blue
+    glClearColor(getMapRed(), getMapGreen(), getMapBlue(), 0.0f); // do this here to allow black borders
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW); // must set this here to undo silhouette's effects later
+    glLoadIdentity();
+    
+    glPushMatrix();
+    // Zoom camera out,
+    glScalef(0.001,0.001,0.001);
+    // Set camera angle and pos, based off averages
+    glRotatef(0,1.0,0.0,0.0);
+    glRotatef(0,0.0,1.0,0.0);
+    glRotatef(0,0.0,0.0,1.0);
+    // then pull back and up to see cubes
+    glTranslatef(0,0,0);
+    
+    int n; // errors if not declared before if statement
+    if (!getGameplayRunning() && getLastPause() == -1) {
+        // Vars for all menu bitmap text
+        int pW = 0;//1000;
+        int pH =-1000;
+        int pD = 0; // was -1000 when angleX was 0, now angleX is 270
+        
+        // Where the credits are for scrolling, we need a time basis
+        int time;
+        time = clock();
+        
+        // Runs too fast on Apple, maybe clock returns different results
+        // so we have to slow it down here
+#ifdef __APPLE_CC__
+        time /= 160.0;
+#endif
+        
+        if (!getStarted()) {
+            // START SCREEN temp fix for IGF demo
+            //n=sprintf(pausedText, "Cubior");
+            //printString(pausedText,cameraPointer[player]->getMeanX()+pW+75*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD+100*heightVsExpected);
+            int startingHeight = 70;
+            n=sprintf(pausedText, "by Brian Handy");
+            printStringFlat(pausedText,165,-25 - startingHeight);
+            n=sprintf(pausedText, "Sound by Rolando Nadal");
+            printStringFlat(pausedText,260,-0 - startingHeight);
+            n=sprintf(pausedText, "Music by Waterflame");
+            printStringFlat(pausedText,225,25 - startingHeight);
+            n=sprintf(pausedText, "Copyright 2013");
+            printStringFlat(pausedText,225,450 - startingHeight);
+            
+            //n=sprintf(pausedText, "Press Start/Enter!");
+            //printString(pausedText,cameraPointer[player]->getMeanX()+pW+215*widthVsExpected,cameraPointer[player]->getMeanY()+pH,cameraPointer[player]->getMeanZ()+pD-100*heightVsExpected);
+            //n=sprintf(pausedText, "(up to four players can join using gamepads)");
+            //printString(pausedText,cameraPointer[player]->getMeanX()+515*widthVsExpected,cameraPointer[player]->getMeanY(),cameraPointer[player]->getMeanZ()+pD-125*heightVsExpected);
+            
+        /*} else if (getMenu(player) == 5) { // Credits menu
+            // If first entering credits, reset timer
+            if (!creditsRecently[player]) {
+                creditsTimer[player] = time;
+                creditsRecently[player] = true;
+            }
+            // Then pos credits based on time in relation to when we entered
+            int creditsHeight = -500 + ((time - creditsTimer[player]) % 91000)/25;
+            // And draw credits!
+            for (int i=0; i<200; i++) {
+                n=sprintf(pausedText, loadedCredits[i].c_str());
+                printStringFlat(pausedText,player,165,-50+25*i - creditsHeight); // remove 165?
+            }
+        */
+        }
+        
+        /*if (creditsRecently[player] && getMenu(player) != 5) {
+            // Make sure we don't think the player has been looking at the credits
+            // if they are somewhere else
+            creditsRecently[player] = false;
+        }*/
+    }
+    
+    // Then on top, draw pause text
+    if (!getGameplayRunning() && getLastPause() == -1) {
+        n=sprintf(pausedText, "by Brian Handy");
+        printString(pausedText,0,200,0);
+        n=sprintf(pausedText, "Sound by Rolando Nadal");
+        printString(pausedText,0,100,0);
+        n=sprintf(pausedText, "Music by Waterflame");
+        printString(pausedText,0,0,0);
+        //n=sprintf(pausedText, "Press Start/Enter!");
+        //printString(pausedText,cameraPointer[player]->getMeanX(),cameraPointer[player]->getMeanY()-1400,cameraPointer[player]->getMeanZ());
+        
+    }
+    
+    glPopMatrix();
+    
 }
 
 // Draw an entire player's screen
@@ -1404,20 +1515,37 @@ void renderFlat() {
 // Print bitmap text relative to center of screen
 // Probably only works for start menus, before game begins
 void printStringFlat(char *string, int player, int x, int y) {
-  // Adjust positioning based on window size vs expected window size
-  float heightVsExpected = -1050.0/windowHeight;
-  float widthVsExpected = windowWidth/1600.0;
+    // Adjust positioning based on window size vs expected window size
+    float heightVsExpected = -1050.0/windowHeight;
+    float widthVsExpected = windowWidth/1600.0;
+    
+    int len, i;
+    len = (int)strlen(string);
+    glColor3f( 0.0f, 0.0f, 0.0f );
+    glRasterPos3f(
+                  cameraPointer[player]->getMeanX()+0.0f+len*3*heightVsExpected,
+                  cameraPointer[player]->getMeanY()-1000.0f,
+                  cameraPointer[player]->getMeanZ()+0.0f+y);
+    for (i = 0; i < len; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
+    }
+}
 
-  int len, i;
-  len = (int)strlen(string);
-  glColor3f( 0.0f, 0.0f, 0.0f );
-  glRasterPos3f(
-    cameraPointer[player]->getMeanX()+0.0f+len*3*heightVsExpected,
-    cameraPointer[player]->getMeanY()-1000.0f,
-    cameraPointer[player]->getMeanZ()+0.0f+y);
-  for (i = 0; i < len; i++) {
-    glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
-  }
+void printStringFlat(char *string, int x, int y) {
+    // Adjust positioning based on window size vs expected window size
+    float heightVsExpected = -1050.0/windowHeight;
+    float widthVsExpected = windowWidth/1600.0;
+    
+    int len, i;
+    len = (int)strlen(string);
+    glColor3f( 0.0f, 0.0f, 0.0f );
+    glRasterPos3f(
+                  0.0f+len*3*heightVsExpected,
+                  -1000.0f,
+                  0.0f+y);
+    for (i = 0; i < len; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, string[i]);
+    }
 }
 
 // Print bitmap text on screen
