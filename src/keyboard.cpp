@@ -72,6 +72,7 @@ int cameraStickButtonNum = 9;
 int controlsChosen = -1;
 int controlsPlayer[joystickCount];
 // = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; // Controls x move player y
+bool keyboard[playerCount];
 
 bool directionsPressed[playerCount]; // whether movement has started for this player
 int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
@@ -175,7 +176,7 @@ void playerLevelShadows(bool newBool) {
 }
 
 // Pause tied to player who paused
-void playerPause(int p, bool newBool) {
+void playerPause(int p, bool newBool, bool keyboardBool) {
   // If not a universal pause, set us to started
   if (newBool) {
     setStarted(p != -1);
@@ -196,6 +197,7 @@ void playerPause(int p, bool newBool) {
         // then choose who pressed start and set them as playable
         int o = getNewLocalPlayer();//0;
         controlsPlayer[p] = o;
+        keyboard[o] = keyboardBool; // whether on keyboard or not (joystick)
         controlsChosen = o;
         setCubiorPlaying(o,true);
         resetCubior(o);
@@ -219,25 +221,26 @@ void playerPause(int p, bool newBool) {
       } else {
         cout << "Joining " << p << endl;
         // Otherwise, join
-        playerDirectJoin(p);
+        playerDirectJoin(p, keyboardBool);
       }
 		}
 	}
 	pauseKey[p] = newBool;
 }
 
-void playerJoin(int k, bool newBool) {
+void playerJoin(int k, bool newBool, bool keyboardBool) {
   if (!joinKey[k] && newBool) {
-    playerDirectJoin(k);
+    playerDirectJoin(k, keyboardBool);
   }
   joinKey[k] = newBool;
 }
 
-void playerDirectJoin(int k) {
+void playerDirectJoin(int k, bool keyboardBool) {
     if (controlsPlayer[k] == -1) {
       if (getCubiorsPlaying() < playerCount) { 
         int p = getNewLocalPlayer();
         controlsPlayer[k] = p;
+        keyboard[p] = keyboardBool;
         setCubiorPlaying(p,!getCubiorPlaying(p));
       }
     } else if (getLocalCubiorsPlaying() > 1) {
@@ -450,7 +453,7 @@ void joystickAdditions(int joystick) {
   // Not in use? Try to be! Listen for a start key
   if (!inUse) {
     //cout << "Join joystick " << joystick << " is " << sf::Joystick::isButtonPressed(joystick,pauseButtonNum) << endl;
-	  playerPause(joystick,sf::Joystick::isButtonPressed(joystick,pauseButtonNum));
+	  playerPause(joystick,sf::Joystick::isButtonPressed(joystick,pauseButtonNum), false);
   }
 }
 
@@ -464,9 +467,9 @@ void joystickCommands(int joystick) {
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
 		if (b == joinButtonNum) { // Join joinButton
-			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b));
+			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
 		} else if (b == pauseButtonNum) { // Pause pauseButton
-			playerPause(joystick,sf::Joystick::isButtonPressed(joystick,b));
+			playerPause(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
 		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
       // If either is pressed, add that to camButtonPressed
       // so we only send one call later
@@ -588,14 +591,14 @@ void handleInput(unsigned char key, bool newBool) {
 		//case '9': disableGoodCollision(); break;
 	case 13 : // Press Enter to pause from p1
 	case 27 : // Or Esc
-	case '5': playerPause(0,newBool); break;
-	case '6': playerPause(1,newBool); break;
-	case '7': playerPause(2,newBool); break;
-	case '8': playerPause(3,newBool); break;
-	case '1': playerJoin(0,newBool); break;
-	case '2': playerJoin(1,newBool); break;
-	case '3': playerJoin(2,newBool); break;
-	case '4': playerJoin(3,newBool); break;
+	case '5': playerPause(0,newBool,true); break;
+	case '6': playerPause(1,newBool,true); break;
+	case '7': playerPause(2,newBool,true); break;
+	case '8': playerPause(3,newBool,true); break;
+	case '1': playerJoin(0,newBool,true); break;
+	case '2': playerJoin(1,newBool,true); break;
+	case '3': playerJoin(2,newBool,true); break;
+	case '4': playerJoin(3,newBool,true); break;
 		// Shift + '=' to jump ahead a level
 	case '+': nextLevelPressed(newBool); break;
 	case '_': lastLevelPressed(newBool); break;
@@ -617,50 +620,50 @@ void handleInput(unsigned char key, bool newBool) {
 
 		// PLAYER 2
 	case 'w': case 'W':    
-    if (getCubiorPlaying(b)) {
+    if (getCubiorPlaying(b) && keyboardControls(b)) {
       upKey[b] = newBool;
     } else {
       setUpCommand(a,newBool);
     }
     break;
 	case 'a': case 'A':
-    if (getCubiorPlaying(b)) {
+    if (getCubiorPlaying(b) && keyboardControls(b)) {
       leftKey[b] = newBool;
     } else {
       setLeftCommand(a,newBool);
     }
     break;
 	case 's': case 'S':
-    if (getCubiorPlaying(b)) {
+    if (getCubiorPlaying(b) && keyboardControls(b)) {
       downKey[b] = newBool;
     } else {
       setDownCommand(a,newBool);
     }
     break;
 	case 'd': case 'D':
-    if (getCubiorPlaying(b)) {
+    if (getCubiorPlaying(b) && keyboardControls(b)) {
       rightKey[b] = newBool;
     } else {
       setRightCommand(a,newBool);
     }
     break;
-	case 'f': case 'F':    setJump(b,newBool); break;
-	case 'g': case 'G':    setLock(b,newBool); break;
-	case 'h': case 'H':   setSuper(b,newBool); break;
+  case 'f': case 'F':   if (keyboardControls(b)) {  setJump(b,newBool); } break;
+  case 'g': case 'G':   if (keyboardControls(b)) {  setLock(b,newBool); } break;
+	case 'h': case 'H':   if (keyboardControls(b)) { setSuper(b,newBool); } break;
 
 		// PLAYER 3
-	case 'i': case 'I':       upKey[c] = newBool; break;
-	case 'u': case 'U':    leftKey[c] = newBool; break;
-	case 'o': case 'O': downKey[c] = newBool; break;
-	case 'p': case 'P':  rightKey[c] = newBool; break;
-	case '[':  case '{':  setJump(c,newBool); break;
+	case 'i': case 'I':   if (keyboardControls(c)) {    upKey[c] = newBool; } break;
+	case 'u': case 'U':   if (keyboardControls(c)) {  leftKey[c] = newBool; } break;
+	case 'o': case 'O':   if (keyboardControls(c)) {  downKey[c] = newBool; } break;
+	case 'p': case 'P':   if (keyboardControls(c)) { rightKey[c] = newBool; } break;
+  case '[':  case '{':  if (keyboardControls(c)) {    setJump(c,newBool); } break;
 
 		// PLAYER 4
-	case 'k': case 'K':    upKey[d] = newBool; break;
-	case 'j': case 'J':    leftKey[d] = newBool; break;
-	case 'l': case 'L': downKey[d] = newBool; break;
-	case ';': case ':':  rightKey[d] = newBool; break;
-	case '\'':  case '"':  setJump(d,newBool); break;
+  case 'k': case 'K':   if (keyboardControls(d)) {    upKey[d] = newBool; } break;
+  case 'j': case 'J':   if (keyboardControls(d)) {  leftKey[d] = newBool; } break;
+  case 'l': case 'L':   if (keyboardControls(d)) {  downKey[d] = newBool; } break;
+  case ';': case ':':   if (keyboardControls(d)) { rightKey[d] = newBool; } break;
+  case '\'':  case '"': if (keyboardControls(d)) {    setJump(d,newBool); } break;
 		/*
 		case '1': case '!':
 		playerCount = 1;
@@ -671,6 +674,12 @@ void handleInput(unsigned char key, bool newBool) {
 		*/
 	default: break;
 	}
+}
+
+// Gives whether some player is using keyboard controls (not joystick)
+bool keyboardControls(int player) {
+  return keyboard[player];
+  return true;
 }
 
 void inputDown(unsigned char key, int x, int y) { handleInput(key, true); }

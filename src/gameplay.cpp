@@ -385,7 +385,7 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     for (int i=0; i<cubiorCount; i++) {
       menu[i] = 0;
     }
-    playerPause(-1,true);
+    playerPause(-1,true, false);
   }
   
   // TEMPFIX: this fixes the title screen issue from the new addPlayer system

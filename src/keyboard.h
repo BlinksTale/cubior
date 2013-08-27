@@ -11,15 +11,16 @@
 
     void playerFullscreen(bool);
     void playerLevelShadows(bool);
-    void playerPause(int, bool);
+    void playerPause(int, bool, bool);
     int getLastPause();
-    void playerJoin(int, bool);
-    void playerDirectJoin(int);
+    void playerJoin(int, bool, bool);
+    void playerDirectJoin(int, bool);
     void resetControlsPlayer(int);
 
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);
     void handleInput(unsigned char, bool);
+    bool keyboardControls(int);
     void sendCommands();
     void joystickAdditions(int);
     void joystickCommands(int);
