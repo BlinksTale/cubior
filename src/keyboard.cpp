@@ -101,7 +101,7 @@ bool joinKey[playerCount];
 
 // For Joysticks
 int joyX[playerCount];
-int joyY[playerCount];
+int joyY[playerCount+1]; // I am concerned as to why this is a fix, but it works. Fixes p4 issue.
 bool upButton[playerCount];
 bool downButton[playerCount];
 bool leftButton[playerCount];
@@ -209,7 +209,6 @@ void playerPause(int p, bool newBool) {
     // Or handle all un-pause actions
     } else {
       int o = controlsPlayer[p];
-      cout << "Controls player " << p << " is " << o << " of playability " << getCubiorPlaying(o) << endl;
       // Gameplay is running!
       if (p<0 || p>joystickCount || getCubiorPlaying(o)) {
         // Can pause if playing
@@ -236,18 +235,14 @@ void playerJoin(int k, bool newBool) {
 
 void playerDirectJoin(int k) {
     if (controlsPlayer[k] == -1) {
-      cout << "Controls for " << k << " were -1" << endl;
       if (getCubiorsPlaying() < playerCount) { 
         int p = getNewLocalPlayer();
         controlsPlayer[k] = p;
         setCubiorPlaying(p,!getCubiorPlaying(p));
       }
     } else if (getLocalCubiorsPlaying() > 1) {
-      cout << "Controls for " << k << " were NOT -1" << endl;
       setCubiorPlaying(controlsPlayer[k],false);
       controlsPlayer[k] = -1;
-    } else {
-      cout << "Controls for " << k << " were nothing at all" << endl;
     }
 }
 void resetControlsPlayer(int k) {
@@ -480,7 +475,7 @@ void joystickCommands(int joystick) {
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
     }
 	}
-  if (i != -1) {
+  if (i >= 0 && i < playerCount) {
   // Cam button stuff
   setCenterCommand(i,camButtonPressed);
 

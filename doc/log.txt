@@ -249,3 +249,11 @@ added what should support joysticks in any order, not sure if working though (ne
 8/24/13
 Problem when returning to title screen: "No available peers for initializing an ENet connection"
 Fix: perhaps disabling networking on title screen? Resetting it?
+
+---
+8/27/13
+Problem with Fourth player on a Gamepad/Joystick only moving on 1/4 of directions/axis
+Ugly fix: adding one to the JoyY array fixes it.
+
+Problem with keyboard and joysticks sharing controls (p2 joystick joins, WASD stop working as camera for p1)
+Want: to save data on IP addresses, ala Terraria
