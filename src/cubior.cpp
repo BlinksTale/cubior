@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
   #ifdef __APPLE_CC__
     extraPath = resourcePath();
   #endif
-  gameplayStart(extraPath + "/maps/cubiorMap0.cubior", boundAddress);
+  gameplayInit(extraPath + "/maps/cubiorMap0.cubior", boundAddress);
   initRender(argc, argv); // nothing gets called after this
   //tick();
 }

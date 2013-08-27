@@ -187,15 +187,15 @@ void display() {
   // Only draw Cubior views if game running
   if (getStarted()) {
     
-    int cubiorsPlayable = getCubiorsPlayable();
+    int cubiorsPlaying = getCubiorsPlaying();
     int cubiorsOnline = getCubiorsOnline();
-    int cubiorsLocal = cubiorsPlayable - cubiorsOnline;
+    int cubiorsLocal = cubiorsPlaying - cubiorsOnline;
     
     //cout << "Before the loop calls:  " << getTimePassed() << endl;
     // Draw all playing Cubior views
     for (int i=0; i<getCubiorCount(); i++) {
     
-      if (getCubiorPlayable(i) && !getCubiorOnline(i)) {
+      if (getCubiorPlaying(i) && !getCubiorOnline(i)) {
         //cout << "To setup player " << i << ": \t" << getTimePassed() << endl;
       
         // Figure out splitscreen values
@@ -212,9 +212,9 @@ void display() {
         //cout << "To init player " << i << ": \t" << getTimePassed() << endl;
 
         // Now fill in empty space
-        //if (!getCubiorPlayable(altX)
-        //  &&!getCubiorPlayable(altY)
-        //  &&!getCubiorPlayable(altXY)) {
+        //if (!getCubiorPlaying(altX)
+        //  &&!getCubiorPlaying(altY)
+        //  &&!getCubiorPlaying(altXY)) {
 
         // Will splitscreen make your view twice as wide?
         bool doubleWidth = false; // assume that it will not!
@@ -239,7 +239,7 @@ void display() {
           // Figure out who the other is
           int other;
           for (int j=0; j<4; j++) {
-            if (j != i && getCubiorPlayable(j)) {
+            if (j != i && getCubiorPlaying(j)) {
               other = j;
             }
           }
@@ -666,7 +666,7 @@ void fillScreenWithShadow() {
 
 // Figure out new stats for drawings before doing any drawings
 void calcPlayer(int n) {
-  if (getCubiorPlayable(n)) {
+  if (getCubiorPlaying(n)) {
     // Then animate player rotation
 	float changeMin = 5.0;
 	// Only an issue for changeZ = -20 to changeZ = 0. Not sure why.
@@ -731,7 +731,7 @@ void playerPostDraw(int n) {
 }
   
 void drawPlayer(int n) {
-  if (getCubiorPlayable(n)) {
+  if (getCubiorPlaying(n)) {
     playerPreDraw(n);
     cubiorShape[n].drawCubior(n);
     playerPostDraw(n);
@@ -739,7 +739,7 @@ void drawPlayer(int n) {
 }
 
 void drawPlayerSilhouette(int n) {
-  if (getCubiorPlayable(n)) {
+  if (getCubiorPlaying(n)) {
     playerPreDraw(n);
     cubiorShape[n].drawCubiorSilhouette();
     playerPostDraw(n);
@@ -748,7 +748,7 @@ void drawPlayerSilhouette(int n) {
 
 // Same as drawPlayer, but shadows separately
 void drawPlayerShadow(int n) {
-  if (getCubiorPlayable(n)) {
+  if (getCubiorPlaying(n)) {
     playerPreDraw(n);
     cubiorShape[n].drawShadow();
     playerPostDraw(n);
@@ -758,7 +758,7 @@ void drawPlayerShadow(int n) {
 
 // Same as drawPlayer, but shadows separately
 void drawPlayerOutline(int n) {
-  if (getCubiorPlayable(n)) {
+  if (getCubiorPlaying(n)) {
     playerPreDraw(n);
     cubiorShape[n].drawOutline();
     playerPostDraw(n);

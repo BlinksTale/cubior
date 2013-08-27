@@ -36,6 +36,7 @@ const int invisibleMax = 5;
 // keep track of how regularly player is visible
 static const int playerVisibleMax = 10;
 
+    void gameplayInit(string, string);
     void gameplayStart(string, string);
     void readLevel(string);
     void setupLevel();
@@ -122,20 +123,20 @@ static const int playerVisibleMax = 10;
     GoalObj* getGoal();
     CubeObj* getCube(int);
     const int getCubiorCount();
-    bool getCubiorPlayable(int);
+    bool getCubiorPlaying(int);
     bool getCubiorOnline(int);
     bool getCubiorLocal(int);
-    int getCubiorsPlayable();
+    int getCubiorsPlaying();
     int getCubiorsOnline();
-    int getLocalCubiorsPlayable();
+    int getLocalCubiorsPlaying();
     
     int getNewPlayer();
     int getNewLocalPlayer();
     int addPlayer(bool);
     int addPlayer(int, bool);
     int removePlayer(int);
-    void setCubiorPlayable(int,bool);
-    void setLocalCubiorPlayable(int,bool);
+    void setCubiorPlaying(int,bool);
+    void setLocalCubiorPlaying(int,bool);
     void setCubiorOnline(int,bool);
 
     // Sfx triggers

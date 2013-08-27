@@ -29,7 +29,7 @@
 
 using namespace std;
 
-bool cubiorPlayable[cubiorCount];// = {false,false,false,false};
+bool cubiorPlaying[cubiorCount];// = {false,false,false,false};
 bool cubiorOnline[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
@@ -172,7 +172,7 @@ void resetCubiors() {
 
 void resetLocalCubiors() {
     for (int i=0; i<cubiorCount; i++) {
-        if (cubiorPlayable[i] && !cubiorOnline[i]) {
+        if (cubiorPlaying[i] && !cubiorOnline[i]) {
             resetCubior(i);
         }
     }
@@ -228,17 +228,17 @@ void setupPlayers() {
     //if (!gameplayFirstRunning) {
     bool anyonePlaying = false;
     for (int i=0; i<cubiorCount; i++) {
-        anyonePlaying = anyonePlaying || cubiorPlayable[i];
+        anyonePlaying = anyonePlaying || cubiorPlaying[i];
     }
     // If NOBODY playing...
     if (started && !anyonePlaying) {
         // Use the chosen player
         int chosenOne = getPlayerChosen();
         if (chosenOne > -1 && chosenOne < cubiorCount) {
-            cubiorPlayable[chosenOne] = true;
+            cubiorPlaying[chosenOne] = true;
         } else {
             // Then ensure at least P1 is playing
-            cubiorPlayable[0] = true;
+            cubiorPlaying[0] = true;
         }
     }
     //}
@@ -247,7 +247,7 @@ void setupPlayers() {
 void disablePlayers() {
     //playerPause(-1, true);
     for (int i=0; i<cubiorCount; i++) {
-        cubiorPlayable[i] = 0;
+        cubiorPlaying[i] = 0;
         cubiorOnline[i] = 0;
     }
 }
@@ -326,6 +326,12 @@ void setupLevel() {
     }
 }
 
+// Initialization for all gameplay, also triggering other initializations
+void gameplayInit(string levelToLoad, string addressToJoin) {
+  keyboardInit();
+  gameplayStart(levelToLoad, addressToJoin);
+}
+
 // Load in a level and set it up
 void gameplayStart(string levelToLoad, string addressToJoin) {
 
@@ -372,10 +378,9 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     //camera[0].setAngleX(-90);
     // Reset everyone except p1's playability to false
     // So that we only see one view of the title screen
-    cubiorPlayable[0] = false;
-      for (int i=1; i<cubiorCount; i++) {
-          cubiorPlayable[i] = false;
-      }
+    for (int i=0; i<cubiorCount; i++) {
+      cubiorPlaying[i] = false;
+    }
     // Reset all to splash screen menu
     for (int i=0; i<cubiorCount; i++) {
       menu[i] = 0;
@@ -480,7 +485,7 @@ int getLevelNum() {
 // gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
-    cout << "Cubior playable " << 0 << " is " << cubiorPlayable[0] << " with online status " << cubiorOnline[0] << endl;
+  // cout << "Cubior playable " << 0 << " is " << cubiorPlaying[0] << " with online status " << cubiorOnline[0] << endl;
     
   /*cout << "New loop!" << endl;
   for (int i=0; i<4; i++) {
@@ -502,7 +507,7 @@ void gameplayLoop() {
     for(int landedOnNum = 0; landedOnNum < cubiorCount; landedOnNum++) {
       // Run main tick loop for all Cubiors...
       for (int i = 0; i<cubiorCount; i++) {
-        if (cubiorPlayable[i] && cubior[i].getLandedOnCount() == landedOnNum) {
+        if (cubiorPlaying[i] && cubior[i].getLandedOnCount() == landedOnNum) {
           //cout << "Ticking cubior " << i << endl;
           cubior[i].tick();
           keepInBounds(&cubior[i]);
@@ -518,7 +523,7 @@ void gameplayLoop() {
     // Then check collision against all other obstacles (cubes/cubiors)
 	  for (int i = 0; i<cubiorCount; i++) {
           //cout << "This cubior " << i << " has online status " << cubior[i].getOnline() << endl;
-      if (cubiorPlayable[i]) {
+      if (cubiorPlaying[i]) {
 
         // First, stop that dropping in if it's no longer happening
         if (cameraDroppingIn[i]) {
@@ -560,7 +565,7 @@ void gameplayLoop() {
     // Finally, make camera catchup
     for (int i=0; i<cubiorCount; i++) {
   	  if (changeLevel) { break; }
-	    if (cubiorPlayable[i]){
+	    if (cubiorPlaying[i]){
         
         //cout << "for-loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
 
@@ -661,7 +666,7 @@ void gameplayLoop() {
       // Check if local before sending out
       // (FIXME: right now, only the last in order gets counted)
       // (by overriding all others, being the last to be true)
-      if (cubiorPlayable[i] && !cubiorOnline[i]) {
+      if (cubiorPlaying[i] && !cubiorOnline[i]) {
         setOnline(i);
         setPosX(cubior[i].getX());
         setPosY(cubior[i].getY());
@@ -1933,20 +1938,20 @@ CubeObj* getCube(int i) { return cube[i]; }
 GoalObj* getGoal() { return &goal; }
 // Total Cubiors that can be played
 const int getCubiorCount() { return cubiorCount; }
-bool getCubiorPlayable(int i) { return cubiorPlayable[i]; }
+bool getCubiorPlaying(int i) { return cubiorPlaying[i]; }
 bool getCubiorOnline(int i) { return cubiorOnline[i]; }
-bool getCubiorLocal(int i) { return cubiorPlayable[i] && !cubiorOnline[i]; }
+bool getCubiorLocal(int i) { return cubiorPlaying[i] && !cubiorOnline[i]; }
 
 // How many are in play total
-int getCubiorsPlayable() {
+int getCubiorsPlaying() {
   int results = 0;
   for (int i=0; i<cubiorCount; i++) {
-    if (getCubiorPlayable(i)) { results++; }
+    if (getCubiorPlaying(i)) { results++; }
   }
   return results;
 }
 // On in play locally
-int getLocalCubiorsPlayable() {
+int getLocalCubiorsPlaying() {
     int results = 0;
     for (int i=0; i<cubiorCount; i++) {
         if (getCubiorLocal(i)) { results++; }
@@ -1965,7 +1970,7 @@ int getCubiorsOnline() {
 // Find if player is add-able
 int getNewPlayer() {
   for (int i=0; i<cubiorCount; i++) {
-    if (!cubiorPlayable[i]) {
+    if (!cubiorPlaying[i]) {
       return i;
     }
   }
@@ -1975,7 +1980,7 @@ int getNewPlayer() {
 // Find if player is add-able
 int getNewLocalPlayer() {
     for (int i=0; i<cubiorCount; i++) {
-        if (!cubiorPlayable[i] && !cubiorOnline[i]) {
+        if (!cubiorPlaying[i] && !cubiorOnline[i]) {
             return i;
         }
     }
@@ -1984,8 +1989,8 @@ int getNewLocalPlayer() {
 int addPlayer(bool online) {
     // Add first player you can find
     for (int i=0; i<cubiorCount; i++) {
-        if (!cubiorPlayable[i] && !cubiorOnline[i]) {
-            setCubiorPlayable(i, true);
+        if (!cubiorPlaying[i] && !cubiorOnline[i]) {
+            setCubiorPlaying(i, true);
             setCubiorOnline(i, online);
             return 0;
         }
@@ -1995,8 +2000,8 @@ int addPlayer(bool online) {
 }
 
 int addPlayer(int i, bool online) {
-  if (!cubiorPlayable[i]) {
-    setCubiorPlayable(i, true);
+  if (!cubiorPlaying[i]) {
+    setCubiorPlaying(i, true);
     setCubiorOnline(i, online);
     return 0;
   }
@@ -2004,8 +2009,8 @@ int addPlayer(int i, bool online) {
 };
 
 int removePlayer(int i) {
-    if (cubiorPlayable[i]) {
-        setCubiorPlayable(i, false);
+    if (cubiorPlaying[i]) {
+        setCubiorPlaying(i, false);
         setCubiorOnline(i, false);
         return 0;
     } else {
@@ -2014,14 +2019,14 @@ int removePlayer(int i) {
     }
 }
 
-void setCubiorPlayable(int i, bool b) {
+void setCubiorPlaying(int i, bool b) {
     resetCubior(i);
-    cubiorPlayable[i] = b;
+    cubiorPlaying[i] = b;
 }
-void setLocalCubiorPlayable(int i, bool b) {
+void setLocalCubiorPlaying(int i, bool b) {
     if (!cubiorOnline[i]) {
         resetCubior(i);
-        cubiorPlayable[i] = b;
+        cubiorPlaying[i] = b;
     }
 }
 void setCubiorOnline(int i, bool b) {
@@ -2121,10 +2126,10 @@ void chooseOption(int i) {
         break;
       case 1:
         // Drop out
-        if (getCubiorsPlayable() > 1) {
+        if (getCubiorsPlaying() > 1) {
           startGameplay();
           setJustUnpaused(true);
-          setCubiorPlayable(i,false);
+          setCubiorPlaying(i,false);
           resetControlsPlayer(i);
         } else {
           justCausedError = true;

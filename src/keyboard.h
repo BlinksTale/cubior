@@ -7,17 +7,21 @@
 #ifndef KEYBOARD
 #define KEYBOARD
  
+    void keyboardInit();
+
     void playerFullscreen(bool);
     void playerLevelShadows(bool);
     void playerPause(int, bool);
     int getLastPause();
     void playerJoin(int, bool);
+    void playerDirectJoin(int);
     void resetControlsPlayer(int);
 
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);
     void handleInput(unsigned char, bool);
     void sendCommands();
+    void joystickAdditions(int);
     void joystickCommands(int);
     bool joystickConnected();
     bool joystickWasConnected();

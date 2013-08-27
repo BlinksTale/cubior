@@ -27,6 +27,7 @@ using namespace std;
 
 int deadzoneRadius = 20; // This feels really good at 20... I recommend not altering it!
 const int playerCount = 4;
+const int joystickCount = 16; // maxJoystick / joystickMax / etc
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
 const bool superEnabled = false;
@@ -69,7 +70,8 @@ int cameraStickButtonNum = 9;
 
 // For pressing start to see who goes first
 int controlsChosen = -1;
-int controlsPlayer[] = {-1, -1, -1, -1}; // Controls x move player y
+int controlsPlayer[joystickCount];
+// = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; // Controls x move player y
 
 bool directionsPressed[playerCount]; // whether movement has started for this player
 int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
@@ -126,6 +128,13 @@ bool oldUD[playerCount];
 bool oldLR[playerCount];
 int sinUD[playerCount], cosUD[playerCount], sinLR[playerCount], cosLR[playerCount];
 
+// Initialization
+void keyboardInit() {
+  for (int i=0; i<joystickCount; i++) {
+    controlsPlayer[i] = -1;
+  }
+}
+
 // Not using these much anymore, scrap them?
 void setJump(int p, bool b) { if (jumpingEnabled) { if (lockKey[p] && !jumpKey[p] && b) { lockKey[p] = false; } jumpKey[p] = b; } }
 void setLock(int p, bool b)  { if (lockingEnabled) { if (jumpKey[p] && !lockKey[p] && b) { jumpKey[p] = false; } lockKey[p] = b; } }
@@ -180,7 +189,7 @@ void playerPause(int p, bool newBool) {
         // first, remove all local players since joining from title screen
         //resetLocalCubiors(); // unneccessary
         for (int i=0; i<cubiorCount; i++) {
-          setLocalCubiorPlayable(i,false);
+          setLocalCubiorPlaying(i,false);
           resetCubior(i);
           controlsPlayer[i] = -1;
         }
@@ -188,7 +197,7 @@ void playerPause(int p, bool newBool) {
         int o = getNewLocalPlayer();//0;
         controlsPlayer[p] = o;
         controlsChosen = o;
-        setCubiorPlayable(o,true);
+        setCubiorPlaying(o,true);
         resetCubior(o);
         setGameplayFirstRunning(false);
         setMenu(o,1);
@@ -200,16 +209,18 @@ void playerPause(int p, bool newBool) {
     // Or handle all un-pause actions
     } else {
       int o = controlsPlayer[p];
+      cout << "Controls player " << p << " is " << o << " of playability " << getCubiorPlaying(o) << endl;
       // Gameplay is running!
-      if (p<0 || p>3 || getCubiorPlayable(o)) {
+      if (p<0 || p>joystickCount || getCubiorPlaying(o)) {
         // Can pause if playing
         setMenu(o,2); // pause menu
 		    stopGameplay(o);
         setJustPaused(true);
 		    lastPause = p;
       } else {
+        cout << "Joining " << p << endl;
         // Otherwise, join
-        playerJoin(p,true);
+        playerDirectJoin(p);
       }
 		}
 	}
@@ -218,22 +229,29 @@ void playerPause(int p, bool newBool) {
 
 void playerJoin(int k, bool newBool) {
   if (!joinKey[k] && newBool) {
-    if (controlsPlayer[k] == -1) {
-      if (getCubiorsPlayable() > 0) { 
-        int p = getNewLocalPlayer();
-        controlsPlayer[k] = p;
-        setCubiorPlayable(p,!getCubiorPlayable(p));
-      }
-    } else if (getLocalCubiorsPlayable() > 1) {
-      setCubiorPlayable(controlsPlayer[k],false);
-      resetControlsPlayer(controlsPlayer[k]);
-    }
+    playerDirectJoin(k);
   }
   joinKey[k] = newBool;
 }
 
+void playerDirectJoin(int k) {
+    if (controlsPlayer[k] == -1) {
+      cout << "Controls for " << k << " were -1" << endl;
+      if (getCubiorsPlaying() < playerCount) { 
+        int p = getNewLocalPlayer();
+        controlsPlayer[k] = p;
+        setCubiorPlaying(p,!getCubiorPlaying(p));
+      }
+    } else if (getLocalCubiorsPlaying() > 1) {
+      cout << "Controls for " << k << " were NOT -1" << endl;
+      setCubiorPlaying(controlsPlayer[k],false);
+      controlsPlayer[k] = -1;
+    } else {
+      cout << "Controls for " << k << " were nothing at all" << endl;
+    }
+}
 void resetControlsPlayer(int k) {
-  for (int i=0; i<playerCount; i++) {
+  for (int i=0; i<joystickCount; i++) {
     if (controlsPlayer[i] == k) {
       controlsPlayer[i] = -1;
     }
@@ -247,9 +265,12 @@ void sendCommands() {
 	// joystick support, ALWAYS update its input
 	sf::Joystick::update(); 
 
-	// Update each joystick's info before sending commands
-  for (int i=0; i <playerCount; i++) {
-		joystickCommands(i);
+  // Check first for joysticks joining the fray
+  for (int i=0; i < joystickCount; i++) {
+    joystickCommands(i);
+  }
+	// Then update each active joystick's info before sending commands
+  for (int i=0; i < playerCount; i++) {
 		mergeInput(i); // then stick it and key inputs together
     // merge still necesary to distinguish new vs old input
 	}
@@ -422,19 +443,35 @@ int joystickNum(int i) {
 	}
 }
 
+// Check all joysticks in case a new player is joining
+void joystickAdditions(int joystick) {
+  // Check all player controls in case we're in use
+  bool inUse = false;
+  for (int p=0; p<playerCount; p++) {
+    if (controlsPlayer[p] == joystick) {
+      inUse = true;
+    }
+  }
+  // Not in use? Try to be! Listen for a start key
+  if (!inUse) {
+    //cout << "Join joystick " << joystick << " is " << sf::Joystick::isButtonPressed(joystick,pauseButtonNum) << endl;
+	  playerPause(joystick,sf::Joystick::isButtonPressed(joystick,pauseButtonNum));
+  }
+}
+
 // Figure out all joystick input translations to key presses, for now
-void joystickCommands(int i) {
-	int joystick = joystickNum(i);
-  // Accept any not-start-or-select button for jumping
-	jumpButton[i] = 0;
+void joystickCommands(int joystick) {
+	int i = controlsPlayer[joystick];//joystickNum(i);//
   bool camButtonPressed = false;
   
+  // Accept any not-start-or-select button for jumping
+	jumpButton[i] = 0;
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
 		if (b == joinButtonNum) { // Join joinButton
-			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
+			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == pauseButtonNum) { // Pause pauseButton
-			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
+			playerPause(joystick,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
       // If either is pressed, add that to camButtonPressed
       // so we only send one call later
@@ -443,7 +480,7 @@ void joystickCommands(int i) {
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
     }
 	}
-
+  if (i != -1) {
   // Cam button stuff
   setCenterCommand(i,camButtonPressed);
 
@@ -494,6 +531,7 @@ void joystickCommands(int i) {
   if (newSecondaryDown != secondaryJoyDown[i]) { 
     setDownCommand(i,newSecondaryDown);
     secondaryJoyDown[i] = newSecondaryDown;
+  }
   }
 }
 
@@ -584,28 +622,28 @@ void handleInput(unsigned char key, bool newBool) {
 
 		// PLAYER 2
 	case 'w': case 'W':    
-    if (getCubiorPlayable(b)) {
+    if (getCubiorPlaying(b)) {
       upKey[b] = newBool;
     } else {
       setUpCommand(a,newBool);
     }
     break;
 	case 'a': case 'A':
-    if (getCubiorPlayable(b)) {
+    if (getCubiorPlaying(b)) {
       leftKey[b] = newBool;
     } else {
       setLeftCommand(a,newBool);
     }
     break;
 	case 's': case 'S':
-    if (getCubiorPlayable(b)) {
+    if (getCubiorPlaying(b)) {
       downKey[b] = newBool;
     } else {
       setDownCommand(a,newBool);
     }
     break;
 	case 'd': case 'D':
-    if (getCubiorPlayable(b)) {
+    if (getCubiorPlaying(b)) {
       rightKey[b] = newBool;
     } else {
       setRightCommand(a,newBool);
