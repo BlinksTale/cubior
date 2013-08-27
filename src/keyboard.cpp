@@ -423,13 +423,7 @@ int joystickNum(int i) {
 }
 
 // Figure out all joystick input translations to key presses, for now
-// handleJoystickInput equivalent
 void joystickCommands(int i) {
-
-    // For any buttons press on controllers that are already set,
-    // associate with the proper player
-    int a = controlsPlayer[i];
-
 	int joystick = joystickNum(i);
   // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
@@ -437,34 +431,30 @@ void joystickCommands(int i) {
   
   // Read in as many buttons as the joystick has
 	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
-        // Println joystick controls
-        if (sf::Joystick::isButtonPressed(joystick, b)) {
-            cout << "Key " << b << " was pressed" << endl;
-        }
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == pauseButtonNum) { // Pause pauseButton
 			playerPause(i,sf::Joystick::isButtonPressed(joystick,b));
 		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
-            // If either is pressed, add that to camButtonPressed
-            // so we only send one call later
-            camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
-        } else { // All unestablish buttons == jumpButton!
-			jumpButton[a] = jumpButton[a] || sf::Joystick::isButtonPressed(joystick,b);
-        }
+      // If either is pressed, add that to camButtonPressed
+      // so we only send one call later
+      camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
+    } else { // All unestablish buttons == jumpButton!
+			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
+    }
 	}
 
   // Cam button stuff
-  setCenterCommand(a,camButtonPressed);
+  setCenterCommand(i,camButtonPressed);
 
 	// Convert (for now) joystick to direction buttons
-	joyX[a] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
-	joyY[a] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
+	joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
+	joyY[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
   // was at 20 for limits, 15 seems fine too (want more flexibility somewhere for turning)
-	upButton[a]   = joyY[i] <-15;
-	downButton[a] = joyY[i] > 15;
-	leftButton[a] = joyX[i] <-15;
-	rightButton[a]= joyX[i] > 15;
+	upButton[i]   = joyY[i] <-15;
+	downButton[i] = joyY[i] > 15;
+	leftButton[i] = joyX[i] <-15;
+	rightButton[i]= joyX[i] > 15;
   
   // Right joystick X
   #ifdef PS3Controls
@@ -489,23 +479,24 @@ void joystickCommands(int i) {
   bool newSecondaryUp    = newSecondaryY <-secondaryTrigger;
   bool newSecondaryDown  = newSecondaryY > secondaryTrigger;
   // Pass the trigger and have not done this last time to activate the call
-  if (newSecondaryLeft != secondaryJoyLeft[a]) {
-    setLeftCommand(a,newSecondaryLeft);
-    secondaryJoyLeft[a]  = newSecondaryLeft;
+  if (newSecondaryLeft != secondaryJoyLeft[i]) { 
+    setLeftCommand(i,newSecondaryLeft);
+    secondaryJoyLeft[i]  = newSecondaryLeft;
   }
-  if (newSecondaryRight != secondaryJoyRight[a]) {
-    setRightCommand(a,newSecondaryRight);
-    secondaryJoyRight[a] = newSecondaryRight;
+  if (newSecondaryRight != secondaryJoyRight[i]) { 
+    setRightCommand(i,newSecondaryRight);
+    secondaryJoyRight[i] = newSecondaryRight;
   }
-  if (newSecondaryUp != secondaryJoyUp[a]) {
-    setUpCommand(a,newSecondaryUp);
-    secondaryJoyUp[a] = newSecondaryUp;
+  if (newSecondaryUp != secondaryJoyUp[i]) {
+    setUpCommand(i,newSecondaryUp); 
+    secondaryJoyUp[i] = newSecondaryUp;
   }
-  if (newSecondaryDown != secondaryJoyDown[a]) {
-    setDownCommand(a,newSecondaryDown);
-    secondaryJoyDown[a] = newSecondaryDown;
+  if (newSecondaryDown != secondaryJoyDown[i]) { 
+    setDownCommand(i,newSecondaryDown);
+    secondaryJoyDown[i] = newSecondaryDown;
   }
 }
+
 
 // Return if any joystick connected
 bool joystickConnected() {
