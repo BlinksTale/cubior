@@ -28,7 +28,7 @@ using namespace std;
 
 // Preset variables
 bool reconnectOnDisconnect = true;
-const int onlinePlayerMax = 16;
+const int onlinePlayerMax = 4;//16;
 const int localPlayerMax = 4;
 
 // Game instance variables
@@ -53,7 +53,7 @@ int ticks = 0;
 bool hostExists = false;
 string latestData;
 // Recieving
-int isOnline[onlinePlayerMax];
+bool isOnline[onlinePlayerMax];
 int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
 // Sending
 bool myOnline[localPlayerMax];
@@ -70,7 +70,7 @@ int currentMessageSlot = 0; // for reading in data from a message
 
 void networkingInit() {
   for (int i=0; i<onlinePlayerMax; i++) {
-    isOnline[i] = -1;
+    isOnline[i] = false;
   }
 }
 
@@ -147,18 +147,20 @@ void pollFor(ENetHost * host, ENetAddress address) {
           }
 
           resetSlots();
-          isOnline[h]  = getNextSlot(dataArray);
-          posX[h]      = getNextSlot(dataArray);
-          posY[h]      = getNextSlot(dataArray);
-          posZ[h]      = getNextSlot(dataArray);
+          // Find which player is sending data, and update it
+          int p        = getNextSlot(dataArray);
+          isOnline[p]  = true;
+          posX[p]      = getNextSlot(dataArray);
+          posY[p]      = getNextSlot(dataArray);
+          posZ[p]      = getNextSlot(dataArray);
           momentumX    = getNextSlot(dataArray);
           momentumY    = getNextSlot(dataArray);
           momentumZ    = getNextSlot(dataArray);
-          direction[h] = getNextSlot(dataArray);
+          direction[p] = getNextSlot(dataArray);
       
           float momentumArray[] = { momentumX, momentumY, momentumZ };
           std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-          momentum[h].swap(newMomentum);
+          momentum[p].swap(newMomentum);
 
           //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
         }
@@ -285,25 +287,27 @@ void networkTick() {
       // Clear message
       sprintf(message, "");
       
+      //int miniMessageSize = 256;//1024 / 4;
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
       // Loop through new messages for each online player
+      // but send the packet once for every player
       for (int i=0; i<localPlayerMax; i++) {
         if (myOnline[i]) {
-          sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f;%s", 
-            myOnline[i],
+          sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f;", 
+            i, // send the player's number first, essentially the id
             myPosX[i], myPosY[i], myPosZ[i],
             myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-            myDirection[i],
-            message);
+            myDirection[i]);
         }
-      }
-      ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
-      //cout << "Sending msg " << message << endl;
+        ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
-      // No packages will be sent until your game is started
-      if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
-          enet_peer_send(peer, 0, packet);
+        //cout << "Sending msg " << message << endl;
+
+        // No packages will be sent until your game is started
+        if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
+            enet_peer_send(peer, 0, packet);
+        }
       }
     //}
     
