@@ -42,6 +42,7 @@ ENetHost * client;
 ENetPeer * peer;
 const int messageSize = 1024;
 char message[messageSize];
+char quarterMessage[localPlayerMax][messageSize/4];
 
 // Declare my code's variables
 string role;
@@ -124,7 +125,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
       splitByCharacter(str, playerArray, onlinePlayerMax, ';');
 
       for (int h=0; h<onlinePlayerMax; h++) {
-        if (playerArray[h].compare("\0") != 0) {
+        if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
           /*
            * Split by data here
            */
@@ -292,24 +293,26 @@ void networkTick() {
       // Loop through new messages for each online player
       // but send the packet once for every player
       for (int i=0; i<localPlayerMax; i++) {
+        sprintf(quarterMessage[i], "");
         if (myOnline[i]) {
-          sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f;", 
+          sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f", 
             i, // send the player's number first, essentially the id
             myPosX[i], myPosY[i], myPosZ[i],
             myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
             myDirection[i]);
-
-          ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
-           if (message) {
-              cout << "Sending msg " << message << endl;
-           }
-
-          // No packages will be sent until your game is started
-          if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
-              enet_peer_send(peer, 0, packet);
-          }
         }
+      }
+      sprintf(message, "%s;%s;%s;%s", 
+        quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3]);
 
+      ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
+      if (message) {
+        //cout << "Sending msg " << message << endl;
+      }
+
+      // No packages will be sent until your game is started
+      if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
+          enet_peer_send(peer, 0, packet);
       }
     //}
     
