@@ -121,7 +121,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
 
       string str(latestData);
       string playerArray[onlinePlayerMax];
-      splitByCharacter(str, playerArray, onlinePlayerMax, ',');
+      splitByCharacter(str, playerArray, onlinePlayerMax, ';');
 
       for (int h=0; h<onlinePlayerMax; h++) {
         if (playerArray[h].compare("\0") != 0) {
@@ -298,16 +298,18 @@ void networkTick() {
             myPosX[i], myPosY[i], myPosZ[i],
             myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
             myDirection[i]);
+
+          ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
+           if (message) {
+              cout << "Sending msg " << message << endl;
+           }
+
+          // No packages will be sent until your game is started
+          if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
+              enet_peer_send(peer, 0, packet);
+          }
         }
 
-        ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
-
-        //cout << "Sending msg " << message << endl;
-
-        // No packages will be sent until your game is started
-        if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
-            enet_peer_send(peer, 0, packet);
-        }
       }
     //}
     
