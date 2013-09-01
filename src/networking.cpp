@@ -28,6 +28,11 @@ using namespace std;
 
 // Preset variables
 bool reconnectOnDisconnect = true;
+const int onlinePlayerMax = 16;
+const int localPlayerMax = 4;
+
+// Game instance variables
+bool isHost = false; // one host collects and redistributes all data
 
 // Declare Enet Variables
 ENetAddress addressServer;
@@ -48,18 +53,26 @@ int ticks = 0;
 bool hostExists = false;
 string latestData;
 // Recieving
-int player = -1;
-int posX, posY, posZ;
+int isOnline[onlinePlayerMax];
+int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
 // Sending
-int myPlayer;
-int myPosX, myPosY, myPosZ;
+bool myOnline[localPlayerMax];
+int myPosX[localPlayerMax], myPosY[localPlayerMax], myPosZ[localPlayerMax];
 bool onlineStatus[cubiorCount];
-vector<float> momentum (3, 0);
-vector<float> myMomentum (3, 0);
-float direction;
-float myDirection;
+//vector<float> momentum (3, 0); // use onlinePlayerMax
+vector< vector <float> > momentum (onlinePlayerMax, vector<float> (3, 0)); // multidimensional vector
+//vector<float> myMomentum (3, 0);
+vector< vector <float> > myMomentum (localPlayerMax, vector<float> (3, 0));
+float direction[onlinePlayerMax];
+float myDirection[localPlayerMax];
 
 int currentMessageSlot = 0; // for reading in data from a message
+
+void networkingInit() {
+  for (int i=0; i<onlinePlayerMax; i++) {
+    isOnline[i] = -1;
+  }
+}
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -102,41 +115,54 @@ void pollFor(ENetHost * host, ENetAddress address) {
     }
     
     if (updatePos) {
-      int commaOne, commaTwo, commaThree;
-      float momentumX, momentumY, momentumZ;
+      /*
+       * Split by player (separated by semicolon), then split by data (separated by comma)
+       */
+
       string str(latestData);
-      const int resultSize = 10;
-      string dataArray[resultSize];
-      stringToArray(str, dataArray, resultSize);
+      string playerArray[onlinePlayerMax];
+      splitByCharacter(str, playerArray, onlinePlayerMax, ',');
+
+      for (int h=0; h<onlinePlayerMax; h++) {
+        if (playerArray[h].compare("\0") != 0) {
+          /*
+           * Split by data here
+           */
+
+          float momentumX, momentumY, momentumZ;
+          string str(playerArray[h]);
+          const int resultSize = 10;
+          string dataArray[resultSize];
+          splitByCharacter(str, dataArray, resultSize, ',');
       
-      //for (int i=0; i<resultSize; i++) {
-      //  cout << "Line " << i << " is " << dataArray[i] << endl;
-      //}
+          //for (int i=0; i<resultSize; i++) {
+          //  cout << "Line " << i << " is " << dataArray[i] << endl;
+          //}
       
-        
-      for (int v = 0; v<resultSize; v++) {
-        cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
+          for (int v = 0; v<resultSize; v++) {
+            cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
+          }
+          if (resultSize > 0) {
+            cout << endl;
+          }
+
+          resetSlots();
+          isOnline[h]  = getNextSlot(dataArray);
+          posX[h]      = getNextSlot(dataArray);
+          posY[h]      = getNextSlot(dataArray);
+          posZ[h]      = getNextSlot(dataArray);
+          momentumX    = getNextSlot(dataArray);
+          momentumY    = getNextSlot(dataArray);
+          momentumZ    = getNextSlot(dataArray);
+          direction[h] = getNextSlot(dataArray);
+      
+          float momentumArray[] = { momentumX, momentumY, momentumZ };
+          std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+          momentum[h].swap(newMomentum);
+
+          //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
+        }
       }
-      if (resultSize > 0) {
-        cout << endl;
-      }
-
-      resetSlots();
-      player    = getNextSlot(dataArray);
-      posX      = getNextSlot(dataArray);
-      posY      = getNextSlot(dataArray);
-      posZ      = getNextSlot(dataArray);
-      momentumX = getNextSlot(dataArray);
-      momentumY = getNextSlot(dataArray);
-      momentumZ = getNextSlot(dataArray);
-      direction = getNextSlot(dataArray);
-      
-      float momentumArray[] = { momentumX, momentumY, momentumZ };
-      std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-      momentum.swap(newMomentum);
-
-      //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
-
     }
 
     // Get ready for next loop!
@@ -153,19 +179,21 @@ int getNextSlot(string dataArray[]) {
   return result;
 }
 
-string* stringToArray(string str, string* result, int resultSize) {
+// Splits a string into an array based on its commas
+string* splitByCharacter(string str, string* result, int resultSize, char character) {
     int leftComma = 0;
     int rightComma = 0;
 
-    //cout << "String " << str << endl;
-    
+    // Populate empty results array
     for (int i=0; i<resultSize; i++) {
         result[i] = "\0";
     }
 
+    // Get everything after the current comma, and find the next comma
+    // then take the slice between the two as the data for slot i
     for (int i=0; i<resultSize; i++) {
         string focus = str.substr(leftComma, str.length()-leftComma);
-        rightComma = focus.find(',');
+        rightComma = focus.find(character);
         result[i] = str.substr(leftComma, rightComma);
         if (rightComma == string::npos) {
           return result;
@@ -187,43 +215,43 @@ int findComma(int commaNum, string text) {
   return -1;
 }
 
-void setOnline(int i) {
-    myPlayer = i;
+void setOnline(int i, bool b) {
+    myOnline[i] = b;
 }
-void setPosX(int i) {
-    myPosX = i;
+void setPosX(int i, int pos) {
+    myPosX[i] = pos;
 }
-void setPosY(int i) {
-    myPosY = i;
+void setPosY(int i, int pos) {
+    myPosY[i] = pos;
 }
-void setPosZ(int i) {
-    myPosZ = i;
+void setPosZ(int i, int pos) {
+    myPosZ[i] = pos;
 }
-int getPosX() {
-    return posX;
+int getPosX(int i) {
+    return posX[i];
 }
-int getPosY() {
-    return posY;
+int getPosY(int i) {
+    return posY[i];
 }
-int getPosZ() {
-    return posZ;
+int getPosZ(int i) {
+    return posZ[i];
 }
 bool getOnline(int i) {
-    return player == i;
+    return isOnline[i];
 }
 
-void setMomentum(vector<float> m) {
-  myMomentum = m;
+void setMomentum(int i, vector<float> m) {
+  myMomentum[i] = m;
 }
-vector<float> getMomentum() {
-  return momentum;
+vector<float> getMomentum(int i) {
+  return momentum[i];
 }
 
-void setDirection(float f) {
-  myDirection = f;
+void setDirection(int i, float f) {
+  myDirection[i] = f;
 }
-float getDirection() {
-  return direction;
+float getDirection(int i) {
+  return direction[i];
 }
 
 // The main loop, called repeatedly
@@ -254,19 +282,27 @@ void networkTick() {
       //string ticksString = to_string(ticks);
       //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
+      // Clear message
+      sprintf(message, "");
+      
       //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f", 
-        myPlayer,
-        myPosX, myPosY, myPosZ,
-        myMomentum.at(0), myMomentum.at(1), myMomentum.at(2),
-        myDirection);
-
+      // Loop through new messages for each online player
+      for (int i=0; i<localPlayerMax; i++) {
+        if (myOnline[i]) {
+          sprintf(message, "%d,%d,%d,%d,%f,%f,%f,%f;%s", 
+            myOnline[i],
+            myPosX[i], myPosY[i], myPosZ[i],
+            myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
+            myDirection[i],
+            message);
+        }
+      }
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
 
       //cout << "Sending msg " << message << endl;
 
       // No packages will be sent until your game is started
-      if (strlen(message) > 0 && getStarted() && !getCubiorOnline(myPlayer)) {
+      if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
           enet_peer_send(peer, 0, packet);
       }
     //}

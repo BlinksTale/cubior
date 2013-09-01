@@ -17,28 +17,29 @@ using namespace std; // necessary for string
 
 const bool networkingAllowed = true;
 
+    void networkingInit();
     int connectTo(string);
     void disconnectFrom(string);
     void networkTick();
     void pollFor(ENetHost *, ENetAddress);
     int findComma(int, string);
-    string* stringToArray(string, string*, int);
+    string* splitByCharacter(string, string*, int, char);
 
     void resetSlots();
     int getNextSlot(string[]);
 
-    void setPosX(int);
-    void setPosY(int);
-    void setPosZ(int);
-    int getPosX();
-    int getPosY();
-    int getPosZ();
-    void setOnline(int);
+    void setPosX(int,int);
+    void setPosY(int,int);
+    void setPosZ(int,int);
+    int getPosX(int);
+    int getPosY(int);
+    int getPosZ(int);
+    void setOnline(int, bool);
     bool getOnline(int);
-    void setMomentum(vector<float>);
-    vector<float> getMomentum();
-    void setDirection(float);
-    float getDirection();
+    void setMomentum(int, vector<float>);
+    vector<float> getMomentum(int);
+    void setDirection(int,float);
+    float getDirection(int);
     bool isConnected();
 
 #endif

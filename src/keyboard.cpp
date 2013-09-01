@@ -26,7 +26,7 @@ using namespace std;
 #define PI 3.14159265
 
 int deadzoneRadius = 20; // This feels really good at 20... I recommend not altering it!
-const int playerCount = 4;
+const int localPlayerCount = 4;
 const int joystickCount = 16; // maxJoystick / joystickMax / etc
 const bool jumpingEnabled = true;
 const bool lockingEnabled = false;
@@ -72,51 +72,51 @@ int cameraStickButtonNum = 9;
 int controlsChosen = -1;
 int controlsPlayer[joystickCount];
 // = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; // Controls x move player y
-bool keyboard[playerCount];
+bool keyboard[localPlayerCount];
 
-bool directionsPressed[playerCount]; // whether movement has started for this player
-int oldAngleY[playerCount]; // represents cam angle for player when keys first pressed
+bool directionsPressed[localPlayerCount]; // whether movement has started for this player
+int oldAngleY[localPlayerCount]; // represents cam angle for player when keys first pressed
 
 // For all input merged
-bool upInput[playerCount];
-bool downInput[playerCount];
-bool leftInput[playerCount];
-bool rightInput[playerCount];
-bool jumpInput[playerCount];
+bool upInput[localPlayerCount];
+bool downInput[localPlayerCount];
+bool leftInput[localPlayerCount];
+bool rightInput[localPlayerCount];
+bool jumpInput[localPlayerCount];
 
 // For menu navigation
-bool lastUpInput[playerCount];
-bool lastDownInput[playerCount];
-bool lastJumpInput[playerCount];
+bool lastUpInput[localPlayerCount];
+bool lastDownInput[localPlayerCount];
+bool lastJumpInput[localPlayerCount];
 
 // For Keyboards
-bool upKey[playerCount];
-bool downKey[playerCount];
-bool leftKey[playerCount];
-bool rightKey[playerCount];
-bool jumpKey[playerCount];
-bool lockKey[playerCount];
-bool superKey[playerCount];
-bool pauseKey[playerCount];
-bool joinKey[playerCount];
+bool upKey[localPlayerCount];
+bool downKey[localPlayerCount];
+bool leftKey[localPlayerCount];
+bool rightKey[localPlayerCount];
+bool jumpKey[localPlayerCount];
+bool lockKey[localPlayerCount];
+bool superKey[localPlayerCount];
+bool pauseKey[localPlayerCount];
+bool joinKey[localPlayerCount];
 
 // For Joysticks
-int joyX[playerCount];
-int joyY[playerCount+1]; // I am concerned as to why this is a fix, but it works. Fixes p4 issue.
-bool upButton[playerCount];
-bool downButton[playerCount];
-bool leftButton[playerCount];
-bool rightButton[playerCount];
-bool jumpButton[playerCount];
-bool lockButton[playerCount];
-bool superButton[playerCount];
-bool pauseButton[playerCount];
-bool joinButton[playerCount];
-bool cameraButton[playerCount];
-bool secondaryJoyLeft[playerCount];
-bool secondaryJoyRight[playerCount];
-bool secondaryJoyUp[playerCount];
-bool secondaryJoyDown[playerCount];
+int joyX[localPlayerCount];
+int joyY[localPlayerCount+1]; // I am concerned as to why this is a fix, but it works. Fixes p4 issue.
+bool upButton[localPlayerCount];
+bool downButton[localPlayerCount];
+bool leftButton[localPlayerCount];
+bool rightButton[localPlayerCount];
+bool jumpButton[localPlayerCount];
+bool lockButton[localPlayerCount];
+bool superButton[localPlayerCount];
+bool pauseButton[localPlayerCount];
+bool joinButton[localPlayerCount];
+bool cameraButton[localPlayerCount];
+bool secondaryJoyLeft[localPlayerCount];
+bool secondaryJoyRight[localPlayerCount];
+bool secondaryJoyUp[localPlayerCount];
+bool secondaryJoyDown[localPlayerCount];
 
 bool fullscreenKey;
 bool levelShadowsKey;
@@ -125,9 +125,9 @@ bool lastLevelKey;
 int lastPause = -1; // Last player to pause
 
 // keep track of angles for dir movement
-bool oldUD[playerCount];
-bool oldLR[playerCount];
-int sinUD[playerCount], cosUD[playerCount], sinLR[playerCount], cosLR[playerCount];
+bool oldUD[localPlayerCount];
+bool oldLR[localPlayerCount];
+int sinUD[localPlayerCount], cosUD[localPlayerCount], sinLR[localPlayerCount], cosLR[localPlayerCount];
 
 // Initialization
 void keyboardInit() {
@@ -237,7 +237,7 @@ void playerJoin(int k, bool newBool, bool keyboardBool) {
 
 void playerDirectJoin(int k, bool keyboardBool) {
     if (controlsPlayer[k] == -1) {
-      if (getCubiorsPlaying() < playerCount) { 
+      if (getCubiorsPlaying() < localPlayerCount) { 
         int p = getNewLocalPlayer();
         controlsPlayer[k] = p;
         keyboard[p] = keyboardBool;
@@ -268,13 +268,13 @@ void sendCommands() {
     joystickCommands(i);
   }
 	// Then update each active joystick's info before sending commands
-  for (int i=0; i < playerCount; i++) {
+  for (int i=0; i < localPlayerCount; i++) {
 		mergeInput(i); // then stick it and key inputs together
     // merge still necesary to distinguish new vs old input
 	}
 	// Then get to those commands being issued!
 	if (getGameplayRunning()) {
-		for (int i = 0; i<playerCount; i++) {
+		for (int i = 0; i<localPlayerCount; i++) {
       // First, if joystick has some form of movement (outside deadzone)
       float joystickDist = sqrt((float)(pow((float)joyX[i],2)+pow((float)joyY[i],2)));
 		  bool joyMovement = joystickDist > deadzoneRadius;
@@ -410,7 +410,7 @@ void sendCommands() {
 		}
   // Gameplay not running? Send pause commands!
 	} else {
-		for (int i = 0; i<playerCount; i++) {
+		for (int i = 0; i<localPlayerCount; i++) {
       if (  upInput[i] &&   !lastUpInput[i]) { prevOption(i); }
       if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
       if (jumpInput[i] && !lastJumpInput[i]) { chooseOption(i); }
@@ -445,7 +445,7 @@ int joystickNum(int i) {
 void joystickAdditions(int joystick) {
   // Check all player controls in case we're in use
   bool inUse = false;
-  for (int p=0; p<playerCount; p++) {
+  for (int p=0; p<localPlayerCount; p++) {
     if (controlsPlayer[p] == joystick) {
       inUse = true;
     }
@@ -478,7 +478,7 @@ void joystickCommands(int joystick) {
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
     }
 	}
-  if (i >= 0 && i < playerCount) {
+  if (i >= 0 && i < localPlayerCount) {
   // Cam button stuff
   setCenterCommand(i,camButtonPressed);
 
@@ -538,7 +538,7 @@ void joystickCommands(int joystick) {
 bool joystickConnected() {
   bool result = false;
   // check for all four
-  for (int i=0; i<playerCount; i++) {
+  for (int i=0; i<localPlayerCount; i++) {
     result = result || sf::Joystick::isConnected(joystickNum(i));
   }
   joystickRecentlyConnected = result;
@@ -666,10 +666,10 @@ void handleInput(unsigned char key, bool newBool) {
   case '\'':  case '"': if (keyboardControls(d)) {    setJump(d,newBool); } break;
 		/*
 		case '1': case '!':
-		playerCount = 1;
+		localPlayerCount = 1;
 		break;
 		case '2': case '@':
-		playerCount = 2;
+		localPlayerCount = 2;
 		break;
 		*/
 	default: break;

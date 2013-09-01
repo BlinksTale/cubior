@@ -329,6 +329,7 @@ void setupLevel() {
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
   keyboardInit();
+  networkingInit();
   gameplayStart(levelToLoad, addressToJoin);
 }
 
@@ -666,13 +667,17 @@ void gameplayLoop() {
       // Check if local before sending out
       // (FIXME: right now, only the last in order gets counted)
       // (by overriding all others, being the last to be true)
-      if (cubiorPlaying[i] && !cubiorOnline[i]) {
-        setOnline(i);
-        setPosX(cubior[i].getX());
-        setPosY(cubior[i].getY());
-        setPosZ(cubior[i].getZ());
-        setMomentum(cubior[i].getMomentum());
-        setDirection(cubior[i].getToldDirection());
+      if (!cubiorOnline[i]) {
+        // Set playing state first
+        setOnline(i, cubiorPlaying[i]); // not efficient since setting when unnecessary?
+        // then if playing, set all other states
+        if (cubiorPlaying[i]) {
+          setPosX(i, cubior[i].getX());
+          setPosY(i, cubior[i].getY());
+          setPosZ(i, cubior[i].getZ());
+          setMomentum(i, cubior[i].getMomentum());
+          setDirection(i, cubior[i].getToldDirection());
+        }
       }
     }
 
@@ -684,9 +689,9 @@ void gameplayLoop() {
     // Find other players that are online, and represent them
     for (int i=0; i<cubiorCount; i++) {
         if (cubiorOnline[i]) {
-            cubior[i].setPos(getPosX()+modifier, getPosY(), getPosZ()+modifier);
-            cubior[i].setMomentum(getMomentum());
-            cubior[i].setToldDirection(getDirection());
+            cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
+            cubior[i].setMomentum(getMomentum(i));
+            cubior[i].setToldDirection(getDirection(i));
         }
     }
     //cout << endl;
