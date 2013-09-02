@@ -239,7 +239,7 @@ void display() {
           // Figure out who the other is
           int other;
           for (int j=0; j<4; j++) {
-            if (j != i && getCubiorPlaying(j)) {
+            if (j != i && getCubiorPlaying(j) && !getCubiorOnline(j)) {
               other = j;
             }
           }

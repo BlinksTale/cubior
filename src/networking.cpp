@@ -141,10 +141,10 @@ void pollFor(ENetHost * host, ENetAddress address) {
           //}
       
           for (int v = 0; v<resultSize; v++) {
-            cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
+            //cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
           }
           if (resultSize > 0) {
-            cout << endl;
+            //cout << endl;
           }
 
           resetSlots();
