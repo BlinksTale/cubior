@@ -4,6 +4,7 @@
  * 1/20/12
  * 2d Visuals for cubior
  */
+#include "GLee.h" // must be included before any inclusion of gl.h
 #include "flatRender.h"
 #include "music.h"
 #include "gameplay.h"
@@ -32,6 +33,7 @@
 #include <stdio.h> // for pauseText
 #include <time.h> // for printing timestamps
 //#include <sys/time.h> // for linux time
+#include <fstream> // for loading shader files
 
 #include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
@@ -150,6 +152,63 @@ int menuSpacing = 200;
 int creditsTimer[4]; // when credits should start
 bool creditsRecently[4]; // if we were just on credits or not
 std::string* loadedCredits;
+
+// Code from tutorial by thecplusplusguy at
+// https://www.youtube.com/watch?v=pE9ZDNcg3kw
+void loadFile(const char* fn, string& str) {
+    std::ifstream in(fn);
+    if (!in.is_open()) {
+        cout << "The file " << fn << " cannot be opened" << endl;
+        return;
+    }
+    char tmp[300];
+    while (!in.eof()) {
+        in.getline(tmp, 300);
+        str += tmp;
+        str += '\n';
+    }
+}
+unsigned int loadShader(string& source, unsigned int mode) {
+    unsigned int id;
+    id=glCreateShader(mode);
+    const char* csource = source.c_str();
+    
+    glShaderSource(id, 1, &csource, NULL);
+    glCompileShader(id);
+    char error[1000];
+    glGetShaderInfoLog(id, 1000, NULL, error);
+    if (error[0] != '\0') {
+        cout << "Compile status: " << error << endl;
+    }
+    return id;
+}
+
+unsigned int vs, fs, program;
+
+void initShader(const char* vname, const char* fname) {
+    string source;
+    loadFile(vname, source);
+    vs = loadShader(source, GL_VERTEX_SHADER);
+    source="";
+    loadFile(fname, source);
+    fs = loadShader(source, GL_FRAGMENT_SHADER);
+    
+    program = glCreateProgram();
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    
+    glLinkProgram(program);
+    glUseProgram(program);
+}
+
+void clean()
+{
+    glDetachShader(program, vs);
+    glDetachShader(program, fs);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    glDeleteProgram(program);
+}
 
 int getFPS() {
   int newClock = clock();
@@ -704,17 +763,40 @@ void calcPlayer(int n) {
 
 void playerPreDraw(int n) {
   glPushMatrix();
+    
+    
   // Move player
   glTranslatef(playerX[n], playerY[n], playerZ[n]);
+    
   
   // Finally, apply rotation
-  float avg = playerRotationMean(n);
-  //cout << "newAngle is " << newAngle << endl;
+    float stretchSize = 0.0;//1.5;//5.0;
+    
+    float avg = playerRotationMean(n);
+    float avgRad = avg*M_PI*2/360.0;
+    //cout << avgRad << " and cos is " << cos(avgRad) << endl;
+    
+    float valueX = cos(avgRad)*changeX[n] - sin(avgRad)*changeZ[n];
+    float valueZ = sin(avgRad)*changeX[n] + cos(avgRad)*changeZ[n];
+    
+    float deltaX = stretchSize*abs(valueX);
+    float deltaY = stretchSize*abs(changeY[n]);
+    float deltaZ = stretchSize*abs(valueZ);
+
+    //cout << "newAngle is " << newAngle << endl;
   //cout << "avg is " << avg << endl;
   glRotatef(avg,0.0,1.0,0.0);
-  
+    // X/Z stretching included
+    glScalef(deltaX-(deltaY+deltaZ)/2+100,deltaY-(deltaX+deltaZ)/2+100,deltaZ-(deltaX+deltaY)/2+100);
+
+    // X/Z stretching NOT included
+    //glScalef(-(deltaY)/2+100,deltaY+100,-(deltaY)/2+100);
+    
+    //glScalef(10.0,100.0,100.0);
+    
   // And make player bigger
-  glScalef(100.0,100.0,100.0);
+  //glScalef(100.0,100.0,100.0);
+    // playerScaleX
 }
 
 // like angle mean, puts together all 
@@ -767,7 +849,9 @@ void drawPlayerOutline(int n) {
 
 // Call drawCube for as many times as there are cubes
 void drawAllCubes(int player) {
-  
+
+    bool drawTriangles = true;
+
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
     //glEnableClientState(GL_INDEX_ARRAY);
@@ -775,11 +859,19 @@ void drawAllCubes(int player) {
     // specify pointer to vertex array
     glColorPointer(3, GL_FLOAT, 0, superColors);
     glVertexPointer(3, GL_FLOAT, 0, superVertices);
-    glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
+    if (drawTriangles) {
+      glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
+    } else {
+        glDrawElements(GL_LINES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
+    }
     
     glColorPointer(3, GL_FLOAT, 0, topColors);
     glVertexPointer(3, GL_FLOAT, 0, topVertices);
-    glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    if (drawTriangles) {
+        glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    } else {
+        glDrawElements(GL_LINES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
+    }
     
     /*glColorPointer(3, GL_FLOAT, 0, ultimateColors);
     glVertexPointer(3, GL_FLOAT, 0, ultimateVertices);
@@ -1000,6 +1092,7 @@ void initVisuals() {
     playerDirection[i] = 0.0;
     lastChangeZ[i] = 0.0;
     cubiorShape[i].initCubiorVisuals(i);
+    cubiorShape[i].setSelf(getPlayer(i));
     updatePlayerGraphic(i);
   }
 
@@ -1059,6 +1152,7 @@ void initVisuals() {
         cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       }
       // Grab neighbors, position, and shadow for cube visual/shape object
+      cubeShape[i].setSelf(getCube(i));
       cubeShape[i].setNeighbors(getCube(i)->getVisibleNeighbors());
       cubeShape[i].setNeighborObjects(getCube(i)->getVisibleNeighborObjects());
       cubeShape[i].permanentPosition(cubeX[i], cubeY[i], cubeZ[i]);
@@ -1413,6 +1507,9 @@ void initFlat(int argc, char** argv) {
   glCullFace(GL_BACK); // This is odd, it should be GL_BACK. Camera must be inverted or something
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
   
+  // Enable shaders / init shaders
+    initShader((extraPath + "./shaders/vertex.vert").c_str(), (extraPath + "./shaders/fragment.frag").c_str());
+    
   // input
   glutKeyboardFunc(inputDown);
   glutKeyboardUpFunc(inputUp);
@@ -1435,6 +1532,9 @@ void initFlat(int argc, char** argv) {
 
   // Take input and start processing!
   glutMainLoop();
+    
+  // And once's it's all done, delete shaders
+  clean();
 }
 
 void updatePlayerGraphic(int n) {

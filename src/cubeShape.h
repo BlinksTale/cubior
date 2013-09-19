@@ -29,6 +29,7 @@ class CubeShape {
     const static bool useNeighbors = true;
     GLfloat myVertices[24], myColors[24], topColors[12];//, myShadowVertices[24];
     //GLfloat myShadowVertices[24];
+    CubeObj* selfObj;
   public:
     virtual GLubyte getIndex(int);
     virtual GLfloat getVertex(int);
@@ -56,6 +57,8 @@ class CubeShape {
     int getMaterial();
     bool sameNeighborsAs(bool[6]);
     bool atLeastAllNeighborsOf(bool[6]);
+    bool canRemove(CubeObj*);
+    void setSelf(CubeObj*);
 };
 
 #endif

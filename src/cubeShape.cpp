@@ -105,7 +105,8 @@ GLfloat CubeShape::getShadowVertex(int i) {
   return shadowVerts[i]*100 + ((i%3==0)? permanentX : (i%3==1)? permanentY : permanentZ);
 }
 
-void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarkness, bool alt, bool mid) {
+void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarknessOld, bool alt, bool mid) {
+    float colorDarkness = 0.0;
   midFloor = mid;
   alternatingSpot = alt;
   altDark = alternatingSpot * 0.125;
@@ -118,7 +119,7 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   b2 = nB - colorDarkness - altDark;
   r3 = nR2 - altDark;
   g3 = nG2 - altDark;
-  b3 = nB2 - altDark;
+  b3 = nB2 - altDark; 
 
   // Can just make a new array and transfer contents into myColors
   GLfloat newColors[] = { r1, g1, b1, // front top left
@@ -488,22 +489,27 @@ void CubeShape::setShadow(bool b) {
   }
 }
 
+// Check if materials match or visibility off
+bool CubeShape::canRemove(CubeObj* currentObj) {
+    return (currentObj->getMaterial() == material
+            && currentObj->getAlternatingSpot() == alternatingSpot
+            && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
+            && !currentObj->getDuplicateNeighbor());
+}
+
 // Check neighbors for like colors. Delete neighbor's indices and extend self if case found
 void CubeShape::removeDuplicateNeighbors() {
   // If we found a duplicate (neighbor to the right AND same color)
-  // WIP: Assume same color
+    if (false) {
+  // First, check X dimension (go right)
   CubeObj* currentObj = neighborObjects[0];
   int width = 1; // where we start, one cube wide
   if (neighbors[0]) {
     // Keep going after right side cubes until we hit one that doesn't match us 
     while (true) {//width < currentObj->getAlternatingSpotSize()/100) { // for right direction
-      if ( currentObj->getMaterial() == material
-        && currentObj->getAlternatingSpot() == alternatingSpot
-        && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
-        && !currentObj->getDuplicateNeighbor()) {
+      if ( this->canRemove(currentObj)) {
         // Extend self since duplicate found
         for (int i=0; i<24; i++) {
-          //vertices[i*3] = 0.0;
           if (i%6 == 0) {
             myVertices[i] += 100.0; // extend one to the right
           }
@@ -524,7 +530,9 @@ void CubeShape::removeDuplicateNeighbors() {
       }
     }
   }
-  // Next, check backwards!
+   }
+   /*
+  // Next, check Z dimension (go backwards!)
   CubeObj* oldCurrentObj = neighborObjects[4]; // use for removal process
   currentObj = oldCurrentObj; // use for search process
   int depth = 1; // start over with width again
@@ -539,11 +547,7 @@ void CubeShape::removeDuplicateNeighbors() {
       // Then make sure we can go right the same dist as our width!
       for (int i=0; i<width; i++) {
         if (stillTheSame) {
-          stillTheSame = stillTheSame
-            && currentObj->getMaterial() == material
-            && currentObj->getAlternatingSpot() == alternatingSpot
-            && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
-            && !currentObj->getDuplicateNeighbor();
+          stillTheSame = stillTheSame && this->canRemove(currentObj);
         }
         if (stillTheSame && currentObj->getVisibleNeighbors()[0]) {
           // Great! Now move along and make sure it's true for the next one too
@@ -586,6 +590,183 @@ void CubeShape::removeDuplicateNeighbors() {
       }
     }
   }
+    */
+    
+    /* Layout for three dimensional expansion */
+     
+     // check nextMaterial against lastMaterial with every step. If equal, continue. If not, bail out!
+     
+     int firstWidth = -1;
+     int firstDepth = -1;
+     int firstHeight= -1;
+     int maxWidth = 10;
+     int maxHeight = 10;
+     int maxDepth = 10;
+     CubeObj* currentObj = neighborObjects[0];
+     CubeObj* oldCurrentObj = neighborObjects[4];
+     CubeObj* oldOldCurrentObj = neighborObjects[2];
+    
+    if (true) {
+     /*int height = 0;
+     for (int h=1;h<maxHeight;h++) {
+        int depth=0;
+        //oldOldCurrentObj = currentObj;
+        for (int d=1;d<maxDepth;d++) {
+            int width=0;
+            //oldCurrentObj = currentObj;
+            for (int w=1;w<maxWidth;w++) {
+                // find max width
+                if (neighbors[0] && (firstWidth == -1 || w <= firstWidth) && currentObj && this->canRemove(currentObj)) {
+                    width=w;
+                    currentObj = currentObj->getVisibleNeighborObjects()[0];
+                } else {
+                    break;
+                }
+            }
+            if (firstWidth == -1) {
+                firstWidth = width;
+            }
+            // find max depth with this width
+            if (neighbors[4] && (firstDepth == -1 || d <= firstDepth) && width == firstWidth && oldCurrentObj && this->canRemove(oldCurrentObj)) {
+                depth=d;
+                //oldCurrentObj->setDuplicateNeighbor(true);
+                oldCurrentObj = oldCurrentObj->getVisibleNeighborObjects()[4];
+                currentObj = oldCurrentObj->getVisibleNeighborObjects()[0];
+            } else {
+                break;
+            }
+        }
+        // find max height with this width & depth
+        if (firstDepth == -1) {
+            firstDepth = depth;
+        }
+        if (false && neighbors[2] && depth == firstDepth && currentObj && this->canRemove(currentObj)) {
+            height=h;
+            //currentObj->setDuplicateNeighbor(true);
+            currentObj = currentObj->getVisibleNeighborObjects()[2];
+        } else {
+            break;
+        }
+    }*/
+        
+        // SECOND: Delete all duplicate neighbors along firstWidth/firstHeight/firstDepth
+        
+        // Then delete all duplicates in this newly confirmed row
+        
+        CubeObj* startingObj = selfObj;//neighborObjects[1]->getVisibleNeighborObjects()[0];
+        CubeObj* xObj = startingObj;
+        CubeObj* yObj = startingObj;
+        CubeObj* zObj = startingObj;
+        firstWidth = maxWidth;
+        firstHeight= maxHeight;
+        firstDepth = maxDepth;
+        //cout<< "stuck"<<endl;
+        
+        // whether we should even be trying to loop Z and X
+        bool worthY = true;
+        bool worthZ = true;
+        bool worthX = true;
+            int y = -1;
+            while (y < firstHeight && yObj && this->canRemove(yObj) && worthY) {
+                //cout<<"1"<<endl;
+                int z = -1;
+                worthY = false;
+                worthZ = true;
+                while (z < firstDepth && zObj && this->canRemove(zObj) && worthZ) {
+                    //cout<<"2"<<endl;
+                    int x = -1;
+                    worthZ = false;
+                    worthX = true;
+                    while (x < firstWidth && xObj && this->canRemove(xObj)/* && xObj->getVisibleNeighbors()[0] && !(xObj->getVisibleNeighborObjects()[0]->getDuplicateNeighbor())*/) {
+                        //cout<<"3"<<endl;
+                        xObj = xObj->getVisibleNeighborObjects()[0];
+                        x++;
+                        worthZ = true;
+                    }
+                    if (firstWidth == maxWidth) { firstWidth = x; }
+                    if (x == firstWidth/* && zObj->getVisibleNeighbors()[4] && !(zObj->getVisibleNeighborObjects()[4]->getDuplicateNeighbor())*/) {
+                        zObj = zObj->getVisibleNeighborObjects()[4];
+                        xObj = zObj;
+                        z++;
+                        worthZ = true;
+                    } else {
+                        break;
+                    }
+                }
+                worthY = worthZ;
+                if (firstDepth == maxDepth) { firstDepth = z; }
+                if (z == firstDepth/* && yObj->getVisibleNeighbors()[2] && !(yObj->getVisibleNeighborObjects()[2]->getDuplicateNeighbor())*/) {
+                    yObj = yObj->getVisibleNeighborObjects()[2];
+                    zObj = yObj;
+                    xObj = zObj;
+                    y++;
+                    worthY = true;
+                } else {
+                    break;
+                }
+            }
+            if (firstHeight == maxHeight) { firstHeight = y; }
+        
+        //cout<< "free"<<endl;
+        //cout << "Starting a loop for maxes " << firstWidth << "," << firstHeight << "," << firstDepth << endl;
+        yObj = startingObj;
+        zObj = yObj;
+        xObj = zObj;
+
+        for (int h=0; h<=firstHeight; h++) {
+            //oldCurrentObj = oldOldCurrentObj->getVisibleNeighborObjects()[4];
+            for (int d=0; d<=firstDepth; d++) {
+                //currentObj = oldCurrentObj->getVisibleNeighborObjects()[0];
+                //cout << "Gonna loop w" << endl;
+                for (int w=0; w<=firstWidth; w++) {
+                    if (w < firstWidth) {
+                        xObj = xObj->getVisibleNeighborObjects()[0];
+                        xObj->setDuplicateNeighbor(true);
+                        //cout << "xyz is " << w << "," << h << "," << d << endl;
+                    }
+                }
+                if (d < firstDepth) {
+                    zObj = zObj->getVisibleNeighborObjects()[4];
+                    zObj->setDuplicateNeighbor(true);
+                    xObj = zObj;
+                }
+            }
+            if (h < firstHeight) {
+                yObj = yObj->getVisibleNeighborObjects()[2];
+                yObj->setDuplicateNeighbor(true);
+                zObj = yObj;
+                xObj = zObj;
+            }
+        }
+        
+        // X
+        for (int i=0; i<24; i++) {
+            if (i%6 == 0) {
+                myVertices[i] += firstWidth*100.0; // extend one to the right
+            }
+        }
+        // Z
+        for (int i=0; i<24; i++) {
+            if (i%3 == 2 && i < 12) {
+                myVertices[i] += firstDepth*100.0; // extend one to the back
+            }
+        }
+        // Y
+        for (int i=0; i<24; i++) {
+            if (i % 12 == 1 || i % 12 == 4) {
+                myVertices[i] += firstHeight*100.0; // extend one to the top
+            }
+        }
+    }
+     
+     
+    /* */
+    
+    
+}
+
+void CubeShape::setSelf(CubeObj* newSelfObj) {
+    selfObj = newSelfObj;
 }
 
 void CubeShape::setMaterial(int i) {
@@ -606,6 +787,7 @@ bool CubeShape::sameNeighborsAs(bool newNeighbors[6]) {
 }
 
 // Compare all my neighbors to another set, but only need at least what it has
+// (this prevents cubes missing one side from sharing polygons with cubes not missing that side) 
 bool CubeShape::atLeastAllNeighborsOf(bool newNeighbors[6]) {
   bool result = true;
   for (int i=0; i<6; i++) {
