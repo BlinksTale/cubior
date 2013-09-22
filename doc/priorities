@@ -1,4 +1,17 @@
-Current priorities as of 12/6/12:
+Current priorities as of 9/20/13:
+
+IndieXChange Revisions (in order of significance)
+
+1. Locked-only camera (possibly moving if out of view), keep camera locked to some angle at all times
+2. Remove cave levels
+3. Gameplay depth. Buttons, gates, springs, doors, keys, extra collectibles
+4. Eliminate lag by switching maps to a dictionary, and not having a seperate array for collision
+5. Disable Tab button, remove from graphics
+6. Use alphabet!
+7. Networking comes after IndieXChange at this point I think.
+8. CubiWar mode? (credit to Mary on name) King of the Hill would be best. Yes, yes it would. Then territories?
+
+---
 
 Public Demo Revisions
 

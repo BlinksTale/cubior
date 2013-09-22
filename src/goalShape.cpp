@@ -18,7 +18,7 @@
 #include <iostream> // for cout
 
 void GoalShape::initGoalVisuals() {
-  colorDarkness = 0.4;
+    colorDarkness = 0.4;
   colorDefaultA = 0.4;
   colorDefaultR = 0.6;
   colorDefaultG = 0.0;

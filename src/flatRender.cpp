@@ -103,6 +103,7 @@ int lastTime5 = 0;
 int lastClock = clock();
 int lastFrame = lastClock;
 int averageDiff = 0;
+float shaderTime = 0.0;
 
 // Goal object's visual
 GoalShape goalShape;
@@ -183,31 +184,34 @@ unsigned int loadShader(string& source, unsigned int mode) {
     return id;
 }
 
-unsigned int vs, fs, program;
+const int shaderCount = 10;
+unsigned int vs[shaderCount], fs[shaderCount], program[shaderCount];
 
-void initShader(const char* vname, const char* fname) {
+void initShader(const char* vname, const char* fname, int i) {
     string source;
     loadFile(vname, source);
-    vs = loadShader(source, GL_VERTEX_SHADER);
+    vs[i] = loadShader(source, GL_VERTEX_SHADER);
     source="";
     loadFile(fname, source);
-    fs = loadShader(source, GL_FRAGMENT_SHADER);
+    fs[i] = loadShader(source, GL_FRAGMENT_SHADER);
     
-    program = glCreateProgram();
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
+    program[i] = glCreateProgram();
+    glAttachShader(program[i], vs[i]);
+    glAttachShader(program[i], fs[i]);
     
-    glLinkProgram(program);
-    glUseProgram(program);
+    glLinkProgram(program[i]);
+    glUseProgram(program[i]);
 }
 
 void clean()
 {
-    glDetachShader(program, vs);
-    glDetachShader(program, fs);
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-    glDeleteProgram(program);
+    for (int i=0; i<shaderCount; i++) {
+        glDetachShader(program[i], vs[i]);
+        glDetachShader(program[i], fs[i]);
+        glDeleteShader(vs[i]);
+        glDeleteShader(fs[i]);
+        glDeleteProgram(program[i]);
+    }
 }
 
 int getFPS() {
@@ -492,10 +496,21 @@ void displayFor(int player) {
   glRotatef(-1.0*cameraPointer[player]->getMeanAngleZ(),0.0,0.0,1.0);
   // then pull back and up to see cubes
   glTranslatef(-1.0*cameraPointer[player]->getMeanX(),-1.0*cameraPointer[player]->getMeanY(),-1.0*cameraPointer[player]->getMeanZ());
-  
+    
+  // About to draw scenery? Draw using special scenery style/shader
+  glUseProgram(program[1]);
+    
+    // Update time
+    GLint time = glGetUniformLocation(program[2], "time");
+    shaderTime += 0.05;
+    glUniform1f(time, shaderTime);
+    
   //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
   drawAllCubes(player);
-
+  
+  // Done drawing scenery? Start drawing default style again
+  glUseProgram(program[0]);
+    
   //cout << "Last half " << player << ":     \t\t" << getTimePassed() << endl;
   // Draw goal second to last since we want it in front of player for silhouette
   if (drawOutlines) { drawGoalOutline(); }
@@ -1015,13 +1030,12 @@ void renderLoop() {
   sfxLoop();
   
   musicLoop();
-
+    
   /*if (timing) {
     gettimeofday(&tim, NULL);
     int dTime3 = (tim.tv_sec+(tim.tv_usec/1.0));
     printf("gameplayLoop() time: %d\n",dTime3-dTime2);
   }*/
-  
   for (int i=0; i<cubiorNum; i++) {
     updatePlayerGraphic(i);
   }
@@ -1124,32 +1138,32 @@ void initVisuals() {
       cubeShape[i].setMaterial(getCube(i)->getMaterial());
       // Yellow color assigned
       if (getCube(i)->getMaterial()==9) {
-        cubeShape[i].initVisuals(0.95,1.00,0.50, 0.9,1.0,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.95,1.00,0.50, 0.9,1.0,0.5, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Polar color assigned
       if (getCube(i)->getMaterial()==8) {
-        cubeShape[i].initVisuals(1.0,1.00,1.0, 0.0,0.0,0.0, 1.0,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(1.0,1.00,1.0, 0.0,0.0,0.0, 0*1.0,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       }
       // Cave color assigned
       } else if (getCube(i)->getMaterial()==7) {
-        cubeShape[i].initVisuals(0.10,0.15,0.65, 0.20,0.10,0.55,0.25,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.10,0.15,0.65, 0.20,0.10,0.55,0*0.25,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Bridge color assigned
       } else if (getCube(i)->getMaterial()==6) {
-        cubeShape[i].initVisuals(0.80,0.52,0.25, 0.90,0.62,0.35, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.80,0.52,0.25, 0.90,0.62,0.35, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Canyon color assigned
       } else if (getCube(i)->getMaterial()==5) {
-        cubeShape[i].initVisuals(0.90,0.35,0.11, 1.0,0.58,0.41, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.90,0.35,0.11, 1.0,0.58,0.41, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Rock color assigned
       } else if (getCube(i)->getMaterial()==4) {
-        cubeShape[i].initVisuals(0.4,0.4,0.4, 0.5,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.4,0.4,0.4, 0.5,0.5,0.5, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Snow color assigned
       } else if (getCube(i)->getMaterial()==3) {
-        cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.87,0.87,1.00, 1.0,1.0,1.0, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Castle Wall color assigned
       } else if (getCube(i)->getMaterial()==2) {
-        cubeShape[i].initVisuals(0.52,0.62,0.54, 0.9,0.5,0.5, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.52,0.62,0.54, 0.9,0.5,0.5, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       // Grass color assigned as default
       } else {
-        cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
+        cubeShape[i].initVisuals(0.92,0.62,0.04, 0.0,0.9,0.0, 0*0.5,alternatingSpot,cubeY[i]<=0  && abs(cubeZ[i])!=playableWidth/2);
       }
       // Grab neighbors, position, and shadow for cube visual/shape object
       cubeShape[i].setSelf(getCube(i));
@@ -1508,7 +1522,10 @@ void initFlat(int argc, char** argv) {
   glEnable(GL_SCISSOR_TEST); // For splitscreen, must come after Window is created/Init'd
   
   // Enable shaders / init shaders
-    initShader((extraPath + "./shaders/vertex.vert").c_str(), (extraPath + "./shaders/fragment.frag").c_str());
+    initShader((extraPath + "./shaders/defaultShader.vert").c_str(), (extraPath + "./shaders/defaultShader.frag").c_str(), 0);
+    initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/sceneryShader.frag").c_str(), 1);
+    initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/waterfallShader.frag").c_str(), 2);
+    initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/outlineShader.frag").c_str(), 3);
     
   // input
   glutKeyboardFunc(inputDown);

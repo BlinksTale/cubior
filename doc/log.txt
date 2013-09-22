@@ -257,3 +257,14 @@ Ugly fix: adding one to the JoyY array fixes it.
 
 Problem with keyboard and joysticks sharing controls (p2 joystick joins, WASD stop working as camera for p1)
 Want: to save data on IP addresses, ala Terraria
+
+---
+9/19/13
+Problem with lag on 4p big castle still: even shaders don't fix this! The only cause of polygons now are the ridges for the walls. Other than that, we can have one per wall and it still lags.
+Fix: Possibly the array holding everything? Switch to a map/dictionary for this next. 
+
+---
+9/20/13
+todo: shader for cloud shadows moving across the ground? (maybe someday a shader for outlines around cubior)
+todo: hashmap/dictionary for cube map. This should help performance on big castle (or remove ridges?)
+todo:

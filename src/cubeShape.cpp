@@ -29,14 +29,15 @@
                         0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5 }; // v4,v7,v6,v5 (back)
 
 */
-GLfloat vertices[] = {  0.5, 0.5, 0.5, // 0 - front upper left
-                       -0.5, 0.5, 0.5, // 1 - front upper right
-                        0.5,-0.5, 0.5, // 2 - front lower left
-                       -0.5,-0.5, 0.5, // 3 - front lower right
-                        0.5, 0.5,-0.5, // 4 - rear upper left
-                       -0.5, 0.5,-0.5, // 5 - rear upper right
-                        0.5,-0.5,-0.5, // 6 - rear lower left
-                       -0.5,-0.5,-0.5  // 7 - rear lower right
+const float radius = 0.5 - 0.000001; // this difference helps checker tile coloring in the fragment shader
+GLfloat vertices[] = {  radius, radius, radius, // 0 - front upper left
+                       -radius, radius, radius, // 1 - front upper right
+                        radius,-radius, radius, // 2 - front lower left
+                       -radius,-radius, radius, // 3 - front lower right
+                        radius, radius,-radius, // 4 - rear upper left
+                       -radius, radius,-radius, // 5 - rear upper right
+                        radius,-radius,-radius, // 6 - rear lower left
+                       -radius,-radius,-radius  // 7 - rear lower right
                      };
 
 float sV = 0.45; // shadow vertex
@@ -106,9 +107,9 @@ GLfloat CubeShape::getShadowVertex(int i) {
 }
 
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarknessOld, bool alt, bool mid) {
-    float colorDarkness = 0.0;
+    float colorDarkness = colorDarknessOld;//0.0;
   midFloor = mid;
-  alternatingSpot = alt;
+    alternatingSpot = false;//alt;
   altDark = alternatingSpot * 0.125;
   // Nothing here yet! Colors are what distinguish Cubiors from Cubes atm
   r1 = nR - altDark;
@@ -492,7 +493,7 @@ void CubeShape::setShadow(bool b) {
 // Check if materials match or visibility off
 bool CubeShape::canRemove(CubeObj* currentObj) {
     return (currentObj->getMaterial() == material
-            && currentObj->getAlternatingSpot() == alternatingSpot
+            /*&& currentObj->getAlternatingSpot() == alternatingSpot*/
             && atLeastAllNeighborsOf(currentObj->getVisibleNeighbors())
             && !currentObj->getDuplicateNeighbor());
 }
@@ -599,9 +600,9 @@ void CubeShape::removeDuplicateNeighbors() {
      int firstWidth = -1;
      int firstDepth = -1;
      int firstHeight= -1;
-     int maxWidth = 10;
-     int maxHeight = 10;
-     int maxDepth = 10;
+     int maxWidth = 100;
+     int maxHeight= 100;
+     int maxDepth = 100;
      CubeObj* currentObj = neighborObjects[0];
      CubeObj* oldCurrentObj = neighborObjects[4];
      CubeObj* oldOldCurrentObj = neighborObjects[2];
