@@ -47,25 +47,25 @@ int altMax = 5;
 /* (they read the controller differently) */
 #ifdef __APPLE_CC__
 #ifdef PS3Controls
-// DS3 (PS3) controller support here
+// PS3 controller on Mac (buttonCount == 19, figure it out in joystickCommands?)
 int joinButtonNum = 0; // select
 int pauseButtonNum = 3; // start
 // These two disabled for now since camera button causes problems
 int cameraBumperButtonNum = -1;//10; // left bumper
 int cameraStickButtonNum = -1;//2; // right stick click down
 #else
-// 360 Controller support
+// 360 controller on Mac
 int joinButtonNum = 11 - 1;
 int pauseButtonNum = 10 - 1;
-int cameraBumperButtonNum = 14 - 1;
-int cameraStickButtonNum = 13 - 1;
+int cameraBumperButtonNum = -1;//14 - 1;
+int cameraStickButtonNum = -1;//13 - 1;
 #endif
 #else
 // 360 controller on Windows
 int joinButtonNum = 6;
 int pauseButtonNum = 7;
-int cameraBumperButtonNum = 4;
-int cameraStickButtonNum = 9;
+int cameraBumperButtonNum = -1;//4;
+int cameraStickButtonNum = -1;//9;
 #endif
 
 // For pressing start to see who goes first
@@ -460,12 +460,14 @@ void joystickAdditions(int joystick) {
 // Figure out all joystick input translations to key presses, for now
 void joystickCommands(int joystick) {
 	int i = controlsPlayer[joystick];//joystickNum(i);//
-  bool camButtonPressed = false;
+    bool camButtonPressed = false;
   
   // Accept any not-start-or-select button for jumping
 	jumpButton[i] = 0;
-  // Read in as many buttons as the joystick has
-	for (int b=0; b<sf::Joystick::getButtonCount(joystick); b++) {
+    // Read in as many buttons as the joystick has
+    int buttonCount = sf::Joystick::getButtonCount(joystick);
+	for (int b=0; b<buttonCount; b++) {
+        //cout << "Button count " << buttonCount << endl;
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
 		} else if (b == pauseButtonNum) { // Pause pauseButton

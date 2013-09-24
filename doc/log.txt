@@ -268,3 +268,15 @@ Fix: Possibly the array holding everything? Switch to a map/dictionary for this 
 todo: shader for cloud shadows moving across the ground? (maybe someday a shader for outlines around cubior)
 todo: hashmap/dictionary for cube map. This should help performance on big castle (or remove ridges?)
 todo:
+
+---
+9/22/13
+halfway through trying to remove freedom of camera movement
+commented out one line in CameraObj.cpp
+//updateJustFixedVisibility();
+and two chunks in gameplay.cpp, immediately under where it says
+// Finally, make camera catchup
+
+---
+9/23/13
+great, using automatedCamera instead. Now just auto-send a command for the nearest angle on finish of drop-in

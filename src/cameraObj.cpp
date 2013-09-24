@@ -19,6 +19,8 @@
 
 using namespace std;
 
+extern bool automatedCamera;
+
 // When true, camera will look between goal and player when player 
 // is near, so that only 2d navigation is required to reach the goal
 bool followBothEnabled = false;
@@ -50,7 +52,7 @@ CameraObj::CameraObj() {
 // Set to starting pos, start of a new level
 void CameraObj::resetPos() {
   // Start every reset by declaring a drop in
-  droppingIn = true;
+    droppingIn = true;
 
   if (permanentTarget) {
     x = permanentTarget->getX();
@@ -184,9 +186,43 @@ void CameraObj::checkCommandLock() {
   }
 }
 
+void CameraObj::checkCameraFreedom() {
+    // Finally in vertical range? (after dropping in)
+    if (droppingIn && (y - permanentTarget->getY() <= camHeight)) {
+        // No longer dropping in!
+        droppingIn = false;
+    }
+    
+    // And if player commanded, still in player command range?
+    if (playerCommandActive) {
+        checkCommandAngle();
+    }
+    
+    // And give freedom back if player moved away from just fixed location
+    updateJustFixedVisibility();
+    
+    // No reset locks on dropping in!
+    if (droppingIn && locksReset) { locksReset = false; }
+    
+    // Stuck dropping in, but still just within range-ish
+    // and a player command is sent? Eh, just follow the orders
+    if (droppingIn && (y - permanentTarget->getY() <= 1.5*camHeight) &&
+        (playerCenterCommand || playerMiddleCommand || playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand)) {
+        // No longer dropping in!
+        droppingIn = false;
+    }
+    
+    // Start middle command (for being aligned to nearest 45 degree angle) if dropping in and low enough
+    // (but only if camera is not automated)
+    if (droppingIn && (y - permanentTarget->getY() <= 1.95*camHeight) && !automatedCamera) {
+        setPlayerMiddleCommand(true);
+    }
+}
+
 // Make sure camera can move on its own will again
 void CameraObj::restoreCameraFreedom() {
     playerCommandActive = false;
+    playerMiddleCommand = false;
     playerLeftCommand = false;
     playerRightCommand = false;
     playerUpCommand = false;
@@ -554,6 +590,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
 void CameraObj::applyCommandAngle() {
   // No longer applying command to rotate to new angle
   playerCenterCommand = false;
+  playerMiddleCommand = false;
   playerLeftCommand = false;
   playerRightCommand = false;
   playerUpCommand = false;
@@ -593,95 +630,66 @@ bool CameraObj::getPlayerCommandActive() {
   return playerCommandActive;
 }
 
-// The most basic increment, called once per main loop/frame
-void CameraObj::tick() {
-  // If no attempt at camera command, sound can be played again
-  // but must be checked at start, since later code disables commands
-  if (!playerLeftCommand  && !playerRightCommand && 
-      !playerUpCommand && !playerDownCommand) {
+void CameraObj::checkSound() {
+    // If no attempt at camera command, sound can be played again
+    // but must be checked at start, since later code disables commands
+    if (!playerMiddleCommand && !playerLeftCommand  && !playerRightCommand &&
+        !playerUpCommand && !playerDownCommand) {
         
-    // If there were any player commands last time, now there are not!
-    if (playerCommandsLastTime) {
-      playerCommandsLastTime = false;
-    } else if (!haventPlayedFailSfx) {
-    // No commands this time AND none last time? Restore the sound
-      haventPlayedFailSfx = true;
+        // If there were any player commands last time, now there are not!
+        if (playerCommandsLastTime) {
+            playerCommandsLastTime = false;
+        } else if (!haventPlayedFailSfx) {
+            // No commands this time AND none last time? Restore the sound
+            haventPlayedFailSfx = true;
+        }
+    } else if (!playerCommandsLastTime) {
+        // If there were some commands though, now we record it
+        playerCommandsLastTime = true;
     }
-  } else if (!playerCommandsLastTime) {
-    // If there were some commands though, now we record it
-    playerCommandsLastTime = true;
-  }
+}
 
-  // If you are following one target every frame,
-  // (you usually are: the player)
-	if (permanentTarget) {
-    // make sure to update the item that's following the target
-	  tracker->tick();
-
-    // Finally in vertical range? (after dropping in)
-    if (y - permanentTarget->getY() <= camHeight) {
-      // No longer dropping in!
-      droppingIn = false;
-    }
+// Camera was told to center its commanded angle, so do so
+void CameraObj::applyCenterCommand() {
+    // Disable rotation commands
+    hasCommandedAngle = false; // none of the second highest commanded angels allowed
     
-    // And if player commanded, still in player command range?
-    if (playerCommandActive) {
-      checkCommandAngle();
-    }
-
-    // And give freedom back if player moved away from just fixed location
-    updateJustFixedVisibility();
-
-    // No reset locks on dropping in!
-    if (droppingIn && locksReset) { locksReset = false; } 
-
-    // Stuck dropping in, but still just within range-ish
-    // and a player command is sent? Eh, just follow the orders
-    if (droppingIn && (y - permanentTarget->getY() <= 1.5*camHeight) && 
-      (playerCenterCommand || playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand)) {
-      // No longer dropping in!
-      droppingIn = false;
-    }
-    
-    // Highest priority to player's orders
-    if (playerCenterCommand && !droppingIn) {
-      // Disable rotation commands
-      hasCommandedAngle = false; // none of the second highest commanded angels allowed
-      
-      // Told to recenter? Not matched up yet? Do so!
-      // but also must be a clear angle, no blocks in intended pos
-      if (!(matchAngleY(permanentTarget->getCamDirection())) &&
+    // Told to recenter? Not matched up yet? Do so!
+    // but also must be a clear angle, no blocks in intended pos
+    if (!(matchAngleY(permanentTarget->getCamDirection())) &&
         (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2)))) {
         applyMatchAngleY(permanentTarget->getCamDirection(),false);
-      // If not, be done!
-      } else {
+        // If not, be done!
+    } else {
         // Trigger sound
         setJustFocusedCamera(true);
         // Just fixed angle, so don't mess it up!
         applyJustFixedVisibility();
         // Just applied match angle, so don't mess it up either!
         applyCommandAngle();
-      }
-    // Second highest priority to player's other orders
-    } else if ((playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
-        int oldX = x;
-        int oldY = y;
-        int oldZ = z;
-      if (!hasCommandedAngle) {
+    }
+}
+
+// Camera was told to change its commanded angle, so do so
+void CameraObj::applyMovementCommand() {
+    int oldX = x;
+    int oldY = y;
+    int oldZ = z;
+    if (!hasCommandedAngle) {
         // Save old angle in case new one fails
         int oldCommandedAngleY = commandedAngleY;
-
+        
         int angleDelta = 45;
         commandedHyp = groundDistToPlayer();
         // in relation to current angle...
         commandedAngleY = angleY + 90; // +90 because -90 to 270 range causes problems
         // First, get to the closest angleDelta aligned angle
         if ((commandedAngleY) % angleDelta != 0) {
-          if ((commandedAngleY) % angleDelta >= angleDelta/2) {
-            commandedAngleY += angleDelta - (commandedAngleY % angleDelta);
-          } else {
-            commandedAngleY -= (commandedAngleY % angleDelta);
-          }
+            if ((commandedAngleY) % angleDelta >= angleDelta/2) {
+                commandedAngleY += angleDelta - (commandedAngleY % angleDelta);
+            } else {
+                commandedAngleY -= (commandedAngleY % angleDelta);
+            }
         }
         // Then make the rotation
         commandedAngleY += playerRightCommand*angleDelta - playerLeftCommand*angleDelta;
@@ -691,86 +699,110 @@ void CameraObj::tick() {
         camCommandedHeight += commandedHeightDiff*playerUpCommand - commandedHeightDiff*playerDownCommand;
         // If go past any caps, play fail sound
         if ((camCommandedHeight > commandedHeightDiff*2) || (camCommandedHeight <-commandedHeightDiff*2)) {
-          if (haventPlayedFailSfx) {
-            // Failure? Trigger error + turned sound
-            setJustTurnedCamera(true);
-            setJustFailedCamera(true);
-            haventPlayedFailSfx = false;
-          }
+            if (haventPlayedFailSfx) {
+                // Failure? Trigger error + turned sound
+                setJustTurnedCamera(true);
+                setJustFailedCamera(true);
+                haventPlayedFailSfx = false;
+            }
         }
         // Same caps: camCommandedHeight can't be more than double the dist of commandedHeightDiff in either direction
         if (camCommandedHeight > commandedHeightDiff*2) {
-          camCommandedHeight = commandedHeightDiff*2;
+            camCommandedHeight = commandedHeightDiff*2;
         }
         if (camCommandedHeight <-commandedHeightDiff*2) {
-          camCommandedHeight =-commandedHeightDiff*2;
+            camCommandedHeight =-commandedHeightDiff*2;
         }
         // Then, apply that height
         commandedHeight = permanentTarget->getY()+camCommandedHeight+camHeight;
         
         // Check if we can go to there
         if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
-          hasCommandedAngle = true;
-          
-          // Success? Trigger turn sound
-          setJustTurnedCamera(true);
-
-        } else {
-          hasCommandedAngle = false;
-          playerLeftCommand = false;
-          playerRightCommand = false;
-          playerUpCommand = false;
-          playerDownCommand = false;
-
-          x = oldX;
-          y = oldY;
-          z = oldZ;
-
-          // Restore old angle
-          commandedAngleY = oldCommandedAngleY;
-
-          if (haventPlayedFailSfx) {
-            // Failure? Trigger error + turned sound
+            hasCommandedAngle = true;
+            
+            // Success? Trigger turn sound
             setJustTurnedCamera(true);
-            setJustFailedCamera(true);
-            haventPlayedFailSfx = false;
-          }
+            
+        } else {
+            hasCommandedAngle = false;
+            playerMiddleCommand = false;
+            playerLeftCommand = false;
+            playerRightCommand = false;
+            playerUpCommand = false;
+            playerDownCommand = false;
+            
+            x = oldX;
+            y = oldY;
+            z = oldZ;
+            
+            // Restore old angle
+            commandedAngleY = oldCommandedAngleY;
+            
+            if (haventPlayedFailSfx) {
+                // Failure? Trigger error + turned sound
+                setJustTurnedCamera(true);
+                setJustFailedCamera(true);
+                haventPlayedFailSfx = false;
+            }
         }
-         
-      // Will only apply cam movement if it leads to an empty spot
-      // and it's an else since only applies if hasCommandedAngle
-      } else if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
+        
+        // Will only apply cam movement if it leads to an empty spot
+        // and it's an else since only applies if hasCommandedAngle
+    } else if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
         // Told to match a new commanded angle? Not matched up yet? Do so!
         if (!(matchAngleY(commandedAngleY)) || !(matchHeight(commandedHeight))) {
-          // One of these two? Alright! Try each!
-          if (!matchAngleY(commandedAngleY)) {
-            applyMatchAngleY(commandedAngleY,true);
-          }
-          if (!matchHeight(commandedHeight)) {
-            applyMatchHeight(commandedHeight,true);
-          }
-        // If not, be done!
+            // One of these two? Alright! Try each!
+            if (!matchAngleY(commandedAngleY)) {
+                applyMatchAngleY(commandedAngleY,true);
+            }
+            if (!matchHeight(commandedHeight)) {
+                applyMatchHeight(commandedHeight,true);
+            }
+            // If not, be done!
         } else {
-          // No longer an angle commanded to have
-          hasCommandedAngle = false;
-          // Just fixed angle, so don't mess it up!
-          applyJustFixedVisibility();
-          // Just applied match angle, so don't mess it up either!
-          applyCommandAngle();
-          
-          // But now, lock to the new commanded angle
-          freedom = false;
-          lockedToPlayer = true;
-          setLockedToPlayer(true);
+            // No longer an angle commanded to have
+            hasCommandedAngle = false;
+            // Just fixed angle, so don't mess it up!
+            applyJustFixedVisibility();
+            // Just applied match angle, so don't mess it up either!
+            applyCommandAngle();
+            
+            // But now, lock to the new commanded angle
+            freedom = false;
+            lockedToPlayer = true;
+            setLockedToPlayer(true);
         }
-      } else {
+    } else {
         // Can't get to new spot? Well then RIGHT HERE is your new final spot.
         // Deal with it. (actually just kills rest of attempts and says it's done)
         playerCommandAngle = angleY;
         playerCommandHeight = camHeight + camCommandedHeight;
-      }
+    }
+}
+
+// The most basic increment, called once per main loop/frame
+void CameraObj::tick() {
+    
+  // Restore sound freedoms
+  checkSound();
+
+  // If you are following one target every frame,
+  // (you usually are: the player)
+  if (permanentTarget) {
+    // make sure to update the item that's following the target
+    tracker->tick();
+
+    // Try to prep camera for restoring freedoms (fallin, lock, command, etc)
+    checkCameraFreedom();
+      
+    // Highest priority to player's orders
+    if (playerCenterCommand && !droppingIn) {
+        applyCenterCommand();
+    // Second highest priority to player's other orders
+    } else if ((playerMiddleCommand || playerLeftCommand || playerRightCommand || playerUpCommand || playerDownCommand) && !droppingIn) {
+        applyMovementCommand();
     // then move the camera itself if free to do so (or player commanded)
-    } else if (freeMovementState() || droppingIn) {
+    } else if ((freeMovementState()) || droppingIn) {
       applyFreeMovement();
     // Locked to player then? Keep up with them!
     } else if (playerCommandActive || (lockedToPlayer && locksReset && !justFixedVisibility && !playerCommandActive)) {
@@ -896,27 +928,27 @@ void CameraObj::betweenPlayerAndGoal() {
 
 // Check if you can even get to goal vertically
 bool CameraObj::goalWithinJumpRange() {
-  return abs(permanentTarget->getY() - permanentTargetGoal->getY()) < 500;
+  return automatedCamera && abs(permanentTarget->getY() - permanentTargetGoal->getY()) < 500;
 }
 
 // Check if you can even get to goal horizontally
 bool CameraObj::goalWithinDistRange() {
-  return distToGoal() < goalRange;
+  return automatedCamera  && distToGoal() < goalRange;
 }
 
 // Check if you cannot even get to goal horizontally
 bool CameraObj::goalOutsideDistRange() {
-  return distToGoal() > goalRange * 1.25;
+  return !automatedCamera || distToGoal() > goalRange * 1.25;
 }
 
 // Check if you are right underneath the goal
 bool CameraObj::goalWithinNearRange() {
-  return distToGoal() < goalRange * 0.25;
+  return automatedCamera && distToGoal() < goalRange * 0.25;
 }
 
 // Check if you aren't right underneath the goal
 bool CameraObj::goalOutsideNearRange() {
-  return distToGoal() > goalRange * 0.35;
+  return !automatedCamera || distToGoal() > goalRange * 0.35;
 }
 
 // Convert a diff in two dimensions to an angle
@@ -1146,7 +1178,7 @@ float CameraObj::followOne(float oldYToBe, int playerAngle, int num, int den) {
 
   // But if within goal range, *change* modes to look at player AND the goal
   // however, not if already locked to an axis
-  if (goalWithinDistRange() && goalWithinJumpRange()
+  if (automatedCamera && goalWithinDistRange() && goalWithinJumpRange()
     && !lockedToPlayer && !lockedToPlayerX && !lockedToPlayerZ) {
     // Figure out which side to follow from
     cameraSide = findFollowingBothSide(angleYToBe, angleY);
@@ -1161,7 +1193,7 @@ float CameraObj::followBoth(float oldYToBe) {
 
   float angleYToBe = oldYToBe;
   // if outside range...
-  if (goalOutsideDistRange() || !goalWithinJumpRange()) {
+  if (!automatedCamera || goalOutsideDistRange() || !goalWithinJumpRange()) {
     // stop following goal if no longer near it
     followingBoth = false;
   // if within range...
@@ -1371,6 +1403,9 @@ void CameraObj::setPlayerCommandActive(bool b) {
 }
 void CameraObj::setPlayerCenterCommand(bool b) { 
   if (playerCenterCommand != b) { playerCenterCommand = b; }
+}
+void CameraObj::setPlayerMiddleCommand(bool b) {
+    if (playerMiddleCommand != b) { playerMiddleCommand = b; }
 }
 void CameraObj::setPlayerLeftCommand(bool b) {
   if (playerLeftCommand != b)   { playerLeftCommand   = b; } 

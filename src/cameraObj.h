@@ -26,7 +26,7 @@ class CameraObj : public CubeObj {
     int currentCamSlot;
 
     // For cam controls
-    bool playerCenterCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
+    bool playerCenterCommand, playerMiddleCommand, playerLeftCommand, playerRightCommand, playerUpCommand, playerDownCommand;
     bool playerCommandActive; // whether still adhering to player set angle or not
     int playerCommandAngle; // so that we keep player's angle until we move outside it naturally
     int playerCommandHeight; // same goes for commanded height
@@ -88,7 +88,8 @@ class CameraObj : public CubeObj {
     
     void applyJustFixedVisibility(); // first time setup when establishing that we just fixed it
     void updateJustFixedVisibility(); // ensure we do start moving again if needed
-    void checkCommandLock(); // freedom from player command if new type of angle request 
+    void checkCommandLock(); // freedom from player command if new type of angle request
+    void checkCameraFreedom(); // return freedom to variables that need it before camera can be free
     void restoreCameraFreedom(); // return freedom to camera after player control is done
     bool freeMovementState(); // returns if Option 1 or not
     void applyFreeMovement();
@@ -107,6 +108,9 @@ class CameraObj : public CubeObj {
     void applyCommandAngle();
     void checkCommandAngle();
     bool getPlayerCommandActive();
+    void checkSound();
+    void applyCenterCommand();
+    void applyMovementCommand();
 
     bool getSnapLock();
     void snapLock();
@@ -227,6 +231,7 @@ class CameraObj : public CubeObj {
     // Set camera commands
     void setPlayerCommandActive(bool);
     void setPlayerCenterCommand(bool);
+    void setPlayerMiddleCommand(bool);
     void setPlayerLeftCommand(bool);
     void setPlayerRightCommand(bool);
     void setPlayerUpCommand(bool);

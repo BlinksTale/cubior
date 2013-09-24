@@ -531,8 +531,12 @@ void displayFor(int player) {
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
   
-  
-  
+    
+  // Then draw all shadows in order of height!
+  drawAllShadows(player);
+
+  // Switch to "no shader" for menus
+  glUseProgram(0);
   int n; // errors if not declared before if statement
   if (!getGameplayRunning() && getLastPause() == -1) {
     // Vars for all menu bitmap text
@@ -596,9 +600,8 @@ void displayFor(int player) {
     }
   }
 
-  // Then draw all shadows in order of height!
-  drawAllShadows(player);
-  
+    // Shadows used to be here... moved now to up above.
+    
   // Print fullscreen FPS
   if (printFPS && fullscreen) {
     int n;
@@ -1526,6 +1529,8 @@ void initFlat(int argc, char** argv) {
     initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/sceneryShader.frag").c_str(), 1);
     initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/waterfallShader.frag").c_str(), 2);
     initShader((extraPath + "./shaders/sceneryShader.vert").c_str(), (extraPath + "./shaders/outlineShader.frag").c_str(), 3);
+  // Finish shaders by resetting current program
+  glUseProgram(0);
     
   // input
   glutKeyboardFunc(inputDown);

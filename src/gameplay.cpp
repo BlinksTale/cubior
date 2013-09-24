@@ -29,6 +29,8 @@
 
 using namespace std;
 
+bool automatedCamera = false; // (don't try to move the camera automatrically unless specified)
+
 bool cubiorPlaying[cubiorCount];// = {false,false,false,false};
 bool cubiorOnline[cubiorCount];
 bool goodCollision = true;
@@ -567,49 +569,22 @@ void gameplayLoop() {
     for (int i=0; i<cubiorCount; i++) {
   	  if (changeLevel) { break; }
 	    if (cubiorPlaying[i]){
-        
-        //cout << "for-loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
 
-        // Only try to compare camera to walls for angles if not recently player commanded
-        //if (!camera[i].getPlayerCommandActive()) {
-        // No longer true! New camera command system means we should always check
-        checkCameraAgainstWalls(i);
-        //}
+        // Always check that camera isn't inside walls
+        //checkCameraAgainstWalls(i);
 
-        //cout << "pre-tick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
         // Basic setup
         camera[i].tick();
-        //cout << "CURRENT radiansAngleY " << camera[i].getRadiansAngleY() << endl;
-        //cout << "posttick: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-        
+        /*
         // So long as no intendedPos, locked to player, or commanded, try collision
-        bool checkCameraCollision = !camera[i].getFoundIntendedPos();/* || camera[i].getLockedToPlayer()
-           || camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayerZ()
-           || camera[i].getPlayerCommandActive();*/
-        if (checkCameraCollision) {
-          // And bounce off walls if colliding
-          cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
-          camera[i].setCameraStatus(true);
-          // using cameraCube here since a lack thereof make camera's collision stop working 
-          int cX = getCollisionMapSlot(&camera[i],0);
-          int cY = getCollisionMapSlot(&camera[i],1);
-          int cZ = getCollisionMapSlot(&camera[i],2);
-          if (goodCollision) {
-            explodingDiamondCollision(&camera[i],permanentMap,cX,cY,cZ);
-            explodingDiamondCollision(&camera[i],collisionMap,cX,cY,cZ);
-          } else {
-            unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
-            unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
-          }
-          //camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
+        if (!camera[i].getFoundIntendedPos()) {
+            checkCameraCubeCollision(i);
         }
         // If not in goal's range, ensure visibility
-        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){// &&
-           //(!xNear[i] && !xFar[i] && !zNear[i] && !zFar[i])) {
-        //cout << "Check visibility"<<endl;
+        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){
           ensurePlayerVisible(i);
         }
-        
+        */
       }
     }
 
@@ -635,8 +610,7 @@ void gameplayLoop() {
       goal.resetGlowCount();
     }
   }
-  //cout << "end-loop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
-  
+
   // Lastly, network stuff!
     
   // Networking anytime loop
@@ -657,7 +631,7 @@ void gameplayLoop() {
       }
     }
   }
-  //cout << endl;
+  
   // Networking gameplay loop
   if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
     
@@ -694,8 +668,27 @@ void gameplayLoop() {
             cubior[i].setToldDirection(getDirection(i));
         }
     }
-    //cout << endl;
+    
   }
+}
+
+// Use the camera cube to check for collision against the map
+void checkCameraCubeCollision(int i) {
+    // And bounce off walls if colliding
+    cameraCube.setPos(camera[i].getX(),camera[i].getY(),camera[i].getZ());
+    camera[i].setCameraStatus(true);
+    // using cameraCube here since a lack thereof make camera's collision stop working
+    int cX = getCollisionMapSlot(&camera[i],0);
+    int cY = getCollisionMapSlot(&camera[i],1);
+    int cZ = getCollisionMapSlot(&camera[i],2);
+    if (goodCollision) {
+        explodingDiamondCollision(&camera[i],permanentMap,cX,cY,cZ);
+        explodingDiamondCollision(&camera[i],collisionMap,cX,cY,cZ);
+    } else {
+        unintelligentCollision(&camera[i],permanentMap,cX,cY,cZ);
+        unintelligentCollision(&camera[i],collisionMap,cX,cY,cZ);
+    }
+    //camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
 }
 
 // See if you can line the camera up against a wall
@@ -744,72 +737,53 @@ void checkCameraAgainstWalls(int i) {
       }
     }
   }
-  //cout << "for3loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-  //cout << "walls? " << (!camera[i].goalWithinJumpRange()) << (camera[i].goalOutsideDistRange()) << xNear[i] << xFar[i] << zNear[i] << zFar[i] << endl;
+
   // Do not try to adjust for walls if in goal range
   if (playerVisible(i) &&
     // must also either already be locked
-    (camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayer() || camera[i].getLockedToPlayerZ() ||
+    (camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayer() || camera[i].getLockedToPlayerZ() /*||
     // or not be in goal range
-    !camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())) &&
+    !camera[i].goalWithinJumpRange() || (camera[i].goalOutsideDistRange())*/) &&
     // Then also, can't be told to not move, and must have a wall or space to align to
     !camera[i].getJustFixedVisibility() && (xNear[i] || xFar[i] || zNear[i] || zFar[i])) {
-    //cout << "Good!" << endl;
-      //cout << "ARE WE EVEN TRYING? current locked to x is " << xNear[i] << endl;
+
     camera[i].tryingXNear(false);
     camera[i].tryingXFar(false);
     camera[i].tryingZNear(false);
     camera[i].tryingZFar(false);
     float targetAngle = 0;
-    //cout << "x locked is " << camera[i].getLockedToPlayerX() << " while z locked is " << camera[i].getLockedToPlayerZ() << endl;
+
     // xNear wins
-    //cout << "for4loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
     if (xNear[i] >= xFar[i] && xNear[i] >= zFar[i] && xNear[i] >= zNear[i]) {
-      //cout << "xNear" << endl;
       camera[i].tryingXNear(true);
       targetAngle = 0;
       if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
         rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
       } else if (!camera[i].getLockedToPlayerX()) {
         camera[i].setLockedToPlayerX(true);
-        //cout << "Setting locked to x" << endl;
       }
     // xFar wins
     } else if (xFar[i] >= xNear[i] && xFar[i] >= zFar[i] && xFar[i] >= zNear[i]) {
-    //cout << "for5loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-      //cout << "xFar" << endl;
       camera[i].tryingXFar(true);
       targetAngle = M_PI;
       if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
         rotateToAngle(i,M_PI,camera[i].groundDistToPlayer());
       } else if (!camera[i].getLockedToPlayerX()) {
         camera[i].setLockedToPlayerX(true);
-        //cout << "Setting locked to x" << endl;
       }
     } else if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
-    //cout << "for6loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
     // zNear wins
     if (zNear[i] >= xFar[i] && zNear[i] >= zFar[i] && zNear[i] >= xNear[i]) {
-      //cout << "zNear" << endl;
       camera[i].tryingZNear(true);
-      //cout << "zNear chosen" << endl;
       targetAngle = 1.0/2*M_PI;
       if (abs(targetAngle - camera[i].getRadiansAngleY())>0.04) {
-        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
         rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
       } else if (!camera[i].getLockedToPlayerZ()) {
         camera[i].setLockedToPlayerZ(true); 
-        //cout << "Setting locked to z" << endl;
       }
     // zFar wins
     } else if (zFar[i] >= xFar[i] && zFar[i] >= xNear[i] && zFar[i] >= zNear[i]) {
-    //cout << "for7loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-    //cout << "It happens here" << endl;
-      //cout << "zFar" << endl;
       camera[i].tryingZFar(true);
-      //cout << "zFar chosen" << endl;
       // to figure out which direction to rotate towards
       int targetX = camera[i].getPermanentTarget()->getX();
       int targetZ = camera[i].getPermanentTarget()->getZ();
@@ -824,24 +798,15 @@ void checkCameraAgainstWalls(int i) {
       while (targetAngle < camera[i].getRadiansAngleY() - M_PI) { targetAngle += 2*M_PI; }
       while (targetAngle > camera[i].getRadiansAngleY() + M_PI) { targetAngle -= 2*M_PI; }
       if (abs(targetAngle - camera[i].getRadiansAngleY())>0.07) {
-        //cout << "trying by targetAngle is " << targetAngle << " and camera is " << camera[i].getRadiansAngleY() << endl;
         rotateToAngle(i,targetAngle,camera[i].groundDistToPlayer());
       } else if (!camera[i].getLockedToPlayerZ()) {
         camera[i].setLockedToPlayerZ(true);
-        //cout << "Setting locked to z" << endl;
       }
     } else if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
-    //cout << "for8loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-    //cout << "targetAngle " << targetAngle << endl;
-    //cout << "angleY " << camera[i].getRadiansAngleY() << endl;
-    //cout << "abs(angleY - target) = " << abs(targetAngle - camera[i].getRadiansAngleY()) << endl;
   } else {
-    //cout << "for9loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
-    //cout << "Nada" << endl;
     if (camera[i].getLockedToPlayer())  { camera[i].setLockedToPlayer(false); }
     if (camera[i].getLockedToPlayerX()) { camera[i].setLockedToPlayerX(false); }
     if (camera[i].getLockedToPlayerZ()) { camera[i].setLockedToPlayerZ(false); }
-    //cout << "for0loop: camera[i] pos is " << camera[i].getX() << ", " << camera[i].getY() << ", " << camera[i].getZ() << endl;
   }
 }
 
@@ -1100,7 +1065,7 @@ bool playerRegularlyVisible(int i) {
   playerVisibleSlot++;
   if (playerVisibleSlot >= playerVisibleMax) { playerVisibleSlot = 0; }
   // Must be visible half the time or more
-  return (sum >= playerVisibleMax/2); 
+  return !automatedCamera || (sum >= playerVisibleMax/2); 
 }
 // Gives player non-visibility
 bool playerVisible(int i) {
@@ -1109,7 +1074,7 @@ bool playerVisible(int i) {
   // then return the newly updated results
   bool result = camera[i].getLOS();
   lastPlayerVisible[i] = result;
-  return  result;
+  return  !automatedCamera || result;
 }
 
 // Gives last result for playerVisible
@@ -1213,9 +1178,9 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     int cY = getCollisionMapSlot(&cubior[i],1);
     int cZ = getCollisionMapSlot(&cubior[i],2);  
     #ifdef newPermanentMap
-      if (playerVisible(i) && (permanentMap->getCubeAt(cX,cY,cZ) == NULL || permanentMap->getCubeAt(cX,cY,cZ)->isInvisible())) {
+      if (!automatedCamera || (playerVisible(i) && (permanentMap->getCubeAt(cX,cY,cZ) == NULL || permanentMap->getCubeAt(cX,cY,cZ)->isInvisible()))) {
     #else
-        if (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible())) {
+        if (!automatedCamera || (playerVisible(i) && (permanentMap[cX][cY][cZ] == NULL || permanentMap[cX][cY][cZ]->isInvisible()))) {
     #endif
       // FIXME: I'm guessing this seemingly unneccessary tick is causing issues
       // since the camera kind of jumps when it starts to readjust every angle
@@ -1224,7 +1189,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
       //cout << "Found a fix! (might not be perfect)" << endl;
            
       // Next, test if it is also a straight shot from the current camera
-      if (checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
+      if (!automatedCamera || checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
 
         //cout << "Actually, it is perfect!" << endl;
         // Found a straight shot? Remember it and stop looking for anything better!
@@ -1239,7 +1204,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         int doubleNewZ = targetZ + hyp*sin(M_PI+doubleNewAngle);
         cameraCube.setPos(doubleNewX,camera[i].getY(),doubleNewZ);
         camera[i].setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());
-        if (playerVisible(i) && checkPathVisibility(&cameraCube,&oldCamera, permanentMap)) {
+        if (!automatedCamera || (playerVisible(i) && checkPathVisibility(&cameraCube,&oldCamera, permanentMap))) {
           intendedPos.setPos(cameraCube.getX(),cameraCube.getY(),cameraCube.getZ());          
         }
         
