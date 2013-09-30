@@ -1,0 +1,17 @@
+9/29/13
+Cubior level design:
+(level editor url? http://www.asciipaint.com )
+
+Current level mechanics:
+climbing forwards
+platforming sideways/along a wall
+
+Axed level mechanics:
+tunnels (most because big-tunnels failed. Are short tunnels doable? Ehh... nut currently)
+
+Maybe axe:
+Big levels in general, medium large being the biggest
+
+New level mechanics:
+floating platforms/3d platforming
+follow-the-path (high up, a maze of space)

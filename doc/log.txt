@@ -280,3 +280,7 @@ and two chunks in gameplay.cpp, immediately under where it says
 ---
 9/23/13
 great, using automatedCamera instead. Now just auto-send a command for the nearest angle on finish of drop-in
+
+---
+9/24/13
+do something like moveToPlayer in gameplay.cpp, but do it only to a certain range, and constantly

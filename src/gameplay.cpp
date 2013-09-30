@@ -30,6 +30,7 @@
 using namespace std;
 
 bool automatedCamera = false; // (don't try to move the camera automatrically unless specified)
+bool zoomingCamera = false; // whether the camera maintains a clear LOS by zooming or not
 
 bool cubiorPlaying[cubiorCount];// = {false,false,false,false};
 bool cubiorOnline[cubiorCount];
@@ -571,20 +572,33 @@ void gameplayLoop() {
 	    if (cubiorPlaying[i]){
 
         // Always check that camera isn't inside walls
-        //checkCameraAgainstWalls(i);
+        if (automatedCamera) {
+            checkCameraAgainstWalls(i);
+        }
 
         // Basic setup
         camera[i].tick();
-        /*
-        // So long as no intendedPos, locked to player, or commanded, try collision
-        if (!camera[i].getFoundIntendedPos()) {
-            checkCameraCubeCollision(i);
+        
+        if (automatedCamera) {
+            // So long as no intendedPos, locked to player, or commanded, try collision
+            if (!camera[i].getFoundIntendedPos()) {
+                checkCameraCubeCollision(i);
+            }
+            // If not in goal's range, ensure visibility
+            if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){
+                ensurePlayerVisible(i);
+            }
         }
-        // If not in goal's range, ensure visibility
-        if ((camera[i].goalOutsideDistRange() || !camera[i].goalWithinJumpRange()) ){
-          ensurePlayerVisible(i);
+            
+        // If using a zooming camera, constantly and instantly zoom to visibility
+        if (zoomingCamera) {
+            if (!playerVisible(i)) {
+                //cout << "NOT" << endl;
+                moveToPlayer(i);
+            } else {
+                //cout << "ok" << endl;
+            }
         }
-        */
       }
     }
 
@@ -715,7 +729,7 @@ void checkCameraAgainstWalls(int i) {
         
   // Only look for new walls if not moving much, not dropping in, and no recent player camera commands
   if (!cubior[i].isMovingQuickly() && !cameraDroppingIn[i]) {
-    if (playerVisible(i)) {
+    if (!automatedCamera || playerVisible(i)) { // not sure what's automated here
       if (cubior[i].getStillGrounded()) {
     // Keep track of how often each direction is requested.
     xFar[i] = 0, xNear[i] = 0, zFar[i] = 0, zNear[i] = 0;
@@ -739,7 +753,7 @@ void checkCameraAgainstWalls(int i) {
   }
 
   // Do not try to adjust for walls if in goal range
-  if (playerVisible(i) &&
+  if ((!automatedCamera || playerVisible(i)) && // automates a stopper on command rotating camera into a wall
     // must also either already be locked
     (camera[i].getLockedToPlayerX() || camera[i].getLockedToPlayer() || camera[i].getLockedToPlayerZ() /*||
     // or not be in goal range
@@ -1065,7 +1079,7 @@ bool playerRegularlyVisible(int i) {
   playerVisibleSlot++;
   if (playerVisibleSlot >= playerVisibleMax) { playerVisibleSlot = 0; }
   // Must be visible half the time or more
-  return !automatedCamera || (sum >= playerVisibleMax/2); 
+  return (sum >= playerVisibleMax/2); 
 }
 // Gives player non-visibility
 bool playerVisible(int i) {
@@ -1074,7 +1088,7 @@ bool playerVisible(int i) {
   // then return the newly updated results
   bool result = camera[i].getLOS();
   lastPlayerVisible[i] = result;
-  return  !automatedCamera || result;
+  return  result;
 }
 
 // Gives last result for playerVisible

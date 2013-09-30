@@ -41,31 +41,40 @@ int altFrame = 0;
 int altMax = 5;
 
 // temp var until we can detect PS3 controllers
-#define PS3Controls true
+//#define PS3Controls true
+#define GameCubeControls true
 #define cameraButtonDisabled true
 /* Change which 360 buttons we use on Mac vs PC */
 /* (they read the controller differently) */
 #ifdef __APPLE_CC__
-#ifdef PS3Controls
-// PS3 controller on Mac (buttonCount == 19, figure it out in joystickCommands?)
-int joinButtonNum = 0; // select
-int pauseButtonNum = 3; // start
-// These two disabled for now since camera button causes problems
-int cameraBumperButtonNum = -1;//10; // left bumper
-int cameraStickButtonNum = -1;//2; // right stick click down
+    #ifdef PS3Controls
+        // PS3 controller on Mac (buttonCount == 19, figure it out in joystickCommands?)
+        int joinButtonNum = 0; // select
+        int pauseButtonNum = 3; // start
+        // These two disabled for now since camera button causes problems
+        int cameraBumperButtonNum = -1;//10; // left bumper
+        int cameraStickButtonNum = -1;//2; // right stick click down
+    #else // Not PS3, try the other two
+        #ifdef GameCubeControls
+            // GameCube controller on Mac (buttonCount == 16)
+            int joinButtonNum = 3;//3 is Y button;
+            int pauseButtonNum = 9;//9 is start;
+            int cameraBumperButtonNum = -1;//
+            int cameraStickButtonNum = -1;//
+        #else
+            // 360 controller on Mac
+            int joinButtonNum = 11 - 1;
+            int pauseButtonNum = 10 - 1;
+            int cameraBumperButtonNum = -1;//14 - 1;
+            int cameraStickButtonNum = -1;//13 - 1;
+        #endif
+    #endif
 #else
-// 360 controller on Mac
-int joinButtonNum = 11 - 1;
-int pauseButtonNum = 10 - 1;
-int cameraBumperButtonNum = -1;//14 - 1;
-int cameraStickButtonNum = -1;//13 - 1;
-#endif
-#else
-// 360 controller on Windows
-int joinButtonNum = 6;
-int pauseButtonNum = 7;
-int cameraBumperButtonNum = -1;//4;
-int cameraStickButtonNum = -1;//9;
+    // 360 controller on Windows
+    int joinButtonNum = 6;
+    int pauseButtonNum = 7;
+    int cameraBumperButtonNum = -1;//4;
+    int cameraStickButtonNum = -1;//9;
 #endif
 
 // For pressing start to see who goes first
@@ -219,7 +228,7 @@ void playerPause(int p, bool newBool, bool keyboardBool) {
         setJustPaused(true);
 		    lastPause = p;
       } else {
-        cout << "Joining " << p << endl;
+        //cout << "Joining " << p << endl;
         // Otherwise, join
         playerDirectJoin(p, keyboardBool);
       }
@@ -467,18 +476,25 @@ void joystickCommands(int joystick) {
     // Read in as many buttons as the joystick has
     int buttonCount = sf::Joystick::getButtonCount(joystick);
 	for (int b=0; b<buttonCount; b++) {
-        //cout << "Button count " << buttonCount << endl;
+        cout << "Button count " << buttonCount << endl;
 		if (b == joinButtonNum) { // Join joinButton
 			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
 		} else if (b == pauseButtonNum) { // Pause pauseButton
 			playerPause(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
 		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
-      // If either is pressed, add that to camButtonPressed
-      // so we only send one call later
-      camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
-    } else { // All unestablish buttons == jumpButton!
+            // If either is pressed, add that to camButtonPressed
+            // so we only send one call later
+            camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
+        } else { // All unestablish buttons == jumpButton!
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
-    }
+            //if (sf::Joystick::isButtonPressed(joystick,b)) {
+            //    cout << "Pressed button " << b << endl;
+            //}
+        }
+        bool buttonB = sf::Joystick::isButtonPressed(joystick,b);
+        if (buttonB) {
+            //cout << "Pressed button " << b << " is " << buttonB << endl;
+        }
 	}
   if (i >= 0 && i < localPlayerCount) {
   // Cam button stuff
@@ -497,7 +513,11 @@ void joystickCommands(int joystick) {
   #ifdef PS3Controls
     int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
   #else
-    int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+    #ifdef GameCubeControls
+      int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+    #else
+      int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+    #endif
   #endif
     
   // Right joystick Y
@@ -505,7 +525,11 @@ void joystickCommands(int joystick) {
   #ifdef PS3Controls
     int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
   #else
-  int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+    #ifdef GameCubeControls
+      int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
+    #else
+      int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+    #endif
   #endif
   #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
