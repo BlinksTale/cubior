@@ -18,7 +18,7 @@ const int maxWidth = playableWidth + mapEdge*2;
 const int maxHeight= playableHeight + mapEdge*2;
 const int maxDepth = playableDepth + mapEdge*2;
 const int tileSize = 100;
-const int totalLevels = 6;// 12; // for now, update this when new levels are added
+const int totalLevels = 6;// 12; // hard limit for now, want it to just read levels in order once finished
 const int padding = 2;
 
 #endif 

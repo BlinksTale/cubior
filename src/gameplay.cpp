@@ -30,7 +30,8 @@
 using namespace std;
 
 bool automatedCamera = false; // (don't try to move the camera automatrically unless specified)
-bool zoomingCamera = false; // whether the camera maintains a clear LOS by zooming or not
+bool zoomingCamera = true; // whether the camera maintains a clear LOS by zooming or not
+bool zoomingCameraRightNow = false;
 
 bool cubiorPlaying[cubiorCount];// = {false,false,false,false};
 bool cubiorOnline[cubiorCount];
@@ -593,10 +594,16 @@ void gameplayLoop() {
         // If using a zooming camera, constantly and instantly zoom to visibility
         if (zoomingCamera) {
             if (!playerVisible(i)) {
-                //cout << "NOT" << endl;
+                cout << "NOT" << endl;
                 moveToPlayer(i);
+                zoomingCameraRightNow = true;
+            } else if (zoomingCameraRightNow) {
+                cout << "Found" << endl;
+                // Set this as camera's new intended/commanded distance
+                camera[i].resetLOSDist();
+                zoomingCameraRightNow = false;
             } else {
-                //cout << "ok" << endl;
+                cout << "ok" << endl;
             }
         }
       }

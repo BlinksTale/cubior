@@ -34,7 +34,7 @@ class CameraObj : public CubeObj {
 
     static const int camHeight = 600, goalRange = 800, camSpeed = 30, intendedStuckMax = 2;
     int camCommandedHeight;
-    int farthestDist, closestDist, idealDist, lastLandedY, cameraSide,
+    int farthestDist, closestDist, idealDist, losDist, lastLandedY, cameraSide,
            visibleIntendedCount, lastDistToIntended, intendedStuckCount;
     bool lastLanded, followingBoth, nearGoal, los, backupFreedom;
 
@@ -241,6 +241,9 @@ class CameraObj : public CubeObj {
     void tryingXFar(bool);
     void tryingZNear(bool);
     void tryingZFar(bool);
+    
+    void setLOSDist(int);
+    void resetLOSDist();
 };
 
 #endif 

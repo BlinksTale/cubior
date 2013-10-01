@@ -20,6 +20,7 @@
 using namespace std;
 
 extern bool automatedCamera;
+bool firstSoundEffect;
 
 // When true, camera will look between goal and player when player 
 // is near, so that only 2d navigation is required to reach the goal
@@ -37,11 +38,13 @@ CameraObj::CameraObj() {
   haventPlayedFailSfx = true; // ready to make a fail sound!
   playerCommandsLastTime = false; // start with no history of player commands
   camCommandedHeight = 0; // no commands to height at start
-
+    firstSoundEffect = true; // we skip the first sound effect, then disable this
+    
   // To cycle through camPos arrays
   currentCamSlot = 0;
     
   idealDist = (farthestDist+closestDist)/2;
+  losDist = 0; // distance from a new found line of sight
   tracker = new TrackerObj();
   followingBoth = false; // Start by just following cube, not also goal
   nearGoal = false; // inherently won't start right under the goal
@@ -478,9 +481,10 @@ bool CameraObj::matchHeight(int targetHeight) {
 // Give an angle and dimension, get its matching pos from player
 int CameraObj::getMatchingPos(int angleToMatch, int d) {
   if (d==1) { return permanentTarget->getY()+camHeight+camCommandedHeight; }
+  int relevantDist = losDist != 0 ? losDist : idealDist;
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
-  int deltaX = cos(M_PI+(targetAngle*2*M_PI)/360.0)*idealDist;
-  int deltaZ = sin(M_PI+(targetAngle*2*M_PI)/360.0)*idealDist;
+  int deltaX = cos(M_PI+(targetAngle*2*M_PI)/360.0)*relevantDist;
+  int deltaZ = sin(M_PI+(targetAngle*2*M_PI)/360.0)*relevantDist;
   int intendedX = permanentTarget->getX() + deltaX;
   int intendedZ = permanentTarget->getZ() + deltaZ;
   if (d==0) { return intendedX; }
@@ -511,7 +515,7 @@ void CameraObj::applyMatchHeight(int targetHeight, bool smoothly) {
   }
     
   // If we can actually get there without issue, allow it
-  if (freeSpaceAt(x, newY, z)) {
+  if (!automatedCamera || freeSpaceAt(x, newY, z)) {
     // Update pos
     setPos(x, newY, z);
   } else {
@@ -565,7 +569,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
   int intendedZ = permanentTarget->getZ() + deltaZ;
 
   // If we can actually get there without issue, allow it
-  if (freeSpaceAt(intendedX, y, intendedZ)) {
+  if (!automatedCamera || freeSpaceAt(intendedX, y, intendedZ)) {
     // Update pos
     setPos(intendedX, y, intendedZ);
   } else {
@@ -657,7 +661,7 @@ void CameraObj::applyCenterCommand() {
     // Told to recenter? Not matched up yet? Do so!
     // but also must be a clear angle, no blocks in intended pos
     if (!(matchAngleY(permanentTarget->getCamDirection())) &&
-        (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2)))) {
+        (!automatedCamera || freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2)))) {
         applyMatchAngleY(permanentTarget->getCamDirection(),false);
         // If not, be done!
     } else {
@@ -699,10 +703,13 @@ void CameraObj::applyMovementCommand() {
         camCommandedHeight += commandedHeightDiff*playerUpCommand - commandedHeightDiff*playerDownCommand;
         // If go past any caps, play fail sound
         if ((camCommandedHeight > commandedHeightDiff*2) || (camCommandedHeight <-commandedHeightDiff*2)) {
-            if (haventPlayedFailSfx) {
+            if (haventPlayedFailSfx && !firstSoundEffect) {
                 // Failure? Trigger error + turned sound
                 setJustTurnedCamera(true);
                 setJustFailedCamera(true);
+                haventPlayedFailSfx = false;
+            } else {
+                firstSoundEffect = false;
                 haventPlayedFailSfx = false;
             }
         }
@@ -717,12 +724,15 @@ void CameraObj::applyMovementCommand() {
         commandedHeight = permanentTarget->getY()+camCommandedHeight+camHeight;
         
         // Check if we can go to there
-        if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
+        if (!automatedCamera || freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
             hasCommandedAngle = true;
             
-            // Success? Trigger turn sound
-            setJustTurnedCamera(true);
-            
+            // Success? Trigger turn sound if at normal heights
+            if (!droppingIn && !firstSoundEffect) {
+                setJustTurnedCamera(true);
+            } else {
+                firstSoundEffect = false;
+            }
         } else {
             hasCommandedAngle = false;
             playerMiddleCommand = false;
@@ -738,17 +748,20 @@ void CameraObj::applyMovementCommand() {
             // Restore old angle
             commandedAngleY = oldCommandedAngleY;
             
-            if (haventPlayedFailSfx) {
+            if (haventPlayedFailSfx && !droppingIn && !firstSoundEffect) {
                 // Failure? Trigger error + turned sound
                 setJustTurnedCamera(true);
                 setJustFailedCamera(true);
+                haventPlayedFailSfx = false;
+            } else {
+                firstSoundEffect = false;
                 haventPlayedFailSfx = false;
             }
         }
         
         // Will only apply cam movement if it leads to an empty spot
         // and it's an else since only applies if hasCommandedAngle
-    } else if (freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
+    } else if (!automatedCamera || freeSpaceAt(getMatchingPos(commandedAngleY,0),getMatchingPos(commandedAngleY,1),getMatchingPos(commandedAngleY,2))) {
         // Told to match a new commanded angle? Not matched up yet? Do so!
         if (!(matchAngleY(commandedAngleY)) || !(matchHeight(commandedHeight))) {
             // One of these two? Alright! Try each!
@@ -783,9 +796,12 @@ void CameraObj::applyMovementCommand() {
 // The most basic increment, called once per main loop/frame
 void CameraObj::tick() {
     
+  if (droppingIn) {
+    firstSoundEffect = true;
+  }
   // Restore sound freedoms
   checkSound();
-
+  
   // If you are following one target every frame,
   // (you usually are: the player)
   if (permanentTarget) {
@@ -1402,20 +1418,27 @@ void CameraObj::setPlayerCommandActive(bool b) {
   }
 }
 void CameraObj::setPlayerCenterCommand(bool b) { 
-  if (playerCenterCommand != b) { playerCenterCommand = b; }
+    if (playerCenterCommand != b) { playerCenterCommand = b; losDist = 0; }
 }
 void CameraObj::setPlayerMiddleCommand(bool b) {
-    if (playerMiddleCommand != b) { playerMiddleCommand = b; }
+    if (playerMiddleCommand != b) { playerMiddleCommand = b; losDist = 0; }
 }
 void CameraObj::setPlayerLeftCommand(bool b) {
-  if (playerLeftCommand != b)   { playerLeftCommand   = b; } 
+  if (playerLeftCommand != b)   { playerLeftCommand   = b; losDist = 0; }
 }
 void CameraObj::setPlayerRightCommand(bool b) {
-  if (playerRightCommand != b)  { playerRightCommand  = b; }
+  if (playerRightCommand != b)  { playerRightCommand  = b; losDist = 0; }
 }
 void CameraObj::setPlayerUpCommand(bool b) {
-  if (playerUpCommand != b)     { playerUpCommand     = b; } 
+  if (playerUpCommand != b)     { playerUpCommand     = b; losDist = 0; }
 }
 void CameraObj::setPlayerDownCommand(bool b) {
-  if (playerDownCommand != b)   { playerDownCommand   = b; } 
+  if (playerDownCommand != b)   { playerDownCommand   = b; losDist = 0; } 
+}
+
+void CameraObj::setLOSDist(int newDist) {
+    losDist = newDist;
+}
+void CameraObj::resetLOSDist() {
+    losDist = groundDistToPlayer();
 }
