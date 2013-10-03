@@ -102,7 +102,9 @@ class CameraObj : public CubeObj {
     // Player Camera Controls
     bool matchAngleY(int);
     bool matchHeight(int);
+    bool matchDist(int);
     int getMatchingPos(int,int);
+    void applyMatchDist(int,bool);
     void applyMatchHeight(int,bool);
     void applyMatchAngleY(int,bool);
     void applyCommandAngle();

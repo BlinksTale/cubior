@@ -44,7 +44,7 @@ CameraObj::CameraObj() {
   currentCamSlot = 0;
     
   idealDist = (farthestDist+closestDist)/2;
-  losDist = 0; // distance from a new found line of sight
+  losDist = -1; // distance from a new found line of sight
   tracker = new TrackerObj();
   followingBoth = false; // Start by just following cube, not also goal
   nearGoal = false; // inherently won't start right under the goal
@@ -470,6 +470,17 @@ bool CameraObj::matchAngleY(int angleToMatch) {
 }
 
 // Check if you match some y height
+bool CameraObj::matchDist(int targetDist) {
+    // How big is the margin of error?
+    int margin = 2;
+    int actualDist = groundDistToPlayer();
+    
+    // Then compare and return!
+    return (actualDist < targetDist+margin && actualDist > targetDist-margin);
+    
+}
+
+// Check if you match some y height
 bool CameraObj::matchHeight(int targetHeight) {
   // How big is the margin of error?
   int margin = 2;
@@ -481,7 +492,7 @@ bool CameraObj::matchHeight(int targetHeight) {
 // Give an angle and dimension, get its matching pos from player
 int CameraObj::getMatchingPos(int angleToMatch, int d) {
   if (d==1) { return permanentTarget->getY()+camHeight+camCommandedHeight; }
-  int relevantDist = losDist != 0 ? losDist : idealDist;
+  int relevantDist = losDist != -1 ? losDist : idealDist;
   int targetAngle = matchRangeOf(-angleToMatch-90, angleY);
   int deltaX = cos(M_PI+(targetAngle*2*M_PI)/360.0)*relevantDist;
   int deltaZ = sin(M_PI+(targetAngle*2*M_PI)/360.0)*relevantDist;
@@ -490,6 +501,25 @@ int CameraObj::getMatchingPos(int angleToMatch, int d) {
   if (d==0) { return intendedX; }
   if (d==2) { return intendedZ; }
   return 0;
+}
+
+void CameraObj::applyMatchDist(int targetDist, bool smoothly) {
+    
+    int usedDist = losDist != -1 ? losDist : idealDist;// hasCommandedAngle? commandedHyp : idealDist;
+    int deltaX = cos(M_PI+(angleY*2*M_PI)/360.0)*usedDist;
+    int deltaZ = sin(M_PI+(angleY*2*M_PI)/360.0)*usedDist;
+    int intendedX = permanentTarget->getX() + deltaX;
+    int intendedZ = permanentTarget->getZ() + deltaZ;
+    
+    // If we can actually get there without issue, allow it
+    if (!automatedCamera || freeSpaceAt(intendedX, y, intendedZ)) {
+        // Update pos
+        setPos(intendedX, y, intendedZ);
+    } else {
+        // Bail! It was no good
+        restoreCameraFreedom();
+    }
+    
 }
 
 // Move (instantly or smoothly) to a new angle to look at player
@@ -562,7 +592,7 @@ void CameraObj::applyMatchAngleY(int angleToMatch, bool smoothly) {
   }
   
   // Find new location
-  int usedDist = idealDist;// hasCommandedAngle? commandedHyp : idealDist;
+  int usedDist = losDist != -1 ? losDist : idealDist;// hasCommandedAngle? commandedHyp : idealDist;
   int deltaX = cos(M_PI+(newAngleY*2*M_PI)/360.0)*usedDist;
   int deltaZ = sin(M_PI+(newAngleY*2*M_PI)/360.0)*usedDist;
   int intendedX = permanentTarget->getX() + deltaX;
@@ -1418,22 +1448,22 @@ void CameraObj::setPlayerCommandActive(bool b) {
   }
 }
 void CameraObj::setPlayerCenterCommand(bool b) { 
-    if (playerCenterCommand != b) { playerCenterCommand = b; losDist = 0; }
+    if (playerCenterCommand != b) { playerCenterCommand = b; losDist = -1; }
 }
 void CameraObj::setPlayerMiddleCommand(bool b) {
-    if (playerMiddleCommand != b) { playerMiddleCommand = b; losDist = 0; }
+    if (playerMiddleCommand != b) { playerMiddleCommand = b; losDist = -1; }
 }
 void CameraObj::setPlayerLeftCommand(bool b) {
-  if (playerLeftCommand != b)   { playerLeftCommand   = b; losDist = 0; }
+  if (playerLeftCommand != b)   { playerLeftCommand   = b; losDist = -1; }
 }
 void CameraObj::setPlayerRightCommand(bool b) {
-  if (playerRightCommand != b)  { playerRightCommand  = b; losDist = 0; }
+  if (playerRightCommand != b)  { playerRightCommand  = b; losDist = -1; }
 }
 void CameraObj::setPlayerUpCommand(bool b) {
-  if (playerUpCommand != b)     { playerUpCommand     = b; losDist = 0; }
+  if (playerUpCommand != b)     { playerUpCommand     = b; losDist = -1; }
 }
 void CameraObj::setPlayerDownCommand(bool b) {
-  if (playerDownCommand != b)   { playerDownCommand   = b; losDist = 0; } 
+  if (playerDownCommand != b)   { playerDownCommand   = b; losDist = -1; }
 }
 
 void CameraObj::setLOSDist(int newDist) {
@@ -1441,4 +1471,5 @@ void CameraObj::setLOSDist(int newDist) {
 }
 void CameraObj::resetLOSDist() {
     losDist = groundDistToPlayer();
+    cout << "Reset losDist to " << losDist << endl;
 }
