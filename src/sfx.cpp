@@ -269,7 +269,7 @@ void resetVolumes() {
 
   for (int i=0; i<4; i++) {
     bumpSound[i].setVolume(75*baseVolume/100.0);
-    landSound[i].setVolume(25*baseVolume/100.0);
+    landSound[i].setVolume(50*baseVolume/100.0); // was 25
     // These have volumes dependent on when they are called
     skidSound[i].setVolume(0*baseVolume/100.0);
     flipSound[i].setVolume(0*baseVolume/100.0);
@@ -336,9 +336,9 @@ void sfxLoop() {
     if (newLandVol > 0) {
       landVolume[i] = newLandVol;
       if (sfxLastPlayerVisible[i]) {
-        landSound[i].setVolume(landVolume[i]*baseVolume/100.0);
+        landSound[i].setVolume(2*landVolume[i]*baseVolume/100.0);
       } else {
-        landSound[i].setVolume(landVolume[i]*0.5*baseVolume/100.0);
+        landSound[i].setVolume(2*landVolume[i]*0.5*baseVolume/100.0);
       }
       landSound[i].play();
     }
@@ -347,9 +347,9 @@ void sfxLoop() {
     if (newSkidVol > 0) {
       skidVolume[i] = newSkidVol;
       if (sfxLastPlayerVisible[i]) {
-        skidSound[i].setVolume(skidVolume[i]*baseVolume/100.0);
+        skidSound[i].setVolume(2*skidVolume[i]*baseVolume/100.0);
       } else {
-        skidSound[i].setVolume(skidVolume[i]*0.5*baseVolume/100.0);
+        skidSound[i].setVolume(2*skidVolume[i]*0.5*baseVolume/100.0);
       }
       skidSound[i].play();
     }
@@ -358,9 +358,9 @@ void sfxLoop() {
     if (newFlipVol > 0) {
       flipVolume[i] = newFlipVol;
       if (sfxLastPlayerVisible[i]) {
-        flipSound[i].setVolume(flipVolume[i]*baseVolume/100.0);
+        flipSound[i].setVolume(2*flipVolume[i]*baseVolume/100.0);
       } else {
-        flipSound[i].setVolume(flipVolume[i]*0.5*baseVolume/100.0);
+        flipSound[i].setVolume(2*flipVolume[i]*0.5*baseVolume/100.0);
       }
       flipSound[i].play();
     }
@@ -369,9 +369,9 @@ void sfxLoop() {
     if (newMoveVol != moveVolume[i]) {
       moveVolume[i] = newMoveVol;
       if (sfxLastPlayerVisible[i]) {
-        moveSound[i].setVolume(moveVolume[i]*baseVolume/100.0);
+        moveSound[i].setVolume(2*moveVolume[i]*baseVolume/100.0);
       } else {
-        moveSound[i].setVolume(moveVolume[i]*0.5*baseVolume/100.0);
+        moveSound[i].setVolume(2*moveVolume[i]*0.5*baseVolume/100.0);
       }
     }
   }
