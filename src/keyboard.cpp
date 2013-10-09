@@ -25,6 +25,12 @@ using namespace std;
 
 #define PI 3.14159265
 
+#define Unknown -1
+#define Xbox 0
+#define PS3 1
+#define GameCube 2
+#define WiiU 3
+
 int deadzoneRadius = 20; // This feels really good at 20... I recommend not altering it!
 const int localPlayerCount = 4;
 const int joystickCount = 16; // maxJoystick / joystickMax / etc
@@ -40,42 +46,13 @@ bool independentMovement[] = { // move separately from camera angle after start 
 int altFrame = 0;
 int altMax = 5;
 
-// temp var until we can detect PS3 controllers
-//#define PS3Controls true
-#define GameCubeControls true
-#define cameraButtonDisabled true
-/* Change which 360 buttons we use on Mac vs PC */
-/* (they read the controller differently) */
-#ifdef __APPLE_CC__
-    #ifdef PS3Controls
-        // PS3 controller on Mac (buttonCount == 19, figure it out in joystickCommands?)
-        int joinButtonNum = 0; // select
-        int pauseButtonNum = 3; // start
-        // These two disabled for now since camera button causes problems
-        int cameraBumperButtonNum = -1;//10; // left bumper
-        int cameraStickButtonNum = -1;//2; // right stick click down
-    #else // Not PS3, try the other two
-        #ifdef GameCubeControls
-            // GameCube controller on Mac (buttonCount == 16)
-            int joinButtonNum = 3;//3 is Y button;
-            int pauseButtonNum = 9;//9 is start;
-            int cameraBumperButtonNum = -1;//
-            int cameraStickButtonNum = -1;//
-        #else
-            // 360 controller on Mac
-            int joinButtonNum = 11 - 1;
-            int pauseButtonNum = 10 - 1;
-            int cameraBumperButtonNum = -1;//14 - 1;
-            int cameraStickButtonNum = -1;//13 - 1;
-        #endif
-    #endif
-#else
-    // 360 controller on Windows
-    int joinButtonNum = 6;
-    int pauseButtonNum = 7;
-    int cameraBumperButtonNum = -1;//4;
-    int cameraStickButtonNum = -1;//9;
-#endif
+// Where all our buttons will be assigned
+int joystickType[joystickCount];
+int joystickButtonCount[joystickCount];
+int joinButtonNum[joystickCount];
+int pauseButtonNum[joystickCount];
+int cameraBumperButtonNum[joystickCount];
+int cameraStickButtonNum[joystickCount];
 
 // For pressing start to see who goes first
 int controlsChosen = -1;
@@ -143,6 +120,64 @@ void keyboardInit() {
   for (int i=0; i<joystickCount; i++) {
     controlsPlayer[i] = -1;
   }
+  
+  sf::Joystick::update();
+  // Check first for joysticks joining the fray
+  for (int i=0; i < joystickCount; i++) {
+      setJoystickControls(i);
+  }
+}
+
+void setJoystickControls(int i) {
+    int buttonCount = sf::Joystick::getButtonCount(i);
+    if (joystickButtonCount[i] != buttonCount) {
+    joystickButtonCount[i] = buttonCount;
+#ifdef __APPLE_CC__
+    if (buttonCount == 19) { // PS3
+        joystickType[i] = PS3;
+        // PS3 controller on Mac (buttonCount == 19, figure it out in joystickCommands?)
+        joinButtonNum[i] = 0; // select
+        pauseButtonNum[i] = 3; // start
+        // These two disabled for now since camera button causes problems
+        cameraBumperButtonNum[i] = -1;//10; // left bumper
+        cameraStickButtonNum[i] = -1;//2; // right stick click down
+    } else if (buttonCount == 16) { // Gamecube
+        joystickType[i] = GameCube;
+        // GameCube controller on Mac (buttonCount == 16)
+        joinButtonNum[i] = 3;//3 is Y button;
+        pauseButtonNum[i] = 9;//9 is start;
+        cameraBumperButtonNum[i] = -1;//
+        cameraStickButtonNum[i] = -1;//
+    } else if (buttonCount == 28) {
+        joystickType[i] = WiiU;
+        // 360 controller on Mac
+        joinButtonNum[i] = 7;
+        pauseButtonNum[i] = 6;
+        cameraBumperButtonNum[i] = -1;//14 - 1;
+        cameraStickButtonNum[i] = -1;//13 - 1;
+    } else if (buttonCount == 20) {
+        joystickType[i] = Xbox;
+        // 360 controller on Mac
+        joinButtonNum[i] = 11 - 2;
+        pauseButtonNum[i] = 10 - 2;
+        cameraBumperButtonNum[i] = -1;//14 - 1;
+        cameraStickButtonNum[i] = -1;//13 - 1;
+    } else {
+        joystickType[i] = Unknown;
+        // 360 controller on Mac
+        joinButtonNum[i] = 4;
+        pauseButtonNum[i] = 3;
+        cameraBumperButtonNum[i] = -1;
+        cameraStickButtonNum[i] = -1;
+    }
+#else
+    // 360 controller on Windows
+    joinButtonNum[i] = 6;
+    pauseButtonNum[i] = 7;
+    cameraBumperButtonNum[i] = -1;//4;
+    cameraStickButtonNum[i] = -1;//9;
+#endif
+}
 }
 
 // Not using these much anymore, scrap them?
@@ -274,6 +309,10 @@ void sendCommands() {
 
   // Check first for joysticks joining the fray
   for (int i=0; i < joystickCount; i++) {
+    // Make sure controls are up to date
+    setJoystickControls(i);
+      
+    // Then send commands
     joystickCommands(i);
   }
 	// Then update each active joystick's info before sending commands
@@ -462,7 +501,7 @@ void joystickAdditions(int joystick) {
   // Not in use? Try to be! Listen for a start key
   if (!inUse) {
     //cout << "Join joystick " << joystick << " is " << sf::Joystick::isButtonPressed(joystick,pauseButtonNum) << endl;
-	  playerPause(joystick,sf::Joystick::isButtonPressed(joystick,pauseButtonNum), false);
+	  playerPause(joystick,sf::Joystick::isButtonPressed(joystick,pauseButtonNum[joystick]), false);
   }
 }
 
@@ -476,21 +515,21 @@ void joystickCommands(int joystick) {
     // Read in as many buttons as the joystick has
     int buttonCount = sf::Joystick::getButtonCount(joystick);
 	for (int b=0; b<buttonCount; b++) {
-        cout << "Button count " << buttonCount << endl;
-		if (b == joinButtonNum) { // Join joinButton
+        //cout << "Button count " << buttonCount << endl;
+		if (b == joinButtonNum[joystick]) { // Join joinButton
 			playerJoin(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
-		} else if (b == pauseButtonNum) { // Pause pauseButton
+		} else if (b == pauseButtonNum[joystick]) { // Pause pauseButton
 			playerPause(joystick,sf::Joystick::isButtonPressed(joystick,b), false);
-		} else if (b == cameraBumperButtonNum || b == cameraStickButtonNum) { // cameraButtons, left bumper/right stick
+		} else if (b == cameraBumperButtonNum[joystick] || b == cameraStickButtonNum[joystick]) { // cameraButtons, left bumper/right stick
             // If either is pressed, add that to camButtonPressed
             // so we only send one call later
             camButtonPressed = camButtonPressed || sf::Joystick::isButtonPressed(joystick,b);
         } else { // All unestablish buttons == jumpButton!
 			jumpButton[i] = jumpButton[i] || sf::Joystick::isButtonPressed(joystick,b);
-            //if (sf::Joystick::isButtonPressed(joystick,b)) {
-            //    cout << "Pressed button " << b << endl;
-            //}
         }
+        //if (sf::Joystick::isButtonPressed(joystick,b)) {
+        //    cout << "Pressed button " << b << endl;
+        //}
         bool buttonB = sf::Joystick::isButtonPressed(joystick,b);
         if (buttonB) {
             //cout << "Pressed button " << b << " is " << buttonB << endl;
@@ -503,6 +542,14 @@ void joystickCommands(int joystick) {
 	// Convert (for now) joystick to direction buttons
 	joyX[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::X);
 	joyY[i] = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Y);
+    if (joystickType[joystick] == WiiU) {
+        joyX[i] *= 2;
+        joyY[i] *= 2;
+        if (joyX[i] > 100) { joyX[i] = 100; }
+        if (joyX[i] <-100) { joyX[i] =-100; }
+        if (joyY[i] <-100) { joyY[i] =-100; }
+        if (joyY[i] > 100) { joyY[i] = 100; }
+    }
   // was at 20 for limits, 15 seems fine too (want more flexibility somewhere for turning)
 	upButton[i]   = joyY[i] <-15;
 	downButton[i] = joyY[i] > 15;
@@ -510,27 +557,29 @@ void joystickCommands(int joystick) {
 	rightButton[i]= joyX[i] > 15;
   
   // Right joystick X
-  #ifdef PS3Controls
-    int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
-  #else
-    #ifdef GameCubeControls
-      int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
-    #else
-      int newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
-    #endif
-  #endif
-    
+    int newSecondaryX;
+    if (joystickType[joystick] == PS3) {
+        newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
+    } else if (joystickType[joystick] == GameCube) {
+        newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+    } else if (joystickType[joystick] == WiiU) {
+        newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
+    } else {
+        newSecondaryX = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+    }
+
   // Right joystick Y
   #ifdef __APPLE_CC__
-  #ifdef PS3Controls
-    int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
-  #else
-    #ifdef GameCubeControls
-      int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
-    #else
-      int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
-    #endif
-  #endif
+  int newSecondaryY;
+    if (joystickType[joystick] == PS3) {
+        newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
+    } else if (joystickType[joystick] == GameCube) {
+        newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::Z);
+    } else if (joystickType[joystick] == WiiU) {
+        newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::U);
+  } else {
+      newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::V);
+  }
   #else
   int newSecondaryY = sf::Joystick::getAxisPosition(joystick,sf::Joystick::R);
   #endif
@@ -564,10 +613,20 @@ void joystickCommands(int joystick) {
 bool joystickConnected() {
   bool result = false;
   // check for all four
-  for (int i=0; i<localPlayerCount; i++) {
-    result = result || sf::Joystick::isConnected(joystickNum(i));
-  }
+    //for (int i=0; i<localPlayerCount; i++) {
+    //    result = result || sf::Joystick::isConnected(joystickNum(i));
+    //}
+    for (int i=0; i<joystickCount; i++) {
+        bool thisOne = sf::Joystick::isConnected(i);
+        result = result || thisOne;
+        if (thisOne) {
+            setJoystickControls(i);
+        }
+    }
   joystickRecentlyConnected = result;
+    
+
+    
   // if any connected, return true
   return result;
 }

@@ -7,7 +7,8 @@
 #ifndef KEYBOARD
 #define KEYBOARD
  
-    void keyboardInit();
+void keyboardInit();
+void setJoystickControls(int);
 
     void playerFullscreen(bool);
     void playerLevelShadows(bool);

@@ -4,6 +4,7 @@
  * 1/13/12
  * Main class for 3d platformer
  */
+
 #include <iostream>
 #include "visuals.h"
 #include "gameplay.h"
@@ -16,8 +17,6 @@ bool networkingOption = false;
 
 //#include <SFML/Graphics.hpp>
 
-#include <iostream>
-#include <stdio.h> // for fopen
 
 // Gets called as often as possible
 /*void tick() {
@@ -71,6 +70,7 @@ int main(int argc, char** argv) {
   gameplayInit(extraPath + "/maps/cubiorMap0.cubior", boundAddress);
   initRender(argc, argv); // nothing gets called after this
   //tick();
+    /**/
 }
  
 
