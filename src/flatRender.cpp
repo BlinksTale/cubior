@@ -4,7 +4,8 @@
  * 1/20/12
  * 2d Visuals for cubior
  */
-#include "GLee.h" // must be included before any inclusion of gl.h
+//#include "GLee.h" // must be included before any inclusion of gl.h
+#include "GLee.h"
 #include "flatRender.h"
 #include "music.h"
 #include "gameplay.h"
