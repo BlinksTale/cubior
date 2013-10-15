@@ -40,7 +40,8 @@
 
 // Starting values that change often in testing
 bool printFPS = false;
-bool fullscreen = true;
+bool fullscreen = false;
+bool drawTriangles = true; // as opposed to just draw lines and vertices
 bool drawOutlines = false;
 bool levelShadows = true; // at this point, shadows do not influence lag
 
@@ -171,10 +172,13 @@ void loadFile(const char* fn, string& str) {
     }
 }
 unsigned int loadShader(string& source, unsigned int mode) {
+
     unsigned int id;
     id=glCreateShader(mode);
     const char* csource = source.c_str();
-    
+    const int intLen = sizeof(source);
+    const GLint* length = &intLen;
+
     glShaderSource(id, 1, &csource, NULL);
     glCompileShader(id);
     char error[1000];
@@ -192,14 +196,14 @@ void initShader(const char* vname, const char* fname, int i) {
     string source;
     loadFile(vname, source);
     vs[i] = loadShader(source, GL_VERTEX_SHADER);
-    source="";
-    loadFile(fname, source);
-    fs[i] = loadShader(source, GL_FRAGMENT_SHADER);
+    string source2;
+    loadFile(fname, source2);
+    fs[i] = loadShader(source2, GL_FRAGMENT_SHADER);
     
     program[i] = glCreateProgram();
     glAttachShader(program[i], vs[i]);
     glAttachShader(program[i], fs[i]);
-    
+
     glLinkProgram(program[i]);
     glUseProgram(program[i]);
 }
@@ -868,8 +872,6 @@ void drawPlayerOutline(int n) {
 
 // Call drawCube for as many times as there are cubes
 void drawAllCubes(int player) {
-
-    bool drawTriangles = true;
 
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -1703,8 +1705,9 @@ void toggleFullscreen() {
 // Switch on/off fullscreen mode (from/to windowed)
 void toggleLevelShadows() {
   //levelShadows = !levelShadows;
-  // HIJACKED FOR OUTLINES! MUAHAHAA
-  drawOutlines = !drawOutlines;
+  // Hijacked! Used to toggle whatever we're working on now.
+  //drawOutlines = !drawOutlines;
+  drawTriangles = !drawTriangles;
 }
 
 float getFPSRate() {

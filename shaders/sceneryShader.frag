@@ -5,7 +5,7 @@ uniform float time;
 varying vec4 point;
 
 // Local variables
-float tinyAmount = 0.000001;
+float tinyAmount = 0.0000001; // must be less than the cubeShape's verticies radius
 
 float convertToCake(float value)
 {
@@ -14,9 +14,9 @@ float convertToCake(float value)
 
 bool getAlternatingSpot(float x1, float y1, float z1) { // return if in a checker or not
   float delta = 50.0 - tinyAmount;
-  float x=x1/1.0+delta;
-  float y=y1/1.0+delta;
-  float z=z1/1.0+delta; // 49 worked
+  float x=x1+delta;
+  float y=y1+delta;
+  float z=z1+delta;
 
   float altSize = 400.0; // how wide the checker patterns are
   bool alternatingSpot =( // calculate if given a dark checker spot or not
@@ -32,11 +32,9 @@ bool getAlternatingSpot(float x1, float y1, float z1) { // return if in a checke
 void main ()
 {
     //gl_FragColor = gl_Color;//vec4(1.0, 0.0, 0.0, 1.0);
-    //vec4 point = gl_Vertex;
-    //mod(point.y+500.0,1.0)
     vec4 color = gl_Color;
     
-    float shadowStrength = 0.5;//0.25;
+    float shadowStrength = 0.5;
 
     // For Checker Pattern
     float altShadow = getAlternatingSpot(point.x, point.y, point.z) ? 0.125 : 0.0;

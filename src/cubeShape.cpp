@@ -29,7 +29,10 @@
                         0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5 }; // v4,v7,v6,v5 (back)
 
 */
-const float radius = 0.5 - 0.000001; // this difference helps checker tile coloring in the fragment shader
+const float radius = 0.5 - 0.0001; // this difference helps checker tile coloring in the fragment shader
+// the subtracted part cannot be less than 0.0001? Known that it cannot be 0.000001 on Windows anymore.
+// Otherwise, flickering starts occurring with all the shadows
+
 GLfloat vertices[] = {  radius, radius, radius, // 0 - front upper left
                        -radius, radius, radius, // 1 - front upper right
                         radius,-radius, radius, // 2 - front lower left

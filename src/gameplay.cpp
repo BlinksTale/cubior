@@ -2257,7 +2257,7 @@ void switchFullscreen() {
 }
 
 void switchLevelShadows() {
-  //toggleLevelShadows();
+  toggleLevelShadows();
   // HIJACKED! Used for songs atm for Rolando demo
   //nextSong();
   // No use in demo form
