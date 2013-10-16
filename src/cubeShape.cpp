@@ -28,10 +28,15 @@
                        -0.5,-0.5,-0.5,   0.5,-0.5,-0.5,   0.5,-0.5, 0.5,  -0.5,-0.5, 0.5,   // v7,v4,v3,v2 (bottom)
                         0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5 }; // v4,v7,v6,v5 (back)
 
-*/
+ */
+
+#ifdef __APPLE_CC__
+const float radius = 0.5 - 0.000001;
+#else
 const float radius = 0.5 - 0.0001; // this difference helps checker tile coloring in the fragment shader
 // the subtracted part cannot be less than 0.0001? Known that it cannot be 0.000001 on Windows anymore.
 // Otherwise, flickering starts occurring with all the shadows
+#endif
 
 GLfloat vertices[] = {  radius, radius, radius, // 0 - front upper left
                        -radius, radius, radius, // 1 - front upper right

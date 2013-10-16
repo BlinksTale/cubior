@@ -105,6 +105,14 @@ int lastTime5 = 0;
 int lastClock = clock();
 int lastFrame = lastClock;
 int averageDiff = 0;
+
+// Shader uniforms
+#ifdef __APPLE_CC__
+float shaderTinyAmount = 0.000001; // five zeros on a mac
+#else
+float shaderTinyAmount = 0.0000001; // must have six zeros and a one on windows
+// must be less than the cubeShape's verticies radius
+ #endif 
 float shaderTime = 0.0;
 
 // Goal object's visual
@@ -509,7 +517,9 @@ void displayFor(int player) {
     GLint time = glGetUniformLocation(program[2], "time");
     shaderTime += 0.05;
     glUniform1f(time, shaderTime);
-    
+    // Init shader uniform values too
+    glUniform1f(glGetUniformLocation(program[1], "tinyAmount"), shaderTinyAmount);
+
   //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
   drawAllCubes(player);
   

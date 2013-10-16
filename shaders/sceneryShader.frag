@@ -1,11 +1,13 @@
 // External variables
 uniform float time;
+uniform float tinyAmount;
 
 // Received variables
 varying vec4 point;
 
 // Local variables
-float tinyAmount = 0.0000001; // must be less than the cubeShape's verticies radius
+//float tinyAmount = 0.000001; // must have six zeros and a one on windows, but five zeros on a mac
+// must be less than the cubeShape's verticies radius
 
 float convertToCake(float value)
 {
