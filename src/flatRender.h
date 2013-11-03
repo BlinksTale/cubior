@@ -35,7 +35,7 @@
     void drawGoalShadow();
     void drawGoalOutline();
     void drawMenu(int,bool);
-    void writeWord(std::string,int,int,float);
+    void writeWord(std::string,int,int,float,float);
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();

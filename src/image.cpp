@@ -92,9 +92,12 @@ void Image::draw(int x, int y, float aspect, float rotate) {
     glPopMatrix();
 }
 
+void Image::prepDraw() {
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
+}
+
 void Image::draw(int x, int y, int startingX, int startingY, int deltaX, int deltaY, float aspect, float rotate) {
     
-    glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
     
     float currentTextureX = x;
     float currentTextureY = y;

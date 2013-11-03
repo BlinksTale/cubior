@@ -1424,29 +1424,34 @@ void drawMenu(int i, bool doubleWidth) {
         //writeWord("mpedoverthelazydog", -700, 300, aspect);
         //writeWord("THEQUICKBROWNFOXJU", -650, 100, aspect); //
         //writeWord("MPEDOVERTHELAZYDOG", -700, 300, aspect);
-        writeWord("http://192.368.0.457/", 0, 100, aspect); //
+        string myString = "The number is ";
+        char number[21];
+        sprintf(number, "%d", time);
+        writeWord(myString + number, 0, 100, aspect, false); //
+        //writeWord("http://192.368.0.457/", 0, 100, aspect); //
         //writeWord("How are you?", -650, 100, aspect); //
         
         
         // Blink the press start/enter image
         if (time%1200 < 900) {
           if (joystickConnected() && time > 8000) {
-            pressStartImage.draw(0,380,aspect,false);
+            writeWord("Press Start",0,380,aspect,false);
           } else {
-            pressEnterImage.draw(0,380,aspect,false);
+            writeWord("Press Enter",0,380,aspect,false);
           }
         }
     } else if (getMenu(i) == 1) { // Start Menu
-        startImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
-        optionsImage.draw(0,-0.5*menuSpacing,aspect,(option==1)*rotation);
-        creditsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation);
-        quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
+        //startImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
+        writeWord("Start",  0,-1.5*menuSpacing,aspect,(option==0)*rotation);
+        writeWord("Options",0,-0.5*menuSpacing,aspect,(option==1)*rotation);
+        writeWord("Credits",0, 0.5*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Quit",   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     // Regular pause!
     } else if (getMenu(i) == 2) { // Main Pause Menu
-      resumeImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
-      dropOutImage.draw(0,-0.5*menuSpacing,aspect,(option==1)*rotation); 
-      optionsImage.draw(0, 0.5*menuSpacing,aspect,(option==2)*rotation); 
-      quitImage.draw(   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
+      writeWord("Resume", 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
+      writeWord("Drop Out",0,-0.5*menuSpacing,aspect,(option==1)*rotation);
+      writeWord("Options",0, 0.5*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Quit",0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
       cameraControlsImage.draw( 0,-2.0*menuSpacing,aspect,false);
       if (getIndependentMovement(i)) {
@@ -1454,9 +1459,9 @@ void drawMenu(int i, bool doubleWidth) {
       } else {
         cameraControlsEasyImage.draw(0,-1.0*menuSpacing,aspect,(option==0)*rotation);
       }
-      controlsImage.draw(0, 0.0*menuSpacing,aspect,(option==1)*rotation); 
-      volumeImage.draw(  0, 1.0*menuSpacing,aspect,(option==2)*rotation);
-      backImage.draw(  0, 2.0*menuSpacing,aspect,(option==3)*rotation);
+      writeWord("Controls",0, 0.0*menuSpacing,aspect,(option==1)*rotation);
+      writeWord("Volume",0, 1.0*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Back",0, 2.0*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 4) { // Controls Display
       if (joystickConnected()) {
         gamepadControlsImage.draw(0,-100,aspect,false);
@@ -1464,18 +1469,18 @@ void drawMenu(int i, bool doubleWidth) {
         keyboardControlsImage.draw(0,-100,aspect,false);
       }
       if (getJustHitStart()) {
-        startImage.draw(0, 400,aspect,(option==0)*rotation);
+        writeWord("Start",0, 400,aspect,(option==0)*rotation);
       } else {
-        backImage.draw( 0, 400,aspect,(option==0)*rotation);
+        writeWord("Back",0, 400,aspect,(option==0)*rotation);
       }
     } else if (getMenu(i) == 5) { // Start Controls Display
       //creditsTextImage.draw(0,-100,aspect,false);
       // ATTEMPT AT REPLACING CREDITS IMAGE W/ REAL TEXT
       // except that this gets drawn in the same place the splash screen text does
       // (Ctrl+F "Rolando" will find that part of the code)
-      backImage.draw(           0, 400,aspect,(option==0)*rotation);
+      writeWord("Back",           0, 400,aspect,(option==0)*rotation);
     } else if (getMenu(i) == 6) { // Volume Controls Display
-      musicImage.draw(  0,-2.0*menuSpacing,aspect,false);
+      writeWord("Music",  0,-2.0*menuSpacing,aspect,false);
       switch (getMusicVolumeNum()) {
       case 0:
         offImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
@@ -1486,7 +1491,7 @@ void drawMenu(int i, bool doubleWidth) {
       default:
         medImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       }
-      soundImage.draw( 0, 0.0*menuSpacing,aspect,false);
+      writeWord("Sound", 0, 0.0*menuSpacing,aspect,false);
       switch (getSoundVolumeNum()) {
       case 0:
         offImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
@@ -1497,7 +1502,7 @@ void drawMenu(int i, bool doubleWidth) {
       default:
         medImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       }
-      backImage.draw(0, 2.0*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Back",0, 2.0*menuSpacing,aspect,(option==2)*rotation);
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
@@ -1506,7 +1511,7 @@ void drawMenu(int i, bool doubleWidth) {
 
 }
 
-void writeWord(string word, int x, int y, float aspect) {
+void writeWord(string word, int x, int y, float aspect, float rotate) {
     
     int currentOffset = 0;
     int wordWidth = 0;
@@ -1580,6 +1585,7 @@ void writeWord(string word, int x, int y, float aspect) {
     }
     
     // Then write it
+    textImage.prepDraw(); // must do this before calling the fancy, eight parameter draw call!
     for (int i=0; i<word.length(); i++) {
         if (slots[i] != -1) {
             slotX=slots[i]%10;
@@ -1592,7 +1598,7 @@ void writeWord(string word, int x, int y, float aspect) {
                            (isLowercaseJ ? 0 : offsetX)+characterWidth*slotX, offsetY+characterHeight*slotY,
                            // Texture size:
                            currentWidth, characterHeight,
-                           aspect, false);
+                           aspect, rotate);
             letter++;
             currentOffset += characterWidths[slotX+slotY*10]+spacing;
         }

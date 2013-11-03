@@ -287,4 +287,5 @@ do something like moveToPlayer in gameplay.cpp, but do it only to a certain rang
 
 ---
 11/1/13
-Each character is sized 144x141?
+Each text character is sized 144x141?
+Significant slowdown with new texture text spritesheet system. Might be splitting them into separate draw calls? Fix this.
