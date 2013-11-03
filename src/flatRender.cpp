@@ -1369,6 +1369,7 @@ void initMenu() {
 
 // Draws the 2D PNGs themselves as textures
 void drawMenu(int i, bool doubleWidth) {
+    int midY = 0;
   // Don't use whole viewport since different menu for every player
   //glViewport(0, 0, windowWidth, windowHeight); // don't need?
   glMatrixMode(GL_PROJECTION); // necessary
@@ -1379,6 +1380,7 @@ void drawMenu(int i, bool doubleWidth) {
     glOrtho(0, 1600*aspect, 1050, 0, -1, 1); // necessary
   } else {
     glOrtho(0, 1600, 1050/aspect, 0, -1, 1); // necessary
+      midY = 0.5*1050/aspect-1050/2;
   }
   //glOrtho(0, 1600*aspect, 1050, 0, -1, 1); // necessary
   glMatrixMode(GL_MODELVIEW); // don't need?
@@ -1435,69 +1437,69 @@ void drawMenu(int i, bool doubleWidth) {
         // Blink the press start/enter image
         if (time%1200 < 900) {
           if (joystickConnected() && time > 8000) {
-            writeWord("Press Start",0,380,aspect,false);
+            writeWord("Press Start",0,midY*2+330,aspect,false); // was 380
           } else {
-            writeWord("Press Enter",0,380,aspect,false);
+            writeWord("Press Enter",0,midY*2+330,aspect,false);
           }
         }
     } else if (getMenu(i) == 1) { // Start Menu
         //startImage.draw( 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
-        writeWord("Start",  0,-1.5*menuSpacing,aspect,(option==0)*rotation);
-        writeWord("Options",0,-0.5*menuSpacing,aspect,(option==1)*rotation);
-        writeWord("Credits",0, 0.5*menuSpacing,aspect,(option==2)*rotation);
-        writeWord("Quit",   0, 1.5*menuSpacing,aspect,(option==3)*rotation);
+        writeWord("Start",  0,midY-1.5*menuSpacing,aspect,(option==0)*rotation);
+        writeWord("Options",0,midY-0.5*menuSpacing,aspect,(option==1)*rotation);
+        writeWord("Credits",0,midY+0.5*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Quit",   0,midY+1.5*menuSpacing,aspect,(option==3)*rotation);
     // Regular pause!
     } else if (getMenu(i) == 2) { // Main Pause Menu
-      writeWord("Resume", 0,-1.5*menuSpacing,aspect,(option==0)*rotation);
-      writeWord("Drop Out",0,-0.5*menuSpacing,aspect,(option==1)*rotation);
-      writeWord("Options",0, 0.5*menuSpacing,aspect,(option==2)*rotation);
-      writeWord("Quit",0, 1.5*menuSpacing,aspect,(option==3)*rotation);
+      writeWord("Resume",  0,midY-1.5*menuSpacing,aspect,(option==0)*rotation);
+      writeWord("Drop Out",0,midY-0.5*menuSpacing,aspect,(option==1)*rotation);
+      writeWord("Options", 0,midY+0.5*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Quit",    0,midY+1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
-      writeWord("Camera Controls", 0,-2.0*menuSpacing,aspect,false);
+      writeWord("Camera Controls", 0,midY-2.0*menuSpacing,aspect,false);
       if (getIndependentMovement(i)) {
-        writeWord(":Pro:", 0,-1.0*menuSpacing,aspect,(option==0)*rotation);
+        writeWord(":Pro:", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
       } else {
-        writeWord(":Easy:",0,-1.0*menuSpacing,aspect,(option==0)*rotation);
+        writeWord(":Easy:",0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
       }
-      writeWord("Controls",0, 0.0*menuSpacing,aspect,(option==1)*rotation);
-      writeWord("Volume",0, 1.0*menuSpacing,aspect,(option==2)*rotation);
-      writeWord("Back",0, 2.0*menuSpacing,aspect,(option==3)*rotation);
+      writeWord("Controls",0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
+      writeWord("Volume",  0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Back",    0,midY+2.0*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 4) { // Controls Display
       if (getJustHitStart()) {
-        writeWord("Start",0, 400,aspect,(option==0)*rotation);
+        writeWord("Start", 0,midY*2+400,aspect,(option==0)*rotation);
       } else {
-        writeWord("Back",0, 400,aspect,(option==0)*rotation);
+        writeWord("Back",  0,midY*2+400,aspect,(option==0)*rotation);
       }
     } else if (getMenu(i) == 5) { // Start Controls Display
       //creditsTextImage.draw(0,-100,aspect,false);
       // ATTEMPT AT REPLACING CREDITS IMAGE W/ REAL TEXT
       // except that this gets drawn in the same place the splash screen text does
       // (Ctrl+F "Rolando" will find that part of the code)
-      writeWord("Back",           0, 400,aspect,(option==0)*rotation);
+      writeWord("Back",   0, midY*2+400,aspect,(option==0)*rotation);
     } else if (getMenu(i) == 6) { // Volume Controls Display
-      writeWord("Music",  0,-2.0*menuSpacing,aspect,false);
+      writeWord("Music",  0,midY-2.0*menuSpacing,aspect,false);
       switch (getMusicVolumeNum()) {
       case 0:
-        writeWord("Off", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Off", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       case 1:
-        writeWord("Low", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Low", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       case 3:
-        writeWord("High",0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("High",0,midY-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       default:
-        writeWord("Med", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Med", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       }
-      writeWord("Sound", 0, 0.0*menuSpacing,aspect,false);
+      writeWord("Sound", 0,midY+0.0*menuSpacing,aspect,false);
       switch (getSoundVolumeNum()) {
       case 0:
-        writeWord("Off", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Off", 0,midY+1.0*menuSpacing,aspect,(option==1)*rotation); break;
       case 1:
-        writeWord("Low", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Low", 0,midY+1.0*menuSpacing,aspect,(option==1)*rotation); break;
       case 3:
-        writeWord("High",0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("High",0,midY+1.0*menuSpacing,aspect,(option==1)*rotation); break;
       default:
-        writeWord("Med", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Med", 0,midY+1.0*menuSpacing,aspect,(option==1)*rotation); break;
       }
-      writeWord("Back",0, 2.0*menuSpacing,aspect,(option==2)*rotation);
+      writeWord("Back",  0,midY+2.0*menuSpacing,aspect,(option==2)*rotation);
     }
     
     
@@ -1601,7 +1603,7 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
             bool isLowercaseJ = (slots[i] == 19);
             int currentWidth = (isLowercaseJ ? offsetX : 0)+characterWidths[slotX+slotY*10];
             textImage.draw(-wordWidth/2.0+x+currentOffset+currentWidth/2-(isLowercaseJ ? offsetX : 0),
-                           y+(line-0.5)*characterHeight,
+                           y+(line)*characterHeight,
                            // Texture start:
                            (isLowercaseJ ? 0 : offsetX)+characterWidth*slotX, offsetY+characterHeight*slotY,
                            // Texture size:
