@@ -151,7 +151,7 @@ GLfloat shadowColors[maxCubeCount*24];
 CameraObj* cameraPointer[cubiorNum];
 
 // Images for HUD, Menu, etc
-Image logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
+Image textImage, logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
   resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
   controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
   keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage,
@@ -1333,6 +1333,8 @@ void initMenu() {
   #endif  
     
   // These need to be converted to const char* with c_str for Image to accept them
+  textImage            = Image((extraPath + "./images/cubiorTextSpriteSheet.png").c_str(),1);
+    
   logoImage            = Image((extraPath + "./images/CubiorLogo720.png").c_str(),1);//256.png",1.5);
   pressStartImage      = Image((extraPath + "./images/CubiorPressStart720.png").c_str(),1);//128.png",2.0);
   pressEnterImage      = Image((extraPath + "./images/CubiorPressEnter720.png").c_str(),1);//128.png",2.0);
@@ -1414,7 +1416,18 @@ void drawMenu(int i, bool doubleWidth) {
     if (/*getLastPause() == -1 && */getMenu(i) == 0) {
         // Splash screen
         logoImage.draw(20.0*sin(time/1600.0),-300+10.0*sin(time/800.0),aspect,false);
-
+        
+        //writeWord("JohnAbdoujOHNaBDOU", -650, -300, aspect);
+        // J, A, U, and j are being weird
+        //writeWord("jjajjaajajaaja", -350, -100, aspect);
+        //writeWord("thequickbrownfoxju", -650, 100, aspect); //
+        //writeWord("mpedoverthelazydog", -700, 300, aspect);
+        //writeWord("THEQUICKBROWNFOXJU", -650, 100, aspect); //
+        //writeWord("MPEDOVERTHELAZYDOG", -700, 300, aspect);
+        writeWord("http://192.368.0.457/", 0, 100, aspect); //
+        //writeWord("How are you?", -650, 100, aspect); //
+        
+        
         // Blink the press start/enter image
         if (time%1200 < 900) {
           if (joystickConnected() && time > 8000) {
@@ -1490,6 +1503,100 @@ void drawMenu(int i, bool doubleWidth) {
   glEnable(GL_ALPHA_TEST);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
+
+}
+
+void writeWord(string word, int x, int y, float aspect) {
+    
+    int currentOffset = 0;
+    int wordWidth = 0;
+    int offsetX = 34;
+    int offsetY = 38;
+    int letter = 0;
+    int line = 0;
+    int slotX = 0;
+    int slotY = 0;
+    int characterWidth = 144;
+    int characterHeight = 144;
+    int spacing = 10;
+    int uc = 81;
+    int lc = 73;
+    int vc = 67;
+    int zc = 58;
+    int xc = 80;
+    int li = 26;
+    int ui = 30;
+    int tc = 45;//for t 45 and all else is 50;
+    int rc = 52;//for t 45 and all else is 50;
+    int uw = 130;
+    int lw = 110;
+    int characterWidths[70] = {
+        // A, a, B, b, C, c, D, d, E, e,
+          uc,lc,uc,lc,uc,lc,uc,lc,uc,lc,
+        // F, f, G, g, H, h, I, i, J, j,
+          uc,tc,uc,lc,uc,lc,ui,li,uc,li,
+        // K, k, L, l, M, m, N, n, O, o,
+          lc,lc,uc,tc,uw,lw,uc,lc,uc,lc,
+        // P, p, Q, q, R, r, S, s, T, t,
+          lc,lc,uc,lc,lc,rc,uc,lc,uc,tc,
+        // U, u, V, v, W, w, X, x, Y, y,
+          uc,lc,uc,vc,uw,lw,uc,xc,lc,lc,
+        // Z, z, ., :, /,
+          uc,zc,ui,ui,vc,vc,uc,uc,uc,uc,
+        // 1, 2, 3, 4, 5, 6, 7, 8, 9, 0
+          tc,uc,uc,uc,uc,uc,uc,uc,uc,uc,
+    };
+    
+    int slots[word.length()];
+    
+    for (int i=0; i<word.length(); i++) {
+        int asciiValue = (int)(word[i]);
+        int slot = -1;
+        //cout << "Letter value for " << word[i] << " is " << asciiValue << endl;
+        if (asciiValue >= 65 && asciiValue <= 90) { // uppercase
+            slot = (asciiValue - 65)*2;
+        } else if (asciiValue >= 97 && asciiValue <= 122) { // lowercase
+            slot = (asciiValue - 97)*2+1;
+        } else if (asciiValue >= 48 && asciiValue <= 57) { // numbers
+            slot = (asciiValue - 39)%10+60;
+        } else if (asciiValue == 46) { // .
+            slot = 52;
+        } else if (asciiValue == 58) { // :
+            slot = 53;
+        } else if (asciiValue == 47) { // /
+            slot = 54;
+        } else if (asciiValue == 32) { // space
+            slot = 55;
+        }
+        slots[i] = slot;
+        if (slot != -1) {
+            
+            slotX=slot%10;
+            slotY=slot/10;
+            bool isLowercaseJ = (slot == 19);
+            int currentWidth = (isLowercaseJ ? offsetX : 0)+characterWidths[slotX+slotY*10];
+            wordWidth += (i == word.length()-1 ? 0 : spacing)+currentWidth;//characterWidths[slotX+slotY*10];
+        }
+    }
+    
+    // Then write it
+    for (int i=0; i<word.length(); i++) {
+        if (slots[i] != -1) {
+            slotX=slots[i]%10;
+            slotY=slots[i]/10;
+            bool isLowercaseJ = (slots[i] == 19);
+            int currentWidth = (isLowercaseJ ? offsetX : 0)+characterWidths[slotX+slotY*10];
+            textImage.draw(-wordWidth/2.0+x+currentOffset+currentWidth/2-(isLowercaseJ ? offsetX : 0),
+                           y+(line-0.5)*characterHeight,
+                           // Texture start:
+                           (isLowercaseJ ? 0 : offsetX)+characterWidth*slotX, offsetY+characterHeight*slotY,
+                           // Texture size:
+                           currentWidth, characterHeight,
+                           aspect, false);
+            letter++;
+            currentOffset += characterWidths[slotX+slotY*10]+spacing;
+        }
+    }
 
 }
 

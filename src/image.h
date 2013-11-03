@@ -32,6 +32,7 @@ public:
     Image();
     Image(const char*,float);
     void draw(int,int,float,float); // had an Image:: at front but Mac complained
+    void draw(int,int,int,int,int,int,float,float); // had an Image:: at front but Mac complained
 };
 
 #endif

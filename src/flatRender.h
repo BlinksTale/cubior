@@ -4,8 +4,11 @@
  * 1/20/12
  * header for 2d visuals for cubior
  */
+
 #ifndef FLATRENDER
 #define FLATRENDER
+
+#include <string>
 
     void display();
     void displayMenu();
@@ -32,6 +35,7 @@
     void drawGoalShadow();
     void drawGoalOutline();
     void drawMenu(int,bool);
+    void writeWord(std::string,int,int,float);
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);
     void updateGoalGraphic();

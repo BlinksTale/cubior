@@ -284,3 +284,7 @@ great, using automatedCamera instead. Now just auto-send a command for the neare
 ---
 9/24/13
 do something like moveToPlayer in gameplay.cpp, but do it only to a certain range, and constantly
+
+---
+11/1/13
+Each character is sized 144x141?

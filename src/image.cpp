@@ -62,32 +62,63 @@ Image::Image(const char* name, float multiplier) {
 
 // Draw self at a location
 void Image::draw(int x, int y, float aspect, float rotate) {
-  
-  glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
-  
-  float currentTextureX = x;
-  float currentTextureY = y;
-
-  //glTranslatef(0.0,0.0,10.0);
-  glPushMatrix();
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
+    
+    float currentTextureX = x;
+    float currentTextureY = y;
+    
+    //glTranslatef(0.0,0.0,10.0);
+    glPushMatrix();
     // Always keep in center of screen, regardless of size/resolution
     // And use aspect from earlier to do this, and 1600 as expected/base width
     if (aspect > 1.0) {
-      glTranslatef(1600*aspect/2+currentTextureX, 1050/2+currentTextureY,0.0f);
+        glTranslatef(1600*aspect/2+currentTextureX, 1050/2+currentTextureY,0.0f);
     } else {
-      glTranslatef(1600/2+currentTextureX,        1050/2+currentTextureY,0.0f);
+        glTranslatef(1600/2+currentTextureX,        1050/2+currentTextureY,0.0f);
     }
     glPushMatrix();
     if (rotate != 0.000) {
-      glRotatef(rotate,0.0,0.0,1.0);
+        glRotatef(rotate,0.0,0.0,1.0);
     }
     // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
     glBegin(GL_QUADS);
-      glTexCoord2d( 0,  0); glVertex2f(0-width/2.0, 0-height/2.0);
-      glTexCoord2d(u3,  0); glVertex2f(0+width/2.0, 0-height/2.0);
-      glTexCoord2d(u3, v3); glVertex2f(0+width/2.0, 0+height/2.0);
-      glTexCoord2d( 0, v3); glVertex2f(0-width/2.0, 0+height/2.0);
+    glTexCoord2d( 0,  0); glVertex2f(0-width/2.0, 0-height/2.0);
+    glTexCoord2d(u3,  0); glVertex2f(0+width/2.0, 0-height/2.0);
+    glTexCoord2d(u3, v3); glVertex2f(0+width/2.0, 0+height/2.0);
+    glTexCoord2d( 0, v3); glVertex2f(0-width/2.0, 0+height/2.0);
     glEnd();
-  glPopMatrix();
-  glPopMatrix();
+    glPopMatrix();
+    glPopMatrix();
+}
+
+void Image::draw(int x, int y, int startingX, int startingY, int deltaX, int deltaY, float aspect, float rotate) {
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, u2, v2, 0, GL_RGBA, GL_UNSIGNED_BYTE, &imageItself[0]);
+    
+    float currentTextureX = x;
+    float currentTextureY = y;
+    
+    //glTranslatef(0.0,0.0,10.0);
+    glPushMatrix();
+    // Always keep in center of screen, regardless of size/resolution
+    // And use aspect from earlier to do this, and 1600 as expected/base width
+    if (aspect > 1.0) {
+        glTranslatef(1600*aspect/2+currentTextureX, 1050/2+currentTextureY,0.0f);
+    } else {
+        glTranslatef(1600/2+currentTextureX,        1050/2+currentTextureY,0.0f);
+    }
+    glPushMatrix();
+    if (rotate != 0.000) {
+        glRotatef(rotate,0.0,0.0,1.0);
+    }
+    // Draw the texture on a quad, using u3 and v3 to correct non power of two texture size.
+    glBegin(GL_QUADS);
+    glTexCoord2d( (startingX)/(u2*1.0),  startingY/(v2*1.0)); glVertex2f(0-deltaX/2.0, 0-deltaY/2.0);
+    glTexCoord2d( (startingX+deltaX)/(u2*1.0), startingY/(v2*1.0)); glVertex2f(0+deltaX/2.0, 0-deltaY/2.0);
+    glTexCoord2d( (startingX+deltaX)/(u2*1.0), (startingY+deltaY)/(v2*1.0)); glVertex2f(0+deltaX/2.0, 0+deltaY/2.0);
+    glTexCoord2d( (startingX)/(u2*1.0), (startingY+deltaY)/(v2*1.0)); glVertex2f(0-deltaX/2.0, 0+deltaY/2.0);
+    glEnd();
+    glPopMatrix();
+    glPopMatrix();
 }
