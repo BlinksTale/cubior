@@ -1412,10 +1412,10 @@ void drawMenu(int i, bool doubleWidth) {
     // Something will always be moving/rotating
     int option = getOption(i);
     float rotation = 5.0*sin(time/300.0);
+    textImage.prepDraw(); // must do this before using writeWord
     // Start screen?
     if (/*getLastPause() == -1 && */getMenu(i) == 0) {
         // Splash screen
-        logoImage.draw(20.0*sin(time/1600.0),-300+10.0*sin(time/800.0),aspect,false);
         
         //writeWord("JohnAbdoujOHNaBDOU", -650, -300, aspect);
         // J, A, U, and j are being weird
@@ -1463,11 +1463,6 @@ void drawMenu(int i, bool doubleWidth) {
       writeWord("Volume",0, 1.0*menuSpacing,aspect,(option==2)*rotation);
       writeWord("Back",0, 2.0*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 4) { // Controls Display
-      if (joystickConnected()) {
-        gamepadControlsImage.draw(0,-100,aspect,false);
-      } else {
-        keyboardControlsImage.draw(0,-100,aspect,false);
-      }
       if (getJustHitStart()) {
         writeWord("Start",0, 400,aspect,(option==0)*rotation);
       } else {
@@ -1503,6 +1498,20 @@ void drawMenu(int i, bool doubleWidth) {
         writeWord("Med", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       }
       writeWord("Back",0, 2.0*menuSpacing,aspect,(option==2)*rotation);
+    }
+    
+    
+    
+    // Now the non-word images
+    if (getMenu(i) == 0) {
+        // Splash screen
+        logoImage.draw(20.0*sin(time/1600.0),-300+10.0*sin(time/800.0),aspect,false);
+    } else if (getMenu(i) == 4) { // Controls Display
+        if (joystickConnected()) {
+            gamepadControlsImage.draw(0,-100,aspect,false);
+        } else {
+            keyboardControlsImage.draw(0,-100,aspect,false);
+        }
     }
   glDisable(GL_BLEND);
   glEnable(GL_ALPHA_TEST);
@@ -1543,7 +1552,7 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
         // K, k, L, l, M, m, N, n, O, o,
           lc,lc,uc,tc,uw,lw,uc,lc,uc,lc,
         // P, p, Q, q, R, r, S, s, T, t,
-          lc,lc,uc,lc,lc,rc,uc,lc,uc,tc,
+          lc,lc,uc,lc,lc,rc,uc,zc,uc,tc,
         // U, u, V, v, W, w, X, x, Y, y,
           uc,lc,uc,vc,uw,lw,uc,xc,lc,lc,
         // Z, z, ., :, /,
@@ -1585,7 +1594,6 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
     }
     
     // Then write it
-    textImage.prepDraw(); // must do this before calling the fancy, eight parameter draw call!
     for (int i=0; i<word.length(); i++) {
         if (slots[i] != -1) {
             slotX=slots[i]%10;
