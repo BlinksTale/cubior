@@ -1424,10 +1424,10 @@ void drawMenu(int i, bool doubleWidth) {
         //writeWord("mpedoverthelazydog", -700, 300, aspect);
         //writeWord("THEQUICKBROWNFOXJU", -650, 100, aspect); //
         //writeWord("MPEDOVERTHELAZYDOG", -700, 300, aspect);
-        string myString = "The number is ";
-        char number[21];
-        sprintf(number, "%d", time);
-        writeWord(myString + number, 0, 100, aspect, false); //
+        //string myString = "The number is ";
+        //char number[21];
+        //sprintf(number, "%d", time);
+        //writeWord(myString + number, 0, 100, aspect, false); //
         //writeWord("http://192.368.0.457/", 0, 100, aspect); //
         //writeWord("How are you?", -650, 100, aspect); //
         
@@ -1453,11 +1453,11 @@ void drawMenu(int i, bool doubleWidth) {
       writeWord("Options",0, 0.5*menuSpacing,aspect,(option==2)*rotation);
       writeWord("Quit",0, 1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
-      cameraControlsImage.draw( 0,-2.0*menuSpacing,aspect,false);
+      writeWord("Camera Controls", 0,-2.0*menuSpacing,aspect,false);
       if (getIndependentMovement(i)) {
-        cameraControlsProImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation);
+        writeWord(":Pro:", 0,-1.0*menuSpacing,aspect,(option==0)*rotation);
       } else {
-        cameraControlsEasyImage.draw(0,-1.0*menuSpacing,aspect,(option==0)*rotation);
+        writeWord(":Easy:",0,-1.0*menuSpacing,aspect,(option==0)*rotation);
       }
       writeWord("Controls",0, 0.0*menuSpacing,aspect,(option==1)*rotation);
       writeWord("Volume",0, 1.0*menuSpacing,aspect,(option==2)*rotation);
@@ -1483,24 +1483,24 @@ void drawMenu(int i, bool doubleWidth) {
       writeWord("Music",  0,-2.0*menuSpacing,aspect,false);
       switch (getMusicVolumeNum()) {
       case 0:
-        offImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Off", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       case 1:
-        lowImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Low", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       case 3:
-        highImage.draw(0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("High",0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       default:
-        medImage.draw( 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
+        writeWord("Med", 0,-1.0*menuSpacing,aspect,(option==0)*rotation); break;
       }
       writeWord("Sound", 0, 0.0*menuSpacing,aspect,false);
       switch (getSoundVolumeNum()) {
       case 0:
-        offImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Off", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       case 1:
-        lowImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Low", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       case 3:
-        highImage.draw(0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("High",0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       default:
-        medImage.draw( 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
+        writeWord("Med", 0, 1.0*menuSpacing,aspect,(option==1)*rotation); break;
       }
       writeWord("Back",0, 2.0*menuSpacing,aspect,(option==2)*rotation);
     }
