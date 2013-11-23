@@ -22,9 +22,12 @@ using namespace std;
 
 class Map {
   protected:
-    CubeObj* map[maxWidth][maxHeight][maxDepth];
+    (CubeObj*) (*map)[maxHeight][maxDepth];
     //unordered_map<int, CubeObj*> map_unordered;
-    int width, height, depth, cubeCount, goalWidth, goalHeight, goalDepth;
+    int width;
+    int height; 
+    int depth;
+    int cubeCount, goalWidth, goalHeight, goalDepth;
     bool customColors, empty, exists;
     float red, green, blue;
   public:
@@ -62,6 +65,7 @@ class Map {
     float getBlue();
     CubeObj* getCubeAt(int,int,int);
     int getSlot(int,int,int);
+    bool getInbounds(int,int,int);
 };
 
 #endif 

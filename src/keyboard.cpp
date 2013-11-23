@@ -313,7 +313,9 @@ void sendCommands() {
     setJoystickControls(i);
       
     // Then send commands
-    joystickCommands(i);
+    if (joystickButtonCount[i] > 0 && joystickButtonCount[i] < 200) {
+      joystickCommands(i);
+    }
   }
 	// Then update each active joystick's info before sending commands
   for (int i=0; i < localPlayerCount; i++) {
@@ -530,10 +532,6 @@ void joystickCommands(int joystick) {
         //if (sf::Joystick::isButtonPressed(joystick,b)) {
         //    cout << "Pressed button " << b << endl;
         //}
-        bool buttonB = sf::Joystick::isButtonPressed(joystick,b);
-        if (buttonB) {
-            //cout << "Pressed button " << b << " is " << buttonB << endl;
-        }
 	}
   if (i >= 0 && i < localPlayerCount) {
   // Cam button stuff

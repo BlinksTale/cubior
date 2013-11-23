@@ -215,7 +215,8 @@ Map* MapReader::readMap(const string& s) {
 // Put invisible blot in a spot, or make current block invisible
 void MapReader::fillSpotWithInvisible(Map* map, int spotX, int spotY, int spotZ) {
   CubeObj* focus = map->getCubeAt(spotX,spotY,spotZ);
-  if (focus != NULL) {
+  bool isInbounds = map->getInbounds(spotX,spotY,spotZ);
+  if (focus != NULL && isInbounds) {
     if (!focus->isInvisible()) {
       focus->setInvisible(true);
       focus->setMaterial(8);

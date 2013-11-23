@@ -13,6 +13,9 @@
 #define oldMap true
 
 Map::Map() {
+  width = maxWidth;
+  height = maxHeight;
+  depth = maxDepth;
   init();
 }
 
@@ -30,6 +33,19 @@ Map::~Map() {
 
 // Default way to initialize a map
 void Map::init() {
+  //if (map) {
+  //  delete[] map;
+  //}
+  //CubeObj (*newMap)[maxHeight][maxDepth] 
+  map = new CubeObj*[maxWidth][maxHeight][maxDepth];
+  for (int w=0; w<maxWidth; w++) {
+    for (int h=0; h<maxHeight; h++) {
+      for (int d=0; d<maxDepth; d++) {
+        map[w][h][d] = NULL;
+      }
+    }
+  }
+
   goalWidth = 0;
   goalDepth = 0;
   goalDepth = 0;
@@ -148,11 +164,8 @@ int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
-  int slot = getSlot(w, d, h);
-  if (
-      w >= 0 && w < width  &&
-      h >= 0 && h < height &&
-      d >= 0 && d < depth ) {
+  //int slot = getSlot(w, d, h);
+  if (getInbounds(w,d,h)) {
     #ifdef oldMap
       return map[w][h][d];
     #else
@@ -165,6 +178,12 @@ CubeObj* Map::getCubeAt(int w, int h, int d) {
   }
 }
 
+bool Map::getInbounds(int w, int h, int d) {
+  return 
+      w >= 0 && w < width  &&
+      h >= 0 && h < height &&
+      d >= 0 && d < depth;
+}
 // Background's solid color!
 float Map::getRed()  { return red; }
 float Map::getGreen(){ return green;}
