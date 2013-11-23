@@ -149,13 +149,10 @@ GLfloat shadowColors[maxCubeCount*24];
 
 // Pointers to oft referenced objects
 CameraObj* cameraPointer[cubiorNum];
+// KEEP: textImage logoImage keyboardControlsImage gamepadControlsImage
 
 // Images for HUD, Menu, etc
-Image textImage, logoImage, pressStartImage, pressEnterImage, pressStartEnterImage,
-  resumeImage, quitImage, creditsImage, startImage, optionsImage, backImage,
-  controlsImage, cameraControlsImage, cameraControlsProImage, cameraControlsEasyImage, 
-  keyboardControlsImage, gamepadControlsImage, creditsTextImage, dropOutImage,
-  volumeImage, offImage, lowImage, medImage, highImage, soundImage, musicImage;
+Image textImage, logoImage, keyboardControlsImage, gamepadControlsImage;
 float menuSize = 0.75;
 int menuSpacing = 200;
 
@@ -1334,36 +1331,9 @@ void initMenu() {
     
   // These need to be converted to const char* with c_str for Image to accept them
   textImage            = Image((extraPath + "./images/cubiorTextSpriteSheet.png").c_str(),1);
-    
-  logoImage            = Image((extraPath + "./images/CubiorLogo720.png").c_str(),1);//256.png",1.5);
-  pressStartImage      = Image((extraPath + "./images/CubiorPressStart720.png").c_str(),1);//128.png",2.0);
-  pressEnterImage      = Image((extraPath + "./images/CubiorPressEnter720.png").c_str(),1);//128.png",2.0);
-  pressStartEnterImage = Image((extraPath + "./images/CubiorPressStartEnter720.png").c_str(),1);//128.png",2.0);
-  startImage           = Image((extraPath + "./images/CubiorStart720.png").c_str(),  menuSize);//128.png",2.0);
-  resumeImage          = Image((extraPath + "./images/CubiorResume720.png").c_str(), menuSize);//128.png",3.0);
-  optionsImage         = Image((extraPath + "./images/CubiorOptions720.png").c_str(),menuSize);//128.png",2.0);
-  backImage            = Image((extraPath + "./images/CubiorBack720.png").c_str(),menuSize);
-  dropOutImage         = Image((extraPath + "./images/CubiorDropOut720.png").c_str(),menuSize);
-
-  controlsImage          = Image((extraPath + "./images/CubiorControls720.png").c_str(),menuSize);
-  cameraControlsImage    = Image((extraPath + "./images/CubiorCameraControls720.png").c_str(),menuSize);
-  cameraControlsProImage = Image((extraPath + "./images/CubiorPro720.png").c_str(),menuSize);
-  cameraControlsEasyImage= Image((extraPath + "./images/CubiorEasy720.png").c_str(),menuSize);
+  logoImage            = Image((extraPath + "./images/CubiorLogo720.png").c_str(),1);
   keyboardControlsImage  = Image((extraPath + "./images/CubiorControlsKeyboard720.png").c_str(),1);
   gamepadControlsImage   = Image((extraPath + "./images/CubiorControlsGamepad720.png").c_str(),1);
-  
-  volumeImage = Image((extraPath + "./images/CubiorVolume720.png").c_str(),menuSize);
-  soundImage  = Image((extraPath + "./images/CubiorSound720.png").c_str(),menuSize);
-  musicImage  = Image((extraPath + "./images/CubiorMusic720.png").c_str(),menuSize);
-  offImage    = Image((extraPath + "./images/CubiorOff720.png").c_str(),menuSize);
-  lowImage    = Image((extraPath + "./images/CubiorLow720.png").c_str(),menuSize);
-  medImage    = Image((extraPath + "./images/CubiorMed720.png").c_str(),menuSize);
-  highImage   = Image((extraPath + "./images/CubiorHigh720.png").c_str(),menuSize);
-  
-  creditsImage         = Image((extraPath + "./images/CubiorCredits720.png").c_str(),menuSize);//128.png",3.0);
-  // Credits text image was having trouble loading, going to just use printed text for now
-  //creditsTextImage     = Image((extraPath + "./images/CubiorCreditsThemselves720.png").c_str(),1);//Text1080.png",1);
-  quitImage            = Image((extraPath + "./images/CubiorQuit720.png").c_str(),   menuSize);//128.png",3.0);
 
 }
 
@@ -1522,7 +1492,7 @@ void drawMenu(int i, bool doubleWidth) {
 
 }
 
-void writeWord(string word, int x, int y, float aspect, float rotate) {
+void writeWord(const string word, int x, int y, float aspect, float rotate) {
     
     int currentOffset = 0;
     int wordWidth = 0;
@@ -1563,7 +1533,8 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
           tc,uc,uc,uc,uc,uc,uc,uc,uc,uc,
     };
     
-    int slots[word.length()];
+    //int slots[word.length()];
+    int *slotsP = new int[word.length()];
     
     for (int i=0; i<word.length(); i++) {
         int asciiValue = (int)(word[i]);
@@ -1584,7 +1555,7 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
         } else if (asciiValue == 32) { // space
             slot = 55;
         }
-        slots[i] = slot;
+        slotsP[i] = slot;
         if (slot != -1) {
             
             slotX=slot%10;
@@ -1597,10 +1568,10 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
     
     // Then write it
     for (int i=0; i<word.length(); i++) {
-        if (slots[i] != -1) {
-            slotX=slots[i]%10;
-            slotY=slots[i]/10;
-            bool isLowercaseJ = (slots[i] == 19);
+        if (slotsP[i] != -1) {
+            slotX=slotsP[i]%10;
+            slotY=slotsP[i]/10;
+            bool isLowercaseJ = (slotsP[i] == 19);
             int currentWidth = (isLowercaseJ ? offsetX : 0)+characterWidths[slotX+slotY*10];
             textImage.draw(-wordWidth/2.0+x+currentOffset+currentWidth/2-(isLowercaseJ ? offsetX : 0),
                            y+(line)*characterHeight,
@@ -1613,6 +1584,8 @@ void writeWord(string word, int x, int y, float aspect, float rotate) {
             currentOffset += characterWidths[slotX+slotY*10]+spacing;
         }
     }
+
+    delete[] slotsP;
 
 }
 
