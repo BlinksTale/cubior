@@ -22,7 +22,7 @@ using namespace std;
 
 class Map {
   protected:
-    (CubeObj*) (*map)[maxHeight][maxDepth];
+    CubeObj* (*map)[maxHeight][maxDepth];
     //unordered_map<int, CubeObj*> map_unordered;
     int width;
     int height; 
