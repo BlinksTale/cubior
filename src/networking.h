@@ -5,6 +5,8 @@
  * Networking class for 3d platformer
  */
 
+#ifdef networking_enabled
+
 #ifndef NETWORKING
 #define NETWORKING
 
@@ -42,4 +44,5 @@ const bool networkingAllowed = true;
     float getDirection(int);
     bool isConnected();
 
+#endif
 #endif

@@ -260,6 +260,7 @@ void setupNetworking(string addressToJoin) {
     // Gameplay Start network stuff!
     // Only change networkingEnabled status if told to.
     // Empty string means no change
+#ifdef networking_enabled
     if (addressToJoin.compare("") != 0) {
         networkingEnabled = (addressToJoin.compare("n") != 0);
     }
@@ -269,6 +270,7 @@ void setupNetworking(string addressToJoin) {
             onlineAlone = true;
         }
     }
+#endif
 }
 
 void setupNetworkedPlayers() {
@@ -333,7 +335,9 @@ void setupLevel() {
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
   keyboardInit();
+#ifdef networking_enabled
   networkingInit();
+#endif
   gameplayStart(levelToLoad, addressToJoin);
 }
 
@@ -345,10 +349,12 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     //permanentMap = NULL;
       disablePlayers();
       
+#ifdef networking_enabled
       setupNetworking(addressToJoin);
       if (networkingEnabled) {
           networkTick();
       }
+#endif
   }
     
   if (gameplayRunning) {
@@ -368,10 +374,12 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
     // Setup player positions and cameras
     setupPlayers();
     
+#ifdef networking_enabled
     // And networked players
     if (networkingEnabled) {
         setupNetworkedPlayers();
     }
+#endif
     
     // Setup level geometry and goal
     setupLevel();
@@ -635,7 +643,8 @@ void gameplayLoop() {
   }
 
   // Lastly, network stuff!
-    
+  
+#ifdef networking_enabled
   // Networking anytime loop
   if (networkingEnabled) {
     networkTick();
@@ -693,6 +702,7 @@ void gameplayLoop() {
     }
     
   }
+#endif
 }
 
 // Use the camera cube to check for collision against the map
