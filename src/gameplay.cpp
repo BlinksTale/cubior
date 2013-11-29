@@ -257,10 +257,10 @@ void disablePlayers() {
 }
 
 void setupNetworking(string addressToJoin) {
-#ifdef enet_lib
     // Gameplay Start network stuff!
     // Only change networkingEnabled status if told to.
     // Empty string means no change
+#ifdef enet_lib
     if (addressToJoin.compare("") != 0) {
         networkingEnabled = (addressToJoin.compare("n") != 0);
     }
@@ -641,7 +641,7 @@ void gameplayLoop() {
   }
 
   // Lastly, network stuff!
-    
+  
   // Networking anytime loop
 #ifdef enet_lib
   if (networkingEnabled) {
