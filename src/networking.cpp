@@ -14,6 +14,7 @@
 // had to add enet.lib, winmm.lib, ws2_32.lib to Project Properties > Linker > Input top bar
 
 // This now works with itself, but not with a copy on the same machine. How about another machine?
+#ifdef enet_lib
 
 #include <cstdlib> // atoi
 #include <iostream>
@@ -418,3 +419,4 @@ void disconnectFrom(string newAddress) {
 bool isConnected() {
     return connected;
 }
+#endif

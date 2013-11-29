@@ -165,7 +165,6 @@ void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue 
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
   //int slot = getSlot(w, d, h);
-  if (getInbounds(w,d,h)) {
     #ifdef oldMap
       return map[w][h][d];
     #else
@@ -173,9 +172,6 @@ CubeObj* Map::getCubeAt(int w, int h, int d) {
         return map_unordered[slot];
       }
     #endif
-  } else {
-    return NULL;
-  }
 }
 
 bool Map::getInbounds(int w, int h, int d) {

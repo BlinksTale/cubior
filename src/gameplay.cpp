@@ -257,6 +257,7 @@ void disablePlayers() {
 }
 
 void setupNetworking(string addressToJoin) {
+#ifdef enet_lib
     // Gameplay Start network stuff!
     // Only change networkingEnabled status if told to.
     // Empty string means no change
@@ -269,6 +270,7 @@ void setupNetworking(string addressToJoin) {
             onlineAlone = true;
         }
     }
+#endif
 }
 
 void setupNetworkedPlayers() {
@@ -333,7 +335,9 @@ void setupLevel() {
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
   keyboardInit();
+#ifdef enet_lib
   networkingInit();
+#endif
   gameplayStart(levelToLoad, addressToJoin);
 }
 
@@ -347,7 +351,9 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
       
       setupNetworking(addressToJoin);
       if (networkingEnabled) {
+#ifdef enet_lib
           networkTick();
+#endif
       }
   }
     
@@ -637,6 +643,7 @@ void gameplayLoop() {
   // Lastly, network stuff!
     
   // Networking anytime loop
+#ifdef enet_lib
   if (networkingEnabled) {
     networkTick();
     for (int i=0; i<cubiorCount; i++) {
@@ -693,6 +700,7 @@ void gameplayLoop() {
     }
     
   }
+#endif
 }
 
 // Use the camera cube to check for collision against the map
