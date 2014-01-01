@@ -30,13 +30,15 @@
 
  */
 
-#ifdef __APPLE_CC__
-const float radius = 0.5 - 0.000001;
-#else
+// Now doing both apple and windows as the windows style
+// since on other macs, the shadows came out wrong
+//#ifdef __APPLE_CC__
+//const float radius = 0.5 - 0.000001;
+//#else
 const float radius = 0.5 - 0.0001; // this difference helps checker tile coloring in the fragment shader
 // the subtracted part cannot be less than 0.0001? Known that it cannot be 0.000001 on Windows anymore.
 // Otherwise, flickering starts occurring with all the shadows
-#endif
+//#endif
 
 GLfloat vertices[] = {  radius, radius, radius, // 0 - front upper left
                        -radius, radius, radius, // 1 - front upper right

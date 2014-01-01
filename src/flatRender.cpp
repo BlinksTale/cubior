@@ -106,13 +106,13 @@ int lastClock = clock();
 int lastFrame = lastClock;
 int averageDiff = 0;
 
-// Shader uniforms
-#ifdef __APPLE_CC__
-float shaderTinyAmount = 0.000001; // five zeros on a mac
-#else
+// Shader uniforms (again, now both using Windows value since newer Macs have same issue)
+//#ifdef __APPLE_CC__
+//float shaderTinyAmount = 0.000001; // five zeros on a mac
+//#else
 float shaderTinyAmount = 0.0000001; // must have six zeros and a one on windows
 // must be less than the cubeShape's verticies radius
- #endif 
+// #endif
 float shaderTime = 0.0;
 
 // Goal object's visual

@@ -120,7 +120,7 @@ shows LodePNG can be used to load PNG images as textures in OpenGL.
 
 #include <iostream>
 
-#ifdef __APPLE_CC__
+#ifdef __APPLE_CC__ 
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
