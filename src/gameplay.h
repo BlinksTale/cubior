@@ -198,6 +198,7 @@ static const int playerVisibleMax = 10;
     void nextFocus(int);
     void prevFocus(int);
     int getFocus(int);
+    int getFocusMax(int);
 
     // Menu info
     bool getStarted();

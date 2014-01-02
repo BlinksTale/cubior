@@ -1476,8 +1476,8 @@ void drawMenu(int i, bool doubleWidth) {
         // Data for Ip Address
         int focusStart = 0; // getFocus(0) has to figure out its size and all sizes before it
         int focusEnd = -1;
-        char address [15];
-        char addressArray[4][3];
+        char address [50];
+        char addressArray[4][4];
         
         for (int j=0; j<4; j++) {
             sprintf(addressArray[j], "%d", getIpAddress(j));
@@ -1488,19 +1488,13 @@ void drawMenu(int i, bool doubleWidth) {
             }
             if (getFocus(0) > j) {
                 focusStart += strlen(addressArray[j]);
-                //if (j > 0) {
-                    focusStart++; // to skip periods
-                //}
+                focusStart++; // to skip periods
             }
             if (getFocus(0) >= j) {
                 focusEnd += strlen(addressArray[j]);
-                //if (j > 0) {
-                    focusEnd++; // to skip periods
-                //}
+                focusEnd++; // to skip periods
             }
         }
-        
-        //sprintf(address, "%d.%d.%d.%d", getIpAddress(0), getIpAddress(1), getIpAddress(2), getIpAddress(3));
 
         writeWord("IP Address:",       0,midY-2.0*menuSpacing,aspect,false);
         writeWordRangeRotation(address,0,midY-1.0*menuSpacing,aspect,(option==0)*rotation,focusStart,focusEnd); // can only have one rotating section at a time

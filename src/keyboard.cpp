@@ -76,6 +76,8 @@ bool lastDownInput[localPlayerCount];
 bool lastLeftInput[localPlayerCount];
 bool lastRightInput[localPlayerCount];
 bool lastJumpInput[localPlayerCount];
+int  sumJumpInput[localPlayerCount];
+
 
 // For Keyboards
 bool upKey[localPlayerCount];
@@ -467,13 +469,17 @@ void sendCommands() {
         if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
         if ( leftInput[i] &&  !lastLeftInput[i]) { prevFocus(i); }
         if (rightInput[i] && !lastRightInput[i]) { nextFocus(i); }
-        if (jumpInput[i] && !lastJumpInput[i]) { chooseOption(i); }
+        if (jumpInput[i] && (!lastJumpInput[i] || (getFocusMax(i) != 1 && sumJumpInput[i] > 40))) {
+            chooseOption(i);
+            sumJumpInput[i] -= 2;
+        }
         // And update old vars
         lastUpInput[i] = upInput[i];
         lastDownInput[i] = downInput[i];
         lastLeftInput[i] = leftInput[i];
         lastRightInput[i] = rightInput[i];
         lastJumpInput[i] = jumpInput[i];
+        sumJumpInput[i] = jumpInput[i] ? sumJumpInput[i] + 1 : 0;
     }
   }
 }

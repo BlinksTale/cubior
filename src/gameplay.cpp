@@ -2265,6 +2265,7 @@ void chooseOption(int i) {
 // Similarly, option focuses
 void resetFocus(int i) { focus[i] = 0; }
 int getFocus(int i) { return focus[i]; }
+int getFocusMax(int i) { return maxOptionFocus[menu[i]][i]; }
 void nextFocus(int i) {
     if (maxOptionFocus[menu[i]][option[i]] > 1) { justChangedOption = true; }
     focus[i] = (focus[i]+1) % maxOptionFocus[menu[i]][option[i]];
