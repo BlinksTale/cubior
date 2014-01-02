@@ -90,16 +90,28 @@ bool justTurnedCamera = false;
 bool justFailedCamera = false;
 bool justFocusedCamera = false;
 
-// Pause option value
-int option[4];
+// Menu Navigation / Pause option value
+int option[4]; // vertical option
+int focus[4]; // horizontal focus
 int maxOption[] = {1, // Title Screen
-  4, // Main Menu
-  4, // Pause
-  4, // Options
-  1, // Controls
-  1, // Start Controls
-  3 // Volume Settings
+    4, // Main Menu
+    4, // Pause
+    4, // Options
+    1, // Controls
+    1, // Credits
+    3, // Volume Settings
+    4  // IP Address
 };
+int maxOptionFocus[8][4] = { {1}, // Title Screen
+    {1,1,1,1}, // Main Menu
+    {1,1,1,1}, // Pause
+    {1,1,1,1}, // Options
+    {1},       // Controls
+    {1},       // Credits
+    {1,1,1},   // Volume Settings
+    {4,1,1,1}  // IP Address Screen
+};
+
 // And menu in which we are selecting said option
 int menu[4];
 /* Menus are as follows:
@@ -109,6 +121,8 @@ int menu[4];
  * 3. Options menu, options: Camera Controls, Controls, Back
  * 4. Controller map, option: Back
  * 5. Credits, option: Back
+ * 6. Volume, options: Music, Sound, Back
+ * 7. IP Address, options: IP Address, Back
  */
 // And if you've even started yet
 bool started = false;
@@ -335,9 +349,7 @@ void setupLevel() {
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
   keyboardInit();
-#ifdef enet_lib
   networkingInit();
-#endif
   gameplayStart(levelToLoad, addressToJoin);
 }
 
@@ -2101,7 +2113,8 @@ void chooseOption(int i) {
       case 0:
         // See Controller Map Just Before Starting Gameplay
         justHitStart = true;
-        setMenu(i, 4);//menu[controller] = 4;
+        //setMenu(i, 4);//menu[controller] = 4;
+        setMenu(i, 7); // temp swap for networking
         break;
       case 1:
         // Change options
@@ -2219,6 +2232,27 @@ void chooseOption(int i) {
       default:
         break;
     }
+  } else if (menu[i] == 7) { // IP Address Settings
+      switch(option[i]) {
+          case 0:
+              // Increase the current Ip Address slot's value
+              incrementIpAddress(focus[i]);
+              break;
+          case 1:
+              // Start Online
+              setMenu(i, 4); // fixme: make an online start
+              break;
+          case 2:
+              // Start Offline
+              setMenu(i, 4);
+              break;
+          case 3:
+              // Return to main menu
+              setMenu(i, 1);
+              break;
+          default:
+              break;
+      }
   }
 
   // And if no errors
@@ -2228,6 +2262,18 @@ void chooseOption(int i) {
   }
 }
 
+// Similarly, option focuses
+void resetFocus(int i) { focus[i] = 0; }
+int getFocus(int i) { return focus[i]; }
+void nextFocus(int i) {
+    if (maxOptionFocus[menu[i]][option[i]] > 1) { justChangedOption = true; }
+    focus[i] = (focus[i]+1) % maxOptionFocus[menu[i]][option[i]];
+}
+void prevFocus(int i) {
+    if (maxOptionFocus[menu[i]][option[i]] > 1) { justChangedOption = true; }
+    focus[i] = (focus[i]+maxOptionFocus[menu[i]][option[i]]-1) % maxOptionFocus[menu[i]][option[i]];
+}
+    
 bool getStarted() { return started; }
 void setStarted(bool b) { started = b; }
     

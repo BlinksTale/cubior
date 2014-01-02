@@ -35,6 +35,8 @@
     void drawGoalShadow();
     void drawGoalOutline();
     void drawMenu(int,bool);
+    void writeWordRangeRotation(std::string,int,int,float,float,int,int);
+    void writeWordIndividualRotation(std::string,int,int,float,float,int);
     void writeWord(std::string,int,int,float,float);
     void updatePlayerGraphic(int);
     void updateCubeGraphic(int);

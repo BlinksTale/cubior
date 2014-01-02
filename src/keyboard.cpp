@@ -73,6 +73,8 @@ bool jumpInput[localPlayerCount];
 // For menu navigation
 bool lastUpInput[localPlayerCount];
 bool lastDownInput[localPlayerCount];
+bool lastLeftInput[localPlayerCount];
+bool lastRightInput[localPlayerCount];
 bool lastJumpInput[localPlayerCount];
 
 // For Keyboards
@@ -460,14 +462,18 @@ void sendCommands() {
 		}
   // Gameplay not running? Send pause commands!
 	} else {
-		for (int i = 0; i<localPlayerCount; i++) {
-      if (  upInput[i] &&   !lastUpInput[i]) { prevOption(i); }
-      if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
-      if (jumpInput[i] && !lastJumpInput[i]) { chooseOption(i); }
-      // And update old vars
-      lastUpInput[i] = upInput[i];
-      lastDownInput[i] = downInput[i];
-      lastJumpInput[i] = jumpInput[i];
+      for (int i = 0; i<localPlayerCount; i++) {
+        if (  upInput[i] &&   !lastUpInput[i]) { prevOption(i); }
+        if (downInput[i] && !lastDownInput[i]) { nextOption(i); }
+        if ( leftInput[i] &&  !lastLeftInput[i]) { prevFocus(i); }
+        if (rightInput[i] && !lastRightInput[i]) { nextFocus(i); }
+        if (jumpInput[i] && !lastJumpInput[i]) { chooseOption(i); }
+        // And update old vars
+        lastUpInput[i] = upInput[i];
+        lastDownInput[i] = downInput[i];
+        lastLeftInput[i] = leftInput[i];
+        lastRightInput[i] = rightInput[i];
+        lastJumpInput[i] = jumpInput[i];
     }
   }
 }

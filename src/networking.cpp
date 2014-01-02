@@ -16,11 +16,12 @@
 // had to add enet.lib, winmm.lib, ws2_32.lib to Project Properties > Linker > Input top bar
 
 // This now works with itself, but not with a copy on the same machine. How about another machine?
-#ifdef enet_lib
 
 #include <cstdlib> // atoi
 #include <iostream>
+#ifdef enet_lib
 #include <enet/enet.h>
+#endif
 #include <string>
 #include <cmath>
 #include <vector>
@@ -37,12 +38,15 @@ const int localPlayerMax = 4;
 // Game instance variables
 bool isHost = false; // one host collects and redistributes all data
 
+#ifdef enet_lib
 // Declare Enet Variables
 ENetAddress addressServer;
 ENetAddress addressClient;
 ENetHost * server;
 ENetHost * client;
 ENetPeer * peer;
+#endif
+
 const int messageSize = 1024;
 char message[messageSize];
 char quarterMessage[localPlayerMax][messageSize/4];
@@ -76,7 +80,10 @@ void networkingInit() {
   for (int i=0; i<onlinePlayerMax; i++) {
     isOnline[i] = false;
   }
+  initializeIpAddress();
 }
+
+#ifdef enet_lib
 
 void pollFor(ENetHost * host, ENetAddress address) {
   // Host Polling from Enet
@@ -422,3 +429,27 @@ bool isConnected() {
     return connected;
 }
 #endif
+
+
+// Universal, regardless of ENET
+
+int addressSlot[4];
+
+void initializeIpAddress() {
+    addressSlot[0] = 192;
+    addressSlot[1] = 168;
+    addressSlot[2] = 0;
+    addressSlot[3] = 9;
+}
+
+void incrementIpAddress(int slot) {
+    if (addressSlot[slot] < 255) {
+        addressSlot[slot]++;
+    } else {
+        addressSlot[slot] = 0;
+    }
+}
+
+int getIpAddress(int slot) {
+    return addressSlot[slot];
+}

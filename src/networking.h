@@ -4,13 +4,14 @@
  * 5/25/13
  * Networking class for 3d platformer
  */
-#ifdef enet_lib
 
 #ifndef NETWORKING
 #define NETWORKING
 
 #include <iostream>
+#ifdef enet_lib
 #include <enet/enet.h>
+#endif
 #include <string>
 #include <vector>
 
@@ -19,6 +20,7 @@ using namespace std; // necessary for string
 const bool networkingAllowed = true;
 
     void networkingInit();
+#ifdef enet_lib
     int connectTo(string);
     void disconnectFrom(string);
     void networkTick();
@@ -45,3 +47,7 @@ const bool networkingAllowed = true;
 
 #endif
 #endif
+
+void initializeIpAddress();
+void incrementIpAddress(int);
+int getIpAddress(int);

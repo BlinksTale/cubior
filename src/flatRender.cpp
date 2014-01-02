@@ -17,6 +17,7 @@
 #include "creditsReader.h"
 #include "music.h" // to show visuals in menus for music volume
 #include "sfx.h" // to show visuals in menus for sfx volume
+#include "networking.h" // to show visuals in menus for ip address of networking
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -32,6 +33,7 @@
 #include <cstring>
 #include <algorithm>
 #include <stdio.h> // for pauseText
+#include <stdlib.h> // for itoa
 #include <time.h> // for printing timestamps
 //#include <sys/time.h> // for linux time
 #include <fstream> // for loading shader files
@@ -1470,6 +1472,41 @@ void drawMenu(int i, bool doubleWidth) {
         writeWord("Med", 0,midY+1.0*menuSpacing,aspect,(option==1)*rotation); break;
       }
       writeWord("Back",  0,midY+2.0*menuSpacing,aspect,(option==2)*rotation);
+    } else if (getMenu(i) == 7) { // IP Address Menu / Connect Online Menu
+        // Data for Ip Address
+        int focusStart = 0; // getFocus(0) has to figure out its size and all sizes before it
+        int focusEnd = -1;
+        char address [15];
+        char addressArray[4][3];
+        
+        for (int j=0; j<4; j++) {
+            sprintf(addressArray[j], "%d", getIpAddress(j));
+            if (j == 0) {
+                sprintf(address, "%s", addressArray[j]);
+            } else {
+                sprintf(address, "%s.%s", address, addressArray[j]);
+            }
+            if (getFocus(0) > j) {
+                focusStart += strlen(addressArray[j]);
+                //if (j > 0) {
+                    focusStart++; // to skip periods
+                //}
+            }
+            if (getFocus(0) >= j) {
+                focusEnd += strlen(addressArray[j]);
+                //if (j > 0) {
+                    focusEnd++; // to skip periods
+                //}
+            }
+        }
+        
+        //sprintf(address, "%d.%d.%d.%d", getIpAddress(0), getIpAddress(1), getIpAddress(2), getIpAddress(3));
+
+        writeWord("IP Address:",       0,midY-2.0*menuSpacing,aspect,false);
+        writeWordRangeRotation(address,0,midY-1.0*menuSpacing,aspect,(option==0)*rotation,focusStart,focusEnd); // can only have one rotating section at a time
+        writeWord("Start Online",      0,midY-0.0*menuSpacing,aspect,(option==1)*rotation);
+        writeWord("Start Offline",     0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Back",              0,midY+2.0*menuSpacing,aspect,(option==3)*rotation);
     }
     
     
@@ -1493,6 +1530,14 @@ void drawMenu(int i, bool doubleWidth) {
 }
 
 void writeWord(const string word, int x, int y, float aspect, float rotate) {
+    writeWordRangeRotation(word, x, y, aspect, rotate, -1, -1);
+}
+
+void writeWordIndividualRotation(const string word, int x, int y, float aspect, float rotate, int focus) {
+    writeWordRangeRotation(word, x, y, aspect, rotate, focus, focus+1);
+}
+                                 
+void writeWordRangeRotation(const string word, int x, int y, float aspect, float rotate, int rangeStart, int rangeEnd) {
     
     int currentOffset = 0;
     int wordWidth = 0;
@@ -1579,7 +1624,7 @@ void writeWord(const string word, int x, int y, float aspect, float rotate) {
                            (isLowercaseJ ? 0 : offsetX)+characterWidth*slotX, offsetY+characterHeight*slotY,
                            // Texture size:
                            currentWidth, characterHeight,
-                           aspect, rotate);
+                           aspect, (i >= rangeStart && i < rangeEnd) || rangeStart == -1 ? rotate : 0);
             letter++;
             currentOffset += characterWidths[slotX+slotY*10]+spacing;
         }
