@@ -50,4 +50,5 @@ const bool networkingAllowed = true;
 
 void initializeIpAddress();
 void incrementIpAddress(int);
+bool setIpAddress(int, int);
 int getIpAddress(int);

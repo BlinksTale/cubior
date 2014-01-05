@@ -442,6 +442,14 @@ void initializeIpAddress() {
     addressSlot[3] = 9;
 }
 
+bool setIpAddress(int slot, int value) {
+    if (value >= 0 && value <= 255) {
+        addressSlot[slot] = value;
+        return true;
+    }
+    return false;
+}
+
 void incrementIpAddress(int slot) {
     if (addressSlot[slot] < 255) {
         addressSlot[slot]++;

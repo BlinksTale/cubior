@@ -193,12 +193,18 @@ static const int playerVisibleMax = 10;
     void prevOption(int);
     int getOption(int);
     void chooseOption(int);
+    bool typingTime(int);
+    void addNumber(unsigned char);
+    void resetNumber(int);
+    void backspaceNumber();
+    void trySettingIpAddress(string);
 
     void resetFocus(int);
     void nextFocus(int);
     void prevFocus(int);
     int getFocus(int);
     int getFocusMax(int);
+    void checkIfFocusChanged(int);
 
     // Menu info
     bool getStarted();
