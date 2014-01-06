@@ -18,6 +18,7 @@
 #include "music.h"
 #include "sfx.h"
 
+#define enet_lib
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
 #include <cmath> // for trig stuff with getAngleBetween
@@ -364,7 +365,7 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
         //permanentMap = NULL;
         disablePlayers();
         
-        setupNetworking(addressToJoin);
+        //setupNetworking(addressToJoin);
         if (networkingEnabled) {
 #ifdef enet_lib
             networkTick();
@@ -2243,6 +2244,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                     break;
                 case 1:
                     // Start Online
+                    setupNetworking(getIpAddress());
                     setMenu(i, 4); // fixme: make an online start
                     break;
                 case 2:

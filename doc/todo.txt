@@ -1,0 +1,6 @@
+1/5/14
+
+Cubior's belated todo, starting 1/5/14
+yes, it's almost the same as the log, but I like todo better. The log isn't quite the style I'd like.
+
+moving networking today from terminal/console based networking to ingame networking

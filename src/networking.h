@@ -7,6 +7,7 @@
 
 #ifndef NETWORKING
 #define NETWORKING
+#define enet_lib
 
 #include <iostream>
 #ifdef enet_lib
@@ -52,3 +53,4 @@ void initializeIpAddress();
 void incrementIpAddress(int);
 bool setIpAddress(int, int);
 int getIpAddress(int);
+string getIpAddress();

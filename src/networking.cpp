@@ -6,7 +6,7 @@
  * most code copied from enet tutorials
  */
 
-
+#define enet_lib
 
 // NetworkTest.cpp : main project file.
 // Most code copied from Enet tutorial
@@ -27,6 +27,7 @@
 #include <vector>
 #include "networking.h"
 #include "gameplay.h" // only for CubiorCount
+#include <sstream> // for ostringstream
 
 using namespace std;
 
@@ -460,4 +461,17 @@ void incrementIpAddress(int slot) {
 
 int getIpAddress(int slot) {
     return addressSlot[slot];
+}
+string getIpAddress() {
+    //char result[50];
+    //sprintf(result, "%d.%d.%d.%d", addressSlot[0], addressSlot[1], addressSlot[2], addressSlot[3]);
+    string result = "";
+    ostringstream ss;
+    for (int i=0; i<4; i++) {
+        int val = addressSlot[i];
+        string part2 = i < 3 ? "." : "";
+        ss << val << part2;
+        result += ss.str();
+    }
+    return result;
 }
