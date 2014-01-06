@@ -135,6 +135,7 @@ static const int playerVisibleMax = 10;
     int getNewLocalPlayer();
     int addPlayer(bool);
     int addPlayer(int, bool);
+    int rearrangePlayer(int);
     int removePlayer(int);
     void setCubiorPlaying(int,bool);
     void setLocalCubiorPlaying(int,bool);

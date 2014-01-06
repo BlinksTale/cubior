@@ -223,6 +223,23 @@ void playerLevelShadows(bool newBool) {
 	levelShadowsKey = newBool;
 }
 
+void rearrangeControls(int oldPlayer, int newPlayer) {
+    // Find slot holding oldPlayer (o is old player, p is slot)
+    int oldPlayerSlot = -1;
+    for (int p=0; p<joystickCount; p++) {
+        if (controlsPlayer[p] == oldPlayer) {
+            oldPlayerSlot = p;
+        }
+    }
+    
+    // Set slot's value to new player (so set n to slot p)
+    if (oldPlayerSlot != -1) {
+        controlsPlayer[oldPlayerSlot] = newPlayer;
+        //controlsChosen = newPlayer; // UNCOMMENT ME if not transfering menu control?
+    }
+
+}
+
 // Pause tied to player who paused
 void playerPause(int p, bool newBool, bool keyboardBool) {
     // If not a universal pause, set us to started

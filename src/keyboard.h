@@ -17,6 +17,7 @@ void setJoystickControls(int);
     void playerJoin(int, bool, bool);
     void playerDirectJoin(int, bool);
     void resetControlsPlayer(int);
+    void rearrangeControls(int, int);
 
     void inputDown(unsigned char, int, int);
     void inputUp(unsigned char, int, int);

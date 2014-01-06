@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     // FIXME: Override for the address check in gameplay
     // so that networking is made ready in time, even
     // if connection is not made immediately
-    boundAddress = "127.0.0.1";
+    boundAddress = "0.0.0.0";
 
     // Create a test file for cubior to see where working dir is in xcode
     /*FILE *f = fopen("cubiorTestFile.txt","w+"); fprintf(f, "hello I am a cubior test file"); fclose(f);

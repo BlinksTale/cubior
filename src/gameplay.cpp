@@ -278,15 +278,19 @@ void setupNetworking(string addressToJoin) {
     // Gameplay Start network stuff!
     // Only change networkingEnabled status if told to.
     // Empty string means no change
+    cout << "Setup Networking for " << addressToJoin << endl;
 #ifdef enet_lib
     if (addressToJoin.compare("") != 0) {
         networkingEnabled = (addressToJoin.compare("n") != 0);
     }
     if (networkingEnabled) {
+        cout << "Address looks good, try connecting" << endl;
         connectTo(addressToJoin);
         if (addressToJoin.compare("127.0.0.1") == 0) {
             onlineAlone = true;
         }
+        networkTick();
+        setupNetworkedPlayers();
     }
 #endif
 }
@@ -366,11 +370,6 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
         disablePlayers();
         
         //setupNetworking(addressToJoin);
-        if (networkingEnabled) {
-#ifdef enet_lib
-            networkTick();
-#endif
-        }
     }
     
     if (gameplayRunning) {
@@ -668,6 +667,9 @@ void gameplayLoop() {
                 cubiorOnline[i] = getOnline(i);
                 // Newly added? Add! Newly deleted? Delete!
                 if (cubiorOnline[i]) {
+                    if (cubiorPlaying[i]) {
+                        rearrangePlayer(i);
+                    }
                     cout << "Added online " << i << endl;
                     addPlayer(i, true);
                 } else {
@@ -2024,6 +2026,36 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         }
         return 1;
     };
+    
+    int rearrangePlayer(int j) {
+        // Add first player you can find
+        for (int i=0; i<cubiorCount; i++) {
+            if (!cubiorPlaying[i] && !cubiorOnline[i]) {
+                cout << "Rearrange adding player " << i << endl;
+                setCubiorPlaying(i, true);
+                setCubiorOnline(i, false);
+                rearrangeControls(j, i);
+                cout << "Rearrange removing player " << j << endl;
+                removePlayer(j);
+
+                return 0;
+            }
+        }
+        // Couldn't find an empty player slot, game is full
+        return 1;
+        
+        /*
+        for (int i=0; i<cubiorCount; i++) {
+            int tryingSlot = (cubiorCount + j + i + 1) % cubiorCount;
+            if (getCubiorPlaying(tryingSlot)) {
+                setCubiorPlaying(tryingSlot, true);
+                setCubiorOnline(tryingSlot, false);
+                rearrangeControls(j, tryingSlot);
+                return 0;
+            }
+        }
+        return 1;*/
+    }
     
     int removePlayer(int i) {
         if (cubiorPlaying[i]) {

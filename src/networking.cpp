@@ -331,9 +331,9 @@ void networkTick() {
 
 int connectTo(string newAddress)
 {
-    //cout << "Trying to connect to " << newAddress << endl;
+    cout << "Trying to connect to " << newAddress << endl;
     if (!hostExists && !connected) {
-        //cout << "No host yet" << endl;
+        cout << "No host yet" << endl;
         // Initialize Enety
         if (enet_initialize () != 0)
         {
@@ -471,7 +471,7 @@ string getIpAddress() {
         int val = addressSlot[i];
         string part2 = i < 3 ? "." : "";
         ss << val << part2;
-        result += ss.str();
     }
+    result += ss.str();
     return result;
 }
