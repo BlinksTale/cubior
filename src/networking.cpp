@@ -187,6 +187,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
 }
 
 bool networkPriority() { // are we the oldest network?
+    cout << "Checking if our " << ticks << " is greater than their " << remoteTicks << endl;
     return remoteTicks < ticks;
 }
 

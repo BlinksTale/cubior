@@ -667,11 +667,21 @@ void gameplayLoop() {
                 cubiorOnline[i] = getOnline(i);
                 // Newly added? Add! Newly deleted? Delete!
                 if (cubiorOnline[i]) {
-                    if (cubiorPlaying[i] && !networkPriority()) {
-                        rearrangePlayer(i);
+                    if (cubiorPlaying[i]) {
+                        if (!networkPriority()) {
+                            rearrangePlayer(i);
+                            cout << "Added online " << i << endl;
+                            addPlayer(i, true);
+                        } else {
+                            // A player believes itself to be online in slot i
+                            // but we know better, i is grandfathered to our i,
+                            // not its i. So we set online i to false.
+                            cubiorOnline[i] = false;
+                        }
+                    } else {
+                        cout << "Added online " << i << endl;
+                        addPlayer(i, true);
                     }
-                    cout << "Added online " << i << endl;
-                    addPlayer(i, true);
                 } else {
                     cout << "Removed online " << i << endl;
                     removePlayer(i);
