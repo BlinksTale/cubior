@@ -41,6 +41,7 @@ const bool networkingAllowed = true;
     int getPosZ(int);
     void setOnline(int, bool);
     bool getOnline(int);
+    void setRemoteOnline(int, bool);
     void setMomentum(int, vector<float>);
     vector<float> getMomentum(int);
     void setDirection(int,float);

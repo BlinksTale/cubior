@@ -139,9 +139,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
       remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
     
       for (int h=0; h<onlinePlayerMax; h++) {
-        
-        isOnline[h] = false; // reset every turn that we get any data
-        
+          
         if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
           /*
            * Split by data here
@@ -263,6 +261,9 @@ int getPosZ(int i) {
 }
 bool getOnline(int i) {
     return isOnline[i];
+}
+void setRemoteOnline(int i, bool b) {
+    isOnline[i] = b;
 }
 
 void setMomentum(int i, vector<float> m) {

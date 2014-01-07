@@ -677,6 +677,7 @@ void gameplayLoop() {
                             // but we know better, i is grandfathered to our i,
                             // not its i. So we set online i to false.
                             cubiorOnline[i] = false;
+                            setRemoteOnline(i, false);
                         }
                     } else {
                         cout << "Added online " << i << endl;
