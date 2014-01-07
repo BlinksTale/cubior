@@ -672,6 +672,7 @@ void gameplayLoop() {
                             rearrangePlayer(i);
                             cout << "Added online " << i << endl;
                             addPlayer(i, true);
+                            setOnline(i, false); // undo my own online status
                         } else {
                             // A player believes itself to be online in slot i
                             // but we know better, i is grandfathered to our i,
