@@ -139,6 +139,9 @@ void pollFor(ENetHost * host, ENetAddress address) {
       remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
     
       for (int h=0; h<onlinePlayerMax; h++) {
+        
+        isOnline[h] = false; // reset every turn that we get any data
+        
         if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
           /*
            * Split by data here
