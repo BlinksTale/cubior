@@ -28,6 +28,7 @@ const bool networkingAllowed = true;
     void pollFor(ENetHost *, ENetAddress);
     int findComma(int, string);
     string* splitByCharacter(string, string*, int, char);
+    bool networkPriority();
 
     void resetSlots();
     int getNextSlot(string[]);

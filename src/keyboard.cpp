@@ -294,7 +294,7 @@ void playerPause(int p, bool newBool, bool keyboardBool) {
 }
 
 void playerJoin(int k, bool newBool, bool keyboardBool) {
-    if (!joinKey[k] && newBool) {
+    if (!joinKey[k] && newBool && getGameplayRunning()) {
         playerDirectJoin(k, keyboardBool);
     }
     joinKey[k] = newBool;

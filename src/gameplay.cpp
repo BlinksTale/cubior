@@ -667,7 +667,7 @@ void gameplayLoop() {
                 cubiorOnline[i] = getOnline(i);
                 // Newly added? Add! Newly deleted? Delete!
                 if (cubiorOnline[i]) {
-                    if (cubiorPlaying[i]) {
+                    if (cubiorPlaying[i] && !networkPriority()) {
                         rearrangePlayer(i);
                     }
                     cout << "Added online " << i << endl;

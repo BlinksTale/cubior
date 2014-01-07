@@ -1,3 +1,9 @@
+1/6/14
+
+only add player when (after connecting online) you hit OK for controls' infos
+
+===
+
 1/5/14
 
 Cubior's belated todo, starting 1/5/14

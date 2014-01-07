@@ -58,7 +58,8 @@ bool choseHost;
 bool keepLooping;
 string oldAddress = "127.0.0.1";
 bool connected = false;
-int ticks = 0;
+int ticks = 0; // the game with more ticks gets higher priority
+int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
 string latestData;
 // Recieving
@@ -132,9 +133,11 @@ void pollFor(ENetHost * host, ENetAddress address) {
        */
 
       string str(latestData);
-      string playerArray[onlinePlayerMax];
-      splitByCharacter(str, playerArray, onlinePlayerMax, ';');
+      string playerArray[onlinePlayerMax+1]; // +1 for ticks
+      splitByCharacter(str, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
 
+      remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    
       for (int h=0; h<onlinePlayerMax; h++) {
         if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
           /*
@@ -181,6 +184,10 @@ void pollFor(ENetHost * host, ENetAddress address) {
 
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+bool networkPriority() { // are we the oldest network?
+    return remoteTicks < ticks;
 }
 
 void resetSlots() {
@@ -306,15 +313,15 @@ void networkTick() {
       for (int i=0; i<localPlayerMax; i++) {
         sprintf(quarterMessage[i], "");
         if (myOnline[i]) {
-          sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f", 
+          sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f",
             i, // send the player's number first, essentially the id
             myPosX[i], myPosY[i], myPosZ[i],
             myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
             myDirection[i]);
         }
       }
-      sprintf(message, "%s;%s;%s;%s", 
-        quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3]);
+      sprintf(message, "%s;%s;%s;%s;%d",
+        quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks);
 
       ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
       if (message) {
