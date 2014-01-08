@@ -2,6 +2,12 @@
 
 only add player when (after connecting online) you hit OK for controls' infos
 
+Two problems remain:
+1) Players remain even after they quit the game. Should disappear instead.
+2) If the rearrange happens before the rearranged player starts the game, then everything is broken by the start menu popping up (so make menus the same as the original player in the rearrange transfer)
+
+Other than that… is this thing 2 person online ready?
+
 ===
 
 1/5/14

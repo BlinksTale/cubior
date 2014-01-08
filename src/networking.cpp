@@ -6,8 +6,6 @@
  * most code copied from enet tutorials
  */
 
-#define enet_lib
-
 // NetworkTest.cpp : main project file.
 // Most code copied from Enet tutorial
 // Copying done by Brian Handy, 5/4/13
@@ -18,16 +16,19 @@
 // This now works with itself, but not with a copy on the same machine. How about another machine?
 
 #include <cstdlib> // atoi
+#include <SFML/Network.hpp> // for networking
+
 #include <iostream>
-#ifdef enet_lib
-#include <enet/enet.h>
-#endif
 #include <string>
 #include <cmath>
 #include <vector>
 #include "networking.h"
 #include "gameplay.h" // only for CubiorCount
 #include <sstream> // for ostringstream
+
+#ifdef enet_lib
+#include <enet/enet.h>
+#endif
 
 using namespace std;
 
@@ -38,6 +39,10 @@ const int localPlayerMax = 4;
 
 // Game instance variables
 bool isHost = false; // one host collects and redistributes all data
+
+// Declare SFML Networking Variables
+sf::UdpSocket socketItself;
+unsigned short socketPort = 54000;
 
 #ifdef enet_lib
 // Declare Enet Variables
@@ -61,7 +66,7 @@ bool connected = false;
 int ticks = 0; // the game with more ticks gets higher priority
 int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
-string latestData;
+string latestData, nextMessage;
 // Recieving
 bool isOnline[onlinePlayerMax];
 int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
@@ -83,6 +88,42 @@ void networkingInit() {
     isOnline[i] = false;
   }
   initializeIpAddress();
+    
+    if (socketItself.bind(socketPort) != sf::Socket::Done) {
+        // error!
+    }
+    socketItself.setBlocking(false);
+}
+
+void networkListen() {
+    sf::Packet packet;
+    sf::IpAddress senderAddress = sf::IpAddress(getIpAddress());
+    unsigned short senderPort = socketPort;
+    string newData;
+    
+    // FIXME: Code hanging here on the receive command
+    socketItself.receive(packet, senderAddress, senderPort);
+    
+    packet >> newData;
+
+    if (newData.length() > 0) {
+        latestData = newData;
+        processData();
+    }
+
+}
+
+void networkBroadcast() {
+    sf::Packet packet;
+    sf::IpAddress recipientAddress = sf::IpAddress(getIpAddress());
+    unsigned short recipientPort = socketPort;
+    
+    prepareData();
+    
+    packet << nextMessage;
+    
+    socketItself.send(packet, recipientAddress, recipientPort);
+    
 }
 
 #ifdef enet_lib
@@ -128,63 +169,198 @@ void pollFor(ENetHost * host, ENetAddress address) {
     }
     
     if (updatePos) {
-      /*
-       * Split by player (separated by semicolon), then split by data (separated by comma)
-       */
-
-      string str(latestData);
-      string playerArray[onlinePlayerMax+1]; // +1 for ticks
-      splitByCharacter(str, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
-
-      remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
-    
-      for (int h=0; h<onlinePlayerMax; h++) {
-          
-        if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
-          /*
-           * Split by data here
-           */
-
-          float momentumX, momentumY, momentumZ;
-          string str(playerArray[h]);
-          const int resultSize = 10;
-          string dataArray[resultSize];
-          splitByCharacter(str, dataArray, resultSize, ',');
-      
-          //for (int i=0; i<resultSize; i++) {
-          //  cout << "Line " << i << " is " << dataArray[i] << endl;
-          //}
-      
-          for (int v = 0; v<resultSize; v++) {
-            //cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
-          }
-          if (resultSize > 0) {
-            //cout << endl;
-          }
-
-          resetSlots();
-          // Find which player is sending data, and update it
-          int p        = getNextSlot(dataArray);
-          isOnline[p]  = true;
-          posX[p]      = getNextSlot(dataArray);
-          posY[p]      = getNextSlot(dataArray);
-          posZ[p]      = getNextSlot(dataArray);
-          momentumX    = getNextSlot(dataArray);
-          momentumY    = getNextSlot(dataArray);
-          momentumZ    = getNextSlot(dataArray);
-          direction[p] = getNextSlot(dataArray);
-      
-          float momentumArray[] = { momentumX, momentumY, momentumZ };
-          std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-          momentum[p].swap(newMomentum);
-
-          //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
-        }
-      }
+        processData();
     }
 
     // Get ready for next loop!
     enet_packet_destroy(event.packet);
+}
+
+void enetListen() {
+    //if (choseHost) {
+    pollFor(server, addressServer);
+    //} else {
+    pollFor(client, addressClient);
+    //}
+    
+    // If you need to, feel free to reconnect on a connection loss
+    if (!connected && reconnectOnDisconnect) {
+        connectTo(oldAddress);
+    }
+}
+
+void enetBroadcast() {
+    ENetPacket* packet = enet_packet_create(nextMessage.c_str(), strlen(nextMessage.c_str()) + 1, ENET_PACKET_FLAG_RELIABLE);
+    if (nextMessage.c_str()) {
+        //cout << "Sending msg " << message << endl;
+    }
+    
+    // No packages will be sent until your game is started
+    if (strlen(nextMessage.c_str()) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
+        enet_peer_send(peer, 0, packet);
+    }
+}
+
+void disconnectFrom(string newAddress) {
+    // Finish using Enet
+    enet_host_destroy(client);
+    enet_host_destroy(server);
+    
+}
+
+#endif
+
+int connectTo(string newAddress)
+{
+    cout << "Trying to connect to " << newAddress << endl;
+    if (!hostExists && !connected) {
+        cout << "No host yet" << endl;
+        
+#ifdef enet_lib
+        // Initialize Enety
+        if (enet_initialize () != 0)
+        {
+            fprintf (stderr, "An error occurred while initializing ENet.\n");
+            return EXIT_FAILURE;
+        }
+        atexit (enet_deinitialize);
+        //cout << "Setup the exit route" << endl;
+        
+        //if (choseHost) {
+        
+        // Bind the server to the default localhost.
+        // A specific host address can be specified by
+        // enet_address_set_host (& addressServer, "x.x.x.x");
+        addressServer.host = ENET_HOST_ANY;
+        // Bind the server to port 1234.
+        addressServer.port = 1234;
+        server = enet_host_create (& addressServer, // the address to bind the server host to
+                                   32,      // allow up to 32 clients and/or outgoing connections
+                                   2,      // allow up to 2 channels to be used, 0 and 1
+                                   0,      // assume any amount of incoming bandwidth
+                                   0       // assume any amount of outgoing bandwidth
+                                   );
+        if (server == NULL)
+        {
+            fprintf (stderr,
+                     "An error occurred while trying to create an ENet server host.\n");
+            exit (EXIT_FAILURE);
+        }
+        
+        //} else {
+        client = enet_host_create (NULL, // create a client host
+                                   1, // only allow 1 outgoing connection
+                                   2, // allow up 2 channels to be used, 0 and 1
+                                   57600 / 8, // 56K modem with 56 Kbps downstream bandwidth
+                                   14400 / 8  // 56K modem with 14 Kbps upstream bandwidth
+                                   );
+        if (client == NULL)
+        {
+            fprintf (stderr,
+                     "An error occurred while trying to create an ENet client host.\n");
+            exit (EXIT_FAILURE);
+        }
+#endif
+        
+        // Shortcut for same is an empty string
+        if (newAddress.compare("") == 0) {
+            newAddress = oldAddress;
+        }
+        
+#ifdef enet_lib
+        enet_address_set_host (& addressClient, newAddress.c_str());
+        addressClient.port = 1234;
+        
+        
+        peer = enet_host_connect(client, & addressClient, 2, 0);
+        
+        if (peer == NULL) {
+            fprintf (stderr,
+                     "No available peers for initializing an ENet connection");
+            exit (EXIT_FAILURE);
+        }
+        //}
+        
+        // Main Loop
+        //keepLooping = true;
+        //while (keepLooping) {
+        //    tick();
+        //}
+#endif
+        hostExists = true;
+        oldAddress = newAddress;
+        connected  = true;
+    } else if (!connected) {
+#ifdef enet_lib
+        peer = enet_host_connect(client, & addressClient, 2, 0);
+        
+        if (peer == NULL) {
+            fprintf (stderr,
+                     "No available peers for initializing an ENet connection");
+            exit (EXIT_FAILURE);
+        }
+#endif
+        connected = true;
+    }
+    
+    return 0;
+}
+
+// Deconstruct our latestData
+void processData() {
+    /*
+     * Split by player (separated by semicolon), then split by data (separated by comma)
+     */
+    
+    string str(latestData);
+    string playerArray[onlinePlayerMax+1]; // +1 for ticks
+    splitByCharacter(str, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
+    
+    remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    
+    for (int h=0; h<onlinePlayerMax; h++) {
+        
+        if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
+            /*
+             * Split by data here
+             */
+            
+            float momentumX, momentumY, momentumZ;
+            string str(playerArray[h]);
+            const int resultSize = 10;
+            string dataArray[resultSize];
+            splitByCharacter(str, dataArray, resultSize, ',');
+            
+            //for (int i=0; i<resultSize; i++) {
+            //  cout << "Line " << i << " is " << dataArray[i] << endl;
+            //}
+            
+            for (int v = 0; v<resultSize; v++) {
+                //cout << endl << "Getting msg[" << v << "] = " << dataArray[v];
+            }
+            if (resultSize > 0) {
+                //cout << endl;
+            }
+            
+            resetSlots();
+            // Find which player is sending data, and update it
+            int p        = getNextSlot(dataArray);
+            isOnline[p]  = true;
+            posX[p]      = getNextSlot(dataArray);
+            posY[p]      = getNextSlot(dataArray);
+            posZ[p]      = getNextSlot(dataArray);
+            momentumX    = getNextSlot(dataArray);
+            momentumY    = getNextSlot(dataArray);
+            momentumZ    = getNextSlot(dataArray);
+            direction[p] = getNextSlot(dataArray);
+            
+            float momentumArray[] = { momentumX, momentumY, momentumZ };
+            std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+            momentum[p].swap(newMomentum);
+            
+            //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
+        }
+    }
 }
 
 bool networkPriority() { // are we the oldest network?
@@ -288,160 +464,60 @@ void networkTick() {
     ticks++;
 
     // Listen for any info for server and client
-    //if (choseHost) {
-        pollFor(server, addressServer);
-    //} else {
-        pollFor(client, addressClient);
-    //}
-    
-    // If you need to, feel free to reconnect on a connection loss
-    if (!connected && reconnectOnDisconnect) {
-        connectTo(oldAddress);
-    }
+#ifdef enet_lib
+    enetListen();
+#else
+    networkListen();
+#endif
     
     // Then send data if client
     //if (!choseHost) {
-      //cout << "Send > ";
-      //cin.getline(message, messageSize);
-      //message = memcpy(message,newString.c_str(),newString.size());ticks;
-      //itoa(ticks, message, 10);
-      //string ticksString = to_string(ticks);
-      //message = memcpy(message, ticksString.c_str(), ticksString.size());
+      prepareData();
     
-      // Clear message
-      sprintf(message, "");
-      
-      //int miniMessageSize = 256;//1024 / 4;
-      //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-      // Loop through new messages for each online player
-      // but send the packet once for every player
-      for (int i=0; i<localPlayerMax; i++) {
-        sprintf(quarterMessage[i], "");
-        if (myOnline[i]) {
-          sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f",
-            i, // send the player's number first, essentially the id
-            myPosX[i], myPosY[i], myPosZ[i],
-            myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-            myDirection[i]);
-        }
-      }
-      sprintf(message, "%s;%s;%s;%s;%d",
-        quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks);
-
-      ENetPacket* packet = enet_packet_create(message, strlen(message) + 1, ENET_PACKET_FLAG_RELIABLE);
-      if (message) {
-        //cout << "Sending msg " << message << endl;
-      }
-
-      // No packages will be sent until your game is started
-      if (strlen(message) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
-          enet_peer_send(peer, 0, packet);
-      }
+#ifdef enet_lib
+      enetBroadcast();
+#else
+      networkBroadcast();
+#endif
     //}
     
 }
 
-int connectTo(string newAddress)
-{
-    cout << "Trying to connect to " << newAddress << endl;
-    if (!hostExists && !connected) {
-        cout << "No host yet" << endl;
-        // Initialize Enety
-        if (enet_initialize () != 0)
-        {
-            fprintf (stderr, "An error occurred while initializing ENet.\n");
-            return EXIT_FAILURE;
-        }
-        atexit (enet_deinitialize);
-        //cout << "Setup the exit route" << endl;
-
-    //if (choseHost) {
-
-        // Bind the server to the default localhost.
-        // A specific host address can be specified by
-        // enet_address_set_host (& addressServer, "x.x.x.x");
-        addressServer.host = ENET_HOST_ANY;
-        // Bind the server to port 1234.
-        addressServer.port = 1234;
-        server = enet_host_create (& addressServer, // the address to bind the server host to
-                                     32,      // allow up to 32 clients and/or outgoing connections
-                                      2,      // allow up to 2 channels to be used, 0 and 1
-                                      0,      // assume any amount of incoming bandwidth
-                                      0       // assume any amount of outgoing bandwidth
-                                  );
-        if (server == NULL)
-        {
-            fprintf (stderr, 
-                     "An error occurred while trying to create an ENet server host.\n");
-            exit (EXIT_FAILURE);
-        }
-
-    //} else {
-        client = enet_host_create (NULL, // create a client host
-                    1, // only allow 1 outgoing connection
-                    2, // allow up 2 channels to be used, 0 and 1
-                    57600 / 8, // 56K modem with 56 Kbps downstream bandwidth
-                    14400 / 8  // 56K modem with 14 Kbps upstream bandwidth
-                    );
-        if (client == NULL)
-        {
-            fprintf (stderr, 
-                     "An error occurred while trying to create an ENet client host.\n");
-            exit (EXIT_FAILURE);
-        }
-
-        // Shortcut for same is an empty string
-        if (newAddress.compare("") == 0) {
-          newAddress = oldAddress;
-        }
-
-        enet_address_set_host (& addressClient, newAddress.c_str());
-        addressClient.port = 1234;
-        
-
-        peer = enet_host_connect(client, & addressClient, 2, 0);
-
-        if (peer == NULL) {
-            fprintf (stderr,
-                     "No available peers for initializing an ENet connection");
-            exit (EXIT_FAILURE);
-        }
-        //}
-
-        // Main Loop
-        //keepLooping = true;
-        //while (keepLooping) {
-        //    tick();
-        //}
+// Opposite of process data, get it ready to send
+void prepareData() {
+    //cout << "Send > ";
+    //cin.getline(message, messageSize);
+    //message = memcpy(message,newString.c_str(),newString.size());ticks;
+    //itoa(ticks, message, 10);
+    //string ticksString = to_string(ticks);
+    //message = memcpy(message, ticksString.c_str(), ticksString.size());
     
-        hostExists = true;
-        oldAddress = newAddress;
-        connected  = true;
-    } else if (!connected) {
-        peer = enet_host_connect(client, & addressClient, 2, 0);
-        
-        if (peer == NULL) {
-            fprintf (stderr,
-                     "No available peers for initializing an ENet connection");
-            exit (EXIT_FAILURE);
+    // Clear message
+    sprintf(message, "");
+    
+    //int miniMessageSize = 256;//1024 / 4;
+    //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
+    // Loop through new messages for each online player
+    // but send the packet once for every player
+    for (int i=0; i<localPlayerMax; i++) {
+        sprintf(quarterMessage[i], "");
+        if (myOnline[i]) {
+            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f",
+                    i, // send the player's number first, essentially the id
+                    myPosX[i], myPosY[i], myPosZ[i],
+                    myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
+                    myDirection[i]);
         }
-        connected = true;
     }
-
-    return 0;
-}
-
-void disconnectFrom(string newAddress) {
-    // Finish using Enet
-    enet_host_destroy(client);
-    enet_host_destroy(server);
-
+    sprintf(message, "%s;%s;%s;%s;%d",
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks);
+    nextMessage = message; // std::string automatically converts from char* to string
+    
 }
 
 bool isConnected() {
     return connected;
 }
-#endif
 
 
 // Universal, regardless of ENET

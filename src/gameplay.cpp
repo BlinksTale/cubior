@@ -18,7 +18,6 @@
 #include "music.h"
 #include "sfx.h"
 
-#define enet_lib
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
 #include <cmath> // for trig stuff with getAngleBetween
@@ -279,7 +278,7 @@ void setupNetworking(string addressToJoin) {
     // Only change networkingEnabled status if told to.
     // Empty string means no change
     cout << "Setup Networking for " << addressToJoin << endl;
-#ifdef enet_lib
+
     if (addressToJoin.compare("") != 0) {
         networkingEnabled = (addressToJoin.compare("n") != 0);
     }
@@ -292,7 +291,6 @@ void setupNetworking(string addressToJoin) {
         networkTick();
         setupNetworkedPlayers();
     }
-#endif
 }
 
 void setupNetworkedPlayers() {
@@ -658,7 +656,6 @@ void gameplayLoop() {
     // Lastly, network stuff!
     
     // Networking anytime loop
-#ifdef enet_lib
     if (networkingEnabled) {
         networkTick();
         for (int i=0; i<cubiorCount; i++) {
@@ -730,7 +727,6 @@ void gameplayLoop() {
         }
         
     }
-#endif
 }
 
 // Use the camera cube to check for collision against the map
