@@ -41,11 +41,11 @@ const int onlinePlayerMax = 4;//16;
 const int localPlayerMax = 4;
 
 // Tools
-time_t startTime = time(0);
+/*time_t startTime = time(0);
 int totalMilliseconds = 0;
 const int timesPerSec = 1;
 int millisecondModulo = (int)(1000.0/timesPerSec);
-
+*/
 // Game instance variables
 bool isHost = false; // one host collects and redistributes all data
 
@@ -531,12 +531,17 @@ void networkTick() {
     networkListen();
 #endif
     
-    int millisecondsPassed = 1000*difftime(time(0), startTime);
+    /*time_t currentTime = time(0);
+    int millisecondsPassed = difftime(currentTime, startTime);
+    startTime = currentTime;
+    
+    cout << "Milliseconds passed is " << millisecondsPassed << " to be added to " << totalMilliseconds << endl;
     totalMilliseconds += millisecondsPassed;
     
     // No packages will be sent until your game is started
     if (getStarted() && totalMilliseconds > millisecondModulo) { //  && !getCubiorOnline(myPlayer)
-        totalMilliseconds = totalMilliseconds % millisecondModulo; // 33 means it gets called about 30 times/sec
+        totalMilliseconds = totalMilliseconds % millisecondModulo; // 33 means it gets called about 30 times/sec*/
+    if (getStarted() && ticks % 2 == 0) {
         // Then send data if client
         //if (!choseHost) {
         prepareData();
