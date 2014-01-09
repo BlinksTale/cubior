@@ -43,7 +43,7 @@ const int localPlayerMax = 4;
 // Tools
 time_t startTime = time(0);
 int totalMilliseconds = 0;
-const int timesPerSec = 30;
+const int timesPerSec = 15;
 int millisecondModulo = (int)(1000.0/timesPerSec);
 
 // Game instance variables
