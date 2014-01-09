@@ -6,6 +6,8 @@
  * most code copied from enet tutorials
  */
 
+//#define enet_lib
+
 // NetworkTest.cpp : main project file.
 // Most code copied from Enet tutorial
 // Copying done by Brian Handy, 5/4/13
@@ -53,6 +55,8 @@ ENetHost * client;
 ENetPeer * peer;
 #endif
 
+sf::IpAddress senderAddress;
+
 const int messageSize = 1024;
 char message[messageSize];
 char quarterMessage[localPlayerMax][messageSize/4];
@@ -66,7 +70,7 @@ bool connected = false;
 int ticks = 0; // the game with more ticks gets higher priority
 int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
-string latestData, nextMessage;
+string latestData, nextMessage, lastMessage;
 // Recieving
 bool isOnline[onlinePlayerMax];
 int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
@@ -97,7 +101,6 @@ void networkingInit() {
 
 void networkListen() {
     sf::Packet packet;
-    sf::IpAddress senderAddress = sf::IpAddress(getIpAddress());
     unsigned short senderPort = socketPort;
     string newData;
     
@@ -106,7 +109,7 @@ void networkListen() {
     
     packet >> newData;
 
-    if (newData.length() > 0) {
+    if (newData.length() > 0 && strcmp(newData.c_str(), latestData.c_str()) != 0) {
         latestData = newData;
         processData();
     }
@@ -114,16 +117,22 @@ void networkListen() {
 }
 
 void networkBroadcast() {
-    sf::Packet packet;
-    sf::IpAddress recipientAddress = sf::IpAddress(getIpAddress());
-    unsigned short recipientPort = socketPort;
     
     prepareData();
     
-    packet << nextMessage;
+    if (strcmp(nextMessage.c_str(), lastMessage.c_str()) != 0) {
+        
+        sf::Packet packet;
+        unsigned short recipientPort = socketPort;
+
+        packet << nextMessage;
     
-    socketItself.send(packet, recipientAddress, recipientPort);
+        socketItself.send(packet, senderAddress, recipientPort);
     
+        lastMessage = nextMessage;
+    
+    }
+
 }
 
 #ifdef enet_lib
@@ -529,11 +538,13 @@ void initializeIpAddress() {
     addressSlot[1] = 168;
     addressSlot[2] = 0;
     addressSlot[3] = 9;
+    senderAddress = sf::IpAddress(getIpAddress());
 }
 
 bool setIpAddress(int slot, int value) {
     if (value >= 0 && value <= 255) {
         addressSlot[slot] = value;
+        senderAddress = sf::IpAddress(getIpAddress());
         return true;
     }
     return false;
@@ -545,6 +556,7 @@ void incrementIpAddress(int slot) {
     } else {
         addressSlot[slot] = 0;
     }
+    senderAddress = sf::IpAddress(getIpAddress());
 }
 
 int getIpAddress(int slot) {

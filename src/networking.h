@@ -8,6 +8,7 @@
 #ifndef NETWORKING
 #define NETWORKING
 
+//#define enet_lib
 #include <iostream>
 #include <string>
 #include <vector>
