@@ -525,7 +525,7 @@ void networkTick() {
 #endif
     
     // No packages will be sent until your game is started
-    if (getStarted() && ticks % 10 == 0) { //  && !getCubiorOnline(myPlayer)
+    if (getStarted() && ticks % 2 == 0) { //  && !getCubiorOnline(myPlayer)
         // Then send data if client
         //if (!choseHost) {
         prepareData();
