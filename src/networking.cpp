@@ -70,7 +70,9 @@ bool connected = false;
 int ticks = 0; // the game with more ticks gets higher priority
 int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
-string latestData, nextMessage, lastMessage;
+string latestData, nextMessage, lastMessage, knownIps[16];
+sf::IpAddress knownIpObjects[16];
+int knownIpSize = 0;
 // Recieving
 bool isOnline[onlinePlayerMax];
 int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
@@ -97,23 +99,54 @@ void networkingInit() {
         // error!
     }
     socketItself.setBlocking(false);
+    
+    for (int i=0; i<16; i++) { // 16 is knownIps length
+        knownIps[i] = "";
+    }
+    knownIpSize = 0;
+}
+
+
+// Try to save all IPs that come in on the right port
+void saveIp(sf::IpAddress incomingIpObject) {
+    string incomingIp = incomingIpObject.toString();
+    // Check if already stored
+    for (int i=0; i<16; i++) { // 16 is knownIps length
+        if (strcmp(knownIps[i].c_str(),"") == 0) {
+            knownIps[i] = incomingIp;
+            knownIpObjects[i] = incomingIpObject;
+            knownIpSize = knownIpSize >= i+1 ? knownIpSize : i+1;
+            return;
+        } else if (strcmp(knownIps[i].c_str(),incomingIp.c_str()) == 0) {
+            return;
+        }
+    }
+    // Otherwise... must be full and it's not in there?
 }
 
 void networkListen() {
+    sf::IpAddress incomingIp;
+    unsigned short incomingPort;
     sf::Packet packet;
-    unsigned short senderPort = socketPort;
-    string newData;
     
     // FIXME: Code hanging here on the receive command
-    socketItself.receive(packet, senderAddress, senderPort);
+    socketItself.receive(packet, incomingIp, incomingPort);
     
-    packet >> newData;
+    if (incomingPort == socketPort) {
 
-    if (newData.length() > 0 && strcmp(newData.c_str(), latestData.c_str()) != 0) {
-        latestData = newData;
-        processData();
+        string newData;
+        packet >> newData;
+
+        saveIp(incomingIp.toString());
+        
+        if (newData.length() > 0 &&
+            strcmp(newData.c_str(), latestData.c_str()) != 0) {
+            
+            latestData = newData;
+            processData();
+
+        }
     }
-
 }
 
 void networkBroadcast() {
@@ -123,11 +156,16 @@ void networkBroadcast() {
     if (strcmp(nextMessage.c_str(), lastMessage.c_str()) != 0) {
         
         sf::Packet packet;
-        unsigned short recipientPort = socketPort;
 
         packet << nextMessage;
     
-        socketItself.send(packet, senderAddress, recipientPort);
+        if (isHost) {
+            for (int i=0; i<knownIpSize; i++) {
+                socketItself.send(packet, knownIpObjects[i], socketPort);
+            }
+        } else {
+            socketItself.send(packet, senderAddress, socketPort); // sf::IpAddress::Broadcast
+        }
     
         lastMessage = nextMessage;
     
@@ -219,8 +257,18 @@ void disconnectFrom(string newAddress) {
 
 #endif
 
+int startHosting() {
+    cout << "Starting hosting" << endl;
+    isHost = true;
+    hostExists = true;
+    connected  = true;
+    
+    return 0;
+}
+
 int connectTo(string newAddress)
 {
+    isHost = false;
     cout << "Trying to connect to " << newAddress << endl;
     if (!hostExists && !connected) {
         cout << "No host yet" << endl;
@@ -374,7 +422,7 @@ void processData() {
 
 bool networkPriority() { // are we the oldest network?
     cout << "Checking if our " << ticks << " is greater than their " << remoteTicks << endl;
-    return remoteTicks < ticks;
+    return ticks > remoteTicks;
 }
 
 void resetSlots() {

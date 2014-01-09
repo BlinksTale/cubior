@@ -41,8 +41,9 @@ static const int playerVisibleMax = 10;
     void readLevel(string);
     void setupLevel();
     void setupPlayers();
-    void disablePlayers();
-    void setupNetworking(string);
+void disablePlayers();
+void setupNetworking();
+void setupNetworking(string);
     void setupNetworkedPlayers();
 
     void nextLevelCountdown(int);

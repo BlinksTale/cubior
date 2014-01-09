@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <SFML/Network.hpp>
 
 #ifdef enet_lib
 #include <enet/enet.h>
@@ -22,6 +23,7 @@ using namespace std; // necessary for string
 const bool networkingAllowed = true;
 
 void networkingInit();
+void saveIp(sf::IpAddress);
 void networkListen();
 void networkBroadcast();
 
@@ -32,6 +34,7 @@ void enetListen();
 void enetBroadcast();
 #endif
 
+int startHosting();
 int connectTo(string);
 void networkTick();
 int findComma(int, string);

@@ -101,16 +101,20 @@ int maxOption[] = {1, // Title Screen
     1, // Controls
     1, // Credits
     3, // Volume Settings
-    4  // IP Address
+    3, // Local / Online
+    3, // Host / Join
+    3  // IP Address
 };
-int maxOptionFocus[8][4] = { {1}, // Title Screen
+int maxOptionFocus[10][4] = { {1}, // Title Screen
     {1,1,1,1}, // Main Menu
     {1,1,1,1}, // Pause
     {1,1,1,1}, // Options
     {1},       // Controls
     {1},       // Credits
     {1,1,1},   // Volume Settings
-    {4,1,1,1}  // IP Address Screen
+    {1,1,1},   // Local / Online
+    {1,1,1},   // Host / Join
+    {4,1,1}  // IP Address Screen
 };
 
 // And menu in which we are selecting said option
@@ -270,6 +274,21 @@ void disablePlayers() {
     for (int i=0; i<cubiorCount; i++) {
         cubiorPlaying[i] = 0;
         cubiorOnline[i] = 0;
+    }
+}
+
+// No IP? Must be a host!
+void setupNetworking() {
+    // Gameplay Start network stuff!
+    // Only change networkingEnabled status if told to.
+    // Empty string means no change
+    cout << "Setup Networking for host" << endl;
+    
+    networkingEnabled = true;
+    if (networkingEnabled) {
+        startHosting();
+        networkTick();
+        setupNetworkedPlayers();
     }
 }
 
@@ -2277,7 +2296,42 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                 default:
                     break;
             }
-        } else if (menu[i] == 7) { // IP Address Settings
+        } else if (menu[i] == 7) { // Local or Networking Settings
+            switch(option[i]) {
+                case 0:
+                    // Start Offline
+                    setMenu(i, 4);
+                    break;
+                case 1:
+                    // Start Online
+                    setMenu(i, 8); // fixme: make an online start
+                    break;
+                case 2:
+                    // Return to main menu
+                    setMenu(i, 1);
+                    break;
+                default:
+                    break;
+            }
+        } else if (menu[i] == 8) { // Networking Host/Join Settings
+            switch(option[i]) {
+                case 0:
+                    // Choose to Host
+                    setupNetworking();
+                    setMenu(i, 4); // fixme: make an online start
+                    break;
+                case 1:
+                    // Choose to Join
+                    setMenu(i, 9);
+                    break;
+                case 2:
+                    // Return to prev menu
+                    setMenu(i, 7);
+                    break;
+                default:
+                    break;
+            }
+        } else if (menu[i] == 9) { // IP Address Settings
             switch(option[i]) {
                 case 0:
                     // Increase the current Ip Address slot's value
@@ -2289,18 +2343,15 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                     setMenu(i, 4); // fixme: make an online start
                     break;
                 case 2:
-                    // Start Offline
-                    setMenu(i, 4);
-                    break;
-                case 3:
-                    // Return to main menu
-                    setMenu(i, 1);
+                    // Return to previous menu
+                    setMenu(i, 8);
                     break;
                 default:
                     break;
             }
         }
-        
+
+    
         // And if no errors
         if (!justCausedError) {
             // selection gets a menu selection sound trigger
@@ -2310,7 +2361,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     
     // For typing out your IP address
     bool typingTime(int i) {
-        bool ipTyping = (menu[i] == 7) && (option[i] == 0);
+        bool ipTyping = (menu[i] == 9) && (option[i] == 0);
         return ipTyping;
     }
     void addNumber(unsigned char number) {
