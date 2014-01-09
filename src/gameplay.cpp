@@ -2062,6 +2062,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                 setCubiorPlaying(i, true);
                 setCubiorOnline(i, false);
                 setOnline(i, true);
+                setMenu(i, getMenu(j));
                 rearrangeControls(j, i);
                 cout << "Rearrange removing player " << j << endl;
                 removePlayer(j);
