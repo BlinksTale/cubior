@@ -1473,13 +1473,14 @@ void drawMenu(int i, bool doubleWidth) {
       }
       writeWord("Back",  0,midY+2.0*menuSpacing,aspect,(option==2)*rotation);
     } else if (getMenu(i) == 7) { // Local or Network Menu
-        writeWord("Local",      0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
-        writeWord("Online",       0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
-        writeWord("Back",              0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Local",       0,midY-1.5*menuSpacing,aspect,(option==0)*rotation);
+        writeWord("LAN",         0,midY-0.5*menuSpacing,aspect,(option==1)*rotation);
+        writeWord("Online",      0,midY+0.5*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Back",        0,midY+1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 8) { // Host or Search Menu
-        writeWord("Host",         0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
-        writeWord("Join",         0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
-        writeWord("Back",              0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
+        writeWord("Host",        0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
+        writeWord("Join",        0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
+        writeWord("Back",        0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
     } else if (getMenu(i) == 9) { // IP Address Menu / Connect Online Menu
         // Data for Ip Address
         int focusStart = 0; // getFocus(0) has to figure out its size and all sizes before it

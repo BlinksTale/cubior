@@ -101,7 +101,7 @@ int maxOption[] = {1, // Title Screen
     1, // Controls
     1, // Credits
     3, // Volume Settings
-    3, // Local / Online
+    4, // Local / LAN / Online
     3, // Host / Join
     3  // IP Address
 };
@@ -112,7 +112,7 @@ int maxOptionFocus[10][4] = { {1}, // Title Screen
     {1},       // Controls
     {1},       // Credits
     {1,1,1},   // Volume Settings
-    {1,1,1},   // Local / Online
+    {1,1,1,1}, // Local / LAN / Online
     {1,1,1},   // Host / Join
     {4,1,1}  // IP Address Screen
 };
@@ -298,8 +298,8 @@ void setupNetworking(string addressToJoin) {
     // Empty string means no change
     cout << "Setup Networking for " << addressToJoin << endl;
 
-    if (addressToJoin.compare("") != 0) {
-        networkingEnabled = (addressToJoin.compare("n") != 0);
+    if (getLAN() || addressToJoin.compare("") != 0) {
+        networkingEnabled = getLAN() || (addressToJoin.compare("n") != 0);
     }
     if (networkingEnabled) {
         cout << "Address looks good, try connecting" << endl;
@@ -2297,17 +2297,23 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                 default:
                     break;
             }
-        } else if (menu[i] == 7) { // Local or Networking Settings
+        } else if (menu[i] == 7) { // Local, LAN, or Online Settings
             switch(option[i]) {
                 case 0:
-                    // Start Offline
+                    // Start Local
                     setMenu(i, 4);
                     break;
                 case 1:
-                    // Start Online
+                    // Start LAN
+                    setLAN(true);
                     setMenu(i, 8); // fixme: make an online start
                     break;
                 case 2:
+                    // Start Online
+                    setLAN(false);
+                    setMenu(i, 8); // fixme: make an online start
+                    break;
+                case 3:
                     // Return to main menu
                     setMenu(i, 1);
                     break;
@@ -2323,7 +2329,12 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                     break;
                 case 1:
                     // Choose to Join
-                    setMenu(i, 9);
+                    if (getLAN()) {
+                        setupNetworking(getIpAddress());
+                        setMenu(i,4);
+                    } else {
+                        setMenu(i, 9);
+                    }
                     break;
                 case 2:
                     // Return to prev menu

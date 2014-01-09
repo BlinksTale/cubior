@@ -66,5 +66,7 @@ void incrementIpAddress(int);
 bool setIpAddress(int, int);
 int getIpAddress(int);
 string getIpAddress();
+void setLAN(bool);
+bool getLAN();
 
 #endif

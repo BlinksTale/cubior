@@ -48,6 +48,7 @@ int millisecondModulo = (int)(1000.0/timesPerSec);
 */
 // Game instance variables
 bool isHost = false; // one host collects and redistributes all data
+bool lan = false;
 
 // Declare SFML Networking Variables
 sf::UdpSocket socketItself;
@@ -170,6 +171,8 @@ void networkBroadcast() {
             for (int i=0; i<knownIpSize; i++) {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
             }
+        } else if (lan) {
+            socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
         } else {
             socketItself.send(packet, senderAddress, socketPort); // sf::IpAddress::Broadcast
         }
@@ -637,4 +640,11 @@ string getIpAddress() {
     }
     result += ss.str();
     return result;
+}
+
+void setLAN(bool b) {
+    lan = b;
+}
+bool getLAN() {
+    return lan;
 }
