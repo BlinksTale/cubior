@@ -1,3 +1,17 @@
+1/8/14
+
+Wow! Got a lot done today, but still not done with networking yet.
+getLocalAddress still not working on LAN Join command,
+need to pull from github (2.1 isn't up to date enough) and compile it for myself
+https://github.com/LaurentGomila/SFML/commit/713aed707912bc6bf5b47632ed46efc707925eda
+http://en.sfml-dev.org/forums/index.php?topic=8142.15
+also need to address players not dropping when quitting
+
+libsfml-etc files must also now be copied to framework
+snd is also missing? Not sure if a concern
+
+===
+
 1/6/14
 
 only add player when (after connecting online) you hit OK for controls' infos

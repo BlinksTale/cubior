@@ -54,6 +54,7 @@ bool lan = false;
 sf::UdpSocket socketItself;
 unsigned short socketPort = 54000;
 sf::Packet packet;
+sf::IpAddress myIp;
 
 #ifdef enet_lib
 // Declare Enet Variables
@@ -140,8 +141,10 @@ void networkListen() {
     // FIXME: Code hanging here on the receive command
     socketItself.receive(packet, incomingIp, incomingPort);
     
-    if (incomingPort == socketPort) {
+    if (incomingPort == socketPort &&
+        strcmp(incomingIp.toString().c_str(),myIp.toString().c_str()) != 0) {
 
+        cout << "They are " << incomingIp.toString() << " and we are " << myIp.toString() << endl;
         string newData;
         packet >> newData;
 
@@ -644,6 +647,13 @@ string getIpAddress() {
 
 void setLAN(bool b) {
     lan = b;
+    
+    if (lan) {
+        myIp = sf::IpAddress::getLocalAddress();
+    } else {
+        myIp = sf::IpAddress::getPublicAddress();
+    }
+    cout << "LAN is " << lan << " and myIp is " << myIp.toString() << endl;
 }
 bool getLAN() {
     return lan;
