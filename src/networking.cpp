@@ -242,10 +242,7 @@ void enetBroadcast() {
         //cout << "Sending msg " << message << endl;
     }
     
-    // No packages will be sent until your game is started
-    if (strlen(nextMessage.c_str()) > 0 && getStarted()) { //  && !getCubiorOnline(myPlayer)
         enet_peer_send(peer, 0, packet);
-    }
 }
 
 void disconnectFrom(string newAddress) {
@@ -527,15 +524,17 @@ void networkTick() {
     networkListen();
 #endif
     
-    // Then send data if client
-    //if (!choseHost) {
-      prepareData();
-    
+    // No packages will be sent until your game is started
+    if (getStarted() && ticks % 10 == 0) { //  && !getCubiorOnline(myPlayer)
+        // Then send data if client
+        //if (!choseHost) {
+        prepareData();
 #ifdef enet_lib
       enetBroadcast();
 #else
       networkBroadcast();
 #endif
+    }
     //}
     
 }
