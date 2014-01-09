@@ -53,6 +53,7 @@ bool lan = false;
 // Declare SFML Networking Variables
 sf::UdpSocket socketItself;
 unsigned short socketPort = 54000;
+sf::Packet packet;
 
 #ifdef enet_lib
 // Declare Enet Variables
@@ -135,7 +136,6 @@ void saveIp(sf::IpAddress incomingIpObject) {
 void networkListen() {
     sf::IpAddress incomingIp;
     unsigned short incomingPort;
-    sf::Packet packet;
     
     // FIXME: Code hanging here on the receive command
     socketItself.receive(packet, incomingIp, incomingPort);
@@ -155,6 +155,7 @@ void networkListen() {
 
         }
     }
+    packet.clear();
 }
 
 void networkBroadcast() {
@@ -162,8 +163,6 @@ void networkBroadcast() {
     prepareData();
     
     if (strcmp(nextMessage.c_str(), lastMessage.c_str()) != 0) {
-        
-        sf::Packet packet;
 
         packet << nextMessage;
     
@@ -178,7 +177,8 @@ void networkBroadcast() {
         }
     
         lastMessage = nextMessage;
-    
+        packet.clear();
+
     }
 
 }
@@ -544,7 +544,7 @@ void networkTick() {
     // No packages will be sent until your game is started
     if (getStarted() && totalMilliseconds > millisecondModulo) { //  && !getCubiorOnline(myPlayer)
         totalMilliseconds = totalMilliseconds % millisecondModulo; // 33 means it gets called about 30 times/sec*/
-    if (getStarted() && ticks % 2 == 0) {
+    if (getStarted() && ticks % 1 == 0) {
         // Then send data if client
         //if (!choseHost) {
         prepareData();
