@@ -23,6 +23,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <ctime>
 #include <vector>
 #include "networking.h"
 #include "gameplay.h" // only for CubiorCount
@@ -38,6 +39,12 @@ using namespace std;
 bool reconnectOnDisconnect = true;
 const int onlinePlayerMax = 4;//16;
 const int localPlayerMax = 4;
+
+// Tools
+time_t startTime = time(0);
+int totalMilliseconds = 0;
+const int timesPerSec = 30;
+int millisecondModulo = (int)(1000.0/timesPerSec);
 
 // Game instance variables
 bool isHost = false; // one host collects and redistributes all data
@@ -524,8 +531,12 @@ void networkTick() {
     networkListen();
 #endif
     
+    int millisecondsPassed = 1000*difftime(time(0), startTime);
+    totalMilliseconds += millisecondsPassed;
+    
     // No packages will be sent until your game is started
-    if (getStarted() && ticks % 2 == 0) { //  && !getCubiorOnline(myPlayer)
+    if (getStarted() && totalMilliseconds > millisecondModulo) { //  && !getCubiorOnline(myPlayer)
+        totalMilliseconds = totalMilliseconds % millisecondModulo; // 33 means it gets called about 30 times/sec
         // Then send data if client
         //if (!choseHost) {
         prepareData();
