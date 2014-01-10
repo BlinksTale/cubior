@@ -80,7 +80,7 @@ bool connected = false;
 int ticks = 0; // the game with more ticks gets higher priority
 int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
-string latestData, nextMessage, lastMessage, knownIps[16];
+string newData, latestData, nextMessage, lastMessage, knownIps[16];
 sf::IpAddress knownIpObjects[16];
 int knownIpSize = 0;
 // Recieving
@@ -100,10 +100,10 @@ float myDirection[localPlayerMax];
 int currentMessageSlot = 0; // for reading in data from a message
 
 void networkingInit() {
-  for (int i=0; i<onlinePlayerMax; i++) {
-    isOnline[i] = false;
-  }
-  initializeIpAddress();
+    for (int i=0; i<onlinePlayerMax; i++) {
+        isOnline[i] = false;
+    }
+    initializeIpAddress();
     
     if (socketItself.bind(socketPort) != sf::Socket::Done) {
         // error!
@@ -140,12 +140,13 @@ void networkListen() {
     
     // FIXME: Code hanging here on the receive command
     socketItself.receive(packet, incomingIp, incomingPort);
+    //cout << "Socket is blocking? " << socketItself.isBlocking() << endl;
     
     if (incomingPort == socketPort &&
-        strcmp(incomingIp.toString().c_str(),myIp.toString().c_str()) != 0) {
+        incomingIp.toInteger() != myIp.toInteger()) {
 
-        cout << "They are " << incomingIp.toString() << " and we are " << myIp.toString() << endl;
-        string newData;
+        //cout << "They are " << incomingIp.toString() << " and we are " << myIp.toString() << endl;
+        newData = "";
         packet >> newData;
 
         saveIp(incomingIp.toString());
@@ -379,9 +380,9 @@ void processData() {
      * Split by player (separated by semicolon), then split by data (separated by comma)
      */
     
-    string str(latestData);
+    //string str(latestData);
     string playerArray[onlinePlayerMax+1]; // +1 for ticks
-    splitByCharacter(str, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
+    splitByCharacter(latestData, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
     
     remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
     
@@ -588,7 +589,7 @@ void prepareData() {
         }
     }
     sprintf(message, "%s;%s;%s;%s;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks);
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 10000);
     nextMessage = message; // std::string automatically converts from char* to string
     
 }
