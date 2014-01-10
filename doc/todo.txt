@@ -1,3 +1,22 @@
+1/9/14
+
+lag seems to relate to when I do a lot on one end, and then trying to do something on the other end.
+methinks the socket is backed up - that is, it can only handle a receive or a send, not both, so… only do one for each socket. Use two sockets, one outgoing and one incoming. Differentiate by using one to send as host vs one to send as client, and vice versa for reception
+
+No, issue is always from Windows to Mac. Sending Mac to Windows is snappy, regardless of LAN/Online or Host/Client. Windows to Mac is always delayed though. Small windows UDP buffer?
+
+Windows has been hosting each time. Maybe a hosting thing?
+Ahhh!
+It is alway the host being delayed in its data reaching the client
+if the host jumps, it takes a sec for client to get it.
+However!
+Client immediately gets its data to the host.
+Mystery half-solved!
+or:
+clients are terrible at receiving packages.
+
+===
+
 1/8/14
 
 Wow! Got a lot done today, but still not done with networking yet.

@@ -55,6 +55,8 @@ sf::UdpSocket socketItself;
 unsigned short socketPort = 54000;
 sf::Packet packet;
 sf::IpAddress myIp;
+sf::IpAddress incomingIp;
+unsigned short incomingPort;
 
 #ifdef enet_lib
 // Declare Enet Variables
@@ -119,15 +121,15 @@ void networkingInit() {
 
 // Try to save all IPs that come in on the right port
 void saveIp(sf::IpAddress incomingIpObject) {
-    string incomingIp = incomingIpObject.toString();
+    string incomingIpString = incomingIpObject.toString();
     // Check if already stored
     for (int i=0; i<16; i++) { // 16 is knownIps length
         if (strcmp(knownIps[i].c_str(),"") == 0) {
-            knownIps[i] = incomingIp;
+            knownIps[i] = incomingIpString;
             knownIpObjects[i] = incomingIpObject;
             knownIpSize = knownIpSize >= i+1 ? knownIpSize : i+1;
             return;
-        } else if (strcmp(knownIps[i].c_str(),incomingIp.c_str()) == 0) {
+        } else if (strcmp(knownIps[i].c_str(),incomingIpString.c_str()) == 0) {
             return;
         }
     }
@@ -135,12 +137,8 @@ void saveIp(sf::IpAddress incomingIpObject) {
 }
 
 void networkListen() {
-    sf::IpAddress incomingIp;
-    unsigned short incomingPort;
     
-    // FIXME: Code hanging here on the receive command
     socketItself.receive(packet, incomingIp, incomingPort);
-    //cout << "Socket is blocking? " << socketItself.isBlocking() << endl;
     
     if (incomingPort == socketPort &&
         incomingIp.toInteger() != myIp.toInteger()) {
@@ -153,7 +151,6 @@ void networkListen() {
         
         if (newData.length() > 0 &&
             strcmp(newData.c_str(), latestData.c_str()) != 0) {
-            
             latestData = newData;
             processData();
 
@@ -173,6 +170,7 @@ void networkBroadcast() {
         if (isHost) {
             for (int i=0; i<knownIpSize; i++) {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
+                //cout << "Sent to " << knownIps[i] << " ip addresses as host" << endl;
             }
         } else if (lan) {
             socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
@@ -589,7 +587,7 @@ void prepareData() {
         }
     }
     sprintf(message, "%s;%s;%s;%s;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 10000);
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 100);
     nextMessage = message; // std::string automatically converts from char* to string
     
 }
