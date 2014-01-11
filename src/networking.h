@@ -38,6 +38,7 @@ int startHosting();
 int connectTo(string);
 void networkTick();
 int findComma(int, string);
+string stringUpTo(string, char, int);
 string* splitByCharacter(string, string*, int, char);
 bool networkPriority();
 void processData();

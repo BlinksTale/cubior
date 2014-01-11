@@ -82,7 +82,7 @@ bool connected = false;
 int ticks = 0; // the game with more ticks gets higher priority
 int remoteTicks = 0; // the other game's ticks
 bool hostExists = false;
-string newData, latestData, nextMessage, lastMessage, knownIps[16];
+string newData, latestData, nextMessage, lastMessage, secondToLastMessage, knownIps[16];
 sf::IpAddress knownIpObjects[16];
 int knownIpSize = 0;
 // Recieving
@@ -146,8 +146,12 @@ void networkListen() {
         //cout << "They are " << incomingIp.toString() << " and we are " << myIp.toString() << endl;
         newData = "";
         packet >> newData;
+        
+        cout << "Receiving data:: " << newData << endl;
 
-        saveIp(incomingIp.toString());
+        if (isHost) {
+            saveIp(incomingIp.toString());
+        }
         
         if (newData.length() > 0 &&
             strcmp(newData.c_str(), latestData.c_str()) != 0) {
@@ -163,10 +167,17 @@ void networkBroadcast() {
     
     prepareData();
     
-    if (strcmp(nextMessage.c_str(), lastMessage.c_str()) != 0) {
+    // Must make a version of nextMessage only up to the fourth semicolon
+    string abreviatedNextMessage = stringUpTo(nextMessage, ';', 4);
+    cout << "Abreviated is " << abreviatedNextMessage << endl;
+    
+    if (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 &&
+        strcmp(abreviatedNextMessage.c_str(), secondToLastMessage.c_str()) != 0) {
 
         packet << nextMessage;
-    
+        
+        cout << "Sending data:: " << nextMessage << endl;
+        
         if (isHost) {
             for (int i=0; i<knownIpSize; i++) {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
@@ -178,7 +189,8 @@ void networkBroadcast() {
             socketItself.send(packet, senderAddress, socketPort); // sf::IpAddress::Broadcast
         }
     
-        lastMessage = nextMessage;
+        secondToLastMessage = lastMessage;
+        lastMessage = abreviatedNextMessage;
         packet.clear();
 
     }
@@ -442,6 +454,22 @@ int getNextSlot(string dataArray[]) {
   int result = atoi(dataArray[currentMessageSlot].c_str());
   currentMessageSlot++;
   return result;
+}
+
+string stringUpTo(string str, char character, int characterNumber) {
+    int leftComma = 0;
+    int rightComma = 0;
+    string results;
+    
+    // Get everything after the current comma, and find the next comma
+    // then take the slice between the two as the data for slot i
+    for (int i=0; i<characterNumber; i++) {
+        string focus = str.substr(leftComma, str.length()-leftComma);
+        rightComma = (int)focus.find(character);
+        results += str.substr(leftComma, rightComma);
+        leftComma += rightComma+1;
+    }
+    return results;
 }
 
 // Splits a string into an array based on its commas

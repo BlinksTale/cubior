@@ -1,3 +1,16 @@
+1/10/14
+
+Maybe the clients are spamming their own IP's socket with Broadcast?
+nono, because it happens in Online, not just LAN
+
+wait
+we're always increasing ticks
+therefore we're always spamming new packets to everyone
+bleaugh! Get rid of it!
+only send packets if new data before the ticks
+
+===
+
 1/9/14
 
 lag seems to relate to when I do a lot on one end, and then trying to do something on the other end.
