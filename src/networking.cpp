@@ -171,7 +171,7 @@ void networkBroadcast() {
     string abreviatedNextMessage = stringUpTo(nextMessage, ';', 4);
     //cout << "Abreviated is " << abreviatedNextMessage << endl;
     
-    if (getCubiorsOnline() == 0 ||
+    if (ticks % 10 == 0 || // so it gets sent every ten ticks instead of when getCubiorsOnline() == 0
         (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 &&
         strcmp(abreviatedNextMessage.c_str(), secondToLastMessage.c_str()) != 0)) {
 

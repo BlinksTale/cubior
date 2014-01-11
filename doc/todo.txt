@@ -9,6 +9,12 @@ therefore we're always spamming new packets to everyone
 bleaugh! Get rid of it!
 only send packets if new data before the ticks
 
+wow, not sending packets with no new data other than ticks (unless no players online yet, then we send it to get recognized)
+This might still hurt >1 other player joining, so keep an eye on that.
+(eg. We have two people connected, doing nothing, so no packets sent. Maybe send packets occasionally otherwise so a new player can grab on to something)
+
+Next: get players dropping nicely, maybe make packets even more lightweight & infrequent
+
 ===
 
 1/9/14
