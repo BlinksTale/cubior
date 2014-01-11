@@ -147,7 +147,7 @@ void networkListen() {
         newData = "";
         packet >> newData;
         
-        cout << "Receiving data:: " << newData << endl;
+        //cout << "Receiving data:: " << newData << endl;
 
         if (isHost) {
             saveIp(incomingIp.toString());
@@ -169,14 +169,15 @@ void networkBroadcast() {
     
     // Must make a version of nextMessage only up to the fourth semicolon
     string abreviatedNextMessage = stringUpTo(nextMessage, ';', 4);
-    cout << "Abreviated is " << abreviatedNextMessage << endl;
+    //cout << "Abreviated is " << abreviatedNextMessage << endl;
     
-    if (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 &&
-        strcmp(abreviatedNextMessage.c_str(), secondToLastMessage.c_str()) != 0) {
+    if (getCubiorsOnline() == 0 ||
+        (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 &&
+        strcmp(abreviatedNextMessage.c_str(), secondToLastMessage.c_str()) != 0)) {
 
         packet << nextMessage;
         
-        cout << "Sending data:: " << nextMessage << endl;
+        //cout << "Sending data:: " << nextMessage << endl;
         
         if (isHost) {
             for (int i=0; i<knownIpSize; i++) {
@@ -443,7 +444,7 @@ void processData() {
 
 bool networkPriority() { // are we the oldest network?
     cout << "Checking if our " << ticks << " is greater than their " << remoteTicks << endl;
-    return ticks > remoteTicks;
+    return ticks % 1000 > remoteTicks;
 }
 
 void resetSlots() {
@@ -615,7 +616,7 @@ void prepareData() {
         }
     }
     sprintf(message, "%s;%s;%s;%s;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 100);
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000);
     nextMessage = message; // std::string automatically converts from char* to string
     
 }
