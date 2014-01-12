@@ -98,6 +98,10 @@ vector< vector <float> > momentum (onlinePlayerMax, vector<float> (3, 0)); // mu
 vector< vector <float> > myMomentum (localPlayerMax, vector<float> (3, 0));
 float direction[onlinePlayerMax];
 float myDirection[localPlayerMax];
+// Save IP sources
+int playerIp[onlinePlayerMax];
+int playerIpNew[onlinePlayerMax];
+int playerIpDisconnect[onlinePlayerMax];
 
 int currentMessageSlot = 0; // for reading in data from a message
 
@@ -136,6 +140,31 @@ void saveIp(sf::IpAddress incomingIpObject) {
     // Otherwise... must be full and it's not in there?
 }
 
+void dropIdlePlayers() {
+    
+    for (int i=0; i<onlinePlayerMax; i++) {
+        // For all players known as online last time
+        if (playerIp[i] != -1) {
+            // If we just got the IP, reset disconnect count
+            if (incomingIp.toInteger() == playerIpNew[i]) {
+                playerIpDisconnect[i] = 0;
+            } else {
+                // no new message for this player
+                playerIpDisconnect[i]++;
+
+                // Timeout or this player not being sent from original source anymore
+                if (playerIpDisconnect[i] > 60*60*10 || playerIpNew[i] == -1) {
+                    isOnline[i]  = false;
+                    playerIp[i] = -1;
+                    playerIpDisconnect[i] = 0;
+                }
+            }
+
+        }
+    }
+
+}
+
 void networkListen() {
     
     socketItself.receive(packet, incomingIp, incomingPort);
@@ -143,22 +172,21 @@ void networkListen() {
     if (incomingPort == socketPort &&
         incomingIp.toInteger() != myIp.toInteger()) {
 
-        //cout << "They are " << incomingIp.toString() << " and we are " << myIp.toString() << endl;
         newData = "";
         packet >> newData;
-        
-        //cout << "Receiving data:: " << newData << endl;
 
         if (isHost) {
             saveIp(incomingIp.toString());
         }
-        
+       
         if (newData.length() > 0 &&
             strcmp(newData.c_str(), latestData.c_str()) != 0) {
             latestData = newData;
             processData();
 
         }
+        
+        dropIdlePlayers();
     }
     packet.clear();
 }
@@ -172,17 +200,15 @@ void networkBroadcast() {
     //cout << "Abreviated is " << abreviatedNextMessage << endl;
     
     if (ticks % 10 == 0 || // so it gets sent every ten ticks instead of when getCubiorsOnline() == 0
-        (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 &&
+        (strcmp(abreviatedNextMessage.c_str(), lastMessage.c_str()) != 0 && // or when different from last 2 messages
         strcmp(abreviatedNextMessage.c_str(), secondToLastMessage.c_str()) != 0)) {
 
         packet << nextMessage;
         
-        //cout << "Sending data:: " << nextMessage << endl;
-        
+        // Send data
         if (isHost) {
             for (int i=0; i<knownIpSize; i++) {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
-                //cout << "Sent to " << knownIps[i] << " ip addresses as host" << endl;
             }
         } else if (lan) {
             socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
@@ -399,10 +425,18 @@ void processData() {
     
     for (int h=0; h<onlinePlayerMax; h++) {
         
+        // Reset all current incoming IPs
+        // we'll check against this later to see who dropped
+        playerIpNew[h] = -1;
+        
         if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
             /*
              * Split by data here
              */
+            
+            // Save this player to active players coming from this IP
+            playerIp[h] = incomingIp.toInteger();
+            playerIpNew[h] = incomingIp.toInteger();
             
             float momentumX, momentumY, momentumZ;
             string str(playerArray[h]);

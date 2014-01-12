@@ -1,3 +1,65 @@
+1/11/14
+
+Disconnects:
+so we remember someone is connected because ever 100 ticks, we get a message (roughly 60 ticks/sec)
+if no message from an ip, +1 to disconnecting[i] for ip in slot i
+if disconnecting[i] > 10sec (which is 10*60*60 ticks) then drop the player (just get rid of them!)
+remember which players are associated with which IPs at any time
+note if an ip sends a message without a player
+  in that case, drop that player and disassociate the player with the ip
+
+oi! That's a lot of conditions. Let's break it down:
+
+onlinePlayers[max];
+
+receiveMessage(…);
+
+// This method puts all found players from this message into an array
+populatePlayerInMessage();
+
+for (i = 0; i<knownIps; i++) {
+  if (packet.ip == knownIp[i]) {
+    if (knownIpDisconnect[i] != 0) {
+      knownIpDisconnect[i] = 0;
+    }
+    // Also: check which players are still in
+    for (knownIpPlayer.size) {
+      if (knownIpPlayer[i] && !playerInMessage[i]) {
+        // Player was in these messages, but isn't any more. Must have dropped!
+        dropPlayer(knownIpPlayer[i]);
+      }
+    }
+  } else {
+    // No messages? Might be disconnected…
+    knownIpDisconnect[i]++;
+
+    if (knownIpDisconnect[i] > 10*60*60) {
+      // Disconnected! Been too long
+      knownIp[i] = null;
+      knownIpDisconnect[i] = 0;
+      for (knownIpPlayers.size) {
+        dropPlayer(knownIpPlayers[j]);
+      }
+    }
+
+  }
+}
+
+
+hmmm. Can break it down more.
+
+onlinePlayers[max];
+
+...
+
+receiveMessage(…);
+
+rememberPlayersReceived();
+
+dropIdlePlayers();
+
+===
+
 1/10/14
 
 Maybe the clients are spamming their own IP's socket with Broadcast?
