@@ -538,7 +538,7 @@ void gameplayLoop() {
     // NEWDELETEME: cout << "player to goal angle = " << getAngleBetween(cubior[0].getX(),cubior[0].getZ(),goal.getX(),goal.getZ()) << endl;
     //cout << "gameloop: camera[i] pos is " << camera[0].getX() << ", " << camera[0].getY() << ", " << camera[0].getZ() << endl;
     
-    if (gameplayRunning && !winningShot) {
+    if ((gameplayRunning || getCubiorsOnline() != 0) && !winningShot) {
         //cout << cubior[0].getStrength() << " makes " << cubior[0].getMomentumX() << ", " << cubior[0].getMomentumZ() << " = " << sqrt(pow((float)cubior[0].getMomentumZ(),2) + pow((float)cubior[0].getMomentumX(), 2)) << endl;
         
         // Only recognize a level change for one loop
@@ -649,7 +649,7 @@ void gameplayLoop() {
             }
         }
         
-    } else if (winningShot) {
+    } else if (winningShot && (gameplayRunning || getCubiorsOnline() != 0)) {
         
         // How to handle the victory screen
         rotateAroundPlayer(winner, winningHyp);
@@ -709,7 +709,7 @@ void gameplayLoop() {
     }
     
     // Networking gameplay loop
-    if (networkingEnabled && gameplayRunning && !gameplayFirstRunning) {
+    if (networkingEnabled && (gameplayRunning || getCubiorsOnline() != 0) && !gameplayFirstRunning) {
         
         // Prep your own position to send out
         // (only sending first player's position atm)

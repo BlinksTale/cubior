@@ -1,3 +1,26 @@
+1/12/14
+
+the good: drop outs work
+the bad: disconnects and quits don't, and drop outs are allowed when you're the only player on your computer, but another is online. Fix dat!
+
+very close, but must go pick up those gifts. bbl
+
+so disconnects also work now I think?
+yes they do.
+
+done:
+make pauses not stop the game time any players online
+
+todo:
+Don't sent packets if momentum is the same
+make levels sent in packets too  (if theirlevel > yourlevel, yourlevel = theirlevel)
+average all positions/angles/momentum between what's sent and what we have
+send number of player you are sitting on
+
+flashing in/out bug if both players host on lan
+
+===
+
 1/11/14
 
 Disconnects:

@@ -140,10 +140,16 @@ void saveIp(sf::IpAddress incomingIpObject) {
     // Otherwise... must be full and it's not in there?
 }
 
+void dropPlayer(int i) {
+    isOnline[i]  = false;
+    playerIp[i] = -1;
+    playerIpDisconnect[i] = 0;
+}
+
 void dropIdlePlayers() {
     
     for (int i=0; i<onlinePlayerMax; i++) {
-        // For all players known as online last time
+        // For all players known as online still
         if (playerIp[i] != -1) {
             // If we just got the IP, reset disconnect count
             if (incomingIp.toInteger() == playerIpNew[i]) {
@@ -153,15 +159,17 @@ void dropIdlePlayers() {
                 playerIpDisconnect[i]++;
 
                 // Timeout or this player not being sent from original source anymore
-                if (playerIpDisconnect[i] > 60*60*10 || playerIpNew[i] == -1) {
-                    isOnline[i]  = false;
-                    playerIp[i] = -1;
-                    playerIpDisconnect[i] = 0;
+                if (playerIpDisconnect[i] > 500 || playerIpNew[i] == -1) {
+                    //cout << "Dropping player " << i << endl;
+                    dropPlayer(i);
                 }
             }
+            //cout << "PlayerIp " << i << " is " << playerIp[i] << " with disconnect " << playerIpDisconnect[i] << " and ticks " << ticks << endl;
 
         }
     }
+    
+    incomingIp = sf::IpAddress::None;
 
 }
 
@@ -186,8 +194,10 @@ void networkListen() {
 
         }
         
-        dropIdlePlayers();
     }
+    
+    dropIdlePlayers();
+    
     packet.clear();
 }
 
@@ -418,16 +428,23 @@ void processData() {
      */
     
     //string str(latestData);
-    string playerArray[onlinePlayerMax+1]; // +1 for ticks
-    splitByCharacter(latestData, playerArray, onlinePlayerMax + 1, ';'); // +1 for ticks
+    string playerArray[onlinePlayerMax+2]; // +1 for ticks and +1 for level
+    splitByCharacter(latestData, playerArray, onlinePlayerMax + 2, ';'); // +1 for ticks and +1 for level
     
-    remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    // Ticks and Level
+    remoteTicks = atoi(playerArray[onlinePlayerMax-1].c_str());
+    int theirLevel = atoi(playerArray[onlinePlayerMax].c_str());
+    if (theirLevel > getLevelNum()) {
+        loadLevel(theirLevel);
+    }
     
     for (int h=0; h<onlinePlayerMax; h++) {
         
         // Reset all current incoming IPs
-        // we'll check against this later to see who dropped
-        playerIpNew[h] = -1;
+        // we'll check against this next time to see who dropped
+        if (playerIpNew[h] != -1) {
+            playerIpNew[h] = -1;
+        }
         
         if (playerArray[h].compare("\0") != 0 && playerArray[h].compare("") != 0) {
             /*
@@ -569,6 +586,9 @@ bool getOnline(int i) {
 }
 void setRemoteOnline(int i, bool b) {
     isOnline[i] = b;
+    if (!b) {
+        dropPlayer(i);
+    }
 }
 
 void setMomentum(int i, vector<float> m) {
@@ -649,8 +669,8 @@ void prepareData() {
                     myDirection[i]);
         }
     }
-    sprintf(message, "%s;%s;%s;%s;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000);
+    sprintf(message, "%s;%s;%s;%s;%d;%d",
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
     nextMessage = message; // std::string automatically converts from char* to string
     
 }

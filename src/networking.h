@@ -23,6 +23,7 @@ using namespace std; // necessary for string
 const bool networkingAllowed = true;
 
 void networkingInit();
+void dropPlayer(int);
 void dropIdlePlayers();
 void saveIp(sf::IpAddress);
 void networkListen();
