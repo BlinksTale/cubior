@@ -432,10 +432,11 @@ void processData() {
     splitByCharacter(latestData, playerArray, onlinePlayerMax + 2, ';'); // +1 for ticks and +1 for level
     
     // Ticks and Level
-    remoteTicks = atoi(playerArray[onlinePlayerMax-1].c_str());
-    int theirLevel = atoi(playerArray[onlinePlayerMax].c_str());
-    if (theirLevel > getLevelNum()) {
+    remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    int theirLevel = atoi(playerArray[onlinePlayerMax+1].c_str());
+    if (!getGameplayFirstRunning() && getGameplayRunning() && ticks > 10 && theirLevel > getLevelNum()) {
         loadLevel(theirLevel);
+        cout << "Their level is " << theirLevel << " and ours is " << getLevelNum() << endl;
     }
     
     for (int h=0; h<onlinePlayerMax; h++) {

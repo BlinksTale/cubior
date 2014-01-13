@@ -496,6 +496,7 @@ void lastLevel() {
 
 // Moving to any level number
 void loadLevel(int levelNum) {
+  if (!changeLevel) {
     // Cannot load level if paused
     if (!gameplayRunning) {
         // So unpause it if needed!
@@ -518,6 +519,7 @@ void loadLevel(int levelNum) {
     n=sprintf(buffer, "./maps/cubiorMap%i.cubior", currentLevel); // should be relative/local but... for now, doing this so that trailer can get made in a timely matter
     gameplayStart(buffer, "");
     initVisuals();
+  }
 }
 
 // Just give number of current level
