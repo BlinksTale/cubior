@@ -62,6 +62,8 @@ void setMomentum(int, vector<float>);
 vector<float> getMomentum(int);
 void setDirection(int,float);
 float getDirection(int);
+void setLandedOn(int,int);
+int getLandedOn(int);
 bool isConnected();
 
 void initializeIpAddress();

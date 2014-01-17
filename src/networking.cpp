@@ -98,6 +98,8 @@ vector< vector <float> > momentum (onlinePlayerMax, vector<float> (3, 0)); // mu
 vector< vector <float> > myMomentum (localPlayerMax, vector<float> (3, 0));
 float direction[onlinePlayerMax];
 float myDirection[localPlayerMax];
+int landedOn[localPlayerMax];
+int myLandedOn[localPlayerMax];
 // Save IP sources
 int playerIp[onlinePlayerMax];
 int playerIpNew[onlinePlayerMax];
@@ -484,6 +486,7 @@ void processData() {
             momentumY    = getNextSlot(dataArray);
             momentumZ    = getNextSlot(dataArray);
             direction[p] = getNextSlot(dataArray);
+            landedOn[p]  = getNextSlot(dataArray);
             
             float momentumArray[] = { momentumX, momentumY, momentumZ };
             std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
@@ -606,6 +609,13 @@ float getDirection(int i) {
   return direction[i];
 }
 
+void setLandedOn(int i, int f) {
+  myLandedOn[i] = f;
+}
+int getLandedOn(int i) {
+  return landedOn[i];
+}
+
 // The main loop, called repeatedly
 void networkTick() {
     
@@ -667,7 +677,7 @@ void prepareData() {
                     i, // send the player's number first, essentially the id
                     myPosX[i], myPosY[i], myPosZ[i],
                     myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-                    myDirection[i]);
+                    myDirection[i], myLandedOn[i]);
         }
     }
     sprintf(message, "%s;%s;%s;%s;%d;%d",

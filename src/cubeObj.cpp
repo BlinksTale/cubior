@@ -344,6 +344,22 @@ int CubeObj::getCamDirection() {
   return intResult;
 }
 
+int CubeObj::getLandedOn() {
+  if (landedOn != NULL && landedOn->isPlayer()) {
+    return ((CubiorObj*)landedOn)->getPlayerNum();
+  } else {
+    return -1;
+  }
+}
+
+void CubeObj::setLandedOn(int landedOnNum) {
+  if (landedOnNum >= 0 && landedOnNum < cubiorCount) {
+    landedOn = getPlayer(landedOnNum);
+  //} else if (landedOnNum = -1) {
+  //  landedOn = NULL; // Commented out since not sure if necessary or a bad influence
+  }
+}
+
 void CubeObj::calculateDiff() {
     // And set diff vals last
     if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }

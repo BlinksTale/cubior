@@ -153,6 +153,8 @@ class CubeObj {
     float getToldDirection();
     void setToldDirection(float);
     int getCamDirection(); // translated to camera numbers
+    int getLandedOn();
+    void setLandedOn(int);
     void setInvisible(bool);
     bool isInvisible();
 
