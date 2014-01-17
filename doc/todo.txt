@@ -1,4 +1,4 @@
-﻿1/12/14
+1/12/14
 
 the good: drop outs work
 the bad: disconnects and quits don't, and drop outs are allowed when you're the only player on your computer, but another is online. Fix dat!
@@ -16,6 +16,7 @@ Don't send packets if momentum is the same
 make levels sent in packets too  (if theirlevel > yourlevel, yourlevel = theirlevel)
 average all positions/angles/momentum between what's sent and what we have
 send number of player you are sitting on
+drop networking/stop listening on a restart/return to room 0/universal pause
 
 flashing in/out bug if both players host on lan
 
