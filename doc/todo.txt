@@ -1,3 +1,12 @@
+1/21/14
+
+the way to get landedOn to work across the net for bottom player's view:
+bottom player must influence top player even locally
+if landedOn data is coming through the net, must keep it as landedOn until changed online
+so if setLandedOn called or w/e, do not allow a -1/fall until a -1 is sent
+
+===
+
 1/12/14
 
 the good: drop outs work

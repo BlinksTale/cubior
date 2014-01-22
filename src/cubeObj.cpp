@@ -93,6 +93,7 @@ CubeObj::CubeObj() {
   collision = false;
   landedOn = NULL;
   landedOnCount = 0;
+  landedOnOnline = false; // whether locked to an online landedOn status or not
   
   // World vars
   gravity = getGravity();
@@ -354,9 +355,11 @@ int CubeObj::getLandedOn() {
 
 void CubeObj::setLandedOn(int landedOnNum) {
   if (landedOnNum >= 0 && landedOnNum < cubiorCount) {
-    landedOn = getPlayer(landedOnNum);
-  //} else if (landedOnNum = -1) {
-  //  landedOn = NULL; // Commented out since not sure if necessary or a bad influence
+    landOn(getPlayer(landedOnNum));
+    landedOnOnline = true;
+  } else if (landedOnOnline) {
+    landedOnOnline = false;
+    resetLandedOn();
   }
 }
 
@@ -384,11 +387,17 @@ void CubeObj::fall() {
     momentumZ += landedOn->getMomentumZ(); // maybe *fpsRate()?
     direction = landedOn->getDirection() + landedOnDirectionDiff;
     toldDirection = landedOn->getToldDirection() + landedOnToldDirectionDiff;
-    landedOn = NULL;
-    landedOnCount = 0;
-    landedOnDirectionDiff = 0.0;
-    landedOnToldDirectionDiff = 0.0;
+    if (!landedOnOnline) {
+        resetLandedOn();
+    }
   } // not on a player anymore!
+}
+
+void CubeObj::resetLandedOn() {
+  landedOn = NULL;
+  landedOnCount = 0;
+  landedOnDirectionDiff = 0.0;
+  landedOnToldDirectionDiff = 0.0;
 }
 
 // Act as if you landed on ground
@@ -410,7 +419,7 @@ void CubeObj::land() {
 
 // to also land on another player
 void CubeObj::landOn(CubeObj* c) {
-  if (landedOn != c) {
+  if (!landedOnOnline && landedOn != c) {
     landedOn = c;
     landedOnCount = c->getLandedOnCount() + 1;
     landedOnDirectionDiff = direction - landedOn->getDirection();

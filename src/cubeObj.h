@@ -33,6 +33,7 @@ class CubeObj {
     bool jumping, lastJumping, collision, lastCollision, justLandedBool;
     bool lastDirectionConflict, lastDirectionFlip;
     CubeObj* landedOn;
+    bool landedOnOnline;
     //CameraObj* camera; // for camera cubes to ID their cameras
     float landedOnDirectionDiff, landedOnToldDirectionDiff;
     float newFriction, strength, direction, toldDirection; // for use with new friction technique
@@ -46,6 +47,7 @@ class CubeObj {
     void fall();
     void land();
     void landOn(CubeObj*);
+    void resetLandedOn();
     bool updateLandedOnPos();
     int getLandedOnCount();
     void freeze();

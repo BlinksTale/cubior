@@ -729,7 +729,7 @@ void gameplayLoop() {
                     setPosZ(i, cubior[i].getZ());
                     setMomentum(i, cubior[i].getMomentum());
                     setDirection(i, cubior[i].getToldDirection());
-                    //setLandedOn(i, cubior[i].getLandedOn());
+                    setLandedOn(i, cubior[i].getLandedOn());
                 }
             }
         }
@@ -745,7 +745,7 @@ void gameplayLoop() {
                 cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
                 cubior[i].setMomentum(getMomentum(i));
                 cubior[i].setToldDirection(getDirection(i));
-                //cubior[i].setLandedOn(getLandedOn(i));
+                cubior[i].setLandedOn(getLandedOn(i));
             }
         }
         
