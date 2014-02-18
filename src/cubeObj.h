@@ -49,6 +49,8 @@ class CubeObj {
     void landOn(CubeObj*);
     void resetLandedOn();
     bool updateLandedOnPos();
+    float getLandedOnDirectionDiff();
+    void setLandedOnDirectionDiff(float);
     int getLandedOnX();
     int getLandedOnY();
     int getLandedOnZ();

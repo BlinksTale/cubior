@@ -309,6 +309,13 @@ void CubeObj::tick() {
 float CubeObj::getStrength() {
   return strength;
 }
+float CubeObj::getLandedOnDirectionDiff() {
+  return landedOnDirectionDiff;
+}
+void CubeObj::setLandedOnDirectionDiff(float newDiff) {
+  landedOnDirectionDiff = newDiff;
+}
+
 float CubeObj::getDirection() {
   float result = direction;
   if (getLandedOnCount()>0) {
