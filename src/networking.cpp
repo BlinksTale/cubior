@@ -54,8 +54,7 @@ bool lan = false;
 sf::UdpSocket socketItself;
 unsigned short socketPort = 54000;
 sf::Packet packet;
-sf::IpAddress myIp;
-sf::IpAddress incomingIp;
+sf::IpAddress incomingIp, myIp, bannedIp;
 unsigned short incomingPort;
 
 #ifdef enet_lib
@@ -180,20 +179,23 @@ void networkListen() {
     socketItself.receive(packet, incomingIp, incomingPort);
     
     if (incomingPort == socketPort &&
-        incomingIp.toInteger() != myIp.toInteger()) {
+        incomingIp.toInteger() != myIp.toInteger() &&
+        incomingIp.toInteger() != bannedIp.toInteger()) {
 
         newData = "";
         packet >> newData;
 
-        if (isHost) {
-            saveIp(incomingIp.toString());
-        }
+        
        
         if (newData.length() > 0 &&
             strcmp(newData.c_str(), latestData.c_str()) != 0) {
             latestData = newData;
-            processData();
+            readData();
 
+        }
+
+        if (isHost && incomingIp.toInteger() != bannedIp.toInteger()) {
+            saveIp(incomingIp.toString());
         }
         
     }
@@ -205,7 +207,7 @@ void networkListen() {
 
 void networkBroadcast() {
     
-    prepareData();
+    writeData();
     
     // Must make a version of nextMessage only up to the fourth semicolon
     string abreviatedNextMessage = stringUpTo(nextMessage, ';', 4);
@@ -279,7 +281,7 @@ void pollFor(ENetHost * host, ENetAddress address) {
     }
     
     if (updatePos) {
-        processData();
+        readData();
     }
 
     // Get ready for next loop!
@@ -424,7 +426,7 @@ int connectTo(string newAddress)
 }
 
 // Deconstruct our latestData
-void processData() {
+void readData() {
     /*
      * Split by player (separated by semicolon), then split by data (separated by comma)
      */
@@ -433,8 +435,15 @@ void processData() {
     string playerArray[onlinePlayerMax+2]; // +1 for ticks and +1 for level
     splitByCharacter(latestData, playerArray, onlinePlayerMax + 2, ';'); // +1 for ticks and +1 for level
     
+    //cout << "Reading message data: " << latestData << endl;
+
     // Ticks and Level
-    remoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    int potentialRemoteTicks = atoi(playerArray[onlinePlayerMax].c_str());
+    //if (abs(remoteTicks - potentialRemoteTicks) > 5) {
+      remoteTicks = potentialRemoteTicks;
+    //} else {
+    //  bannedIp = incomingIp;
+    //}
     int theirLevel = atoi(playerArray[onlinePlayerMax+1].c_str());
     if (!getGameplayFirstRunning() && getGameplayRunning() && ticks > 10 && theirLevel > getLevelNum()) {
         loadLevel(theirLevel);
@@ -643,7 +652,7 @@ void networkTick() {
     if (getStarted() && ticks % 1 == 0) {
         // Then send data if client
         //if (!choseHost) {
-        prepareData();
+        writeData();
 #ifdef enet_lib
       enetBroadcast();
 #else
@@ -655,7 +664,7 @@ void networkTick() {
 }
 
 // Opposite of process data, get it ready to send
-void prepareData() {
+void writeData() {
     //cout << "Send > ";
     //cin.getline(message, messageSize);
     //message = memcpy(message,newString.c_str(),newString.size());ticks;
@@ -673,7 +682,7 @@ void prepareData() {
     for (int i=0; i<localPlayerMax; i++) {
         sprintf(quarterMessage[i], "");
         if (myOnline[i]) {
-            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f",
+            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
                     i, // send the player's number first, essentially the id
                     myPosX[i], myPosY[i], myPosZ[i],
                     myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
@@ -684,6 +693,7 @@ void prepareData() {
             quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
     nextMessage = message; // std::string automatically converts from char* to string
     
+    //cout << "Writing message data: " << message << endl;
 }
 
 bool isConnected() {

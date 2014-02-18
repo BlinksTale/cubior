@@ -742,10 +742,18 @@ void gameplayLoop() {
         // Find other players that are online, and represent them
         for (int i=0; i<cubiorCount; i++) {
             if (cubiorOnline[i]) {
+                //cout << "Landed on count for cubior " << i << " is " << cubior[i].getLandedOnCount() << endl;
+                //cout << "And getLandedOn is " << getLandedOn(i) << endl;
+              if (cubior[i].getLandedOnCount() < 1) {
                 cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
+              } else {
+                cubior[i].setY(getPosY(i));
+              }
+                cubior[i].fall();
                 cubior[i].setMomentum(getMomentum(i));
                 cubior[i].setToldDirection(getDirection(i));
-                cubior[i].setLandedOn(getLandedOn(i));
+                if (getLandedOn(i) >= 0 && getLandedOn(i) < cubiorCount)
+                  cubior[i].setLandedOn(getLandedOn(i));
             }
         }
         

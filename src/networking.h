@@ -43,8 +43,8 @@ int findComma(int, string);
 string stringUpTo(string, char, int);
 string* splitByCharacter(string, string*, int, char);
 bool networkPriority();
-void processData();
-void prepareData();
+void readData();
+void writeData();
 
 void resetSlots();
 int getNextSlot(string[]);
