@@ -448,6 +448,18 @@ bool CubeObj::updateLandedOnPos() {
   return result;
 }
 
+int CubeObj::getLandedOnX() { return landedOnX; }
+int CubeObj::getLandedOnY() { return landedOnY; }
+int CubeObj::getLandedOnZ() { return landedOnZ; }
+void CubeObj::setLandedOnX(int newVal) { landedOnX = newVal; }
+void CubeObj::setLandedOnY(int newVal) { landedOnY = newVal; }
+void CubeObj::setLandedOnZ(int newVal) { landedOnZ = newVal; }
+void CubeObj::setLandedOnPos(int newX, int newY, int newZ) {
+  landedOnX = newX; 
+  landedOnY = newY; 
+  landedOnZ = newZ;
+}
+
 int CubeObj::getLandedOnCount() {
   return landedOnCount;
 }

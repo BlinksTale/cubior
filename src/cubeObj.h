@@ -49,6 +49,13 @@ class CubeObj {
     void landOn(CubeObj*);
     void resetLandedOn();
     bool updateLandedOnPos();
+    int getLandedOnX();
+    int getLandedOnY();
+    int getLandedOnZ();
+    void setLandedOnX(int);
+    void setLandedOnY(int);
+    void setLandedOnZ(int);
+    void setLandedOnPos(int,int,int);
     int getLandedOnCount();
     void freeze();
     

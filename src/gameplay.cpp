@@ -724,9 +724,15 @@ void gameplayLoop() {
                 setOnline(i, cubiorPlaying[i]); // not efficient since setting when unnecessary?
                 // then if playing, set all other states
                 if (cubiorPlaying[i]) {
+                  if (cubior[i].getLandedOnCount() > 0) {
+                    setPosX(i, cubior[i].getLandedOnX());
+                    setPosY(i, cubior[i].getLandedOnY());
+                    setPosZ(i, cubior[i].getLandedOnZ());
+                  } else {
                     setPosX(i, cubior[i].getX());
                     setPosY(i, cubior[i].getY());
                     setPosZ(i, cubior[i].getZ());
+                  }
                     setMomentum(i, cubior[i].getMomentum());
                     setDirection(i, cubior[i].getToldDirection());
                     setLandedOn(i, cubior[i].getLandedOn());
@@ -744,16 +750,19 @@ void gameplayLoop() {
             if (cubiorOnline[i]) {
                 //cout << "Landed on count for cubior " << i << " is " << cubior[i].getLandedOnCount() << endl;
                 //cout << "And getLandedOn is " << getLandedOn(i) << endl;
+                
+              // Figure out landing on first, so we can figure out offset or set pos next
+              //cubior[i].fall();
+              if (getLandedOn(i) >= 0 && getLandedOn(i) < cubiorCount)
+                cubior[i].setLandedOn(getLandedOn(i));
+
               if (cubior[i].getLandedOnCount() < 1) {
                 cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
               } else {
-                cubior[i].setY(getPosY(i));
+                cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
               }
-                cubior[i].fall();
                 cubior[i].setMomentum(getMomentum(i));
                 cubior[i].setToldDirection(getDirection(i));
-                if (getLandedOn(i) >= 0 && getLandedOn(i) < cubiorCount)
-                  cubior[i].setLandedOn(getLandedOn(i));
             }
         }
         
