@@ -1,3 +1,13 @@
+2/17/14
+
+Yeah I definitely have three logs now basically. Priorities, log, and todo. Eh, whatever works. This gives levels to my notes' in-depth-ness at least.
+Basically disabled anything's setPosition if their landedOnCount > 0
+so you follow the player under you unless you jump off
+this gives a good illusion at least
+maybe next: record that offset from landedOn and send that instead (I like that idea)
+
+===
+
 1/21/14
 
 the way to get landedOn to work across the net for bottom player's view:

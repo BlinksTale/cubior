@@ -300,3 +300,8 @@ just copy this framework over from repos and you're good!
 It really doesn't matter that enet stuff in lib just got swapped, feel free to remove that from the next git commit.
 The issue is regardless, building enet makes it 64bit only on the mac I'm using. Need 32bit support too, not sure how to get that - but we're abandoning enet anyways in favor of SFML's 192.168.0.0 ability to search the LAN for other instances of the game.
 What matters is: get networking working with the new ingame menu for 64bit distributables ;P
+
+---
+2/17/14
+Finally fixed the landedOn bug! It was a simple problem: landedOn was not being sent. sprintf had all the paramaters, but not enough %d in the string, so it wasn't going through (and no compile time errors on this? For shame.)
+Only other bug: Weird networking issue on my Windows 7. Not able to join my Mac game from my Windows box, can only join Windows games from Mac. Strange.
