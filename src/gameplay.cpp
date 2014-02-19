@@ -749,12 +749,12 @@ void gameplayLoop() {
         // Find other players that are online, and represent them
         for (int i=0; i<cubiorCount; i++) {
             if (cubiorOnline[i]) {
-                //cout << "Landed on count for cubior " << i << " is " << cubior[i].getLandedOnCount() << endl;
-                //cout << "And getLandedOn is " << getLandedOn(i) << endl;
+               // cout << "Landed on count for cubior " << i << " is " << cubior[i].getLandedOnCount() << endl;
+               // cout << "And getLandedOn is " << getLandedOn(i) << endl;
                 
               // Figure out landing on first, so we can figure out offset or set pos next
-              //cubior[i].fall();
-              if (getLandedOn(i) >= 0 && getLandedOn(i) < cubiorCount)
+              cubior[i].fall();
+              if (getLandedOn(i) >= -1 && getLandedOn(i) < cubiorCount)
                 cubior[i].setLandedOn(getLandedOn(i));
 
               if (cubior[i].getLandedOnCount() < 1) {

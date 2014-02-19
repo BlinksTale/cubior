@@ -367,7 +367,7 @@ void CubeObj::setLandedOn(int landedOnNum) {
   } else if (landedOnOnline) {
     landedOnOnline = false;
     resetLandedOn();
-  }
+  } 
 }
 
 void CubeObj::calculateDiff() {
