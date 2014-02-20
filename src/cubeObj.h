@@ -58,6 +58,7 @@ class CubeObj {
     void setLandedOnY(int);
     void setLandedOnZ(int);
     void setLandedOnPos(int,int,int);
+    void setLandedOnPosAverage(int,int,int);
     int getLandedOnCount();
     void freeze();
     
@@ -89,8 +90,9 @@ class CubeObj {
     int justSkidded();
     int justFlipped();
     int justMoved();
-
+    
     void setPos(int,int,int);
+    void setPosAverage(int,int,int);
     void setX(int);
     void setY(int);
     void setZ(int);
@@ -108,6 +110,7 @@ class CubeObj {
     void setMomentumY(float);
     void setMomentumZ(float);
     void setMomentum(vector<float>);
+    void setMomentumAverage(vector<float>);
     
     void resetToldToMove();
     void movePos(float,float,float);
@@ -163,6 +166,7 @@ class CubeObj {
     void setDirection(float);
     float getToldDirection();
     void setToldDirection(float);
+    void setToldDirectionAverage(float);
     int getCamDirection(); // translated to camera numbers
     int getLandedOn();
     void setLandedOn(int);

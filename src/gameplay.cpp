@@ -755,7 +755,8 @@ void gameplayLoop() {
               // Figure out landing on first, so we can figure out offset or set pos next
               cubior[i].fall();
               if (getLandedOn(i) >= -1 && getLandedOn(i) < cubiorCount)
-                cubior[i].setLandedOn(getLandedOn(i));
+                  if (cubior[getLandedOn(i)].getLandedOn() != i)
+                      cubior[i].setLandedOn(getLandedOn(i));
 
               if (cubior[i].getLandedOnCount() < 1) {
                 cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
@@ -763,8 +764,8 @@ void gameplayLoop() {
               } else {
                 cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
               }
-                cubior[i].setToldDirection(getDirection(i));
-                cubior[i].setMomentum(getMomentum(i));
+                cubior[i].setToldDirectionAverage(getDirection(i));
+                cubior[i].setMomentumAverage(getMomentum(i));
             }
         }
         

@@ -336,7 +336,10 @@ float CubeObj::getToldDirection() {
   return result;
 }
 void CubeObj::setToldDirection(float f) {
-  toldDirection = f;
+    toldDirection = f;
+}
+void CubeObj::setToldDirectionAverage(float f) {
+    toldDirection = (f + toldDirection)/2.0;
 }
 
 // Return direction by camera's angle system, and in degrees
@@ -462,9 +465,14 @@ void CubeObj::setLandedOnX(int newVal) { landedOnX = newVal; }
 void CubeObj::setLandedOnY(int newVal) { landedOnY = newVal; }
 void CubeObj::setLandedOnZ(int newVal) { landedOnZ = newVal; }
 void CubeObj::setLandedOnPos(int newX, int newY, int newZ) {
-  landedOnX = newX; 
-  landedOnY = newY; 
-  landedOnZ = newZ;
+    landedOnX = (newX);
+    landedOnY = (newY);
+    landedOnZ = (newZ);
+}
+void CubeObj::setLandedOnPosAverage(int newX, int newY, int newZ) {
+    landedOnX = (newX + landedOnX)/2;
+    landedOnY = (newY + landedOnY)/2;
+    landedOnZ = (newZ + landedOnZ)/2;
 }
 
 int CubeObj::getLandedOnCount() {
@@ -602,6 +610,7 @@ void CubeObj::setX(int n) { x = n; }
 void CubeObj::setY(int n) { y = n; }
 void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
+void CubeObj::setPosAverage(int n, int o, int p) { x = (n+x)/2, y = (o+y)/2, z = (p+z)/2; }
 
 
 // Find how close you are to another cube
@@ -667,9 +676,14 @@ void CubeObj::setMomentumY(float n) { momentumY = n * movementSpeed / movementDi
 void CubeObj::setMomentumZ(float n) { momentumZ = n * movementSpeed / movementDivision; }
 
 void CubeObj::setMomentum(vector<float> m) { 
-  momentumX = m.at(0) * movementSpeed / movementDivision;
-  momentumY = m.at(1) * movementSpeed / movementDivision;
-  momentumZ = m.at(2) * movementSpeed / movementDivision;
+  momentumX = (m.at(0) * movementSpeed / movementDivision);
+  momentumY = (m.at(1) * movementSpeed / movementDivision);
+  momentumZ = (m.at(2) * movementSpeed / movementDivision);
+}
+void CubeObj::setMomentumAverage(vector<float> m) {
+    momentumX = (m.at(0) * movementSpeed / movementDivision + momentumX)/2.0;
+    momentumY = (m.at(1) * movementSpeed / movementDivision + momentumY)/2.0;
+    momentumZ = (m.at(2) * movementSpeed / movementDivision + momentumZ)/2.0;
 }
 
 // Just wipe out any old toldToMove commands

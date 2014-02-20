@@ -305,3 +305,8 @@ What matters is: get networking working with the new ingame menu for 64bit distr
 2/17/14
 Finally fixed the landedOn bug! It was a simple problem: landedOn was not being sent. sprintf had all the paramaters, but not enough %d in the string, so it wasn't going through (and no compile time errors on this? For shame.)
 Only other bug: Weird networking issue on my Windows 7. Not able to join my Mac game from my Windows box, can only join Windows games from Mac. Strange.
+
+---
+2/18/14
+landedOn dismounting bug fixed, issue was that range of acceptable landedOn results did not include the dismount -1
+New issue: jumping on network + lag = inconsistent offset (? shouldn't this not be inconsistent?) and a landedOn becoming the lander, leading to a glitch and crash as both are landed on each other...?
