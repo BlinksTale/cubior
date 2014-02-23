@@ -1,3 +1,29 @@
+2/23/14
+
+LAN Host Broadcasting is BAD
+Switch to Client broadcasting until host replies, then direct to IP
+wait - isHost takes priority over LAN in network broadcasting
+so the host isn't broadcasting regardless
+but that anyone is broadcasting. No broadcasting on LAN after connection established!
+Client must listen for replies from host
+foundHost should be an ip variable… well the else has this
+we should only use LAN if (lan && !senderAddress)
+and make senderAddress null on LAN until we get a packet from the host
+who is acting as isHost, and will send messages naturally
+awesome, that should work
+
+thinking I should switch to that no-pos-set-if-moved-by-another-player system
+not entirely sure how to implement it yet, but the basic idea is that if you are colliding with another player, their position is not going to keep getting reset
+
+so online players' positions are only set if no collisions with other players locally?
+that way it's all momentum based. Because the incoming position data is what's messing with this pushing stuff.
+
+The pushing would feel natural if no position data came in during a push
+but what if the pushes ended up in different places on the two devices?
+push stops, positions are reset…?
+
+===
+
 2/17/14
 
 Yeah I definitely have three logs now basically. Priorities, log, and todo. Eh, whatever works. This gives levels to my notes' in-depth-ness at least.
