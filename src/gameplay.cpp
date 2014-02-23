@@ -759,10 +759,10 @@ void gameplayLoop() {
                       cubior[i].setLandedOn(getLandedOn(i));
 
               if (cubior[i].getLandedOnCount() < 1) {
-                cubior[i].setPosAverage(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
+                cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
                 //cubior[i].setLandedOnDirectionDiff(getDirection(i));
               } else {
-                cubior[i].setLandedOnPosAverage(getPosX(i), getPosY(i), getPosZ(i));
+                cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
               }
                 cubior[i].setToldDirection(getDirection(i));
                 cubior[i].setMomentum(getMomentum(i));

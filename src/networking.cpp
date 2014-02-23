@@ -3,15 +3,9 @@
  * by Brian Handy
  * 5/25/13
  * Networking class for 3d platformer
- * most code copied from enet tutorials
  */
 
-//#define enet_lib
-
-// NetworkTest.cpp : main project file.
-// Most code copied from Enet tutorial
-// Copying done by Brian Handy, 5/4/13
-
+// For Enet: (not sure how much still applies now that enet is gone)
 // had to add directory "include" to VC++ Project Properties > Directories
 // had to add enet.lib, winmm.lib, ws2_32.lib to Project Properties > Linker > Input top bar
 
@@ -29,9 +23,6 @@
 #include "gameplay.h" // only for CubiorCount
 #include <sstream> // for ostringstream
 
-#ifdef enet_lib
-#include <enet/enet.h>
-#endif
 
 using namespace std;
 
@@ -56,15 +47,6 @@ unsigned short socketPort = 54000;
 sf::Packet packet;
 sf::IpAddress incomingIp, myIp, bannedIp;
 unsigned short incomingPort;
-
-#ifdef enet_lib
-// Declare Enet Variables
-ENetAddress addressServer;
-ENetAddress addressClient;
-ENetHost * server;
-ENetHost * client;
-ENetPeer * peer;
-#endif
 
 sf::IpAddress senderAddress;
 
@@ -185,13 +167,10 @@ void networkListen() {
         newData = "";
         packet >> newData;
 
-        
-       
         if (newData.length() > 0 &&
             strcmp(newData.c_str(), latestData.c_str()) != 0) {
             latestData = newData;
             readData();
-
         }
 
         if (isHost && incomingIp.toInteger() != bannedIp.toInteger()) {
@@ -221,9 +200,12 @@ void networkBroadcast() {
         
         // Send data
         if (isHost) {
+            string allIPs = "";
             for (int i=0; i<knownIpSize; i++) {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
+                allIPs += knownIpObjects[i].toString() + ", ";
             }
+          cout << "Known IP size is " << knownIpSize << " of " << allIPs<< endl;
         } else if (lan) {
             socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
         } else {
@@ -237,87 +219,6 @@ void networkBroadcast() {
     }
 
 }
-
-#ifdef enet_lib
-
-void pollFor(ENetHost * host, ENetAddress address) {
-  // Host Polling from Enet
-    ENetEvent event;
-    bool updatePos = false;
-    // Wait up to 1000 milliseconds for an event.
-    while (enet_host_service (host, & event, 1) > 0) // used to be 1000, not 1 (update 1/sec. Now it's 1000/sec)
-    {
-        switch (event.type)
-        {
-        case ENET_EVENT_TYPE_CONNECT:
-            //cout << "A new client connected from " << event.peer -> addressServer.host <<
-            //  ":" << event.peer -> addressServer.port << ".\n";
-            cout << event.peer -> address.host << " joined the game\n";
-            // Store any relevant client information here.
-            //event.peer -> data = "Client information";
-            connected = true;
-            break;
-        case ENET_EVENT_TYPE_RECEIVE:
-            //cout << "A packet of length " << event.packet -> dataLength <<
-            //  " containing " << event.packet -> data << " was received from " <<
-            //  event.peer -> data << " on channel " << event.channelID << ".\n";
-
-            //cout << event.peer -> data << ": " << event.packet -> data << "\n";
-            // Save some data for later
-            latestData = ((const char*)event.packet -> data);
-            updatePos = true;
-            // Clean up the packet now that we're done using it.
-            enet_packet_destroy (event.packet);
-            break;
-        case ENET_EVENT_TYPE_DISCONNECT:
-            cout << event.peer -> data << " disconected.\n";
-            // Reset the peer's client information.
-            event.peer -> data = NULL;
-            connected = false;
-            break;
-        default:
-            cout << "No new data" << endl;
-        }
-    }
-    
-    if (updatePos) {
-        readData();
-    }
-
-    // Get ready for next loop!
-    enet_packet_destroy(event.packet);
-}
-
-void enetListen() {
-    //if (choseHost) {
-    pollFor(server, addressServer);
-    //} else {
-    pollFor(client, addressClient);
-    //}
-    
-    // If you need to, feel free to reconnect on a connection loss
-    if (!connected && reconnectOnDisconnect) {
-        connectTo(oldAddress);
-    }
-}
-
-void enetBroadcast() {
-    ENetPacket* packet = enet_packet_create(nextMessage.c_str(), strlen(nextMessage.c_str()) + 1, ENET_PACKET_FLAG_RELIABLE);
-    if (nextMessage.c_str()) {
-        //cout << "Sending msg " << message << endl;
-    }
-    
-        enet_peer_send(peer, 0, packet);
-}
-
-void disconnectFrom(string newAddress) {
-    // Finish using Enet
-    enet_host_destroy(client);
-    enet_host_destroy(server);
-    
-}
-
-#endif
 
 int startHosting() {
     cout << "Starting hosting" << endl;
@@ -335,91 +236,16 @@ int connectTo(string newAddress)
     if (!hostExists && !connected) {
         cout << "No host yet" << endl;
         
-#ifdef enet_lib
-        // Initialize Enety
-        if (enet_initialize () != 0)
-        {
-            fprintf (stderr, "An error occurred while initializing ENet.\n");
-            return EXIT_FAILURE;
-        }
-        atexit (enet_deinitialize);
-        //cout << "Setup the exit route" << endl;
-        
-        //if (choseHost) {
-        
-        // Bind the server to the default localhost.
-        // A specific host address can be specified by
-        // enet_address_set_host (& addressServer, "x.x.x.x");
-        addressServer.host = ENET_HOST_ANY;
-        // Bind the server to port 1234.
-        addressServer.port = 1234;
-        server = enet_host_create (& addressServer, // the address to bind the server host to
-                                   32,      // allow up to 32 clients and/or outgoing connections
-                                   2,      // allow up to 2 channels to be used, 0 and 1
-                                   0,      // assume any amount of incoming bandwidth
-                                   0       // assume any amount of outgoing bandwidth
-                                   );
-        if (server == NULL)
-        {
-            fprintf (stderr,
-                     "An error occurred while trying to create an ENet server host.\n");
-            exit (EXIT_FAILURE);
-        }
-        
-        //} else {
-        client = enet_host_create (NULL, // create a client host
-                                   1, // only allow 1 outgoing connection
-                                   2, // allow up 2 channels to be used, 0 and 1
-                                   57600 / 8, // 56K modem with 56 Kbps downstream bandwidth
-                                   14400 / 8  // 56K modem with 14 Kbps upstream bandwidth
-                                   );
-        if (client == NULL)
-        {
-            fprintf (stderr,
-                     "An error occurred while trying to create an ENet client host.\n");
-            exit (EXIT_FAILURE);
-        }
-#endif
-        
         // Shortcut for same is an empty string
         if (newAddress.compare("") == 0) {
             newAddress = oldAddress;
         }
-        
-#ifdef enet_lib
-        enet_address_set_host (& addressClient, newAddress.c_str());
-        addressClient.port = 1234;
-        
-        
-        peer = enet_host_connect(client, & addressClient, 2, 0);
-        
-        if (peer == NULL) {
-            fprintf (stderr,
-                     "No available peers for initializing an ENet connection");
-            exit (EXIT_FAILURE);
-        }
-        //}
-        
-        // Main Loop
-        //keepLooping = true;
-        //while (keepLooping) {
-        //    tick();
-        //}
-#endif
+      
         hostExists = true;
         oldAddress = newAddress;
         connected  = true;
     } else if (!connected) {
-#ifdef enet_lib
-        peer = enet_host_connect(client, & addressClient, 2, 0);
-        
-        if (peer == NULL) {
-            fprintf (stderr,
-                     "No available peers for initializing an ENet connection");
-            exit (EXIT_FAILURE);
-        }
-#endif
-        connected = true;
+       connected = true;
     }
     
     return 0;
@@ -504,6 +330,39 @@ void readData() {
             //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
         }
     }
+}
+
+// Opposite of process data, get it ready to send
+void writeData() {
+    //cout << "Send > ";
+    //cin.getline(message, messageSize);
+    //message = memcpy(message,newString.c_str(),newString.size());ticks;
+    //itoa(ticks, message, 10);
+    //string ticksString = to_string(ticks);
+    //message = memcpy(message, ticksString.c_str(), ticksString.size());
+    
+    // Clear message
+    sprintf(message, "");
+    
+    //int miniMessageSize = 256;//1024 / 4;
+    //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
+    // Loop through new messages for each online player
+    // but send the packet once for every player
+    for (int i=0; i<localPlayerMax; i++) {
+        sprintf(quarterMessage[i], "");
+        if (myOnline[i]) {
+            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
+                    i, // send the player's number first, essentially the id
+                    myPosX[i], myPosY[i], myPosZ[i],
+                    myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
+                    myDirection[i], myLandedOn[i]);
+        }
+    }
+    sprintf(message, "%s;%s;%s;%s;%d;%d",
+            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
+    nextMessage = message; // std::string automatically converts from char* to string
+    
+    //cout << "Writing message data: " << message << endl;
 }
 
 bool networkPriority() { // are we the oldest network?
@@ -633,12 +492,8 @@ void networkTick() {
     ticks++;
 
     // Listen for any info for server and client
-#ifdef enet_lib
-    enetListen();
-#else
     networkListen();
-#endif
-    
+
     /*time_t currentTime = time(0);
     int millisecondsPassed = difftime(currentTime, startTime);
     startTime = currentTime;
@@ -653,47 +508,10 @@ void networkTick() {
         // Then send data if client
         //if (!choseHost) {
         writeData();
-#ifdef enet_lib
-      enetBroadcast();
-#else
       networkBroadcast();
-#endif
     }
     //}
     
-}
-
-// Opposite of process data, get it ready to send
-void writeData() {
-    //cout << "Send > ";
-    //cin.getline(message, messageSize);
-    //message = memcpy(message,newString.c_str(),newString.size());ticks;
-    //itoa(ticks, message, 10);
-    //string ticksString = to_string(ticks);
-    //message = memcpy(message, ticksString.c_str(), ticksString.size());
-    
-    // Clear message
-    sprintf(message, "");
-    
-    //int miniMessageSize = 256;//1024 / 4;
-    //int posY = sin(ticks/1000.0*3.14*2)*250+250; // fly up and down in 0 to 500 range
-    // Loop through new messages for each online player
-    // but send the packet once for every player
-    for (int i=0; i<localPlayerMax; i++) {
-        sprintf(quarterMessage[i], "");
-        if (myOnline[i]) {
-            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
-                    i, // send the player's number first, essentially the id
-                    myPosX[i], myPosY[i], myPosZ[i],
-                    myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-                    myDirection[i], myLandedOn[i]);
-        }
-    }
-    sprintf(message, "%s;%s;%s;%s;%d;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
-    nextMessage = message; // std::string automatically converts from char* to string
-    
-    //cout << "Writing message data: " << message << endl;
 }
 
 bool isConnected() {
@@ -701,7 +519,7 @@ bool isConnected() {
 }
 
 
-// Universal, regardless of ENET
+// Universal
 
 int addressSlot[4];
 
