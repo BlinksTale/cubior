@@ -610,7 +610,12 @@ void CubeObj::setX(int n) { x = n; }
 void CubeObj::setY(int n) { y = n; }
 void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
-void CubeObj::setPosAverage(int n, int o, int p) { x = (n+x)/2, y = (o+y)/2, z = (p+z)/2; }
+void CubeObj::setPosAverage(int n, int o, int p) { 
+  float bias = 0.9f; // bias towards current position
+  x = n*(1.0f-bias)+x*bias;
+  y = o*(1.0f-bias)+y*bias;
+  z = p*(1.0f-bias)+z*bias;
+}
 
 
 // Find how close you are to another cube
