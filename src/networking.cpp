@@ -368,7 +368,7 @@ void writeData() {
         if (myOnline[i]) {
             
             sprintf(quarterMessage[i], "%d,%f,%f,%f",
-                    i, myJoy[i].at(0), myJoy[i].at(1), momentum[i].at(1));//myJump[i]);
+                    i, myJoy[i].at(0), myJoy[i].at(1), myMomentum[i].at(1));//myJump[i]);
             /*
             // Add one player's data
             sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
