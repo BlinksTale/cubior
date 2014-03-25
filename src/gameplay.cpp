@@ -779,7 +779,7 @@ void gameplayLoop() {
                 getPlayer(i)->moveX(getJoy(i).at(0));
                 getPlayer(i)->moveZ(getJoy(i).at(1));
                 //getPlayer(i)->jump(getJumpOnline(i));
-                if (getMomentum(i).at(1) > 0)
+                if (abs(getMomentum(i).at(1)) > 0.1f) // only override if any momentum
                     getPlayer(i)->setMomentumY(getMomentum(i).at(1));
             }
         }
