@@ -1,3 +1,69 @@
+3/24/14
+
+Send:
+Player collisions?
+  LandedOn?
+    Landed on player with offset (landed on offset)
+  else
+    Pushed player with offset (pushed offset or force applied)
+else
+  Changed momentum at position/changed pos, both w/o player collisions
+
+Packet examples:
+player num, event type (enums), relevant data;
+event 0 (pos/momentum update): pos x,y,z, mom x,y,z, direction
+event 1 (coll side): offset x,y,z, force applied x,y,z, direction
+event 2 (landed on): offset x,y,z, 
+
+--
+
+wait… send input and pos/offset instead
+no new input? send pos and stop sending
+maybe correct pos every 100 frames
+
+===
+
+3/17/14
+
+Networked gameplay:
+Send data in vague senses so that inconsistencies don't cause glitches
+no, not vague
+Send data in descriptions of key events only
+
+Key events:
+Player landed on a certain player / movable object, has an offset
+Player position/offset moved to x
+Player collided with another player / movable object
+
+Nonkey events:
+player collided with a wall
+
+
+===
+
+3/2/14
+
+if collision, only send momentum
+if no collision, also position
+
+===
+
+2/24/14
+
+issue currently is overlapping collisions online
+the old data arrives for the top player, putting them lower than they should be
+leading to the local player (bottom player) overlapping them
+and a crazy spasm between the two, and then ending up in the center of the map
+so… how to fix this?
+
+momentum is currently disabled. Will re-enabling fix this? Or just reintroduce issues with not being able to push each other around?
+
+Can we project where the top player is supposed to be based on the old data that's coming through, and adjust them to be closer to the right spot but also close to their current spot?
+
+Maybe check which of the six sides the last collision was on, and if the new collision is a polar opposite, discount it and revert to the old side (no immediate transitions or pushes *through* the other player)
+
+===
+
 2/23/14
 
 LAN Host Broadcasting is BAD

@@ -69,9 +69,13 @@ int knownIpSize = 0;
 // Recieving
 bool isOnline[onlinePlayerMax];
 int posX[onlinePlayerMax], posY[onlinePlayerMax], posZ[onlinePlayerMax];
+vector< vector <float> > joy (localPlayerMax, vector<float> (2, 0));
+bool jump[onlinePlayerMax];
 // Sending
 bool myOnline[localPlayerMax];
 int myPosX[localPlayerMax], myPosY[localPlayerMax], myPosZ[localPlayerMax];
+vector< vector <float> > myJoy (localPlayerMax, vector<float> (2, 0));
+bool myJump[localPlayerMax];
 bool onlineStatus[cubiorCount];
 //vector<float> momentum (3, 0); // use onlinePlayerMax
 vector< vector <float> > momentum (onlinePlayerMax, vector<float> (3, 0)); // multidimensional vector
@@ -314,7 +318,7 @@ void readData() {
             // Find which player is sending data, and update it
             int p        = getNextSlot(dataArray);
             isOnline[p]  = true;
-            posX[p]      = getNextSlot(dataArray);
+            /*posX[p]      = getNextSlot(dataArray);
             posY[p]      = getNextSlot(dataArray);
             posZ[p]      = getNextSlot(dataArray);
             momentumX    = getNextSlot(dataArray);
@@ -322,10 +326,18 @@ void readData() {
             momentumZ    = getNextSlot(dataArray);
             direction[p] = getNextSlot(dataArray);
             landedOn[p]  = getNextSlot(dataArray);
+             */
+            float joyX      = getNextSlot(dataArray);
+            float joyY      = getNextSlot(dataArray);
+            jump[p]      = getNextSlot(dataArray);
             
-            float momentumArray[] = { momentumX, momentumY, momentumZ };
+            float joyArray[] = { joyX, joyY };
+             std::vector<float> newJoy (joyArray, joyArray + sizeof(joyArray) / sizeof(float) );
+             joy[p].swap(newJoy);
+            
+            /*float momentumArray[] = { momentumX, momentumY, momentumZ };
             std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-            momentum[p].swap(newMomentum);
+            momentum[p].swap(newMomentum);*/
             
             //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
         }
@@ -351,13 +363,19 @@ void writeData() {
     for (int i=0; i<localPlayerMax; i++) {
         sprintf(quarterMessage[i], "");
         if (myOnline[i]) {
+            
+            sprintf(quarterMessage[i], "%d,%f,%f,%d",
+                    i, myJoy[i].at(0), myJoy[i].at(1), myJump[i]);
+            /*
+            // Add one player's data
             sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
                     i, // send the player's number first, essentially the id
                     myPosX[i], myPosY[i], myPosZ[i],
                     myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-                    myDirection[i], myLandedOn[i]);
+                    myDirection[i], myLandedOn[i]);*/
         }
     }
+    // Send all player data
     sprintf(message, "%s;%s;%s;%s;%d;%d",
             quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
     nextMessage = message; // std::string automatically converts from char* to string
@@ -482,6 +500,19 @@ void setLandedOn(int i, int f) {
 }
 int getLandedOn(int i) {
   return landedOn[i];
+}
+void setJoy(int i, float jX, float jY) {
+    myJoy[i].at(0) = jX;
+    myJoy[i].at(1) = jY;
+}
+vector<float> getJoy(int i) {
+    return joy[i];
+}
+void setJumpOnline(int i, bool b) {
+    myJump[i] = b;
+}
+bool getJumpOnline(int i) {
+    return jump[i];
 }
 
 // The main loop, called repeatedly

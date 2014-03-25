@@ -464,8 +464,11 @@ void sendCommands() {
                 float toSendX = -sin(joyAngle+cameraRad)*ratio/5.0;
 				getPlayer(i)->moveZ(toSendZ);
                 getPlayer(i)->moveX(toSendX);
+                networkJoyX(i,toSendX);
+                networkJoyZ(i,toSendZ);
             }
             
+            networkJump(i,jumpInput[i]);
 			// Finally, handle other keys
 			getPlayer(i)->jump(jumpInput[i]);
 			getPlayer(i)->setLock(lockKey[i]);

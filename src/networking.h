@@ -64,6 +64,10 @@ void setDirection(int,float);
 float getDirection(int);
 void setLandedOn(int,int);
 int getLandedOn(int);
+void setJoy(int,float,float);
+vector<float> getJoy(int);
+void setJumpOnline(int,bool);
+bool getJumpOnline(int);
 bool isConnected();
 
 void initializeIpAddress();

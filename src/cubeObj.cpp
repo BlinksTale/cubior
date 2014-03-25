@@ -429,7 +429,7 @@ void CubeObj::land() {
 
 // to also land on another player
 void CubeObj::landOn(CubeObj* c) {
-  if (!landedOnOnline && landedOn != c) {
+  if (!landedOnOnline && landedOn != c && c->getLandedOnCount() < cubiorCount) {
     landedOn = c;
     landedOnCount = c->getLandedOnCount() + 1;
     landedOnDirectionDiff = direction - landedOn->getDirection();

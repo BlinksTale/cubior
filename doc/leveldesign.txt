@@ -1,3 +1,46 @@
+3/2/14
+
+Challenges:
+moving to goal
+jumping
+jumping a distance (against a wall)
+going around an inside (run into walls) corner
+going around an outside (run off edge) corner
+finding the goal (up, always)
+jumping onto a small platform (not overshooting)
+
+Unknown/Tests-needed Challenges:
+go into an alleyway (NOT a tunnel, always visible and path ahead visible too - open space to open space)
+crumbling blocks
+springs?
+buttons and switches for gates
+falling onto a platform (going down)
+falling onto a small platform (not over-falling)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===
+
 9/29/13
 Cubior level design:
 (level editor url? http://www.asciipaint.com )

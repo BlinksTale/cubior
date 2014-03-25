@@ -231,6 +231,10 @@ void setupNetworking(string);
     bool getCameraLocked(int);
     int snapLockAngle(int);
 
+void networkJump(int,bool);
+void networkJoyX(int,float);
+void networkJoyZ(int,float);
+
     int getPlayerChosen(); // who was picked first
 
     float fpsRate(); // how much more we need to move compared to expected speed

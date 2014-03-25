@@ -69,7 +69,8 @@ CubiorObj cubior[cubiorCount];
 CubeObj* cube[maxCubeCount];
 GoalObj goal;
 CameraObj camera[cubiorCount];
-bool cameraDroppingIn[cubiorCount];
+bool cameraDroppingIn[cubiorCount], lastToJump[cubiorCount];
+float lastToMoveX[cubiorCount], lastToMoveZ[cubiorCount];
 static int movementSpeed = 1;
 static int jumpSpeedRatio = 5;
 static int rotationSpeed = 10;
@@ -724,7 +725,7 @@ void gameplayLoop() {
                 setOnline(i, cubiorPlaying[i]); // not efficient since setting when unnecessary?
                 // then if playing, set all other states
                 if (cubiorPlaying[i]) {
-                  if (cubior[i].getLandedOnCount() > 0) {
+                  /*if (cubior[i].getLandedOnCount() > 0) {
                     setPosX(i, cubior[i].getLandedOnX());
                     setPosY(i, cubior[i].getLandedOnY());
                     setPosZ(i, cubior[i].getLandedOnZ());
@@ -737,6 +738,9 @@ void gameplayLoop() {
                     setDirection(i, cubior[i].getToldDirection());
                     setMomentum(i, cubior[i].getMomentum());
                     setLandedOn(i, cubior[i].getLandedOn());
+                */
+                    setJoy(i, lastToMoveX[i], lastToMoveZ[i]);
+                    setJumpOnline(i, lastToJump[i]);
                 }
             }
         }
@@ -753,7 +757,7 @@ void gameplayLoop() {
                // cout << "And getLandedOn is " << getLandedOn(i) << endl;
                 
               // Figure out landing on first, so we can figure out offset or set pos next
-              cubior[i].fall();
+              /*cubior[i].fall();
               if (getLandedOn(i) >= -1 && getLandedOn(i) < cubiorCount)
                   if (cubior[getLandedOn(i)].getLandedOn() != i)
                       cubior[i].setLandedOn(getLandedOn(i));
@@ -762,14 +766,32 @@ void gameplayLoop() {
                 cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
                 //cubior[i].setLandedOnDirectionDiff(getDirection(i));
               } else {
-                cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
+                  vector<float> incomingMomentum = getMomentum(i);
+                  if (incomingMomentum.at(0) != 0.0f ||
+                      incomingMomentum.at(1) != 0.0f ||
+                      incomingMomentum.at(2) != 0.0f) {
+                        cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
+                  }
               }
-                cubior[i].setToldDirection(getDirection(i));
-                cubior[i].setMomentum(getMomentum(i));
+                cubior[i].setToldDirection(getDirection(i));*/
+                //cubior[i].setMomentum(getMomentum(i));
+                getPlayer(i)->moveX(getJoy(i).at(0));
+                getPlayer(i)->moveZ(getJoy(i).at(1));
+                getPlayer(i)->jump(getJumpOnline(i));
             }
         }
         
     }
+}
+
+void networkJump(int i, bool b) {
+    lastToJump[i] = b;
+}
+void networkJoyX(int i, float f) {
+    lastToMoveX[i] = f;
+}
+void networkJoyZ(int i, float f) {
+    lastToMoveZ[i] = f;
 }
 
 // Use the camera cube to check for collision against the map
