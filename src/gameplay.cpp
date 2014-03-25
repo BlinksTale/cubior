@@ -740,7 +740,8 @@ void gameplayLoop() {
                     setLandedOn(i, cubior[i].getLandedOn());
                 */
                     setJoy(i, lastToMoveX[i], lastToMoveZ[i]);
-                    setJumpOnline(i, lastToJump[i]);
+                    //setJumpOnline(i, lastToJump[i]);
+                    setMomentum(i, cubior[i].getMomentum());
                 }
             }
         }
@@ -777,7 +778,8 @@ void gameplayLoop() {
                 //cubior[i].setMomentum(getMomentum(i));
                 getPlayer(i)->moveX(getJoy(i).at(0));
                 getPlayer(i)->moveZ(getJoy(i).at(1));
-                getPlayer(i)->jump(getJumpOnline(i));
+                //getPlayer(i)->jump(getJumpOnline(i));
+                getPlayer(i)->setMomentumY(getMomentum(i).at(1));
             }
         }
         

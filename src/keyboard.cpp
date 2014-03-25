@@ -455,6 +455,12 @@ void sendCommands() {
             // vs current dir
             // vs angle of last movement if needed
             
+            // Reset values before sending
+            
+            networkJoyX(i,0);
+            networkJoyZ(i,0);
+            networkJump(i,false);
+            
 			// Alright! Any movement? Apply it!
 			if (ratio != 0) {
                 // NEWDELETEME: cout << "joyAngle (" << joyAngle << ") + cameraRad (" << cameraRad << ") = " << joyAngle + cameraRad << endl;

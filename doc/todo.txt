@@ -21,6 +21,15 @@ wait… send input and pos/offset instead
 no new input? send pos and stop sending
 maybe correct pos every 100 frames
 
+if position of online cube is within colliding distance of my cube, don't force update position
+wait, no
+if (delta > collDelta && !colliding)
+  updatePositions();
+else just use momentum (in collisions or close enough for collisions)
+
+so! Send position, joyX/Y, momentumY (not jump I don't think)
+then if not colliding and not in collision range, 
+
 ===
 
 3/17/14

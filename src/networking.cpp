@@ -329,15 +329,18 @@ void readData() {
              */
             float joyX      = getNextSlot(dataArray);
             float joyY      = getNextSlot(dataArray);
-            jump[p]      = getNextSlot(dataArray);
+            //jump[p]      = getNextSlot(dataArray);
+            momentumY = getNextSlot(dataArray);
+            momentumX = 0;
+            momentumZ = 0;
             
             float joyArray[] = { joyX, joyY };
              std::vector<float> newJoy (joyArray, joyArray + sizeof(joyArray) / sizeof(float) );
              joy[p].swap(newJoy);
             
-            /*float momentumArray[] = { momentumX, momentumY, momentumZ };
+            float momentumArray[] = { momentumX, momentumY, momentumZ };
             std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-            momentum[p].swap(newMomentum);*/
+            momentum[p].swap(newMomentum);
             
             //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
         }
@@ -364,8 +367,8 @@ void writeData() {
         sprintf(quarterMessage[i], "");
         if (myOnline[i]) {
             
-            sprintf(quarterMessage[i], "%d,%f,%f,%d",
-                    i, myJoy[i].at(0), myJoy[i].at(1), myJump[i]);
+            sprintf(quarterMessage[i], "%d,%f,%f,%f",
+                    i, myJoy[i].at(0), myJoy[i].at(1), momentum[i].at(1));//myJump[i]);
             /*
             // Add one player's data
             sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
