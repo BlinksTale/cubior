@@ -209,7 +209,7 @@ void networkBroadcast() {
                 socketItself.send(packet, knownIpObjects[i], socketPort);
                 allIPs += knownIpObjects[i].toString() + ", ";
             }
-          cout << "Known IP size is " << knownIpSize << " of " << allIPs<< endl;
+          //cout << "Known IP size is " << knownIpSize << " of " << allIPs<< endl;
         } else if (lan) {
             socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
         } else {
