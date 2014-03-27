@@ -91,6 +91,7 @@ CubeObj::CubeObj() {
 
   // Collision vars
   collision = false;
+  justHit = NULL;
   landedOn = NULL;
   landedOnCount = 0;
   landedOnOnline = false; // whether locked to an online landedOn status or not
@@ -115,6 +116,7 @@ void CubeObj::tick() {
   
     if (collision) {
       setCollision(false);
+      justHit = NULL;
     }
     //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
@@ -537,7 +539,9 @@ void CubeObj::jump(bool n) {
 }
 
 // Collision Effect defaults to nothing happening
-void CubeObj::collisionEffect(CubeObj* c) { }
+void CubeObj::collisionEffect(CubeObj* c) {
+    justHit = c;
+}
 
 // Lock to stop midair
 void CubeObj::setLock(bool n) {
@@ -611,7 +615,8 @@ void CubeObj::setY(int n) { y = n; }
 void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 void CubeObj::setPosAverage(int n, int o, int p) {
-  if (!collision && !lastCollision) {
+  // apply on grounded, but not touching a player
+  if (justHit != NULL && !justHit->isPlayer()) {
     float bias = 0.9f; // bias towards current position
     x = n*(1.0f-bias)+x*bias;
     y = o*(1.0f-bias)+y*bias;
