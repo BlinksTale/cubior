@@ -1,4 +1,24 @@
+3/25/14
+
+also send position
+if collision, do not apply position
+else do?
+
+
+===
+
 3/24/14
+
+Got something working
+sending positive momentum on y with moveX and moveZ values from keyboard file
+this moves the player to the right position, and gives them some jump lift
+but still can be off by a bit, so at least for X/Z, need to interpolate to correct position over time
+(can be 1% per frame, as long as we keep moving the right direction)
+
+so todo:
+send position data again, and move towards that position (faster if no competing momentum?)
+
+---
 
 Send:
 Player collisions?

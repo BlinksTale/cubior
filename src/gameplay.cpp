@@ -781,6 +781,7 @@ void gameplayLoop() {
                 //getPlayer(i)->jump(getJumpOnline(i));
                 if (getMomentum(i).at(1) > 0) // only override if positive momentum
                     getPlayer(i)->setMomentumY(getMomentum(i).at(1));
+                cubior[i].setPosAverage(getPosX(i), getPosY(i), getPosZ(i));
             }
         }
         
