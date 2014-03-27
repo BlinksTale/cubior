@@ -91,7 +91,7 @@ CubeObj::CubeObj() {
 
   // Collision vars
   collision = false;
-  justHit = NULL;
+  justHitPlayer = false;
   landedOn = NULL;
   landedOnCount = 0;
   landedOnOnline = false; // whether locked to an online landedOn status or not
@@ -116,7 +116,7 @@ void CubeObj::tick() {
   
     if (collision) {
       setCollision(false);
-      justHit = NULL;
+      justHitPlayer = false;
     }
     //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
 
@@ -541,8 +541,11 @@ void CubeObj::jump(bool n) {
 // Collision Effect defaults to nothing happening
 void CubeObj::collisionEffect(CubeObj* c) {
     if (c->isPlayer()) {
-        justHit = c;
+      // distToCube returns zero if no collisions. Odd, but use for now. Fixme later
+      if (this->distToCube(c) != 0.0f) {
+        justHitPlayer = true;
         posAverageBias = 1.0f;
+      }
     }
 }
 
@@ -619,7 +622,7 @@ void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 void CubeObj::setPosAverage(int n, int o, int p) {
   // apply if not touching a player
-  if (justHit == NULL || !justHit->isPlayer()) {
+  if (!justHitPlayer) {
     float bias = posAverageBias; // bias towards current position
     x = n*(1.0f-bias)+x*bias;
     y = o*(1.0f-bias)+y*bias;
