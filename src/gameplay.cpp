@@ -776,12 +776,12 @@ void gameplayLoop() {
               }
                 cubior[i].setToldDirection(getDirection(i));*/
                 //cubior[i].setMomentum(getMomentum(i));
+                cubior[i].setPosAverage(getPosX(i), getPosY(i), getPosZ(i));
                 getPlayer(i)->moveX(getJoy(i).at(0));
                 getPlayer(i)->moveZ(getJoy(i).at(1));
                 //getPlayer(i)->jump(getJumpOnline(i));
                 if (getMomentum(i).at(1) > 0) // only override if positive momentum
                     getPlayer(i)->setMomentumY(getMomentum(i).at(1));
-                cubior[i].setPosAverage(getPosX(i), getPosY(i), getPosZ(i));
             }
         }
         
