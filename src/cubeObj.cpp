@@ -619,7 +619,7 @@ void CubeObj::setZ(int n) { z = n; }
 void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 void CubeObj::setPosAverage(int n, int o, int p) {
   // apply if not touching a player
-  if (justHit == NULL) {
+  if (justHit == NULL || !justHit->isPlayer()) {
     float bias = posAverageBias; // bias towards current position
     x = n*(1.0f-bias)+x*bias;
     y = o*(1.0f-bias)+y*bias;
