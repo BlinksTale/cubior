@@ -21,7 +21,7 @@ class CubeObj {
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     CubeObj* justHit;
-    float momentumX, momentumY, momentumZ, movementSpeed, movementDivision;
+    float momentumX, momentumY, momentumZ, movementSpeed, movementDivision, posAverageBias;
     bool toldToMoveX, toldToMoveY, toldToMoveZ;
     float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,

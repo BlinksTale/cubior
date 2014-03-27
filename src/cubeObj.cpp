@@ -540,8 +540,10 @@ void CubeObj::jump(bool n) {
 
 // Collision Effect defaults to nothing happening
 void CubeObj::collisionEffect(CubeObj* c) {
-    if (c->isPlayer())
+    if (c->isPlayer()) {
         justHit = c;
+        posAverageBias = 1.0f;
+    }
 }
 
 // Lock to stop midair
@@ -618,10 +620,14 @@ void CubeObj::setPos(int n, int o, int p) { x = n, y = o, z = p; }
 void CubeObj::setPosAverage(int n, int o, int p) {
   // apply if not touching a player
   if (justHit != NULL) {
-    float bias = 0.9f; // bias towards current position
+    float bias = posAverageBias; // bias towards current position
     x = n*(1.0f-bias)+x*bias;
     y = o*(1.0f-bias)+y*bias;
     z = p*(1.0f-bias)+z*bias;
+    if (posAverageBias > 0.0f && (x!=n || y!=o || z!=p))
+        posAverageBias -= 0.1f;
+    else if (posAverageBias != 1.0f)
+        posAverageBias = 1.0f; // so also resets if position equals commanded pos
   }
 }
 
