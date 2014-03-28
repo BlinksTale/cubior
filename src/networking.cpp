@@ -146,7 +146,7 @@ void dropIdlePlayers() {
                 playerIpDisconnect[i]++;
 
                 // Timeout or this player not being sent from original source anymore
-                if (playerIpDisconnect[i] > 500 || playerIpNew[i] == -1) {
+                if (playerIpDisconnect[i] > 500*10 || playerIpNew[i] == -1) {
                     //cout << "Dropping player " << i << endl;
                     dropPlayer(i);
                 }
@@ -162,9 +162,10 @@ void dropIdlePlayers() {
 
 void networkListen() {
     
+  for (int i=0; i<10; i++) { // arbitrary number of listens for packets per loop
     socketItself.receive(packet, incomingIp, incomingPort);
-    
-    if (incomingPort == socketPort &&
+    if (packet.getDataSize() > 0 &&
+        incomingPort == socketPort &&
         incomingIp.toInteger() != myIp.toInteger() &&
         incomingIp.toInteger() != bannedIp.toInteger()) {
 
@@ -184,8 +185,9 @@ void networkListen() {
     }
     
     dropIdlePlayers();
-    
     packet.clear();
+  }
+    
 }
 
 void networkBroadcast() {
