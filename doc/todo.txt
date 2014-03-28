@@ -1,3 +1,21 @@
+3/27/14
+
+so we fixed packet buildup by reading in ten packets for every tick, awesome
+now todo:
+1. Send direction players are facing (had this one, got rid of it - put it back!)
+2. Send offset if landed on a player, apply only if no joystick force received
+3. Figure out why sometimes the positions are wrong and staying wrong even if no player collision
+
+===
+
+3/26/14
+
+justHitPlayer isn't working
+always sends true, should send false if not touching anyone
+need it so on collisions, movement isn't limited, but on no player collisions, pos is exact
+
+===
+
 3/25/14
 
 also send position
