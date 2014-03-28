@@ -1,5 +1,5 @@
 ifeq ($(shell uname), Linux)
-  Compiler = g++ -std=c++0x
+  Compiler = clang++ -std=c++0x
   Graphics = -I/usr/X11R6/include -L/usr/X11R6/bin -lglut -lGL -lGLU
   Audio = -Wall -lopenal -lalut #-Wall -lopenal -lalut
   Exe = cubior

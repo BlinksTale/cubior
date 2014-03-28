@@ -1,5 +1,15 @@
 3/27/14
 
+Trying to build on Linux again - whoa!
+Got a lot further than expected, but tons of issues still
+/usr/include/X11 in particular
+this library seems to have all kinds of bad overlap with SFML's networking definitions
+eg. enum Status in sfml/network/ftp.hpp has a conflict  with #define Status int in X11/Xlib.h
+so enum Status appears as enum int, which doesn't work.
+Try fixing this by separating the two? Not sure why both are being looked at. Possible graphics/networking overlap issue
+
+---
+
 so we fixed packet buildup by reading in ten packets for every tick, awesome
 now todo:
 1. Send direction players are facing (had this one, got rid of it - put it back!)

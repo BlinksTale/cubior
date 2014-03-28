@@ -15,7 +15,7 @@
 #include <SFML/Network.hpp> // for networking
 
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <cmath>
 #include <ctime>
 #include <vector>
