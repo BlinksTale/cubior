@@ -86,6 +86,7 @@ float myDirection[localPlayerMax];
 int landedOn[localPlayerMax];
 int myLandedOn[localPlayerMax];
 // Save IP sources
+bool knownLanHost;
 int playerIp[onlinePlayerMax];
 int playerIpNew[onlinePlayerMax];
 int playerIpDisconnect[onlinePlayerMax];
@@ -131,6 +132,10 @@ void dropPlayer(int i) {
     isOnline[i]  = false;
     playerIp[i] = -1;
     playerIpDisconnect[i] = 0;
+    
+    // Dropped a player and you're a client on lan?
+    // Must have lost host
+    knownLanHost = false;
 }
 
 void dropIdlePlayers() {
@@ -168,7 +173,7 @@ void networkListen() {
         incomingPort == socketPort &&
         incomingIp.toInteger() != myIp.toInteger() &&
         incomingIp.toInteger() != bannedIp.toInteger()) {
-
+        
         newData = "";
         packet >> newData;
 
@@ -180,8 +185,10 @@ void networkListen() {
 
         if (isHost && incomingIp.toInteger() != bannedIp.toInteger()) {
             saveIp(incomingIp.toString());
+        } else if (lan && !knownLanHost) {
+            setIpAddress(incomingIp);
         }
-        
+      
     }
     
     dropIdlePlayers();
@@ -212,7 +219,7 @@ void networkBroadcast() {
                 allIPs += knownIpObjects[i].toString() + ", ";
             }
           //cout << "Known IP size is " << knownIpSize << " of " << allIPs<< endl;
-        } else if (lan) {
+        } else if (lan && !knownLanHost) {
             socketItself.send(packet, sf::IpAddress::Broadcast, socketPort);
         } else {
             socketItself.send(packet, senderAddress, socketPort); // sf::IpAddress::Broadcast
@@ -566,11 +573,17 @@ bool isConnected() {
 int addressSlot[4];
 
 void initializeIpAddress() {
+    knownLanHost = false;
     addressSlot[0] = 192;
     addressSlot[1] = 168;
     addressSlot[2] = 0;
     addressSlot[3] = 9;
     senderAddress = sf::IpAddress(getIpAddress());
+}
+
+bool setIpAddress(sf::IpAddress value) {
+    knownLanHost = true;
+    senderAddress = value;
 }
 
 bool setIpAddress(int slot, int value) {

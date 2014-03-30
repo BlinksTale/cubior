@@ -72,6 +72,7 @@ bool isConnected();
 
 void initializeIpAddress();
 void incrementIpAddress(int);
+bool setIpAddress(sf::IpAddress);
 bool setIpAddress(int, int);
 int getIpAddress(int);
 string getIpAddress();
