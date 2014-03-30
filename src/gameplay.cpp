@@ -8,7 +8,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cameraObj.h"
-#include "networking.h"
+//#include "networking.h"
 #include "cubeObj.h"
 #include "goalObj.h"
 #include "cubiorObj.h"
@@ -277,7 +277,7 @@ void disablePlayers() {
         cubiorOnline[i] = 0;
     }
 }
-
+/*
 // No IP? Must be a host!
 void setupNetworking() {
     // Gameplay Start network stuff!
@@ -321,7 +321,7 @@ void setupNetworkedPlayers() {
     
     // Need a new system for menu navigation so it's not based on players playing
 }
-
+*/
 void readLevel(string levelToLoad) {
     levelMap = MapReader::readMap(levelToLoad); // now load that level!
     currentMapWidth = levelMap->getWidth();
@@ -375,7 +375,7 @@ void setupLevel() {
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
     keyboardInit();
-    networkingInit();
+    //networkingInit();
     gameplayStart(levelToLoad, addressToJoin);
 }
 
@@ -409,7 +409,7 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
         
         // And networked players
         if (networkingEnabled) {
-            setupNetworkedPlayers();
+        //    setupNetworkedPlayers();
         }
         
         // Setup level geometry and goal
@@ -678,7 +678,7 @@ void gameplayLoop() {
     // Lastly, network stuff!
     
     // Networking anytime loop
-    if (networkingEnabled) {
+   /* if (networkingEnabled) {
         networkTick();
         for (int i=0; i<cubiorCount; i++) {
             //cout << "player " << i << " is " << getOnline(i) << ", ";
@@ -725,20 +725,10 @@ void gameplayLoop() {
                 setOnline(i, cubiorPlaying[i]); // not efficient since setting when unnecessary?
                 // then if playing, set all other states
                 if (cubiorPlaying[i]) {
-                  /*if (cubior[i].getLandedOnCount() > 0) {
-                    setPosX(i, cubior[i].getLandedOnX());
-                    setPosY(i, cubior[i].getLandedOnY());
-                    setPosZ(i, cubior[i].getLandedOnZ());
-                    //setDirection(i, cubior[i].getLandedOnDirectionDiff());
-                  } else {*/
                     setPosX(i, cubior[i].getX());
                     setPosY(i, cubior[i].getY());
                     setPosZ(i, cubior[i].getZ());
-                  /*}
-                    setDirection(i, cubior[i].getToldDirection());
-                    setMomentum(i, cubior[i].getMomentum());
-                    setLandedOn(i, cubior[i].getLandedOn());
-                */
+                  
                     setJoy(i, lastToMoveX[i], lastToMoveZ[i]);
                     //setJumpOnline(i, lastToJump[i]);
                     setMomentum(i, cubior[i].getMomentum());
@@ -758,23 +748,7 @@ void gameplayLoop() {
                // cout << "And getLandedOn is " << getLandedOn(i) << endl;
                 
               // Figure out landing on first, so we can figure out offset or set pos next
-              /*cubior[i].fall();
-              if (getLandedOn(i) >= -1 && getLandedOn(i) < cubiorCount)
-                  if (cubior[getLandedOn(i)].getLandedOn() != i)
-                      cubior[i].setLandedOn(getLandedOn(i));
-
-              if (cubior[i].getLandedOnCount() < 1) {
-                cubior[i].setPos(getPosX(i)+modifier, getPosY(i), getPosZ(i)+modifier);
-                //cubior[i].setLandedOnDirectionDiff(getDirection(i));
-              } else {
-                  vector<float> incomingMomentum = getMomentum(i);
-                  if (incomingMomentum.at(0) != 0.0f ||
-                      incomingMomentum.at(1) != 0.0f ||
-                      incomingMomentum.at(2) != 0.0f) {
-                        cubior[i].setLandedOnPos(getPosX(i), getPosY(i), getPosZ(i));
-                  }
-              }
-                cubior[i].setToldDirection(getDirection(i));*/
+             
                 //cubior[i].setMomentum(getMomentum(i));
                 getPlayer(i)->moveX(getJoy(i).at(0));
                 getPlayer(i)->moveZ(getJoy(i).at(1));
@@ -784,8 +758,8 @@ void gameplayLoop() {
                 cubior[i].setPosAverage(getPosX(i), getPosY(i), getPosZ(i));
             }
         }
-        
-    }
+       
+    }*/ 
 }
 
 void networkJump(int i, bool b) {
@@ -2104,7 +2078,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         return 1;
     };
     
-    int rearrangePlayer(int j) {
+    /*int rearrangePlayer(int j) {
         // Add first player you can find
         for (int i=0; i<cubiorCount; i++) {
             if (!cubiorPlaying[i] && !cubiorOnline[i]) {
@@ -2123,18 +2097,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         // Couldn't find an empty player slot, game is full
         return 1;
         
-        /*
-        for (int i=0; i<cubiorCount; i++) {
-            int tryingSlot = (cubiorCount + j + i + 1) % cubiorCount;
-            if (getCubiorPlaying(tryingSlot)) {
-                setCubiorPlaying(tryingSlot, true);
-                setCubiorOnline(tryingSlot, false);
-                rearrangeControls(j, tryingSlot);
-                return 0;
-            }
-        }
-        return 1;*/
-    }
+    }*/
     
     int removePlayer(int i) {
         if (cubiorPlaying[i]) {
@@ -2355,12 +2318,12 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                     break;
                 case 1:
                     // Start LAN
-                    setLAN(true);
+                    //setLAN(true);
                     setMenu(i, 8); // fixme: make an online start
                     break;
                 case 2:
                     // Start Online
-                    setLAN(false);
+                    //setLAN(false);
                     setMenu(i, 8); // fixme: make an online start
                     break;
                 case 3:
@@ -2374,17 +2337,17 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
             switch(option[i]) {
                 case 0:
                     // Choose to Host
-                    setupNetworking();
+                    //setupNetworking();
                     setMenu(i, 4); // fixme: make an online start
                     break;
                 case 1:
                     // Choose to Join
-                    if (getLAN()) {
-                        setupNetworking(getIpAddress());
-                        setMenu(i,4);
-                    } else {
+                    //if (getLAN()) {
+                        //setupNetworking(getIpAddress());
+                    //    setMenu(i,4);
+                    //} else {
                         setMenu(i, 9);
-                    }
+                    //}
                     break;
                 case 2:
                     // Return to prev menu
@@ -2397,11 +2360,11 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
             switch(option[i]) {
                 case 0:
                     // Increase the current Ip Address slot's value
-                    incrementIpAddress(focus[i]);
+                   // incrementIpAddress(focus[i]);
                     break;
                 case 1:
                     // Start Online
-                    setupNetworking(getIpAddress());
+                    //setupNetworking(getIpAddress());
                     setMenu(i, 4); // fixme: make an online start
                     break;
                 case 2:
@@ -2435,7 +2398,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     void resetNumber(int source) {
         int sourceNumber;
         char sourceString[50];
-        sourceNumber = getIpAddress(source);
+        sourceNumber = 0;//getIpAddress(source);
         sprintf(sourceString, "%i", sourceNumber);
         currentIpAddressSlot = string(sourceString);
     }
@@ -2449,10 +2412,10 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         trySettingIpAddress(oldIpAddress);
     }
     void trySettingIpAddress(string oldIpAddress) {
-        int numberValue = atoi(currentIpAddressSlot.c_str());
-        if (!setIpAddress(focus[0], numberValue)) { // FIXME: 0 focus should be playernum
-            currentIpAddressSlot = oldIpAddress;
-        }
+        //int numberValue = atoi(currentIpAddressSlot.c_str());
+        //if (!setIpAddress(focus[0], numberValue)) { // FIXME: 0 focus should be playernum
+        //    currentIpAddressSlot = oldIpAddress;
+        //}
     }
     
     // Similarly, option focuses
