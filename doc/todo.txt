@@ -1,3 +1,13 @@
+3/28/14
+
+1. send landedOn offset if landedOn not moving
+2. switch to IP sending instead of broadcast on LAN once host found (clients broadcast at start)
+3. use libraries with .2 at end for Eileen's Mac
+4. when you quit an online game, reset everything so that it doesn't have those rejoining bugs in case you start another online game
+5. Eileen note: hit escape repeatedly to quit! Escape should not act as an affirmation button, make it quit the game.
+
+===
+
 3/27/14
 
 Trying to build on Linux again - whoa!

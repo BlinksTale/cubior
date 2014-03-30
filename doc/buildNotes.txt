@@ -1,0 +1,14 @@
+For Mac 10.7:
+include in the Contents/Frameworks folder the libsfml-xxx.2.dylib files instead of the regular (no 2) versions
+ensure also that freetype.framework and sndfile.framework are in there
+
+For Mac 10.8+:
+same as 64-bit, only regular dylibs instead of the 2 versions
+Not yet sure how to make one version that chooses only the appropriate libraries. Maybe an x64 folder?
+
+So surprisingly, versions 2.1 will work alongside the unnumbered versions on 10.8.
+But my MacBook requires the unnumbered versions, and the 10.7 Mac crashes with the unnumbered ones. Odd.
+
+So just make things for Mac 10.7 and up instead of 10.8?
+
+Actually, ultimately: just follow the notes on SFML's page and build for 10.5, not using C++11 features. Then it works on both 10.8 and 10.7. Huzzah!
