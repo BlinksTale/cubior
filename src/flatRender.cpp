@@ -5,7 +5,7 @@
  * 2d Visuals for cubior
  */
 //#include "GLee.h" // must be included before any inclusion of gl.h
-#include "GLee.h"
+#include "GLee.h" // but it kills SFML since it requires X11, which contrasts with it!
 #include "flatRender.h"
 #include "music.h"
 #include "gameplay.h"
@@ -17,7 +17,8 @@
 #include "creditsReader.h"
 #include "music.h" // to show visuals in menus for music volume
 #include "sfx.h" // to show visuals in menus for sfx volume
-#include "networking.h" // to show visuals in menus for ip address of networking
+//#include "networking.h" // to show visuals in menus for ip address of networking
+// nah, go through gameplay.cpp for this so we don't get X11 and SFML Network linking issues
 
 #define _USE_MATH_DEFINES
 #include <math.h> // for M_PI
@@ -1489,7 +1490,7 @@ void drawMenu(int i, bool doubleWidth) {
         char addressArray[4][4];
         
         for (int j=0; j<4; j++) {
-            sprintf(addressArray[j], "%d", getIpAddress(j));
+            //sprintf(addressArray[j], "%d", getIpAddress(j));
             if (j == 0) {
                 sprintf(address, "%s", addressArray[j]);
             } else {

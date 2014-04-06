@@ -15,6 +15,7 @@
 #include <SFML/Network.hpp> // for networking
 
 #include <iostream>
+#include <stdio.h> // sprintf
 #include <string.h>
 #include <cmath>
 #include <ctime>

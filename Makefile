@@ -1,8 +1,8 @@
 # LINUX
 ifeq ($(shell uname), Linux)
-  Compiler = clang++ -std=c++0x # and 32 bit builds on 64 bit machines use -m32
-  GraphicsInlude = -I/usr/X11R6/include
-  GraphicsLinker = -L/usr/X11R6/bin -L/usr/local/lib -lglee -lglut -lGL -lGLU -lsfml-graphics -lsfml-window -lsfml-system
+  Compiler = clang++ #-std=c++0x # and 32 bit builds on 64 bit machines use -m32
+  GraphicsInlude = #-I/usr/X11R6/include
+  GraphicsLinker = -L/usr/local/lib -lglee -lglut -lGL -lGLU -lsfml-graphics -lsfml-system -lsfml-window #-L/usr/X11R6/bin 
   Audio = -Wall -lopenal -lalut -L/usr/local/lib -lsfml-audio #-Wall -lopenal -lalut
   Networking = -L/usr/local/lib -lsfml-network
   Exe = cubior
