@@ -1,8 +1,21 @@
+4/5/14
+
+Networking works on Linux again!
+might not work in 32 bit, so try checking this 
+
+todo:
+1. Reset networking on quit from a networked game, so it doesn't persist
+2. If host, accept data from more than one IP, and pass that data to all IPs that are not it (or make a custom version of your package for each client that is all data but theirs)
+3. if distance to any other players > x, use abs position
+
+
+===
+
 3/28/14
 
 1. send landedOn offset if landedOn not moving
-2. switch to IP sending instead of broadcast on LAN once host found (clients broadcast at start)
-3. use libraries with .2 at end for Eileen's Mac
+2. switch to IP sending instead of broadcast on LAN once host found (clients broadcast at start) - done!
+3. use libraries with .2 at end for Eileen's Mac - fixed this another way
 4. when you quit an online game, reset everything so that it doesn't have those rejoining bugs in case you start another online game
 5. Eileen note: hit escape repeatedly to quit! Escape should not act as an affirmation button, make it quit the game.
 
