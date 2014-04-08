@@ -1,3 +1,12 @@
+4/7/14
+
+add depth
+springs first, good default for new item types
+crumbling blocks second
+switches and gates third
+
+===
+
 4/5/14
 
 Networking works on Linux again!
@@ -13,11 +22,14 @@ todo:
 
 3/28/14
 
-1. send landedOn offset if landedOn not moving
+1. Eileen note: hit escape repeatedly to quit! Escape should not act as an affirmation button, make it quit the game.
+2. send landedOn offset if landedOn not moving
+3. when you quit an online game, reset everything so that it doesn't have those rejoining bugs in case you start another online game
+
+done:
+1. use libraries with .2 at end for Eileen's Mac - fixed! but just followed sfml website
 2. switch to IP sending instead of broadcast on LAN once host found (clients broadcast at start) - done!
-3. use libraries with .2 at end for Eileen's Mac - fixed this another way
-4. when you quit an online game, reset everything so that it doesn't have those rejoining bugs in case you start another online game
-5. Eileen note: hit escape repeatedly to quit! Escape should not act as an affirmation button, make it quit the game.
+
 
 ===
 
