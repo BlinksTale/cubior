@@ -11,6 +11,7 @@
 #include "networking.h"
 #include "cubeObj.h"
 #include "goalObj.h"
+#include "springObj.h"
 #include "cubiorObj.h"
 #include "collision.h"
 #include "mapReader.h"
@@ -68,6 +69,7 @@ int winningRotations = 256;
 CubiorObj cubior[cubiorCount];
 CubeObj* cube[maxCubeCount];
 GoalObj goal;
+SpringObj* spring;
 CameraObj camera[cubiorCount];
 bool cameraDroppingIn[cubiorCount], lastToJump[cubiorCount];
 float lastToMoveX[cubiorCount], lastToMoveZ[cubiorCount];
@@ -357,6 +359,7 @@ void setupLevel() {
     
     // Then the goal
     goal.setPos(levelMap->getGoalWidth(),levelMap->getGoalHeight(),levelMap->getGoalDepth());
+    spring->setPos(goal.getX()+100, goal.getY()-400, goal.getZ());
     
     // Then populate permamap
     // ... with permanent Cubes
@@ -374,6 +377,7 @@ void setupLevel() {
 
 // Initialization for all gameplay, also triggering other initializations
 void gameplayInit(string levelToLoad, string addressToJoin) {
+    spring = new SpringObj();
     keyboardInit();
     networkingInit();
     gameplayStart(levelToLoad, addressToJoin);
@@ -565,6 +569,7 @@ void gameplayLoop() {
         // and the goal
         goal.tick();
         addToCollisionMap(&goal, collisionMap);
+        addToCollisionMap(spring, collisionMap);
         
         // Then check collision against all other obstacles (cubes/cubiors)
         for (int i = 0; i<cubiorCount; i++) {
@@ -2032,6 +2037,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     CubeObj* getCube() { return cube[0]; }
     CubeObj* getCube(int i) { return cube[i]; }
     GoalObj* getGoal() { return &goal; }
+    CubeObj* getSpring() { return spring; }
     // Total Cubiors that can be played
     const int getCubiorCount() { return cubiorCount; }
     bool getCubiorPlaying(int i) { return cubiorPlaying[i]; }
@@ -2565,3 +2571,4 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         
         // Give flatrender info on whether controls are displayed for options or for starting
         bool getJustHitStart() { return justHitStart; }
+

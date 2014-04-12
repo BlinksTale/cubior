@@ -1,3 +1,11 @@
+4/8/14
+
+really need to revise the rendering system
+have a method for each shape that outputs its shape array and another for its color array
+then have flatRender just merge these for all objects, only updating the moving ones
+
+===
+
 4/7/14
 
 add depth
