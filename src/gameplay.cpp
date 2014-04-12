@@ -359,7 +359,7 @@ void setupLevel() {
     
     // Then the goal
     goal.setPos(levelMap->getGoalWidth(),levelMap->getGoalHeight(),levelMap->getGoalDepth());
-    spring->setPos(goal.getX()+100, goal.getY()-400, goal.getZ());
+    spring->setPos(goal.getX()+100, goal.getY()-680, goal.getZ());
     
     // Then populate permamap
     // ... with permanent Cubes

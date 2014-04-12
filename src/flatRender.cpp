@@ -43,7 +43,7 @@
 #include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
 // Starting values that change often in testing
-bool fullscreen = true;
+bool fullscreen = false;
 bool printFPS = false;
 bool drawTriangles = true; // as opposed to just draw lines and vertices
 bool drawOutlines = false;

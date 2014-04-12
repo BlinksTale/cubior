@@ -15,9 +15,12 @@
 
 class SpringObj : public CubeObj {
     
-    const float springMomentum = 100.0f;
-
+    const float springMomentum = 1000.0f;
     void collisionEffect(CubeObj*);
+    
+public:
+    SpringObj();
+
 };
 
 #endif /* defined(__Cubior__springObj__) */

@@ -9,6 +9,10 @@
 #include "springObj.h"
 #include "cubiorObj.h"
 
+SpringObj::SpringObj() {
+    permalocked = true;
+}
+
 void SpringObj::collisionEffect(CubeObj* c) {
     if (c->isPlayer()) { // FIXME: add a && c->getMomentumY() < springMomentum/2f
         c->setMomentumY(springMomentum);
