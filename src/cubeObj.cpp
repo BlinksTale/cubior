@@ -47,6 +47,8 @@ CubeObj::CubeObj() {
   cameraStatus = false;
   // Nor an invisible wall
   invisible = false;
+  // And items are reserved for special items (springs, crumbling blocks, moving platforms, etc)
+  item = false;
   // And not starting with any history of input commands
   toldToMove = false;
   lastToldToMove = false;
@@ -99,6 +101,13 @@ CubeObj::CubeObj() {
   // World vars
   gravity = getGravity();
   neighborsSet = false;
+    
+  // Shape (nothing special by default, so none listed)
+  itemType = "";
+}
+
+string CubeObj::getType() {
+    return itemType;
 }
 
 void CubeObj::tick() {
@@ -940,3 +949,4 @@ int CubeObj::getMaxSpeed() { return maxSpeed * movementDivision; }
 void CubeObj::setInvisible(bool b) { invisible = b; }
 
 bool CubeObj::isInvisible() { return invisible; }
+bool CubeObj::isItem() { return item; }

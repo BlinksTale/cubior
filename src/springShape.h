@@ -19,7 +19,6 @@ private:
 protected:
     //float r1,g1,b1,r2,g2,b2;
     bool glow;
-    CubeObj* cubeObj;
     
     float colorDarkness;
     float colorDefaultA;
@@ -31,13 +30,9 @@ protected:
     float colorCurrentB;
     
 public:
-    void setCube(CubeObj*);
     void initVisuals();
     void updateVisuals();
     void updateColors();
-    int getX();
-    int getY();
-    int getZ();
     void draw();
 };
 

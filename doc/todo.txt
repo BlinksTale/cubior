@@ -1,3 +1,12 @@
+4/27/14
+
+springs work, now get them pulled in right and looking right
+part of this too is abstracting how we store visuals (no goal or spring, just vertices)
+
+odd: the cube objects aren't being found when they're requested. Not sure if setSelf is working for itemShape, but regardless: it's not going through right now, and getX/Y/Z is failing
+
+===
+
 4/12/14
 
 Spring is starting to be in! One spring with functionality is in, but needs to be read from the maps and needs to support many springs (do we cap this? Maybe 20? Also needs to be put into a vertex and index array so we aren't doing a draw call per spring)

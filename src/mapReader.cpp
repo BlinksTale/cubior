@@ -4,6 +4,7 @@
 // reading a text file
 #include "mapReader.h"
 #include "gameplay.h"
+#include "springObj.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -147,11 +148,18 @@ Map* MapReader::readMap(const string& s) {
             int mapColor = atoi(mapColorString.c_str());
             // Add any tile
             if (mapColor!=0) {
+              // Regular Environment/Ground Tiles
               CubeObj* newCube = new CubeObj();
               newCube->setMaterial(mapColor);
               newCube->tick();
               newCube->setPermalock(true);
               map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'S') {
+                CubeObj* newCube = new SpringObj();
+                //newCube->setMaterial(mapColor);
+                newCube->tick();
+                newCube->setPermalock(true);
+                map->addCube(newCube,w,h,d);
             }
             w++;
           }

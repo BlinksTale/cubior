@@ -37,6 +37,7 @@
 #include <stdio.h> // for pauseText
 #include <stdlib.h> // for itoa
 #include <time.h> // for printing timestamps
+#include <map>
 //#include <sys/time.h> // for linux time
 #include <fstream> // for loading shader files
 
@@ -125,15 +126,12 @@ static GLfloat goalX;
 static GLfloat goalY;
 static GLfloat goalZ;
 
-// Spring object's visual
-SpringShape springShape;
-
-
 // All vertices and indices for permanent cube shapes
 int cubesVisible = 0; // how many cubes we'll reference
 int facesVisible = 0; // how many cube faces we'll actually draw
 int topFacesVisible = 0; // how many cube top faces we'll draw
 int shadowsVisible = 0; // how many shadows to draw
+vector<CubeShape*> itemShape;
 
 // merger of all unmoving cube shapes to fit in one draw call
 GLuint superIndices[maxCubeCount*24];
@@ -1006,19 +1004,31 @@ void drawGoalOutline() {
 
 
 void drawItems() {
-    glPushMatrix();
-    glTranslatef(springShape.getX(),springShape.getY(),springShape.getZ());
-    glScalef(100.0,100.0,100.0);
-    springShape.draw();
-    glPopMatrix();
+    // Fixme: convert to array of indicies and whatnot, it will run faster
+    // only fine now since less than a dozen items on any stage
+    for (int i=0; i<itemShape.size(); i++) {
+        if (itemShape[i] != NULL) {
+            glPushMatrix();
+            glTranslatef(itemShape[i]->getX(),itemShape[i]->getY(),itemShape[i]->getZ());
+            glScalef(100.0,100.0,100.0);
+            itemShape[i]->draw();
+            glPopMatrix();
+        }
+    }
 }
 
 void drawItemShadows() {
-    glPushMatrix();
-    glTranslatef(springShape.getX(),springShape.getY(),springShape.getZ());
-    glScalef(100.0,100.0,100.0);
-    springShape.drawShadow();
-    glPopMatrix();
+    // Fixme: convert to array of indicies and whatnot, it will run faster
+    // only fine now since less than a dozen items on any stage
+    for (int i=0; i<itemShape.size(); i++) {
+      if (itemShape[i] != NULL) {
+        glPushMatrix();
+        glTranslatef(itemShape[i]->getX(),itemShape[i]->getY(),itemShape[i]->getZ());
+        glScalef(100.0,100.0,100.0);
+        itemShape[i]->drawShadow();
+        glPopMatrix();
+      }
+    }
 }
 
 // Leftover Toal Code:
@@ -1161,9 +1171,16 @@ void initVisuals() {
   topFacesVisible = 0;
   shadowsVisible = 0;
 
+  // Pull the items out of the map when
+  // we init and compress the scenery
+  for (int i=0; i<itemShape.size(); i++) {
+    delete itemShape[i];
+  }
+  itemShape.clear();
+    
   // Initialize Scenery Cube Visual Vals
   initScenery();
-
+    
   // Everything has a cube shape now, so next, make them more efficient
   // and add them to the super arrays
   compressScenery();
@@ -1205,14 +1222,19 @@ void initVisuals() {
     
   // Initialize item visuals
   // (so anything you can interact with)
-    springShape.initVisuals();
-    springShape.setCube(getSpring());
+    
+    for (int i=0; i<itemShape.size(); i++) {
+        itemShape[i]->initVisuals();
+    }
 }
 
 void initScenery() {
+    std::map<std::string, int> itemNames;
+    itemNames["spring"] = 0;
+    
     for (int i=0; i<cubeNum; i++) {
         // Only draw visible cubes
-        if (!getCube(i)->isInvisible()) {
+        if (!getCube(i)->isInvisible() && !getCube(i)->isItem()) {
             cubeCollision[i] = false;
             updateCubeGraphic(i);
             // Find the color! Based both on location (checker pattern) and map info (assigned color)
@@ -1271,6 +1293,20 @@ void initScenery() {
                 // And remember the cube we added too
                 shadowsVisible++;
             }
+        } else if (getCube(i)->isItem()) {
+            // Numbers for items are set in itemNames at start initScenery function (this function)
+            // should not impact performance though since only called once per level
+            CubeShape* newShape = NULL;
+            switch(itemNames[getCube(i)->getType()]) {
+                case 0: // spring
+                    newShape = new SpringShape();
+                    newShape->setSelf(getCube(i)); // can't set directly since cubeObjs not ready yet
+                    break;
+                default:
+                    break;
+            }
+            if (newShape != NULL)
+                itemShape.push_back(newShape);
         }
     }
 }
@@ -1278,7 +1314,7 @@ void initScenery() {
 void compressScenery() {
     for (int i=0; i<cubeNum; i++) {
         // Only draw visible cubes, must also be non-duplicates
-        if (!getCube(i)->isInvisible() && !getCube(i)->getDuplicateNeighbor()) {
+        if (!getCube(i)->isInvisible() && !getCube(i)->getDuplicateNeighbor() && !getCube(i)->isItem()) {
             
             // TODO: Now that neighbors are set, we should change all the vertices for cubes with like-neighbors
             cubeShape[i].removeDuplicateNeighbors();

@@ -123,7 +123,6 @@ void setupNetworking(string);
     CubiorObj* getPlayer(int);
 CubeObj* getCube();
 GoalObj* getGoal();
-CubeObj* getSpring();
     CubeObj* getCube(int);
     const int getCubiorCount();
     bool getCubiorPlaying(int);

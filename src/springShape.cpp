@@ -37,19 +37,11 @@ void SpringShape::initVisuals() {
     directionalCulling = false;
 }
 
-void SpringShape::setCube(CubeObj* original) {
-    cubeObj = original;
-}
-
 void SpringShape::updateVisuals() {
     
     // Get colors in order
     updateColors();
 }
-
-int SpringShape::getX() { return cubeObj->getX(); }
-int SpringShape::getY() { return cubeObj->getY(); }
-int SpringShape::getZ() { return cubeObj->getZ(); }
 
 void SpringShape::updateColors() {
     r1 = colorCurrentR + colorDarkness;
@@ -90,10 +82,12 @@ void SpringShape::draw(){//float r1, float g1, float b1, float colorDarkness) {
     // make sure emotions are on the same page
     updateVisuals();
     
-    
-    glDisable(GL_DEPTH_TEST); // disable depth test for "shadow goal"
-    drawSilhouette();
-    glEnable(GL_DEPTH_TEST); // Then return to normal stuff
+    /* Messing with the height of a spring, will make the animation here later
+    for (int i=0; i<24; i++) {
+        if (i % 12 == 1 || i % 12 == 4) {
+            myVertices[i] += .01; // extend one to the top
+        }
+    }*/
     
     // call on cubeShape's function, drawCube, to make a cube visual
     glEnableClientState(GL_COLOR_ARRAY);

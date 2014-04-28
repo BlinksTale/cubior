@@ -20,6 +20,11 @@ class SpringObj : public CubeObj {
     
 public:
     SpringObj();
+    
+    void setX(int);
+    void setY(int);
+    void setZ(int);
+    void setPos(int,int,int);
 
 };
 
