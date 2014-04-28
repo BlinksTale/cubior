@@ -19,6 +19,10 @@
 
 #include <cstdlib>
 #include <iostream> // for cout
+#include <math.h>
+# define M_PI           3.14159265358979323846
+
+float springOffsetMax = .8f;
 
 void SpringShape::initVisuals() {
     colorDarkness = 0.4;
@@ -35,12 +39,16 @@ void SpringShape::initVisuals() {
     // fix default shadow status since goal
     shadowState = true;
     directionalCulling = false;
+    
+    timeSinceCollisionMax = 0.15f;
 }
 
 void SpringShape::updateVisuals() {
     
     // Get colors in order
     updateColors();
+
+    super::updateVisuals();
 }
 
 void SpringShape::updateColors() {
@@ -82,12 +90,19 @@ void SpringShape::draw(){//float r1, float g1, float b1, float colorDarkness) {
     // make sure emotions are on the same page
     updateVisuals();
     
-    /* Messing with the height of a spring, will make the animation here later
+    // If hit player this turn, reset timeSinceCollision
+    if (selfObj->getJustHitPlayer()) {
+        timeSinceCollision = timeSinceCollisionMax;
+        selfObj->setJustHitPlayer(false); // fixme: really should happen all in selfObj on tick
+    }
+    
+    float springOffset = sin(timeSinceCollision/timeSinceCollisionMax*M_PI)*springOffsetMax;
+    
     for (int i=0; i<24; i++) {
         if (i % 12 == 1 || i % 12 == 4) {
-            myVertices[i] += .01; // extend one to the top
+            myVertices[i] += springOffset; // extend one to the top
         }
-    }*/
+    }
     
     // call on cubeShape's function, drawCube, to make a cube visual
     glEnableClientState(GL_COLOR_ARRAY);
@@ -96,4 +111,11 @@ void SpringShape::draw(){//float r1, float g1, float b1, float colorDarkness) {
     // deactivate vertex arrays after drawing
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
+
+    for (int i=0; i<24; i++) {
+        if (i % 12 == 1 || i % 12 == 4) {
+            myVertices[i] -= springOffset; // extend one to the top
+        }
+    }
+
 }

@@ -138,6 +138,8 @@ class CubeObj {
     vector<float> getMomentum();
     int getMomentumGround();
     int getMaxJump();
+    bool getJustHitPlayer();
+    void setJustHitPlayer(bool);
     
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     void setVisibleNeighbors(bool,bool,bool,bool,bool,bool);

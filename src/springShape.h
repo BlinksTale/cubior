@@ -28,7 +28,6 @@ protected:
     float colorCurrentR;
     float colorCurrentG;
     float colorCurrentB;
-    
 public:
     void initVisuals();
     void updateVisuals();

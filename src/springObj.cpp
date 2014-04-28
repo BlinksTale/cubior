@@ -30,6 +30,7 @@ void SpringObj::collisionEffect(CubeObj* c) {
         
         c->setMomentumY(springMomentum);
     }
+    super::collisionEffect(c);
 }
 void SpringObj::setX(int n) { x = n; }
 void SpringObj::setY(int n) { y = n + springOffsetY; }

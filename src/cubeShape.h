@@ -30,6 +30,7 @@ class CubeShape {
     GLfloat myVertices[24], myColors[24], topColors[12];//, myShadowVertices[24];
     //GLfloat myShadowVertices[24];
     CubeObj* selfObj;
+    float timeSinceCollision, timeSinceCollisionMax;
   public:
     virtual GLubyte getIndex(int);
     virtual GLfloat getVertex(int);
