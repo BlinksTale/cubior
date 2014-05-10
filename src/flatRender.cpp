@@ -11,6 +11,7 @@
 #include "gameplay.h"
 #include "keyboard.h"
 #include "cubeShape.h"
+#include "crumblingShape.h"
 #include "goalShape.h"
 #include "springShape.h"
 #include "cubiorShape.h"
@@ -1229,9 +1230,6 @@ void initVisuals() {
 }
 
 void initScenery() {
-    std::map<std::string, int> itemNames;
-    itemNames["spring"] = 0;
-    
     for (int i=0; i<cubeNum; i++) {
         // Only draw visible cubes
         if (!getCube(i)->isInvisible() && !getCube(i)->isItem()) {
@@ -1296,10 +1294,21 @@ void initScenery() {
         } else if (getCube(i)->isItem()) {
             // Numbers for items are set in itemNames at start initScenery function (this function)
             // should not impact performance though since only called once per level
+            
+            std::map<std::string, int> itemNames;
+            itemNames["spring"]     = 0;
+            itemNames["crumbling"]  = 1;
+            itemNames["switch"]     = 2;
+            itemNames["gate"]       = 3;
+            
             CubeShape* newShape = NULL;
             switch(itemNames[getCube(i)->getType()]) {
                 case 0: // spring
                     newShape = new SpringShape();
+                    newShape->setSelf(getCube(i)); // can't set directly since cubeObjs not ready yet
+                    break;
+                case 1: // crumbling
+                    newShape = new CrumblingShape();
                     newShape->setSelf(getCube(i)); // can't set directly since cubeObjs not ready yet
                     break;
                 default:

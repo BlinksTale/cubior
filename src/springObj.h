@@ -9,13 +9,13 @@
 #ifndef __Cubior__springObj__
 #define __Cubior__springObj__
 
-#include "cubeObj.h"
+#include "itemObj.h"
 #include <iostream>
 
 
-class SpringObj : public CubeObj {
+class SpringObj : public ItemObj {
 private:
-    typedef CubeObj super;
+    typedef ItemObj super;
 
     const float springMomentum = 1000.0f;
     void collisionEffect(CubeObj*);

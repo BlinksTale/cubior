@@ -1,23 +1,20 @@
 //
-//  springObj.cpp
+//  cumblingObj.cpp
 //  Cubior
 //
-//  Created by Brian Handy on 4/8/14.
+//  Created by Brian Handy on 5/10/14.
 //
 //
 
-#include "springObj.h"
+#include "cumblingObj.h"
 #include "cubiorObj.h"
-#include "springShape.h"
 
-int springOffsetY = -80;
-
-SpringObj::SpringObj() {
+CrumblingObj::CrumblingObj() {
     super::init();
-    itemType = "spring";
+    itemType = "crumbling";
 }
 
-void SpringObj::collisionEffect(CubeObj* c) {
+void CrumblingObj::collisionEffect(CubeObj* c) {
     if (c->isPlayer()) {
         // if it was a nonsolid, which we haven't implemented,
         // (... && c->getY() <= this->getY() + 50) would allow for
@@ -28,11 +25,7 @@ void SpringObj::collisionEffect(CubeObj* c) {
         
         //float negative = -1 * c->getMomentumY();
         //if (c->getMomentumY() > 0)
-        c->setMomentumY(springMomentum); // springMomentum
+        //c->setMomentumY(springMomentum); // springMomentum
     }
     super::collisionEffect(c);
 }
-void SpringObj::setX(int n) { x = n; }
-void SpringObj::setY(int n) { y = n + springOffsetY; }
-void SpringObj::setZ(int n) { z = n; }
-void SpringObj::setPos(int n, int o, int p) { x = n, y = o + springOffsetY, z = p; }
