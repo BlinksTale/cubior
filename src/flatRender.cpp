@@ -1555,7 +1555,7 @@ void drawMenu(int i, bool doubleWidth) {
         char addressArray[4][4];
         
         for (int j=0; j<4; j++) {
-            //sprintf(addressArray[j], "%d", getIpAddress(j));
+            sprintf(addressArray[j], "%d", getNetworkIpAddress(j));
             if (j == 0) {
                 sprintf(address, "%s", addressArray[j]);
             } else {

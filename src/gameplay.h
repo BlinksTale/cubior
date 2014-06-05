@@ -234,10 +234,11 @@ GoalObj* getGoal();
 void networkJump(int,bool);
 void networkJoyX(int,float);
 void networkJoyZ(int,float);
+int getNetworkIpAddress(int);
 
     int getPlayerChosen(); // who was picked first
 
     float fpsRate(); // how much more we need to move compared to expected speed
 bool getJustHitStart(); // whether trying to start gameplay or not (for controls display)
 
-#endif 
+#endif

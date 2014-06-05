@@ -798,6 +798,10 @@ void networkJoyZ(int i, float f) {
     lastToMoveZ[i] = f;
 }
 
+int getNetworkIpAddress(int slot) {
+    return getIpAddress(slot);
+}
+
 // Use the camera cube to check for collision against the map
 void checkCameraCubeCollision(int i) {
     // And bounce off walls if colliding

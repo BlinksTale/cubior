@@ -25,6 +25,7 @@
 #include "gameplay.h" // only for CubiorCount
 #include <sstream> // for ostringstream
 
+#include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
 using namespace std;
 
@@ -95,7 +96,14 @@ int playerIpDisconnect[onlinePlayerMax];
 
 int currentMessageSlot = 0; // for reading in data from a message
 
+string extraPath;
+
 void networkingInit() {
+    extraPath = ".";
+#ifdef __APPLE_CC__
+    extraPath = resourcePath();
+#endif
+    
     for (int i=0; i<onlinePlayerMax; i++) {
         isOnline[i] = false;
     }
@@ -587,6 +595,7 @@ void initializeIpAddress() {
 bool setIpAddress(sf::IpAddress value) {
     knownLanHost = true;
     senderAddress = value;
+    return true;
 }
 
 bool setIpAddress(int slot, int value) {
@@ -616,9 +625,10 @@ void saveIpAddress() {
   // TODO: implement this with ofstream
   // Saves your last used ip address (senderAddress)
   ofstream myfile;
-  myfile.open("saves/savedIpAddresses.txt");
+  myfile.open((extraPath + "/saves/savedIpAddresses.txt").c_str());
   myfile << senderAddress;
   myfile.close();
+    cout << "Saved your " << senderAddress << " ip address" << endl;
 }
 
 void loadIpAddress() {
@@ -626,7 +636,7 @@ void loadIpAddress() {
   // and should update visuals too maybe...?
   string line;
   ifstream myfile;
-  myfile.open("saves/savedIpAddresses.txt");
+  myfile.open((extraPath + "/saves/savedIpAddresses.txt").c_str());
   if (myfile.is_open()) {
     getline(myfile,line);
     if (line.compare("") != 0) {
@@ -640,7 +650,7 @@ void loadIpAddress() {
           slots[j] = slots[j].append(1, line[i]);
         }
         if (line[i] == '.' || line.size() == i+1) {
-          addressSlot[j] = stoi(slots[j]);
+          addressSlot[j] = atoi(slots[j].c_str());
           j++;
         }
         i++;
