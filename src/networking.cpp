@@ -15,6 +15,7 @@
 #include <SFML/Network.hpp> // for networking
 
 #include <iostream>
+#include <fstream> // for saving/loading last ip address
 #include <string>
 #include <cmath>
 #include <ctime>
@@ -569,7 +570,8 @@ void initializeIpAddress() {
     addressSlot[0] = 192;
     addressSlot[1] = 168;
     addressSlot[2] = 0;
-    addressSlot[3] = 9;
+    addressSlot[3] = 1;
+    loadIpAddress();
     senderAddress = sf::IpAddress(getIpAddress());
 }
 
@@ -577,6 +579,10 @@ bool setIpAddress(int slot, int value) {
     if (value >= 0 && value <= 255) {
         addressSlot[slot] = value;
         senderAddress = sf::IpAddress(getIpAddress());
+
+        // Save it to a file of last saved IP
+        saveIpAddress();
+
         return true;
     }
     return false;
@@ -589,6 +595,46 @@ void incrementIpAddress(int slot) {
         addressSlot[slot] = 0;
     }
     senderAddress = sf::IpAddress(getIpAddress());
+    saveIpAddress();
+}
+
+void saveIpAddress() {
+  // TODO: implement this with ofstream
+  // Saves your last used ip address (senderAddress)
+  ofstream myfile;
+  myfile.open("saves/savedIpAddresses.txt");
+  myfile << senderAddress;
+  myfile.close();
+}
+
+void loadIpAddress() {
+  // Sets senderAddress to the last address you used
+  // and should update visuals too maybe...?
+  string line;
+  ifstream myfile;
+  myfile.open("saves/savedIpAddresses.txt");
+  if (myfile.is_open()) {
+    getline(myfile,line);
+    if (line.compare("") != 0) {
+      senderAddress = sf::IpAddress(line);
+
+      // Also break it apart into 0-3 in addressSlot[]'s ints
+      string* slots = new string[4];
+      int i=0, j=0;
+      while (line.size() > i) {
+        if (line[i] != '.') {
+          slots[j] = slots[j].append(1, line[i]);
+        }
+        if (line[i] == '.' || line.size() == i+1) {
+          addressSlot[j] = stoi(slots[j]);
+          j++;
+        }
+        i++;
+      }
+    }
+    myfile.close();
+  }
+
 }
 
 int getIpAddress(int slot) {

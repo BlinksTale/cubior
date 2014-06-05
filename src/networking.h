@@ -74,6 +74,8 @@ void initializeIpAddress();
 void incrementIpAddress(int);
 bool setIpAddress(int, int);
 int getIpAddress(int);
+void saveIpAddress();
+void loadIpAddress();
 string getIpAddress();
 void setLAN(bool);
 bool getLAN();
