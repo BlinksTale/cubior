@@ -17,7 +17,6 @@ class SpringObj : public ItemObj {
 private:
     typedef ItemObj super;
 
-    const float springMomentum = 1000.0f;
     void collisionEffect(CubeObj*);
     
 public:
