@@ -17,6 +17,7 @@ GoalObj::GoalObj() {
   glow = false; // will glow when hit
   glowCount = 0;
   lastGlow = glow;
+  item = true;
 }
 
 void GoalObj::collisionEffect(CubeObj* c) {

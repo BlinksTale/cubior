@@ -1,16 +1,16 @@
-Cubior is a 3d platformer with 3d visuals for 2d screens. It uses C++, OpenGL and freeGLUT to create its experience.
+Cubior is a splitscreen multiplayer 3d platformer. It uses C++, OpenGL, and SFML to create its experience.
 
-By Brian Handy, Spring 2012, under LMU Computer Science 402 with Mike Megally.
+By Brian Handy
+thesis: Spring 2012, LMU Computer Science 402 with Mike Megally
+independent: Summer 2012 to present (Spring 2014)
 
-Build Instructions: build & run in command line by typing "make" (Linux/Mac). Windows will also require MinGW in C and freeglut in a MinGW folder in the C drive.
+Build Instructions: Cubior builds and runs off of a make command, so navigating to the cubior directory and typing "make" should build the project once the correct dependencies are intalled (see bottom of page). Windows will also require MinGW in C and freeglut in a MinGW folder in the C drive.
 
-Play Instructions: Player 1 can use the Arrow Keys to move and press Z or > to jump. Player 2 does the same with WASD to move and F to jump. Player 3 uses UIOP and [, and Player 4 uses JKL; and ". Enjoy!
-
-Wiimote Mac Instructions (requires bluetooth): Download Darwiin, copy the application four times. Open one copy for every Wii remote. Under Darwiin > Preferences set the inputs to your liking (D-pad usually represents the movement directions, 1 and 2 represent the jump button) in four different profiles for the four different players. The profiles work between the different copies of the application, so (in this order) connect all four Wii remotes to their respective copies of the running application, then set the profiles appropriately (I also suggest changing the LED to reflect which player it is), then start playing Cubior!
-
-Wiimote Windows Instructions (requires bluetooth): Download GlovePie and make a script which translates Wiimote keypresses into the appropriate keyboard keys, similar to the Mac instructions but with a bit more programming.
+Controller Options: Gamepads and Keyboard are supported, with up to four Gamepads per device. Includes (but is not limited to) Xbox 360 controllers (Win/Mac), DualShock 3 (Mac), Wavebirds (with USB adapters). Controllers are not yet tested on Linux.
 
 Linux Users will need to install the following packages: (list of dependencies)
-    OpenGL: sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
-    OpenAL: sudo apt-get install libopenal0a libopenal-dev
-    ALUT:   sudo apt-get install libalut0 libalut-dev
+    OpenGL: apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+    OpenAL: apt-get install libopenal0a libopenal-dev
+    ALUT:   apt-get install libalut0 libalut-dev
+    GLee:   apt-get install glee-dev
+In addition: SFML 2.1 is needed from the SFML website.

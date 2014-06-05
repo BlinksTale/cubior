@@ -2565,3 +2565,4 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         
         // Give flatrender info on whether controls are displayed for options or for starting
         bool getJustHitStart() { return justHitStart; }
+

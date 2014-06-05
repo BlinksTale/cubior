@@ -47,6 +47,8 @@ CubeObj::CubeObj() {
   cameraStatus = false;
   // Nor an invisible wall
   invisible = false;
+  // And items are reserved for special items (springs, crumbling blocks, moving platforms, etc)
+  item = false;
   // And not starting with any history of input commands
   toldToMove = false;
   lastToldToMove = false;
@@ -99,9 +101,17 @@ CubeObj::CubeObj() {
   // World vars
   gravity = getGravity();
   neighborsSet = false;
+    
+  // Shape (nothing special by default, so none listed)
+  itemType = "";
+}
+
+string CubeObj::getType() {
+    return itemType;
 }
 
 void CubeObj::tick() {
+    
   //cout << "One cube loop" << endl;
   //if (playerStatus) { cout << "Start of player cube loop momentumZ " << momentumZ << endl; }
   //cout << "Bgn Strength:  " << strength << " and Direction: " << direction << endl;
@@ -111,14 +121,14 @@ void CubeObj::tick() {
   // don't move if frozen
   //cout << "OneB_01 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
   //if (isPlayer()) { cout << "Start MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
+  if (collision || justHitPlayer) {
+      setCollision(false);
+      justHitPlayer = false;
+  }
   if (!locked && !permalocked) {
     //if (playerStatus) { cout << "pre locked etc momentumZ " << momentumZ << endl; }
   
-    if (collision) {
-      setCollision(false);
-      justHitPlayer = false;
-    }
-    //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
+    //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;
 
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
@@ -811,6 +821,9 @@ int CubeObj::getMomentumGround() {
   int momentumGround = sqrt(momentumX*momentumX+momentumZ*momentumZ);
   return momentumGround * movementDivision;
 }
+// aka getJustCollided
+bool CubeObj::getJustHitPlayer() { return justHitPlayer; }
+void CubeObj::setJustHitPlayer(bool b) { justHitPlayer = b; }
 
 void CubeObj::setNeighbors(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
   neighborsSet = true;
@@ -940,3 +953,4 @@ int CubeObj::getMaxSpeed() { return maxSpeed * movementDivision; }
 void CubeObj::setInvisible(bool b) { invisible = b; }
 
 bool CubeObj::isInvisible() { return invisible; }
+bool CubeObj::isItem() { return item; }

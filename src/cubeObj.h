@@ -10,6 +10,7 @@
 
 //#include "cameraObj.h"
 #include <vector>
+#include <string>
 using namespace std;
 
 class CubeObj {
@@ -17,6 +18,9 @@ class CubeObj {
     static const int altSize = 400; // how wide the checker patterns are
     static const int maxMovement = 49; // less than half of a cube width
     static const int maxFall = 49; // less than half of a cube width
+    
+    string itemType;
+    
     bool fpsRateEnabled, duplicateNeighbor;
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
@@ -38,10 +42,12 @@ class CubeObj {
     //CameraObj* camera; // for camera cubes to ID their cameras
     float landedOnDirectionDiff, landedOnToldDirectionDiff;
     float newFriction, strength, direction, toldDirection; // for use with new friction technique
-    bool invisible;
+    bool invisible, item;
   public:
     CubeObj();
 
+    string getType();
+    
     void tick();
 
     void calculateDiff();
@@ -92,11 +98,11 @@ class CubeObj {
     int justFlipped();
     int justMoved();
     
-    void setPos(int,int,int);
-    void setPosAverage(int,int,int);
-    void setX(int);
-    void setY(int);
-    void setZ(int);
+    virtual void setPos(int,int,int);
+    virtual void setPosAverage(int,int,int);
+    virtual void setX(int);
+    virtual void setY(int);
+    virtual void setZ(int);
 
     int distToCube(CubeObj*);
     
@@ -132,6 +138,8 @@ class CubeObj {
     vector<float> getMomentum();
     int getMomentumGround();
     int getMaxJump();
+    bool getJustHitPlayer();
+    void setJustHitPlayer(bool);
     
     void setNeighbors(bool,bool,bool,bool,bool,bool);
     void setVisibleNeighbors(bool,bool,bool,bool,bool,bool);
@@ -173,6 +181,7 @@ class CubeObj {
     void setLandedOn(int);
     void setInvisible(bool);
     bool isInvisible();
+    bool isItem();
 
     float myFpsRate();
     bool getLastToldToMove();

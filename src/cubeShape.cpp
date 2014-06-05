@@ -115,7 +115,11 @@ GLfloat CubeShape::getTopColor(int i) {
 GLfloat CubeShape::getShadowVertex(int i) {
   return shadowVerts[i]*100 + ((i%3==0)? permanentX : (i%3==1)? permanentY : permanentZ);
 }
-
+void CubeShape::initVisuals() {
+  // Should never reach this one, only for use by items. Really: should just create an ItemShape class
+  // fixme: create itemshape class
+}
+                            
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarknessOld, bool alt, bool mid) {
     float colorDarkness = colorDarknessOld;//0.0;
   midFloor = mid;
@@ -195,6 +199,14 @@ void CubeShape::setRelationToCam(bool a, bool b, bool c) {
 }
 
 void CubeShape::updateVisuals() {
+    
+    // If measuring time since collision, count down
+    if (timeSinceCollision > 0.0f) {
+        timeSinceCollision -= 1.0f/60.0f; // Fixme: figure out time passed here instead
+    } else if (timeSinceCollision < 0.0f) {
+        timeSinceCollision = 0;
+    }
+    
   // Make sure colors are up to date!
 
   // Can just make a new array and transfer contents into myColors
@@ -247,6 +259,16 @@ void CubeShape::permanentPosition(int x, int y, int z) {
     //std::cout << " to get " << myVertices[i*3+0] << ", " << myVertices[i*3+1] << ", " << myVertices[i*3+2] << std::endl;
   }
 }
+
+// For all other positions (so changing/dynamic/malleable ones)
+void CubeShape::setPos(int x, int y, int z) {
+    posX = x;
+    posY = y;
+    posZ = z;
+}
+int CubeShape::getX() { return posX; }
+int CubeShape::getY() { return posY; }
+int CubeShape::getZ() { return posZ; }
 
 // OLD Draw faces TECHNIQUE KEPT AROUND JUST IN CASE
   /*for (int i=0; i<6; i++) {
@@ -775,9 +797,12 @@ void CubeShape::removeDuplicateNeighbors() {
     
     
 }
+void CubeShape::setCubeNumber(int n) { cubeNumber = n; }
+int CubeShape::getCubeNumber() { return cubeNumber; }
 
 void CubeShape::setSelf(CubeObj* newSelfObj) {
     selfObj = newSelfObj;
+    setPos(selfObj->getX(), selfObj->getY(), selfObj->getZ());
 }
 
 void CubeShape::setMaterial(int i) {

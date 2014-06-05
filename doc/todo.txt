@@ -1,4 +1,72 @@
+4/27/14
+
+springs work, now get them pulled in right and looking right
+part of this too is abstracting how we store visuals (no goal or spring, just vertices)
+
+odd: the cube objects aren't being found when they're requested. Not sure if setSelf is working for itemShape, but regardless: it's not going through right now, and getX/Y/Z is failing
+
+===
+
+4/12/14
+
+Spring is starting to be in! One spring with functionality is in, but needs to be read from the maps and needs to support many springs (do we cap this? Maybe 20? Also needs to be put into a vertex and index array so we aren't doing a draw call per spring)
+
+===
+
+4/8/14
+
+really need to revise the rendering system
+have a method for each shape that outputs its shape array and another for its color array
+then have flatRender just merge these for all objects, only updating the moving ones
+
+===
+
+4/7/14
+
+add depth
+springs first, good default for new item types
+crumbling blocks second
+switches and gates third
+
+===
+
+4/5/14
+
+Networking works on Linux again!
+might not work in 32 bit, so try checking this 
+
+todo:
+1. Reset networking on quit from a networked game, so it doesn't persist
+2. If host, accept data from more than one IP, and pass that data to all IPs that are not it (or make a custom version of your package for each client that is all data but theirs)
+3. if distance to any other players > x, use abs position
+
+
+===
+
+3/28/14
+
+1. Eileen note: hit escape repeatedly to quit! Escape should not act as an affirmation button, make it quit the game.
+2. send landedOn offset if landedOn not moving
+3. when you quit an online game, reset everything so that it doesn't have those rejoining bugs in case you start another online game
+
+done:
+1. use libraries with .2 at end for Eileen's Mac - fixed! but just followed sfml website
+2. switch to IP sending instead of broadcast on LAN once host found (clients broadcast at start) - done!
+
+
+===
+
 3/27/14
+
+Trying to build on Linux again - whoa!
+Got a lot further than expected, but tons of issues still
+/usr/include/X11 in particular
+this library seems to have all kinds of bad overlap with SFML's networking definitions
+eg. enum Status in sfml/network/ftp.hpp has a conflict  with #define Status int in X11/Xlib.h
+so enum Status appears as enum int, which doesn't work.
+Try fixing this by separating the two? Not sure why both are being looked at. Possible graphics/networking overlap issue
+
+---
 
 so we fixed packet buildup by reading in ten packets for every tick, awesome
 now todo:
