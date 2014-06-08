@@ -37,6 +37,7 @@ void enetBroadcast();
 #endif
 
 int startHosting();
+int stopHosting();
 int connectTo(string);
 void networkTick();
 int findComma(int, string);

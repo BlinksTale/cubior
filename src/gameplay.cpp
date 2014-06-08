@@ -313,6 +313,11 @@ void setupNetworking(string addressToJoin) {
     }
 }
 
+void disableNetworking() {
+    networkingEnabled = false;
+    stopHosting();
+}
+
 void setupNetworkedPlayers() {
     // FIXME: have a real implementation here later. This is just for testing
     //bool networkedPlayer = true;
@@ -2274,6 +2279,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                     break;
                 case 3:
                     // Return to Title Screen
+                    disableNetworking();
                     restartGame(i);
                     break;
                 default:
