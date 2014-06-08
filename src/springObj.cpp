@@ -10,6 +10,8 @@
 #include "cubiorObj.h"
 #include "springShape.h"
 
+const float springMomentum = 1000.0f;
+
 int springOffsetY = -80;
 
 SpringObj::SpringObj() {

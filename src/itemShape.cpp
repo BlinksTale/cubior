@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <iostream> // for cout
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 void ItemShape::initVisuals(float r1, float g1, float b1, float r2, float g2, float b2, float colorDarkness, bool alt, bool mid) {

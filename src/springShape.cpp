@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <iostream> // for cout
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 float springOffsetMax = .8f;

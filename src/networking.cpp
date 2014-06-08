@@ -252,6 +252,13 @@ int startHosting() {
     return 0;
 }
 
+int stopHosting() {
+  isHost = false;
+  hostExists = false;
+  connected = false;
+  return 0;
+}
+
 int connectTo(string newAddress)
 {
     isHost = false;

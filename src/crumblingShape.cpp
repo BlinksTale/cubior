@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <iostream> // for cout
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 void CrumblingShape::initVisuals() {
