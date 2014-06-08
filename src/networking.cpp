@@ -404,8 +404,15 @@ void writeData() {
         }
     }
     // Send all player data
-    sprintf(message, "%s;%s;%s;%s;%d;%d",
-            quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3], ticks % 1000, getLevelNum());
+    for (int i=0; i<onlinePlayerMax; i++) {
+        // Player info
+        // (only add separating semicolon after first player)
+        sprintf(message, "%s%s%s", message, i != 0 ? ";" : "", quarterMessage[i]);
+    }
+    //sprintf(message, "%s;%s;%s;%s", quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3]);
+    // tick and level num info
+    sprintf(message, "%s;%d;%d", message, ticks % 1000, getLevelNum());
+    
     nextMessage = message; // std::string automatically converts from char* to string
     
     //cout << "Writing message data: " << message << endl;
