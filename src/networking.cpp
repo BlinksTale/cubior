@@ -343,34 +343,37 @@ void readData() {
             resetSlots();
             // Find which player is sending data, and update it
             int p        = getNextSlot(dataArray);
-            isOnline[p]  = true;
-            /*posX[p]      = getNextSlot(dataArray);
-            posY[p]      = getNextSlot(dataArray);
-            posZ[p]      = getNextSlot(dataArray);
-            momentumX    = getNextSlot(dataArray);
-            momentumY    = getNextSlot(dataArray);
-            momentumZ    = getNextSlot(dataArray);
-            direction[p] = getNextSlot(dataArray);
-            landedOn[p]  = getNextSlot(dataArray);
-             */
-            float joyX      = getNextSlot(dataArray);
-            float joyY      = getNextSlot(dataArray);
-            //jump[p]      = getNextSlot(dataArray);
-            momentumY = getNextSlot(dataArray);
-            momentumX = 0;
-            momentumZ = 0;
-            posX[p]      = getNextSlot(dataArray);
-            posY[p]      = getNextSlot(dataArray);
-            posZ[p]      = getNextSlot(dataArray);
             
-            float joyArray[] = { joyX, joyY };
-             std::vector<float> newJoy (joyArray, joyArray + sizeof(joyArray) / sizeof(float) );
-             joy[p].swap(newJoy);
-            
-            float momentumArray[] = { momentumX, momentumY, momentumZ };
-            std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-            momentum[p].swap(newMomentum);
-            
+            // Refuse all other data if sending out our own data here
+            if (!myOnline[p]) {
+                isOnline[p]  = true;
+                /*posX[p]      = getNextSlot(dataArray);
+                posY[p]      = getNextSlot(dataArray);
+                posZ[p]      = getNextSlot(dataArray);
+                momentumX    = getNextSlot(dataArray);
+                momentumY    = getNextSlot(dataArray);
+                momentumZ    = getNextSlot(dataArray);
+                direction[p] = getNextSlot(dataArray);
+                landedOn[p]  = getNextSlot(dataArray);
+                 */
+                float joyX      = getNextSlot(dataArray);
+                float joyY      = getNextSlot(dataArray);
+                //jump[p]      = getNextSlot(dataArray);
+                momentumY = getNextSlot(dataArray);
+                momentumX = 0;
+                momentumZ = 0;
+                posX[p]      = getNextSlot(dataArray);
+                posY[p]      = getNextSlot(dataArray);
+                posZ[p]      = getNextSlot(dataArray);
+                
+                float joyArray[] = { joyX, joyY };
+                 std::vector<float> newJoy (joyArray, joyArray + sizeof(joyArray) / sizeof(float) );
+                 joy[p].swap(newJoy);
+                
+                float momentumArray[] = { momentumX, momentumY, momentumZ };
+                std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+                momentum[p].swap(newMomentum);
+            }
             //cout << " Made the positions " << posX << " / " << posY << " / " << posZ << endl;
         }
     }
@@ -394,20 +397,11 @@ void writeData() {
     // but send the packet once for every player
     for (int i=0; i<localPlayerMax; i++) {
         sprintf(quarterMessage[i], "");
-        if (myOnline[i]) {
-            
+        if (isHost || myOnline[i]) { // pass data through as host to everyone, for everyone
+            // (later reject your own data being returned?)
             sprintf(quarterMessage[i], "%d,%f,%f,%f,%d,%d,%d",
                     i, myJoy[i].at(0), myJoy[i].at(1), myMomentum[i].at(1),
                     myPosX[i], myPosY[i], myPosZ[i]);
-            
-            //myJump[i]);
-            /*
-            // Add one player's data
-            sprintf(quarterMessage[i], "%d,%d,%d,%d,%f,%f,%f,%f,%d",
-                    i, // send the player's number first, essentially the id
-                    myPosX[i], myPosY[i], myPosZ[i],
-                    myMomentum[i].at(0), myMomentum[i].at(1), myMomentum[i].at(2),
-                    myDirection[i], myLandedOn[i]);*/
         }
     }
     // Send all player data
@@ -416,7 +410,6 @@ void writeData() {
         // (only add separating semicolon after first player)
         sprintf(message, "%s%s%s", message, i != 0 ? ";" : "", quarterMessage[i]);
     }
-    //sprintf(message, "%s;%s;%s;%s", quarterMessage[0], quarterMessage[1], quarterMessage[2], quarterMessage[3]);
     // tick and level num info
     sprintf(message, "%s;%d;%d", message, ticks % 1000, getLevelNum());
     
