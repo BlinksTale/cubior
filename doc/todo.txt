@@ -1,3 +1,11 @@
+6/8/14
+
+I am now successfully sending data for all players through the host, yet only registering it if not for one's self. However! I think I ought to register it for one's self if the self is being manipulated.
+
+Mac still can't seem to host on LAN, or Windows can't seem to join. Either way, issue here.
+
+===
+
 4/27/14
 
 springs work, now get them pulled in right and looking right

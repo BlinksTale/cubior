@@ -397,7 +397,7 @@ void writeData() {
     // but send the packet once for every player
     for (int i=0; i<localPlayerMax; i++) {
         sprintf(quarterMessage[i], "");
-        if (isHost || myOnline[i]) { // pass data through as host to everyone, for everyone
+        if ((isHost && isOnline[i]) || myOnline[i]) { // pass data through as host to everyone, for everyone
             // (later reject your own data being returned?)
             sprintf(quarterMessage[i], "%d,%f,%f,%f,%d,%d,%d",
                     i, myJoy[i].at(0), myJoy[i].at(1), myMomentum[i].at(1),
