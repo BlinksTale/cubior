@@ -1,0 +1,28 @@
+Mechanic Introduction Based Level Design:
+
+1. Introduce a mechanic/idea
+2. Reinforce it
+3. Test it
+
+===
+
+Mechanics:
+
+1. Jumping
+2. Raised Surfaces
+3. Highest, Central Point
+
+4. Full Height Jumps
+5. Straight Single Cube Bridges, Against Overly Tall Walls
+6. Turning Around / Going Backwards
+
+7. Straight Double Cube Bridges, Against Single Cube Walls
+
+8. Goal At Far End Of Map
+9. Diagonal Wide Cube Bridges, Not Against Walls
+10. Straight Wide Cube Bridges, Not Against Walls
+
+11. Confusing Narrow Cube Bridges, Against Overly Tall Walls
+
+X. Springs (And Spring Height Jumps)
+Y. Small (2x2) Floating Platform?
