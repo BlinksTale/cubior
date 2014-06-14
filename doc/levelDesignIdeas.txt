@@ -4,6 +4,10 @@ Mechanic Introduction Based Level Design:
 2. Reinforce it
 3. Test it
 
+A. Identify Concepts
+B. How to Introduce Concepts
+C. Seamlessly Transitioning Between Them
+
 ===
 
 Mechanics:
@@ -26,3 +30,153 @@ Mechanics:
 
 X. Springs (And Spring Height Jumps)
 Y. Small (2x2) Floating Platform?
+
+===
+
+Concepts:
+Jumping
+Goal
+
+Jumping from Platform to Platform
+Goal at top of level
+Climbing
+
+Moving around corners
+Moving around inner corners
+Jumping around corners
+Jumping around inner corners
+Corners are a high risk area, so maybe pad them at first with safety platforms underneath
+Corners on bridges sounds awful too, in a terrifying way. Best way to accidentally push people off. Very high risk.
+Corner is a moving platform? Have to wait for disappearing ledge/moving platform to return before you can go around the corner. Double major chokepoint since both are chokepoints already to some degree.
+Corner spring = choice, go around corner or take option that spring gives you higher up. Spring might lead to a dead end (NO! Not Cubior's way, no dead ends) or a slower path. Skipping that spring might lead to two springs later, getting you higher even faster.
+
+Jumping back and forth
+Crossing a bridge
+Crossing a diagonal bridge
+Bridges having turns
+Bridges with platforming in them. It's just the worst sounding.
+Already having a challenge crossing a narrow bridge, and then you must jump. Jump! And aim!
+Bridge to a platform higher bridge. The. Worst. Ever. No wall between them, just open air.
+
+Gaps in the wall (NOT a tunnel, open on one side)
+Gaps going around corners
+Gaps having jumps in them
+(Gaps are interesting since they limit multiplayer movement, very crowded, like ledges)
+Definitely can be a choke point where whomever is in first has the power to stop the others. Do NOT put as a waiting zone for a moving platform, or first place will force everyone back and stay in first, then jump on at the last second so no one can keep up.
+Gaps could lead to mazes, but that's not in the nature of Cubior.
+Gap back and forth platforming could be fun.
+Moving platforms could be doorways opening and closing in gaps. And you can hold open a moving platform with your head so others can get through.
+Gaps to bridges sounds TERRIFYING, limited space in every direction. From almost falling on one side to almost falling on both sides
+(Same with ledges to bridges)
+Gaps and turns where you can see your competition turning in other gaps sounds crazy fun.
+Gaps two tall with the top wall gone are like windows. Extra risky then… but also could turn into a tunnel, and tunnels aren't fun. Scrap this then.
+Extra tall gaps, like four tall, can have windows though if it's normal to see yourself through them.
+
+Ledges (single block wide surfaces against walls, like final level)
+Ledges going around corners
+Jumping from Ledge to Ledge
+Jumping from platform to ledge
+Jumping from ledge to platform
+Ledges turning into gaps
+(ledges can be chaotic if everyone is on one ledge at once)
+Rushing and on ledges can be very dangerous. Having a mess of ledges could be fun if all are simultaneously going upwards and curving around the structure
+Moving platforms as ledges would be chaotic and make a rushed but trustworthy surface suddenly move away from you, bringing the rush to a halt as you wait.
+
+Moving platforms
+Jumping onto moving platforms
+Jumping off of moving platforms onto other platforms
+Moving platforms like elevators
+Exits halfway up a moving platform - onto a gap? (maybe scrap this idea… no gap is obvious enough, keep it)
+(moving platforms can get messy if they're only 2x2 for four people oi!)
+Moving platforms with certain shapes? (Looks like a trolley/car/plane/etc)
+(wish we could do a boss fight on a moving platform! Call it a moving hunk at this point)
+Picture a twisted and gnarled weave of blocks, like a thorny sphere or Ep VI Death Star
+then it moves from A to B and you have to fight on it or get to the top or…
+Maybe there are X places you can stand, and there will be as many walls that can push you off - so like standing on a train and then it's going to go through a tunnel
+You have to then jump to the other surfaces to dodge the walls etc
+Or even jump onto the other surfaces and maybe use magnetic ceilings etc. Oooh.
+Moving magnetic ceiling?! Aughh! Way slippery! Also needs same logic as moving springs.
+…but might be doable?
+Also: moving springs-only would be tough as all get out to stay on top of
+
+Moving platforms might make a good way to stop the action, like a stop light in a race
+Maybe if the moving platform chokepoint entrance is a place for combat, it could be fun
+(people try to push each other off the waiting platform)
+As long as you can trust that as soon as the moving platform stops moving, that is when it is first in jumping range
+What if moving platform didn't go anywhere important, but it at its starting point was the only way to get to the next platform?
+Then you could put the moving platform in a wall and have it be a regularly disappearing platform on a set timer
+
+Springs
+Springs across chasms
+Springs on platforms
+Springs on ledges
+Springs inside gaps as one-way limiters? (can't go down again if spring underneath you)
+What if a spring pushed you into another spring, like a chain effect?
+We still want player agency though, so spring to choice to spring to choice, speed run?
+Great for VS mode if making choices on springs and opponents make different choices
+can we put springs on top of moving platforms? That sounds very fun/risky
+Just leave easy paths to catch up again so you aren't instantly in last forever
+Springs offer a choice into the unknown: they get you higher, faster, but you can't see too far.
+Two Springs: this means a choice, and each choice will lead to a path with better or worse options for moving faster later.
+Learn from Mario Kart: have shortcuts but make them dependent on your state/status. But that means having a state/status change. Instead, for Cubior, let's make them skill dependent like the big castle level was. Remember that?
+So Spring 1 takes you to a ledge path, Spring 2 takes you to a gap path. 
+
+Crumbling blocks
+Crumbling blocks as part of a ledge (ohgodohgodohgod)
+Crumbling blocks at the end of a moving platform
+Crumbling blocks after a spring across a chasm
+Crumbling blocks above you? (maybe in a gap, touch to get through?)
+Ledge platforms are all crumbling blocks
+Shortcut with crumbling blocks, so multiplayer gets split up or held back
+Crumbling blocks will be a huge limiter at corners with a set delay.
+Too many set delay limiters/chokepoints?
+Crumbling blocks MIGHT lead to a secret! They look bad but it might lead to a gap and a spring etc etc. Maybe a hidden bridge? But no tunnels.
+Crumbling blocks leading to magnetic ceilings that more quickly take you around the level.
+But maybe those magnetic ceilings are super high risk because of a corner you must turn.
+You must do this one.
+You must.
+You must.
+Crumbling blocks on a ledge actually lead to a secret path below where magnetic ceilings take you around a corner and quickly avoid slower/more challenging terrain above. A spring returns you to the normal path, and all this is on the side you haven't been climbing, but is too high up to see normally. This leads to last place having a chance at first?
+
+*** Addition to the Cubior Way: If you fall, a faster path might be presented to you. ***
+
+Magnetic ceiling (springs from below)
+gap turns into a drop, but magnetic ceiling lets you pass through
+like chainlink/monkey bars in Super Mario 64, cross chasms in the open
+Ledge magnetic ceiling, like a ledge from above. Oh geeze. Sounds really hard since magnetic ceilings are slippery.
+Magnetic ceiling + ledge = secret path below the main path
+Secret path + spring at end, exiting out of a standard looking pit, or out of a one way gap, equals semi-secret exit
+
+Slower Paths can be a series of moving platforms limiting your motion on a ledge, moving vertically from above, so when you get through one - the next is closed, alternating, etc
+
+---
+
+Overarching themes:
+Always going up, wrapping in circles, always a central column/mountain feel?
+
+Advantage could be had for losing players if goal was to go downwards, but involved many jumping up parts. Then last place is highest, and can limit the movement of first. Ooooh.
+eg. Must cross trenches that are going down, so many jumps up to get to next trench, but last - falling from above, can jump on your head to limit you
+
+---
+
+Core Mechanics:
+
+
+Crumbling blocks - disappear if touched, return after x seconds
+Magnetic ceiling - slippery, but holds you upwards until you fall off it
+Springs - shoot you upwards at x velocity on contact
+Moving platforms - transport you from A to B on a limited surface
+
+---
+
+As of 6/14/14 I have just discovered:
+gaps, the tunnels with one side missing, like ledges but more tunnel-ey
+secret paths with crumbling blocks, magnetic ledge ceilings, and one-way spring exits
+moving platforms with multiple surfaces and obstacles that would push you off various ones
+moving all-springs platforms, hang slipping from beneath or have a very hard time on top
+moving platform path limited to against a wall or inside it, so it's timer disappearing
+
+also:
+springs offer choice since they quickly move you to new areas, eg. gap path vs ledges path 
+choke points waiting for a platform to appear, especially at corners, for all to catch up
+paths halfway along a moving platform's path, like gaps in the wall (secret shortcuts?)
