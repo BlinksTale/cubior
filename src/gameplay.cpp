@@ -98,7 +98,7 @@ int oldFocus[4];
 int maxOption[] = {1, // Title Screen
     4, // Main Menu
     4, // Pause
-    4, // Options
+    3, // Options
     1, // Controls
     1, // Credits
     3, // Volume Settings
@@ -124,7 +124,7 @@ int menu[4];
  * 0. Splash screen, option: Press Start OR Press Enter
  * 1. Start screen, options: Start/Options/Credits/Quit
  * 2. Pause menu, options: Resume/Drop Out/Options/Quit
- * 3. Options menu, options: Camera Controls, Controls, Back
+ * 3. Options menu, options: (removed Camera Controls,) Controls, Back
  * 4. Controller map, option: Back
  * 5. Credits, option: Back
  * 6. Volume, options: Music, Sound, Back
@@ -2287,19 +2287,19 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
             }
         } else if (menu[i] == 3) { // Options Menu
             switch(option[i]) {
-                case 0:
+                /*case 0: // (Camera Controls, now removed)
                     // Toggle Angle Controls
                     toggleIndependentMovement(i);
-                    break;
-                case 1:
+                    break;*/
+                case 0:
                     // See Controller Map
                     setMenu(i, 4);//menu[controller] = 4;
                     break;
-                case 2:
+                case 1:
                     // Enter Volume Settings
                     setMenu(i, 6);
                     break;
-                case 3:
+                case 2:
                     // Return to pause or start menu
                     if (getLastPause() == -1) { // start menu
                         setMenu(i, 1);//menu[controller] = 1;

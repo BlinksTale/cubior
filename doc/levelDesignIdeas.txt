@@ -180,3 +180,28 @@ also:
 springs offer choice since they quickly move you to new areas, eg. gap path vs ledges path 
 choke points waiting for a platform to appear, especially at corners, for all to catch up
 paths halfway along a moving platform's path, like gaps in the wall (secret shortcuts?)
+
+---
+
+Level progression:
+
+World 1: (jumping and corners, ledges and gaps)
+1. Introduce Goal, Jumping, Platforms
+2. Introduce Corners, Jumping around them, Jumping back and forth
+3. Introduce Ledges & Gaps, Following ledges around corners, following gaps back and forth
+4. Reinforce Corners, ledges, gaps, jumping around them all, and goals
+
+World 2: (mounds and bridges)
+1. Introduce individual mounds, bridges, goal at the back
+2. Reintroduce corners, gaps, and ledges on smaller mounds
+3. Reintroduce jumping back and forth, but now on smaller mounds to get to bridges
+4. Implement corners on bridges, bridges with walls you must jump up, bridges with ledges
+
+World ???:
+1. Introduce Moving Platforms
+
+World ???: (maybe springs after moving platforms?)
+1. Introduce Springs, shortcuts with springs, choices with springs
+2. Reintroduce gaps but with springs, introduce one-way spring gaps and escapes from pits
+3. Introduce mound jumping with springs, and risks of bridges with springs
+4. 

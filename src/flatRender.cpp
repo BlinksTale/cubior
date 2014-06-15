@@ -45,7 +45,7 @@
 #include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
 // Starting values that change often in testing
-bool fullscreen = false;
+bool fullscreen = true;
 bool printFPS = false;
 bool drawTriangles = true; // as opposed to just draw lines and vertices
 bool drawOutlines = false;
@@ -1493,15 +1493,15 @@ void drawMenu(int i, bool doubleWidth) {
       writeWord("Options", 0,midY+0.5*menuSpacing,aspect,(option==2)*rotation);
       writeWord("Quit",    0,midY+1.5*menuSpacing,aspect,(option==3)*rotation);
     } else if (getMenu(i) == 3) { // Pause Options Menu
-      writeWord("Camera Controls", 0,midY-2.0*menuSpacing,aspect,false);
-      if (getIndependentMovement(i)) {
-        writeWord(":Pro:", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
-      } else {
-        writeWord(":Easy:",0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
-      }
-      writeWord("Controls",0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
-      writeWord("Volume",  0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
-      writeWord("Back",    0,midY+2.0*menuSpacing,aspect,(option==3)*rotation);
+      //writeWord("Camera Controls", 0,midY-2.0*menuSpacing,aspect,false);
+      //if (getIndependentMovement(i)) {
+      //  writeWord(":Pro:", 0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
+      //} else {
+      //  writeWord(":Easy:",0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
+      //}
+      writeWord("Controls",0,midY-1.0*menuSpacing,aspect,(option==0)*rotation);
+      writeWord("Volume",  0,midY+0.0*menuSpacing,aspect,(option==1)*rotation);
+      writeWord("Back",    0,midY+1.0*menuSpacing,aspect,(option==2)*rotation);
     } else if (getMenu(i) == 4) { // Controls Display
       if (getJustHitStart()) {
         writeWord("Start", 0,midY*2+400,aspect,(option==0)*rotation);

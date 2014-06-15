@@ -1,3 +1,10 @@
+6/15/14
+
+remove Drop Out option in Pause if alone
+remove Camera Controls option - done
+
+===
+
 6/14/14
 
 something is wrong with the networked multiplayer or any multiplayer not having weight to jumping with someone on your head IF we use landing on another's head as a way to slow down your opponents.
