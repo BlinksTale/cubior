@@ -2235,8 +2235,6 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         } else if (menu[i] == 1) { // Start Menu (Main Menu)
             switch(option[i]) {
                 case 0:
-                    // See Controller Map Just Before Starting Gameplay
-                    justHitStart = true;
                     //setMenu(i, 4);//menu[controller] = 4;
                     setMenu(i, 7); // temp swap for networking
                     break;
@@ -2360,20 +2358,28 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         } else if (menu[i] == 7) { // Local, LAN, or Online Settings
             switch(option[i]) {
                 case 0:
+                    // See Controller Map Just Before Starting Gameplay
+                    justHitStart = true;
                     // Start Local
                     setMenu(i, 4);
                     break;
                 case 1:
+                    // See Controller Map Just Before Starting Gameplay
+                    justHitStart = true;
                     // Start LAN
                     setLAN(true);
                     setMenu(i, 8); // fixme: make an online start
                     break;
                 case 2:
+                    // See Controller Map Just Before Starting Gameplay
+                    justHitStart = true;
                     // Start Online
                     setLAN(false);
                     setMenu(i, 8); // fixme: make an online start
                     break;
                 case 3:
+                    // See Controller Map Just Before Starting Gameplay
+                    justHitStart = false;
                     // Return to main menu
                     setMenu(i, 1);
                     break;
