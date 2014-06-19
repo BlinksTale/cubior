@@ -3,6 +3,10 @@
 remove Drop Out option in Pause if alone
 remove Camera Controls option - done
 
+pressing enter should complete the ip phase
+pressing a number should enter the first number from nothing in ip, not adding it to the end
+pressing escape should quit
+
 ===
 
 6/14/14

@@ -1710,10 +1710,12 @@ void initFlat(int argc, char** argv) {
   std::string extraPath = "";
   #ifdef __APPLE_CC__
     extraPath = resourcePath();
-  #endif  
+  #else
+    extraPath = "./doc/";
+  #endif
   
   // Read in Credits doc real quick first, before images even
-  loadedCredits = CreditsReader::readCredits((extraPath + "./doc/finalCredits.txt").c_str());
+  loadedCredits = CreditsReader::readCredits((extraPath + "finalCredits.txt").c_str());
 
   // load PNGs for menu system
   initMenu();
