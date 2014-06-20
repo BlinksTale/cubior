@@ -5,6 +5,7 @@
 #include "mapReader.h"
 #include "gameplay.h"
 #include "springObj.h"
+#include "crumblingObj.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -156,6 +157,12 @@ Map* MapReader::readMap(const string& s) {
               map->addCube(newCube,w,h,d);
             } else if (mapColorString.c_str()[0] == 'S') {
                 CubeObj* newCube = new SpringObj();
+                //newCube->setMaterial(mapColor);
+                newCube->tick();
+                newCube->setPermalock(true);
+                map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'C') {
+                CubeObj* newCube = new CrumblingObj();
                 //newCube->setMaterial(mapColor);
                 newCube->tick();
                 newCube->setPermalock(true);

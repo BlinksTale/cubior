@@ -23,6 +23,8 @@
 #include <math.h>
 
 void ItemShape::initVisuals(float r1, float g1, float b1, float r2, float g2, float b2, float colorDarkness, bool alt, bool mid) {
+
+    updateColors();
     super::initVisuals(r1,g1,b1,r1,g1,b1,colorDarkness,alt,mid); // make last two false, false?
     
     // fix default shadow status since goal
@@ -38,6 +40,12 @@ void ItemShape::updateVisuals() {
     updateColors();
     
     super::updateVisuals();
+    
+    // If hit player this turn, reset timeSinceCollision
+    if (selfObj->getJustHitPlayer()) {
+        timeSinceCollision = timeSinceCollisionMax;
+        selfObj->setJustHitPlayer(false); // fixme: really should happen all in selfObj on tick
+    }
 }
 
 void ItemShape::updateColors() {
@@ -78,12 +86,6 @@ void ItemShape::draw(){
     
     // make sure emotions are on the same page
     updateVisuals();
-    
-    // If hit player this turn, reset timeSinceCollision
-    if (selfObj->getJustHitPlayer()) {
-        timeSinceCollision = timeSinceCollisionMax;
-        selfObj->setJustHitPlayer(false); // fixme: really should happen all in selfObj on tick
-    }
     
     // call on cubeShape's function, drawCube, to make a cube visual
     glEnableClientState(GL_COLOR_ARRAY);

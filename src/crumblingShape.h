@@ -17,17 +17,9 @@ class CrumblingShape : public ItemShape {
 private:
     typedef ItemShape super;
 protected:
-    float colorDarkness;
-    float colorDefaultA;
-    float colorDefaultR;
-    float colorDefaultG;
-    float colorDefaultB;
-    float colorCurrentR;
-    float colorCurrentG;
-    float colorCurrentB;
+    // Everything is in itemShape
 public:
     void initVisuals();
-    void updateVisuals();
     void draw();
 };
 

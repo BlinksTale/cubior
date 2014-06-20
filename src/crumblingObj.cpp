@@ -1,12 +1,12 @@
 //
-//  cumblingObj.cpp
+//  crumblingObj.cpp
 //  Cubior
 //
 //  Created by Brian Handy on 5/10/14.
 //
 //
 
-#include "cumblingObj.h"
+#include "crumblingObj.h"
 #include "cubiorObj.h"
 
 CrumblingObj::CrumblingObj() {
