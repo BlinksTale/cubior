@@ -1,3 +1,19 @@
+6/25/14
+
+transparencies look odd since draw order is based on level layout, not relation to camera
+change this so things farther from camera get drawn sooner
+
+===
+
+6/19/14
+
+so we can definitely use GL_BLEND to do transparencies, even with color arrays
+but glColorPointer must have 4 as its first value, not 3, and myColors must then have a fourth slot for every color - alpha.
+Once these two are in then the gl blending should happen automatically.
+http://msdn.microsoft.com/en-us/library/windows/desktop/dd318811(v=vs.85).aspx
+
+===
+
 6/15/14
 
 remove Drop Out option in Pause if alone

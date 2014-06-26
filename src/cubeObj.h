@@ -24,7 +24,7 @@ class CubeObj {
     bool fpsRateEnabled, duplicateNeighbor;
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
-    bool justHitPlayer;
+    bool justHitPlayer = false;
     float momentumX, momentumY, momentumZ, movementSpeed, movementDivision, posAverageBias;
     bool toldToMoveX, toldToMoveY, toldToMoveZ;
     float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions

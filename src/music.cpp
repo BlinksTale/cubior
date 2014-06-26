@@ -23,7 +23,7 @@
 
 // Buffer Vars (hold song data)
 sf::Music music;
-bool mute = false;
+bool mute = true;
 bool lastMute = mute;
 int highVolume = 50;
 int medVolume = 30;

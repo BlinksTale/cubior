@@ -45,7 +45,7 @@
 #include "ResourcePath.hpp" // to load (in XCode for Mac) from app's resource folder using the SFML file (combined with ResourcePath.mm)
 
 // Starting values that change often in testing
-bool fullscreen = true;
+bool fullscreen = false;
 bool printFPS = false;
 bool drawTriangles = true; // as opposed to just draw lines and vertices
 bool drawOutlines = false;
@@ -134,20 +134,23 @@ int topFacesVisible = 0; // how many cube top faces we'll draw
 int shadowsVisible = 0; // how many shadows to draw
 vector<CubeShape*> itemShape;
 
+// Color vertices used for each cube
+const int colorVertices = 4;
+
 // merger of all unmoving cube shapes to fit in one draw call
 GLuint superIndices[maxCubeCount*24];
 GLfloat superVertices[maxCubeCount*24];
-GLfloat superColors[maxCubeCount*24];
+GLfloat superColors[maxCubeCount*8*colorVertices];
 
 // Give top of tiles a different color
 GLuint topIndices[maxCubeCount*24];
 GLfloat topVertices[maxCubeCount*24];
-GLfloat topColors[maxCubeCount*24];
+GLfloat topColors[maxCubeCount*8*colorVertices];
 
 // Now merge the two together for one giant amazing draw call!
 GLuint ultimateIndices[maxCubeCount*24*2];
 GLfloat ultimateVertices[maxCubeCount*24*2];
-GLfloat ultimateColors[maxCubeCount*24*2];
+GLfloat ultimateColors[maxCubeCount*8*colorVertices*2];
 
 // Finally, an attempt to share this with the shadow world
 GLuint shadowIndices[maxCubeCount*24];
@@ -896,7 +899,7 @@ void drawAllCubes(int player) {
     //glEnableClientState(GL_INDEX_ARRAY);
     
     // specify pointer to vertex array
-    glColorPointer(3, GL_FLOAT, 0, superColors);
+    glColorPointer(colorVertices, GL_FLOAT, 0, superColors);
     glVertexPointer(3, GL_FLOAT, 0, superVertices);
     if (drawTriangles) {
       glDrawElements(GL_TRIANGLES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
@@ -904,7 +907,7 @@ void drawAllCubes(int player) {
         glDrawElements(GL_LINES, 6*facesVisible, GL_UNSIGNED_INT, superIndices);
     }
     
-    glColorPointer(3, GL_FLOAT, 0, topColors);
+    glColorPointer(colorVertices, GL_FLOAT, 0, topColors);
     glVertexPointer(3, GL_FLOAT, 0, topVertices);
     if (drawTriangles) {
         glDrawElements(GL_TRIANGLES, 6*topFacesVisible, GL_UNSIGNED_INT, topIndices);
@@ -1191,7 +1194,9 @@ void initVisuals() {
   for (int i=0; i<cubesVisible; i++) {
     for (int vertex=0; vertex<24; vertex++) {
       ultimateVertices[i*24+vertex] = superVertices[i*24+vertex];
-      ultimateColors[i*24+vertex] = superColors[i*24+vertex];
+    }
+    for (int vertex=0; vertex<8*colorVertices; vertex++) {
+      ultimateColors[i*8*colorVertices+vertex] = superColors[i*8*colorVertices+vertex];
     }
   }
   for (int i=0; i<facesVisible; i++) {
@@ -1205,7 +1210,9 @@ void initVisuals() {
     for (int vertex=0; vertex<12; vertex++) {
       // top vertices live in cupeShape's 0-5 and 12-17 vertices, so add 6 to vertex for second half
       ultimateVertices[cubesVisible*24+i*12+vertex] = topVertices[i*12+vertex];
-      ultimateColors[cubesVisible*24+i*12+vertex] = topColors[i*12+vertex];
+    }
+    for (int vertex=0; vertex<4*colorVertices; vertex++) {
+      ultimateColors[cubesVisible*8*colorVertices+i*4*colorVertices+vertex] = topColors[i*4*colorVertices+vertex];
     }
     for (int vertex=0; vertex<6; vertex++) {
       // the 4 at the end is because we only use four vertices total for every face
@@ -1333,7 +1340,9 @@ void compressScenery() {
                 // OK, add the cube's vertices and colors
                 for (int vertex=0; vertex<24; vertex++) {
                     superVertices[cubesVisible*24+vertex] = cubeShape[i].getVertex(vertex); // add vertices
-                    superColors[cubesVisible*24+vertex] = cubeShape[i].getColor(vertex);    // add colors
+                }
+                for (int vertex=0; vertex<8*colorVertices; vertex++) {
+                    superColors[cubesVisible*8*colorVertices+vertex] = cubeShape[i].getColor(vertex); //add colors
                 }
                 // Alright, now find that face. If it has no neighbors, add it to indicies! (which vertices to draw)
                 for (int face=0; face<6; face++) {
@@ -1370,9 +1379,9 @@ void compressScenery() {
                     //cout << "Now topVertices[" << topFacesVisible*12+vertex << "] holds " << topVertices[topFacesVisible*12+vertex] << endl;
                 }
                 // Get colors // COLORS ARE WORKING
-                for (int color=0; color<12; color++) {
+                for (int color=0; color<4*colorVertices; color++) {
                     // matching colors are all called with getTopColor
-                    topColors[topFacesVisible*12+color] = cubeShape[i].getTopColor(color);
+                    topColors[topFacesVisible*4*colorVertices+color] = cubeShape[i].getTopColor(color);
                     //cout << "Now topColors[" << topFacesVisible*12+color << "] holds " << topColors[color] << endl;
                 }
                 // Get indices // INDICES ARE... NOT ALWAYS WORKING?

@@ -27,10 +27,11 @@ class CubeShape {
     float altDark;
     float r1,g1,b1,r2,b2,g2,r3,g3,b3;
     const static bool useNeighbors = true;
-    GLfloat myVertices[24], myColors[24], topColors[12];//, myShadowVertices[24];
+    GLfloat myVertices[24], myColors[32], topColors[16];//, myShadowVertices[24];
     //GLfloat myShadowVertices[24];
-    CubeObj* selfObj;
+    CubeObj* selfObj = NULL;
     float timeSinceCollision, timeSinceCollisionMax;
+    float alph; // alpha value
   public:
     virtual GLubyte getIndex(int);
     virtual GLfloat getVertex(int);

@@ -64,23 +64,23 @@ void GoalShape::updateColors() {
   b3 = colorCurrentB + colorDarkness;
 
     // Can just make a new array and transfer contents into myColors
-  GLfloat newColors[] = { r1, g1, b1, // front top left
-                        r1, g1, b1, // front top right
-                        r2, g2, b2, // front bottom left
-                        r2, g2, b2, // front bottom right
-                        r1, g1, b1, // back top left
-                        r1, g1, b1, // back top right
-                        r2, g2, b2, // back bottom left
-                        r2, g2, b2  // back bottom right
+  GLfloat newColors[] = { r1, g1, b1, alph, // front top left
+                        r1, g1, b1, alph, // front top right
+                        r2, g2, b2, alph, // front bottom left
+                        r2, g2, b2, alph, // front bottom right
+                        r1, g1, b1, alph, // back top left
+                        r1, g1, b1, alph, // back top right
+                        r2, g2, b2, alph, // back bottom left
+                        r2, g2, b2, alph  // back bottom right
                       }; 
 
-  for (int i=0; i<24; i++) {
+  for (int i=0; i<32; i++) {
     myColors[i] = newColors[i];
   }
   
   // And assign top colors
   GLfloat newTopColors[] = { r3, g3, b3, r3, g3, b3, r3, g3, b3, r3, g3, b3 }; // all top corners
-  for (int i=0; i<12; i++) {
+  for (int i=0; i<16; i++) {
     topColors[i] = newTopColors[i];
   }
 

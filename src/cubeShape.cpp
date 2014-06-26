@@ -121,6 +121,10 @@ void CubeShape::initVisuals() {
 }
                             
 void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, float nB2, float colorDarknessOld, bool alt, bool mid) {
+    
+    // Alpha value
+    alph = 1.0;
+    
     float colorDarkness = colorDarknessOld;//0.0;
   midFloor = mid;
     alternatingSpot = false;//alt;
@@ -136,24 +140,28 @@ void CubeShape::initVisuals(float nR, float nG, float nB, float nR2, float nG2, 
   g3 = nG2 - altDark;
   b3 = nB2 - altDark; 
 
+    
   // Can just make a new array and transfer contents into myColors
-  GLfloat newColors[] = { r1, g1, b1, // front top left
-                        r1, g1, b1, // front top right
-                        r2, g2, b2, // front bottom left
-                        r2, g2, b2, // front bottom right
-                        r1, g1, b1, // back top left
-                        r1, g1, b1, // back top right
-                        r2, g2, b2, // back bottom left
-                        r2, g2, b2  // back bottom right
+  GLfloat newColors[] = { r1, g1, b1, alph, // front top left
+                        r1, g1, b1, alph, // front top right
+                        r2, g2, b2, alph, // front bottom left
+                        r2, g2, b2, alph, // front bottom right
+                        r1, g1, b1, alph, // back top left
+                        r1, g1, b1, alph, // back top right
+                        r2, g2, b2, alph, // back bottom left
+                        r2, g2, b2, alph  // back bottom right
                       }; 
 
-  for (int i=0; i<24; i++) {
+  for (int i=0; i<8*4; i++) {
     myColors[i] = newColors[i];
   }
   
   // And assign top colors
-  GLfloat newTopColors[] = { r3, g3, b3, r3, g3, b3, r3, g3, b3, r3, g3, b3 }; // all top corners
-  for (int i=0; i<12; i++) {
+  GLfloat newTopColors[] = { r3, g3, b3, alph,
+                             r3, g3, b3, alph,
+                             r3, g3, b3, alph,
+                             r3, g3, b3, alph }; // all top corners
+  for (int i=0; i<4*4; i++) {
     topColors[i] = newTopColors[i];
   }
 
@@ -210,23 +218,27 @@ void CubeShape::updateVisuals() {
   // Make sure colors are up to date!
 
   // Can just make a new array and transfer contents into myColors
-  GLfloat newColors[] = { r1, g1, b1, // front top left
-                        r1, g1, b1, // front top right
-                        r2, g2, b2, // front bottom left
-                        r2, g2, b2, // front bottom right
-                        r1, g1, b1, // back top left
-                        r1, g1, b1, // back top right
-                        r2, g2, b2, // back bottom left
-                        r2, g2, b2  // back bottom right
+  GLfloat newColors[] = { r1, g1, b1, alph, // front top left
+                        r1, g1, b1, alph, // front top right
+                        r2, g2, b2, alph, // front bottom left
+                        r2, g2, b2, alph, // front bottom right
+                        r1, g1, b1, alph, // back top left
+                        r1, g1, b1, alph, // back top right
+                        r2, g2, b2, alph, // back bottom left
+                        r2, g2, b2, alph  // back bottom right
                       }; 
 
-  for (int i=0; i<24; i++) {
+  for (int i=0; i<4*8; i++) {
     myColors[i] = newColors[i];
   }
   
   // And assign top colors
-  GLfloat newTopColors[] = { r3, g3, b3, r3, g3, b3, r3, g3, b3, r3, g3, b3 }; // all top corners
-  for (int i=0; i<12; i++) {
+  GLfloat newTopColors[] = {
+        r3, g3, b3, alph,
+        r3, g3, b3, alph,
+        r3, g3, b3, alph,
+        r3, g3, b3, alph }; // all top corners
+  for (int i=0; i<4*4; i++) {
     topColors[i] = newTopColors[i];
   }
 
@@ -234,11 +246,15 @@ void CubeShape::updateVisuals() {
 
 void CubeShape::draw() {
   
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
   // specify pointer to vertex array
-  glColorPointer(3, GL_FLOAT, 0, myColors);
+  glColorPointer(4, GL_FLOAT, 0, myColors);
   glVertexPointer(3, GL_FLOAT, 0, myVertices);
   
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, indices);
+    glDisable (GL_BLEND);
 }
 
 // This lets you skip transforms for unmoving objects later, and scaling!
