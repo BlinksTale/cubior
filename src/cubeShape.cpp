@@ -208,13 +208,6 @@ void CubeShape::setRelationToCam(bool a, bool b, bool c) {
 
 void CubeShape::updateVisuals() {
     
-    // If measuring time since collision, count down
-    if (timeSinceCollision > 0.0f) {
-        timeSinceCollision -= 1.0f/60.0f; // Fixme: figure out time passed here instead
-    } else if (timeSinceCollision < 0.0f) {
-        timeSinceCollision = 0;
-    }
-    
   // Make sure colors are up to date!
 
   // Can just make a new array and transfer contents into myColors

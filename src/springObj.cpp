@@ -17,6 +17,7 @@ int springOffsetY = -80;
 SpringObj::SpringObj() {
     super::init();
     itemType = "spring";
+    timeSinceCollisionMax = 0.15f;
 }
 
 void SpringObj::collisionEffect(CubeObj* c) {

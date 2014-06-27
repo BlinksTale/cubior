@@ -12,20 +12,33 @@
 CrumblingObj::CrumblingObj() {
     super::init();
     itemType = "crumbling";
+    timeSinceCollisionMax = 3.0;
+    timeCollidingMax = 0.2;
+}
+
+void CrumblingObj::tick() {
+  super::tick();
+  
+  if (!justHitPlayer && timeSinceCollision >= timeSinceCollisionMax) {
+    if (!solid)
+      solid = true;
+    if (timeColliding > 0.0f)
+      timeColliding -= 1.0f/60.0f;
+    else if (timeColliding != 0.0f)
+      timeColliding = 0.0f;
+  }
 }
 
 void CrumblingObj::collisionEffect(CubeObj* c) {
     if (c->isPlayer()) {
-        // if it was a nonsolid, which we haven't implemented,
-        // (... && c->getY() <= this->getY() + 50) would allow for
-        // standard positions rather than offset by -80
-        
-        // also for the condition:
-        // FIXME: add a && c->getMomentumY() < springMomentum/2f
-        
-        //float negative = -1 * c->getMomentumY();
-        //if (c->getMomentumY() > 0)
-        //c->setMomentumY(springMomentum); // springMomentum
+      // Again, switch this to delta time (fixme)
+      if (timeColliding < timeCollidingMax)
+        timeColliding += 1.0f/60.0f;
+      else
+        timeColliding = timeCollidingMax;
+      
+      if (timeColliding >= timeCollidingMax)
+        solid = false;
     }
     super::collisionEffect(c);
 }

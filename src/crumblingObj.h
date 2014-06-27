@@ -15,7 +15,8 @@
 class CrumblingObj : public ItemObj {
 private:
     typedef ItemObj super;
-    
+  
+    void tick();
     void collisionEffect(CubeObj*);
     
 public:

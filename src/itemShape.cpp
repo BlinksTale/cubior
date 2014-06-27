@@ -22,8 +22,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-bool visualsInitted = false;
-
 void ItemShape::initVisuals(float r1, float g1, float b1, float r2, float g2, float b2, float colorDarkness, bool alt, bool mid) {
     
     updateColors();
@@ -34,8 +32,6 @@ void ItemShape::initVisuals(float r1, float g1, float b1, float r2, float g2, fl
     shadowState = true;
     directionalCulling = false;
     
-    timeSinceCollisionMax = 0.15f;
-    
 }
 
 void ItemShape::updateVisuals() {
@@ -44,12 +40,7 @@ void ItemShape::updateVisuals() {
     updateColors();
     
     super::updateVisuals();
-    
-    // If hit player this turn, reset timeSinceCollision
-    if (visualsInitted && selfObj->getJustHitPlayer()) {
-        timeSinceCollision = timeSinceCollisionMax;
-        selfObj->setJustHitPlayer(false); // fixme: really should happen all in selfObj on tick
-    }
+
 }
 
 void ItemShape::updateColors() {

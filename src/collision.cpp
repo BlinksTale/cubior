@@ -63,9 +63,6 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
   int diffY = getDiff(c1,c2,1);
   int diffZ = getDiff(c1,c2,2);
   bounceByDiff(c1,c2,diffX,diffY,diffZ);
-  // Whatever special effects happen, call them post-bounce
-  c1->collisionEffect(c2);
-  c2->collisionEffect(c1);
 }
 
 void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int diffZ) {
@@ -227,8 +224,8 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
   if (c1 != NULL && c2 != NULL) {
     // Now make sure it's not a cam checking against invisible things
     if ((!c1->isCamera() || !c2->isInvisible()) && (!c2->isCamera() || !c1->isInvisible())) {
-		//if (!(c2->isInvisible()) && !(c1->isInvisible())) {
-		  if (between(c1,c2)) {
+      //if (!(c2->isInvisible()) && !(c1->isInvisible())) {
+      if (between(c1,c2)) {
         // No player commands if the camera hits something
         if (c1->isCamera() && !(c2->isInvisible())) {
           ((CameraObj*)c1)->hitSomething();
@@ -236,17 +233,26 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
         if (c2->isCamera() && !(c1->isInvisible())) {
           ((CameraObj*)c2)->hitSomething();
         }
-        // Then bounce the objects off each other
-		    bounce(c1,c2);
-        // And if one above the other, land on that other
-        if (c1->getLandedOnCount() > 0) {
-          c1->updateLandedOnPos();
+        
+        // Separate effects from physically pushing against each other
+        if (c1->isSolid() && c2->isSolid()) {
+          // Then bounce the objects off each other
+          bounce(c1,c2);
+          // And if one above the other, land on that other
+          if (c1->getLandedOnCount() > 0) {
+            c1->updateLandedOnPos();
+          }
+          if (c2->getLandedOnCount() > 0) {
+            c2->updateLandedOnPos();
+          }
+          //balanceMomentum(c1,c2);
         }
-        if (c2->getLandedOnCount() > 0) {
-          c2->updateLandedOnPos();
-        }
-	      //balanceMomentum(c1,c2);
-		  }
+        
+        // Whatever special effects happen, call them post-bounce
+        c1->collisionEffect(c2);
+        c2->collisionEffect(c1);
+      }
+      
     }
-	}
+  }
 }

@@ -22,6 +22,7 @@ protected:
 public:
     ItemObj();
     void init();
+    virtual void tick();
     virtual void setX(int);
     virtual void setY(int);
     virtual void setZ(int);

@@ -25,6 +25,7 @@ protected:
     float colorCurrentR;
     float colorCurrentG;
     float colorCurrentB;
+    bool visualsInitted = false;
 public:
     void initVisuals(float,float,float,float,float,float,float,bool,bool);
     void updateVisuals();

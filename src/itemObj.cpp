@@ -17,6 +17,19 @@ void ItemObj::init() {
     permalocked = true;
     // something like this? Probably not. this->setMaterial(9);
     item = true;
+  
+    timeSinceCollisionMax = 0.15f;
+}
+
+void ItemObj::tick() {
+  // If hit player this turn, reset timeSinceCollision
+  if (justHitPlayer) {
+    timeSinceCollision = 0.0f;
+  }
+  
+  super::tick();
+  
+  
 }
 
 void ItemObj::collisionEffect(CubeObj* c) {

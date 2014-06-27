@@ -104,6 +104,9 @@ CubeObj::CubeObj() {
     
   // Shape (nothing special by default, so none listed)
   itemType = "";
+
+  // All cubes are solid by default, so other solids can't pass through them
+  solid = true;
 }
 
 string CubeObj::getType() {
@@ -316,6 +319,14 @@ void CubeObj::tick() {
     landedOnDirectionDiff = direction - landedOn->getDirection();
     landedOnToldDirectionDiff = toldDirection - landedOn->getToldDirection();
   }
+  
+  // If measuring time since collision, count down
+  if (timeSinceCollision < timeSinceCollisionMax) {
+    timeSinceCollision += 1.0f/60.0f; // Fixme: figure out time passed here instead
+  } else if (timeSinceCollision > timeSinceCollisionMax) {
+    timeSinceCollision = timeSinceCollisionMax;
+  }
+  
 }
 
 float CubeObj::getStrength() {
@@ -512,6 +523,15 @@ bool CubeObj::isCamera() {
 
 void CubeObj::setCameraStatus(bool b) {
   cameraStatus = b;
+}
+
+// isSolid returns whether collideable or not in tangible world
+bool CubeObj::isSolid() {
+    return solid;
+}
+
+void CubeObj::setSolid(bool b) {
+    solid = b;
 }
 
 /*void CubeObj::setCamera(CameraObj* c) {

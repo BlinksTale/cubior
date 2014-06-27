@@ -36,7 +36,6 @@ void SpringShape::initVisuals() {
     updateColors();
     super::initVisuals(r1,g1,b1,r1,g1,b1,colorDarkness,false,false);
     
-    timeSinceCollisionMax = 0.15f;
 }
 
 void SpringShape::draw(){
@@ -44,8 +43,10 @@ void SpringShape::draw(){
     // make sure emotions are on the same page
     updateVisuals();
 
-    float springOffset = sin(timeSinceCollision/timeSinceCollisionMax*M_PI)*springOffsetMax;
-    
+    float springOffset = 0;
+    if (visualsInitted)
+        springOffset = sin(selfObj->timeSinceCollision/selfObj->timeSinceCollisionMax*M_PI)*springOffsetMax;
+  
     for (int i=0; i<24; i++) {
         if (i % 12 == 1 || i % 12 == 4) {
             myVertices[i] += springOffset; // extend one to the top

@@ -42,13 +42,15 @@ class CubeObj {
     //CameraObj* camera; // for camera cubes to ID their cameras
     float landedOnDirectionDiff, landedOnToldDirectionDiff;
     float newFriction, strength, direction, toldDirection; // for use with new friction technique
-    bool invisible, item;
+    bool invisible, item, solid;
   public:
+    float timeSinceCollision, timeSinceCollisionMax, timeColliding, timeCollidingMax, timeSinceFirstCollision, timeSinceFirstCollisionMax;
+
     CubeObj();
 
     string getType();
     
-    void tick();
+    virtual void tick();
 
     void calculateDiff();
     void fall();
@@ -75,6 +77,8 @@ class CubeObj {
     bool isPlayer();
     bool isCamera();
     void setCameraStatus(bool);
+    bool isSolid();
+    void setSolid(bool);
     //void setCamera(CameraObj*);
     //CameraObj* getCamera();
 

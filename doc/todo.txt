@@ -1,3 +1,10 @@
+6/26/14
+
+alpha is doing some strange stuff with our old shadow and silhouette stencils
+fix this so anything with alpha less than x is not drawn for those tests… or something?
+
+===
+
 6/25/14
 
 transparencies look odd since draw order is based on level layout, not relation to camera

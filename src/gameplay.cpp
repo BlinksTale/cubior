@@ -12,6 +12,7 @@
 #include "cubeObj.h"
 #include "goalObj.h"
 #include "cubiorObj.h"
+#include "itemObj.h"
 #include "collision.h"
 #include "mapReader.h"
 #include "flatRender.h"
@@ -533,7 +534,7 @@ int getLevelNum() {
     return currentLevel;
 }
 
-// gameplayTick(), basically, or if it were an object, gameplay::tick()
+// void tick()/void gameplayTick(), basically, or if it were an object, gameplay::tick()
 // the main loop that gets called for every frame of gameplay
 void gameplayLoop() {
     // cout << "Cubior playable " << 0 << " is " << cubiorPlaying[0] << " with online status " << cubiorOnline[0] << endl;
@@ -566,6 +567,11 @@ void gameplayLoop() {
                     //cout << "Done ticking cubior " << i << " and " << i << "'s collision stuff" << endl;
                 }
             }
+        }
+        // Then whole map
+        for (int i = 0; i<cubeCount; i++) {
+          if (cube[i]->getType().length() > 0)
+            cube[i]->tick();
         }
         // and the goal
         goal.tick();

@@ -34,13 +34,13 @@ void CrumblingShape::initVisuals() {
     super::updateColors();
     super::initVisuals(r1,g1,b1,r1,g1,b1,colorDarkness,false,false);
     
-    timeSinceCollisionMax = 3.0;
     //timeSinceFirstCollisionMax = 2.0;
 }
 
 void CrumblingShape::draw(){//float r1, float g1, float b1, float colorDarkness) {
-    
-    alph = 1.0-timeSinceCollision/timeSinceCollisionMax;
+  
+    if (visualsInitted)
+        alph = 1.0-selfObj->timeColliding/selfObj->timeCollidingMax;
     
     // make sure emotions are on the same page
     super::updateVisuals();
