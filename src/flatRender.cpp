@@ -527,6 +527,7 @@ void displayFor(int player) {
     // Init shader uniform values too
     glUniform1f(glGetUniformLocation(program[1], "tinyAmount"), shaderTinyAmount);
 
+  
   //cout << "Starting half " << player << ":  \t\t" << getTimePassed() << endl;
   drawAllCubes(player);
   
@@ -537,10 +538,10 @@ void displayFor(int player) {
   // Draw goal second to last since we want it in front of player for silhouette
   if (drawOutlines) { drawGoalOutline(); }
   drawGoal();
-    
-  // All items
-  drawItems();
-
+  
+  // Non-transparent items drawn BEFORE shadows
+  drawItems(false);
+  
   //cout << "Middle half " << player << ":  \t\t" << getTimePassed() << endl;
   // Draw player as last thing before HUD
   for (int i=0; i<cubiorNum; i++) { calcPlayer(i); }
@@ -556,10 +557,17 @@ void displayFor(int player) {
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
   
-    
   // Then draw all shadows in order of height!
   drawAllShadows(player);
-
+  
+  // POST-SHADOW DRAWING
+  // anything with transparencies is drawn after the
+  
+  // drawItems transparency pass only draws semi-transparent items
+  drawItems(true);
+  
+  
+  
   // Switch to "no shader" for menus
   glUseProgram(0);
   int n; // errors if not declared before if statement
@@ -677,13 +685,26 @@ void displayFor(int player) {
 
 // Give shadows to everything!
 void drawAllShadows(int player) {
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Blend function not causing any differences if enabled/disabled?
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  
+    // GL_BLEND is the difference between black shadows and dark versions of the colors underneath
     glEnable( GL_BLEND );
-
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-		glEnable(GL_STENCIL_TEST);
-    
+    // Not sure GL_ALPHA is doing anything, nor ALPHA_TEST
+    glEnable( GL_ALPHA );
+    glEnable( GL_ALPHA_TEST );
+ 
+    // Color Mask with everything disabled means it doesn't use this data to draw real shapes/objects
+    // instead, we're going to use it for a stencil test later
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  
+    // No Depth Test lets shadows overlap instead of their not-drawn sections deleting shadows behind them
+    glDepthMask(GL_FALSE);
+  
+    // GL_STENCIL_TEST limits the shadows to being drawn in the stencils, which are the levelShadows
+    glEnable(GL_STENCIL_TEST);
+  
+    // Just draw the level shadows as regular polygons, but with the stencil option
     if (levelShadows) {
     
       glEnableClientState(GL_COLOR_ARRAY);
@@ -699,11 +720,15 @@ void drawAllShadows(int player) {
       
       glCullFace(GL_FRONT);
       glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+      // if depth fails (can't see only due to z) then increment pixel's value
       glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
       glDrawElements(GL_TRIANGLES, 36*shadowsVisible, GL_UNSIGNED_INT, shadowIndices);
 
       glCullFace(GL_BACK);
       glStencilFunc(GL_ALWAYS, 0x0, 0xff);
+      // if depth also fails for back, decrement it so it stays at zero
+      // but if one increments and the other does not...
+      // (we'll come back to that later when we see where to place shadows)
       glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
       glDrawElements(GL_TRIANGLES, 36*shadowsVisible, GL_UNSIGNED_INT, shadowIndices);
       
@@ -729,13 +754,17 @@ void drawAllShadows(int player) {
     drawGoalShadow();
     drawItemShadows();
     
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-    
-		glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-		fillScreenWithShadow();
-		glDisable(GL_STENCIL_TEST);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_TRUE);
+  
+    // Where the front and the back are not the same (so front face could be seen but back was obscured)
+    // that is where a shadow is on the ground
+    // or that is what I believe NOTEQUAL and REPLACE are being used for
+    // all three replaces means no matter what (fail/zfail/succeed), we will the pixel with the new color
+    glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    fillScreenWithShadow();
+    glDisable(GL_STENCIL_TEST);
 
     glDisable( GL_BLEND );
     // end of shadow stuff
@@ -745,26 +774,27 @@ void drawAllShadows(int player) {
 // full permission to copy this though, according to Josh Beam:
 // http://joshbeam.com/articles/stenciled_shadow_volumes_in_opengl/
 void fillScreenWithShadow() {
-  glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, 1, 1, 0, 0, 1);
-	glDisable(GL_DEPTH_TEST);
+    // Fills the stencilled area with a shadow of 50% opacity on top of everything else
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, 1, 1, 0, 0, 1);
+    glDisable(GL_DEPTH_TEST);
 
-	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-	glBegin(GL_QUADS);
-		glVertex2i(0, 0);
-		glVertex2i(0, 1);
-		glVertex2i(1, 1);
-		glVertex2i(1, 0);
-	glEnd();
+    glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+    glBegin(GL_QUADS);
+        glVertex2i(0, 0);
+        glVertex2i(0, 1);
+        glVertex2i(1, 1);
+        glVertex2i(1, 0);
+    glEnd();
 
-	glEnable(GL_DEPTH_TEST);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+    glEnable(GL_DEPTH_TEST);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
 }
 
 // Figure out new stats for drawings before doing any drawings
@@ -1007,7 +1037,7 @@ void drawGoalOutline() {
 }
 
 
-void drawItems() {
+void drawItems(bool transparentPass) {
     // Fixme: convert to array of indicies and whatnot, it will run faster
     // only fine now since less than a dozen items on any stage
     for (int i=0; i<itemShape.size(); i++) {
@@ -1015,7 +1045,10 @@ void drawItems() {
             glPushMatrix();
             glTranslatef(itemShape[i]->getX(),itemShape[i]->getY(),itemShape[i]->getZ());
             glScalef(100.0,100.0,100.0);
-            itemShape[i]->draw();
+            if ((transparentPass && ((ItemShape*)itemShape[i])->isTransparent()) ||
+                (!transparentPass && !((ItemShape*)itemShape[i])->isTransparent())) {
+              itemShape[i]->draw();
+            }
             glPopMatrix();
         }
     }
@@ -1029,7 +1062,9 @@ void drawItemShadows() {
         glPushMatrix();
         glTranslatef(itemShape[i]->getX(),itemShape[i]->getY(),itemShape[i]->getZ());
         glScalef(100.0,100.0,100.0);
-        itemShape[i]->drawShadow();
+        if (!((ItemShape*)itemShape[i])->isTransparent()) {
+          itemShape[i]->drawShadow();
+        }
         glPopMatrix();
       }
     }

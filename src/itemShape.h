@@ -31,6 +31,7 @@ public:
     void updateVisuals();
     void updateColors();
     void draw();
+    bool isTransparent();
 };
 
 #endif /* defined(__Cubior__itemShape__) */

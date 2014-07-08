@@ -23,7 +23,8 @@ void ItemObj::init() {
 
 void ItemObj::tick() {
   // If hit player this turn, reset timeSinceCollision
-  if (justHitPlayer) {
+  // but if usingPlayerAbove, only activates if justHit from above
+  if (justHitPlayer && (!usingPlayerAbove || playerAbove)) {
     timeSinceCollision = 0.0f;
   }
   

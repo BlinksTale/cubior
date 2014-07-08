@@ -1,3 +1,13 @@
+6/29/14
+
+problem with transparencies and shadows under them
+the issue is that crumbling blocks are drawn like regular blocks, so they get permanent shadows but also permanently obstruct them, even if invisible.
+The solution: draw them separately so that they are drawn on top of what it would look like if they weren't there. But, allowing for depth buffers and whatnot so they still appear normally (behind walls in front of them, etc)
+
+cheap solution for shadows of disappearing cubes: multiply by alpha of source cube?
+
+===
+
 6/26/14
 
 alpha is doing some strange stuff with our old shadow and silhouette stencils

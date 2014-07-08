@@ -45,6 +45,7 @@ class CubeObj {
     bool invisible, item, solid;
   public:
     float timeSinceCollision, timeSinceCollisionMax, timeColliding, timeCollidingMax, timeSinceFirstCollision, timeSinceFirstCollisionMax;
+    bool firstCollision, playerAbove, usingPlayerAbove;
 
     CubeObj();
 

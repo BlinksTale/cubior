@@ -41,7 +41,7 @@ void drawGoal();
 void drawGoalShadow();
 void drawGoalOutline();
 void drawMenu(int,bool);
-void drawItems();
+void drawItems(bool);
 void drawItemShadows();
 
 void writeWordRangeRotation(std::string,int,int,float,float,int,int);

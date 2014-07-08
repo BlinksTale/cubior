@@ -39,9 +39,13 @@ void CrumblingShape::initVisuals() {
 
 void CrumblingShape::draw(){//float r1, float g1, float b1, float colorDarkness) {
   
-    if (visualsInitted)
-        alph = 1.0-selfObj->timeColliding/selfObj->timeCollidingMax;
+  if (visualsInitted) {
+    float halfGone = 0.6f;
+    float firstHalf = (selfObj->firstCollision ? halfGone : 1);
+    float secondHalf = 1.0 - (selfObj->timeColliding/selfObj->timeCollidingMax);
     
+    alph = min(firstHalf, secondHalf);
+  }
     // make sure emotions are on the same page
     super::updateVisuals();
     
@@ -49,8 +53,8 @@ void CrumblingShape::draw(){//float r1, float g1, float b1, float colorDarkness)
     //glEnable(GL_BLEND);
 	//glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
 
-    
-    super::draw();
+//    if (alph > 0.0)
+      super::draw();
 
     /* 
      // Cube's draw function:

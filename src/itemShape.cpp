@@ -78,7 +78,8 @@ void ItemShape::updateColors() {
 }
 
 void ItemShape::draw(){
-    
+  
+  if (alph > 0.0f) {
     // make sure emotions are on the same page
     updateVisuals();
     
@@ -89,5 +90,9 @@ void ItemShape::draw(){
     // deactivate vertex arrays after drawing
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
-    
+  }
+}
+
+bool ItemShape::isTransparent(){
+  return alph < 1.0f;
 }
