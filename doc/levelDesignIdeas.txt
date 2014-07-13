@@ -205,3 +205,9 @@ World ???: (maybe springs after moving platforms?)
 2. Reintroduce gaps but with springs, introduce one-way spring gaps and escapes from pits
 3. Introduce mound jumping with springs, and risks of bridges with springs
 4. 
+
+===
+
+Random World Theme ideas with Mechanics:
+
+Cloud World - spring bases with disappearing blocks for all platforms, ascend only on large open/wide "clouds" of white disappearing blocks, and get up that high quickly with springs. Inspired by Lemuria music from Golden Sun.

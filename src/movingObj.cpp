@@ -16,6 +16,7 @@ MovingObj::MovingObj() {
   itemType = "moving";
   firstCollision = false;
   nonstickSurface = false; // stick vs nonstick for player moving with blocks
+  permalocked = false;
 }
 
 void MovingObj::tick() {

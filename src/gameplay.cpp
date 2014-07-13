@@ -369,7 +369,9 @@ void setupLevel() {
     for (int i = 0; i<cubeCount; i++) {
         cube[i]->tick();
         //keepInBounds(&cube[i]);
+      if (cube[i]->getPermalock()) {
         addToCollisionMap(cube[i], permanentMap);
+      }
     }
     // Then set their neighbors, for more efficient rendering
     for (int i = 0; i<cubeCount; i++) {
@@ -572,11 +574,39 @@ void gameplayLoop() {
         for (int i = 0; i<cubeCount; i++) {
           if (cube[i]->getType().length() > 0)
             cube[i]->tick();
+          if (!cube[i]->getPermalock()) {
+            addToCollisionMap(cube[i], collisionMap);
+          }
         }
         // and the goal
         goal.tick();
         addToCollisionMap(&goal, collisionMap);
-        
+      
+        // First, check moving environment cubes against everything
+        for (int i = 0; i<cubeCount; i++) {
+          if (!cube[i]->getPermalock()) {
+            
+            int cX = getCollisionMapSlot(cube[i],0);
+            int cY = getCollisionMapSlot(cube[i],1);
+            int cZ = getCollisionMapSlot(cube[i],2);
+            
+            if (goodCollision) {
+              explodingDiamondCollision(cube[i],permanentMap,cX,cY,cZ);
+            } else {
+              unintelligentCollision(cube[i],permanentMap,cX,cY,cZ);
+            }
+            // Update c's for non-permanent-item collision
+            cX = getCollisionMapSlot(cube[i],0);
+            cY = getCollisionMapSlot(cube[i],1);
+            cZ = getCollisionMapSlot(cube[i],2);
+            if (goodCollision) {
+              explodingDiamondCollision(cube[i],collisionMap,cX,cY,cZ);
+            } else {
+              unintelligentCollision(cube[i],collisionMap,cX,cY,cZ);
+            }
+          }
+        }
+      
         // Then check collision against all other obstacles (cubes/cubiors)
         for (int i = 0; i<cubiorCount; i++) {
             //cout << "This cubior " << i << " has online status " << cubior[i].getOnline() << endl;

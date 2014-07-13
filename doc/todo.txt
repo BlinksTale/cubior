@@ -1,3 +1,9 @@
+7/13/14
+
+started Moving blocks, issue with collision disappearing outside a certain range.
+
+===
+
 7/8/14
 
 transparent cubes are not drawing walls right when reappearing, but looks fine within idea of transparent cube anyways. COULD look better, but not a big deal.
