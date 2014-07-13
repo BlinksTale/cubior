@@ -12,6 +12,7 @@
 #include "keyboard.h"
 #include "cubeShape.h"
 #include "crumblingShape.h"
+#include "movingShape.h"
 #include "goalShape.h"
 #include "springShape.h"
 #include "cubiorShape.h"
@@ -1342,7 +1343,8 @@ void initScenery() {
             itemNames["crumbling"]  = 1;
             itemNames["switch"]     = 2;
             itemNames["gate"]       = 3;
-            
+            itemNames["moving"]     = 4;
+          
             CubeShape* newShape = NULL;
             switch(itemNames[getCube(i)->getType()]) {
                 case 0: // spring
@@ -1351,6 +1353,10 @@ void initScenery() {
                     break;
                 case 1: // crumbling
                     newShape = new CrumblingShape();
+                    newShape->setSelf(getCube(i)); // can't set directly since cubeObjs not ready yet
+                    break;
+                case 4: // moving // fixme! just crumbling again for now
+                    newShape = new MovingShape();
                     newShape->setSelf(getCube(i)); // can't set directly since cubeObjs not ready yet
                     break;
                 default:

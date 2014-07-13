@@ -1,3 +1,19 @@
+7/8/14
+
+transparent cubes are not drawing walls right when reappearing, but looks fine within idea of transparent cube anyways. COULD look better, but not a big deal.
+
+next: moving platforms? (this could get tricky)
+gates and switches? (actually works better *after* moving platforms)
+
+===
+
+7/7/14
+
+gamedev forums said there was no real solution, so workaround was decided on. Looks fine!
+workaround is to 
+
+===
+
 6/29/14
 
 problem with transparencies and shadows under them

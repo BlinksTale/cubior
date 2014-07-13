@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __Cubior__cumblingObj__
-#define __Cubior__cumblingObj__
+#ifndef __Cubior__crumblingObj__
+#define __Cubior__crumblingObj__
 
 #include "itemObj.h"
 #include <iostream>
@@ -23,4 +23,4 @@ public:
     CrumblingObj();
 };
 
-#endif /* defined(__Cubior__cumblingObj__) */
+#endif /* defined(__Cubior__crumblingObj__) */

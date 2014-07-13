@@ -206,6 +206,10 @@ void CubeShape::setRelationToCam(bool a, bool b, bool c) {
   behindCam = c;
 }
 
+void CubeShape::updatePos() {
+  setPos(selfObj->getX(), selfObj->getY(), selfObj->getZ());
+}
+
 void CubeShape::updateVisuals() {
     
   // Make sure colors are up to date!

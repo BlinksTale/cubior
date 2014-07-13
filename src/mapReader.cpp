@@ -6,6 +6,7 @@
 #include "gameplay.h"
 #include "springObj.h"
 #include "crumblingObj.h"
+#include "movingObj.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -166,6 +167,12 @@ Map* MapReader::readMap(const string& s) {
                 //newCube->setMaterial(mapColor);
                 newCube->tick();
                 newCube->setPermalock(true);
+                map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'M') {
+                CubeObj* newCube = new MovingObj();
+                newCube->tick();
+                // moving objects are not permalocked, their position updates
+//                newCube->setPermalock(true);
                 map->addCube(newCube,w,h,d);
             }
             w++;

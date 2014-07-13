@@ -41,6 +41,7 @@ class CubeShape {
     virtual void initVisuals();
     void setNeighbors(bool[6]);
     void setNeighborObjects(CubeObj*[6]);
+    virtual void updatePos();
     virtual void updateVisuals();
     virtual void permanentPosition(int,int,int);
     virtual void setPos(int,int,int);
