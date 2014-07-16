@@ -1,6 +1,20 @@
+7/15/14
+
+make moving blocks not impacted by momentum of collisions
+set locked to true, fixed it
+but now: how do we handle hitting a wall?
+should turn around
+track buildup, wait for buildup to return to zero before moving again
+buildup is in!
+but how do we stop *all* the blocks from moving?
+they don't stop on their own right now. Not while locked.
+
+===
+
 7/13/14
 
 started Moving blocks, issue with collision disappearing outside a certain range.
+fix: issue was blocks only assigning to collision map at start. Now non-permanent blocks assign every tick
 
 ===
 

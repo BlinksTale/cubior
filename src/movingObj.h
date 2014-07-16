@@ -16,6 +16,8 @@ class MovingObj : public ItemObj {
 private:
   typedef ItemObj super;
   
+  int timer, buildup;
+
   void tick();
   void collisionEffect(CubeObj*);
   
