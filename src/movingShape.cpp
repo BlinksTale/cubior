@@ -8,6 +8,7 @@
 
 #include "movingShape.h"
 #include "cubiorShape.h"
+#include "movingObj.h"
 #include "cubeObj.h"
 #include "gameplay.h"
 
@@ -39,7 +40,13 @@ void MovingShape::initVisuals() {
 void MovingShape::draw(){
   
   updatePos();
-
+  
+  if (((MovingObj*)selfObj)->isMaster()) {
+    alph = 0.75f;
+  }
+  if (((MovingObj*)selfObj)->isSlave()) {
+    alph = 0.25f;
+  }
   // make sure emotions are on the same page
   updateVisuals();
 

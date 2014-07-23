@@ -17,6 +17,7 @@ void ItemObj::init() {
     permalocked = true;
     // something like this? Probably not. this->setMaterial(9);
     item = true;
+    itemType = "undefinedItem";
   
     timeSinceCollisionMax = 0.15f;
 }

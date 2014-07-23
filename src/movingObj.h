@@ -13,16 +13,35 @@
 #include <iostream>
 
 class MovingObj : public ItemObj {
+public:
+  enum Direction { North, South, East, West, Up, Down };
+  
 private:
   typedef ItemObj super;
   
-  int timer, buildup;
-
-  void tick();
-  void collisionEffect(CubeObj*);
+  bool masterStatus, slaveStatus;
+  CubeObj* master;
   
+  int timer, buildupX, buildupY, buildupZ;
+  Direction movingDirection;
+  
+  void tick();
+  void moveForwards(int);
+  void flipDirection();
+  void collisionEffect(CubeObj*);
+
 public:
   MovingObj();
+  void postNeighborInit();
+  void spreadMaster();
+  void checkSlaveStatus();
+  bool isSlave();
+  void setSlave(bool);
+  bool isMaster();
+  void setMaster(bool);
+  void setMaster(CubeObj*);
+  CubeObj* getMaster();
+  Direction getMovingDirection();
 };
 
 #endif /* defined(__Cubior__movingObj__) */

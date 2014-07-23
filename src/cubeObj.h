@@ -48,7 +48,8 @@ class CubeObj {
     bool firstCollision, playerAbove, usingPlayerAbove, nonstickSurface;
 
     CubeObj();
-
+    virtual void postNeighborInit();
+  
     string getType();
     
     virtual void tick();

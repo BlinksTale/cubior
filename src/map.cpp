@@ -60,7 +60,7 @@ void Map::addCube(CubeObj* cube, int w, int h, int d) {
   #ifdef oldMap
     map[w][h][d] = cube;
   #else
-    int slot = getSlot(w, d, h);
+    int slot = getSlot(w,h,d);
     map_unordered[slot] = cube;*/
   #endif
   cubeCount++;
@@ -164,7 +164,7 @@ int Map::getGoalDepth() { return goalDepth; }
 void Map::setCustomColors(float a, float b, float c) { red = a; green = b; blue = c; customColors = true; }
 void Map::defaultColors() { red = 0.3; green = 1.0; blue = 1.0; }
 CubeObj* Map::getCubeAt(int w, int h, int d) {
-  //int slot = getSlot(w, d, h);
+  //int slot = getSlot(w,h,d);
     #ifdef oldMap
       return map[w][h][d];
     #else
@@ -185,6 +185,6 @@ float Map::getRed()  { return red; }
 float Map::getGreen(){ return green;}
 float Map::getBlue() { return blue; }
 
-int Map::getSlot(int w, int d, int h) {
-  return 1000*1000*w + 1000*d + h;
+int Map::getSlot(int w, int h, int d) {
+  return maxHeight*maxDepth*w + maxHeight*d + h;
 }

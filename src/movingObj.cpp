@@ -8,6 +8,7 @@
 
 #include "movingObj.h"
 #include "cubiorObj.h"
+#include "gameplay.h"
 
 MovingObj::MovingObj() {
   super::init();
@@ -17,44 +18,202 @@ MovingObj::MovingObj() {
   permalocked = false;
   locked = true;
   timer = 0;
-  direction = 1;
-  buildup = 0;
+  movingDirection = West;
+  buildupX = 0;
+  buildupY = 0;
+  buildupZ = 0;
+  slaveStatus = false;
+  masterStatus = false;
 }
 
 void MovingObj::tick() {
   
+  if (!getGameplayFirstRunning() && getGameplayRunning()) {
+    moveForwards(1);
+  }
+  
+  super::tick();
+  
+}
+
+void MovingObj::moveForwards(int distance) {
   // Move isn't working right now but Change is.
-//  this->moveX(1000.0f);
+  //  this->moveX(1000.0f);
   // fixme: ChangeY will push you through the floor. D:
   // fixme: once outside some range of initial spawn, collision stops working
   // but it starts working again when you re-enter the initial zone
   // so it must have to do with how far we check for collision with each cube
   // (make sure moving objects update this value)
   int lastX = this->getX();
-  if (buildup != 0 && buildup/direction < 0) {
-    buildup += direction;
+  int lastY = this->getY();
+  int lastZ = this->getZ();
+  int movementX = distance*(movingDirection == West)  - distance*(movingDirection == East);
+  int movementY = distance*(movingDirection == Up)    - distance*(movingDirection == Down);
+  int movementZ = distance*(movingDirection == North) - distance*(movingDirection == South);
+  
+  if (buildupX != 0 && buildupX/movementX < 0) {
+    buildupX += movementX;
   } else {
-    this->changeX(1*direction);
+    this->changeX(movementX);
   }
+  if (buildupY != 0 && buildupY/movementY < 0) {
+    buildupY += movementY;
+  } else {
+    this->changeY(movementY);
+  }
+  if (buildupZ != 0 && buildupZ/movementZ < 0) {
+    buildupZ += movementZ;
+  } else {
+    this->changeZ(movementZ);
+  }
+  
+  // Haven't moved! Increase buildup in appropriate direction
   if (lastX == this->getX()) {
-    // Haven't moved! Increase buildup in appropriate direction
-    buildup += direction;
+    buildupX += movementX;
   }
-//  this->changeY(1*(timer%6000>3000?-1:1));
-
+  if (lastY == this->getY()) {
+    buildupY += movementY;
+  }
+  if (lastZ == this->getZ()) {
+    buildupZ += movementZ;
+  }
+  
+  
+  timer += distance;
+  
   int timeSpan = 500;
   if (timer>timeSpan) {
-    direction *= -1;
-    timer -= timeSpan;
+    flipDirection();
   }
-  
-  timer++;
-  
-  super::tick();
-  
+
+}
+
+void MovingObj::flipDirection() {
+  switch (movingDirection)
+  {
+    case East:
+      movingDirection = West;
+      break;
+    case West:
+      movingDirection = East;
+      break;
+    case North:
+      movingDirection = South;
+      break;
+    case South:
+      movingDirection = North;
+      break;
+    case Up:
+      movingDirection = Down;
+      break;
+    case Down:
+      movingDirection = Up;
+      break;
+  }
+
+  timer = 0;
+
 }
 
 void MovingObj::collisionEffect(CubeObj* c) {
-  
+  if (c->isPlayer()) {
+    // New approach: don't flip, just undo last motion and keep trying
+    //flipDirection();
+    moveForwards(-1);
+  }
   super::collisionEffect(c);
+}
+
+void MovingObj::postNeighborInit() {
+  
+  // Slave status check requires neighbors to be known
+  this->checkSlaveStatus();
+  
+  super::postNeighborInit();
+}
+
+void MovingObj::checkSlaveStatus() {
+  int i=0;
+  int neighborCount = 0;
+  int movingNeighborCount = 0;
+  while (i<6 && slaveStatus == false) {
+//    cout << "Any neighbors for " << i << "? " << this->neighbors[i] << endl;
+    if (this->neighbors[i]) {
+      neighborCount++;
+//      cout << "Yes with type " << this->visibleNeighborObjects[i]->getType() << endl;
+      
+      // Then process its slave/master status
+      MovingObj* neighbor = (MovingObj*)this->visibleNeighborObjects[i];
+      if (neighbor->getType().compare("moving") == 0) {
+        movingNeighborCount++;
+        if (neighbor->isSlave()) {
+          // both moving and a slave? We must be a slave too then!
+          this->setSlave(true);
+          this->setMaster(neighbor->getMaster());
+        }
+        if (neighbor->isMaster()) {
+          this->setSlave(true);
+          this->setMaster(neighbor);
+        }
+      }
+    }
+    i++;
+  }
+  
+  // Still not a slave? Must be master!
+  if (!slaveStatus) {
+    this->setMaster(true);
+  }
+  // Either way, now spread this master to all your neighbors
+  this->spreadMaster();
+}
+
+void MovingObj::spreadMaster() {
+  // Check all neighbors again. If any not slaves and not master, set their master to ours
+  // and call this function on them too
+  for (int i=0; i<6; i++) {
+    if (this->neighbors[i]) {
+      if (this->visibleNeighborObjects[i]->getType().compare("moving") == 0) {
+        MovingObj* neighbor = (MovingObj*)(this->visibleNeighborObjects[i]);
+        if (!neighbor->isSlave() && !neighbor->isMaster()) {
+          neighbor->setMaster(this->getMaster());
+          neighbor->setSlave(true);
+          neighbor->spreadMaster();
+          // Alternative to the above three lines:
+          //neighbor->checkSlaveStatus();
+          // but commented out for now since those may work faster
+        }
+      }
+    }
+  }
+}
+
+bool MovingObj::isMaster() {
+  return masterStatus;
+}
+void MovingObj::setMaster(bool b) {
+  masterStatus = b;
+  if (b) {
+    master = this;
+  }
+}
+bool MovingObj::isSlave() {
+  return slaveStatus;
+}
+void MovingObj::setSlave(bool b) {
+  slaveStatus = b;
+}
+
+void MovingObj::setMaster(CubeObj* incoming) {
+  if (incoming != NULL && incoming->getType().compare("moving") == 0) {
+    master = incoming;
+  }
+}
+
+CubeObj* MovingObj::getMaster() {
+  return masterStatus ? this : master;
+}
+
+MovingObj::Direction MovingObj::getMovingDirection() {
+  return movingDirection;
 }

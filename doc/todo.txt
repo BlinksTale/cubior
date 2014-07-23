@@ -1,3 +1,80 @@
+7/22/14
+
+what am I storing in map.cpp at map[w][h][d] exactly?
+
+gahh, not getting the moving objects in map I think?
+Tried a print out from addCube in map and didn't see anything in a position that seemed familiar, or anywhere near the later c1 pos calls from wherever else
+
+but they ARE type moving!
+oh the pos of 0, -200, 1000 is … after becoming a slot? No, 11,4,28 is the slot
+cubes are all at wrong positions?
+so slots are changing appropriately and pos is not
+hmm
+but as long as those slots are correctly used for neighbors…
+then we should be good
+
+CubeObj* maps work! Map* maps are the ones with that awful offset!
+
+===
+
+7/20/14
+
+Can't figure it out tonight!
+Something is wrong with getting/setting up neighbors for moving objects
+they're just not seeing all the neighbors that they need to or getting them
+once we can get the right neighbors, the rest should work for master/slave system
+
+---
+
+get moving cubes to use their slave/master system
+* implement it in gameplay init
+* use it to pass along collision results (so if one is pushed back, apply motion to all)
+
+while (i < neighbors && !slave) {
+if neighbor is slave then I am slave and master = neighbor->getMaster()
+}
+if (!slave)
+  master = true;
+
+ack! Conflict of masters!
+slaves must recursively check all neighbors then AGAIN once they have a master to ensure all neighbors also get that master. Then those must check and those must check…
+
+currently setting masters to .75f opacity and slaves to .25f
+so why are we getting so many masters? Why aren't they registering their neighbors as moving items? And why aren't they working backwards? (calling postNeighborInit from high to low causes crashes)
+
+I think neighbor sources are cause of the problem now
+use custom neighbor something, not the visible neighbors one
+or is notAnItem being given when it shouldn't?
+
+28 is near side, 10 is left, 4 is top. "Left" is what we see as right when we start. Hm.
+so why aren't there more x slot = 10 instances?
+
+===
+
+7/17/14
+
+in gameplay init phase for items, check if a moving type
+if so, then if master == false && slave == false, assign master! Then check neighbors. If any neighbors are moving type and aren't master and aren't slave, set to slave and give master of the original! Then check all their neighbors and if not master and not slave and also moving blocks, assign your own master as their master. BUT! Direction must be the same for all of these.
+
+So conditions are:
+!isMaster && !isSlave && direction == myDirection && isMovingBlock
+then
+master = myMaster; isSlave = true; checkNeighborsForMovingBlocks();
+
+values are in! Now to put them to use in gameplay.cpp...
+
+===
+
+7/16/14
+
+hook all movables in together and have one stopping trigger all stopping in its neighbors and their neighbors etc, so long as direction is consistent?
+
+represent different starting directions for moving blocks with different letters
+eg. M, W, E, 3, for N, S, E, W, and B, :, for U, D?
+why not just use N/S/E/W/U/D?
+
+===
+
 7/15/14
 
 make moving blocks not impacted by momentum of collisions

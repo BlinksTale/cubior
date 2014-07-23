@@ -39,7 +39,6 @@ bool cubiorOnline[cubiorCount];
 bool goodCollision = true;
 CubeObj* collisionMap[maxWidth][maxHeight][maxDepth];
 
-//#define newPermanentMap true
 
 //#define newPermanentMap true;
 #ifdef newPermanentMap
@@ -372,12 +371,27 @@ void setupLevel() {
       if (cube[i]->getPermalock()) {
         addToCollisionMap(cube[i], permanentMap);
       }
+      if (!cube[i]->getPermalock()) {
+        addToCollisionMap(cube[i], collisionMap);
+      }
     }
     // Then set their neighbors, for more efficient rendering
     for (int i = 0; i<cubeCount; i++) {
         findNeighbors(cube[i], permanentMap);
         findEdges(cube[i], permanentMap);
+      // a getType itemType comparison crashes on quit, so just add neighbors to all nonpermalocks
+      //if (cube[i] != NULL && cube[i]->getType().compare("moving") == 0) {
+      // also crashes if we use collision map instead of levelmap here?
+      if (!cube[i]->getPermalock()) {
+        findNeighbors(cube[i], levelMap);
+      }
     }
+  
+    // Finally, run post-neighbor setup (in case anything needs this, like moving blocks!)
+    for (int i = 0; i<cubeCount; i++) {
+      cube[i]->postNeighborInit();
+    }
+  
 }
 
 // Initialization for all gameplay, also triggering other initializations
@@ -1911,6 +1925,7 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         CubeObj* down  = map[cX][cY-1][cZ];
         CubeObj* front = map[cX][cY][cZ+1];
         CubeObj* back  = map[cX][cY][cZ-1];
+
         // The top/bot order on these might be wrong, but it shouldn't really matter too much
         // since used to check if surrounded on a plane anyways
         bool n0 = insideMap(cX+1, cY, cZ) && left != 0;
@@ -1929,19 +1944,27 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
         if (n5) { n5 = n5 && !(back->isInvisible()); }
         c1->setVisibleNeighbors(n0,n1,n2,n3,n4,n5);
         c1->setVisibleNeighborObjects(left,right,up,down,front,back);
+      if (!c1->getPermalock() && n0) {
+        cout << "c1 pos is " << c1->getX() << ", " << c1->getY() << ", " << c1->getZ() <<
+        " while its left neighbor is " << left->getX() << ", " << left->getY() << ", " << left->getZ() << endl;
+      }
     }
     
     // Same as above, but with a map object
     void findNeighbors(CubeObj* c1, Map* map) {
-        int cX = getCollisionMapSlot(c1,0);
-        int cY = getCollisionMapSlot(c1,1);
-        int cZ = getCollisionMapSlot(c1,2);
+      // Why are these off by one in Map* maps?
+      // regardless, this fixes everything with moving obj slave/master searches
+        int cX = getCollisionMapSlot(c1,0)+1;
+        int cY = getCollisionMapSlot(c1,1)+1;
+        int cZ = getCollisionMapSlot(c1,2)+1;
+
         CubeObj* left  = map->getCubeAt(cX+1,cY,cZ);
         CubeObj* right = map->getCubeAt(cX-1,cY,cZ);
         CubeObj* up    = map->getCubeAt(cX,cY+1,cZ);
         CubeObj* down  = map->getCubeAt(cX,cY-1,cZ);
         CubeObj* front = map->getCubeAt(cX,cY,cZ+1);
         CubeObj* back  = map->getCubeAt(cX,cY,cZ-1);
+      
         // The top/bot order on these might be wrong, but it shouldn't really matter too much
         // since used to check if surrounded on a plane anyways
         bool n0 = insideMap(cX+1, cY, cZ) && left != 0;
@@ -1978,7 +2001,9 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
                         //delete map[a][b][c];
                         map[a][b][c] = NULL;
                     }
-                } } }
+                }
+            }
+        }
     }
     
     // Same as above, only maps instead of arrays
@@ -2039,10 +2064,10 @@ void rotateToPlayer(int i, int distDiff) { // distDiff is how much closer to be 
     }
     
     // pass position and dimension to get map slot
-    int positionToSlot(int a, int d) {
+    int positionToSlot(int cubePosition, int d) {
         int map = (d==0? currentMapWidth : d==1? currentMapHeight : currentMapDepth);
-        int cubePosition = a;
-        int cubeRadius = 50;//(c->getSize(d))/2; // FIXME: USING C->GETSIZE(D) HERE CAUSES A SEGFAULT >:( probably has to do with virtual functions
+        int cubeRadius = 50;
+          //(c->getSize(d))/2; // FIXME: C->GETSIZE(D) HERE CAUSES A SEGFAULT. Probably due to virtual functions
         int mapHalfSize = map/2*tileSize;
         int result = (cubePosition - cubeRadius + mapHalfSize)/tileSize;
         return result;

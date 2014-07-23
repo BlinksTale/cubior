@@ -52,7 +52,7 @@ CubeObj::CubeObj() {
   // And not starting with any history of input commands
   toldToMove = false;
   lastToldToMove = false;
-
+  
   // Pos vars
   x =    0;
   y = -200;
@@ -102,11 +102,15 @@ CubeObj::CubeObj() {
   gravity = getGravity();
   neighborsSet = false;
     
-  // Shape (nothing special by default, so none listed)
-  itemType = "";
+  // Shape (nothing special by default, but always better to provide that data)
+  itemType = "notAnItem";
 
   // All cubes are solid by default, so other solids can't pass through them
   solid = true;
+}
+
+void CubeObj::postNeighborInit() {
+  // Nothing here! Children might use it though
 }
 
 string CubeObj::getType() {
