@@ -1,4 +1,31 @@
+7/23/14
+
+when slave collides, process, then send effects to master, then send effects to all slaves
+Collision::bounceByDiff is where we should not bounce the original object if it's a slave
+also applied to collisionEffects part of code
+
+great! Master now stands still on a collision/bounces back instead of the original obj
+now make all slaves adopt their master's change effects
+or maybe just check master's delta and apply that to self
+
+WHOA! Can push back a moving block with a friend! :D
+The moving blocks stop when they hit you and you're up against a surface (or slows when you've landed on them… fix that)
+but if you push against them when they're moving with your momentum, they stop too
+and when you and another player push, they go backwards!
+but right now the two of you can push all that through walls, so that's no good
+
+===
+
 7/22/14
+
+regardless, we can move on (but should we?)
+
+next up would be passing collision info from any slave to its master and all other slaves
+so if one block is stopped, all stop
+or rather, the collision effect applies to all of them through the master
+(and don't act on collisions except through calls from a master I guess)
+
+---
 
 what am I storing in map.cpp at map[w][h][d] exactly?
 
@@ -14,6 +41,8 @@ but as long as those slots are correctly used for neighbors…
 then we should be good
 
 CubeObj* maps work! Map* maps are the ones with that awful offset!
+Ends up FindNeighbors getCollisionMapSlot use was off by one.
+Is it always off by one for Map objects?
 
 ===
 

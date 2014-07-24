@@ -20,6 +20,8 @@ private:
   typedef ItemObj super;
   
   bool masterStatus, slaveStatus;
+  int lastMasterX, lastMasterY, lastMasterZ;
+  
   CubeObj* master;
   
   int timer, buildupX, buildupY, buildupZ;

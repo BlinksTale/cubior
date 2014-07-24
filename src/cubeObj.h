@@ -30,7 +30,7 @@ class CubeObj {
     float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
-    bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
+    bool hasMaterial, playerStatus, landableStatus, cameraStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction, falling, minFalling;
     float maxJump, jumpSpeed, jumpSpeedRatio, gravity;
@@ -77,6 +77,7 @@ class CubeObj {
     bool isMoving();
     bool isMovingQuickly();
     bool isPlayer();
+    bool isLandable();
     bool isCamera();
     void setCameraStatus(bool);
     bool isSolid();

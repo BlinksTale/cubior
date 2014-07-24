@@ -7,6 +7,7 @@
 
 #include "collision.h"
 #include "cubeObj.h"
+#include "movingObj.h"
 #include "gameplay.h" // for map width/height/depth stuff
 #include <iostream>
 #include <cstdlib>
@@ -87,32 +88,9 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   //}
 
   // Only change one dimension at a time, the lowest that isn't zero
-  if (
-      diffY != 0 &&// ((diffY > 0 && !c1e[2] && !c2e[3]) || (diffY < 0 && !c2e[2] && !c1e[3])) &&
-    // Normal case: just make sure you aren't comparing in a dimension with no difference
-    ((
-        ((abs(diffY) < abs(diffX)) || diffX == 0)
-      &&
-        ((abs(diffY) < abs(diffZ)) || diffZ == 0)
-    // Crazy case: other block is an edge block with neighbors
-    /*) || ( // Even if you're not the smallest
-        ( // If it's going to go off an edge and you're the second smallest
-          (c1e[1] && diffX < 0 && abs(diffX) <= abs(diffZ) && abs(diffY) <= abs(diffZ))
-        ||
-          (c2e[1] && diffX > 0 && abs(diffX) <= abs(diffZ) && abs(diffY) <= abs(diffZ))
-        ||
-          (c1e[5] && diffZ < 0 && abs(diffZ) <= abs(diffX) && abs(diffY) <= abs(diffX))
-        ||
-          (c2e[5] && diffZ > 0 && abs(diffZ) <= abs(diffX) && abs(diffY) <= abs(diffX))
-        ) // c1 has X or Z edges
-    //  ) || (
-    //    (c2e[0] || c2e[1] || c2e[4] || c2e[5]) // c2 has X or Z edges
-    ) || ( // last alternative, x and z have neighbors/edges, so we must use Y
-      (!c1Locked && (c2e[0] || c2n[0]) && (c2e[1] || c2n[1]) && (c2e[4] || c2n[4]) && (c2e[5] || c2n[5]) && abs(diffY) <= abs(diffX) && abs(diffY) <= abs(diffZ))
-      ||
-      (!c2Locked && (c1e[0] || c1n[0]) && (c1e[1] || c1n[1]) && (c1e[4] || c1n[4]) && (c1e[5] || c1n[5]) && abs(diffY) <= abs(diffX) && abs(diffY) <= abs(diffZ))
-    */))
-  ) {
+  // Normal case: just make sure you aren't comparing in a dimension with no difference
+  // Is Y the direction of least resistance?
+  if (diffY != 0 && (( ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)))) {
     //cout << "CHOSE y DIFF " << diffY << endl;
     if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
     if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
@@ -120,7 +98,7 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     // then in case either one lands...
     if (diffY < 0) {
       c1->land();
-      if (c2->isPlayer()) {
+      if (c2->isLandable()) {
         c1->landOn(c2);
       }
       if (!c1Locked) { c1->changeY(1); } // extra 1 of movement since landing caused sticking before
@@ -128,52 +106,62 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (diffY > 0) {
       c2->land();
       if (!c2Locked) { c2->changeY(1); }
-      if (c1->isPlayer()) {
+      if (c1->isLandable()) {
         c2->landOn(c1);
       }
     }
-  } else if
-    (
-        diffZ != 0
-      && //((diffZ > 0 && !c1e[4] && !c2e[5]) || (diffZ < 0 && !c2e[4] && !c1e[5])) && 
-      (
-        (
-          abs(diffZ) < abs(diffX) || diffX == 0
-        /*) || ( // Even if you're not the smallest
-          ( // If it's going to go off an edge and you're the second smallest
-            // choose that route instead!
-            (c1e[1] && diffX < 0)
-          ||
-            (c2e[1] && diffX > 0)
-          ||
-            (c2e[0] && diffX > 0)
-          ||
-            (c2e[0] && diffX > 0)
-          )*/
-        )
-      )
-    ) {
+  // Is Z the direction of least resistance?
+  } else if (diffZ != 0 && ((abs(diffZ) < abs(diffX) || diffX == 0))) {
+    CubeObj* target1 = c1;
+    CubeObj* target2 = c2;
+    
+    // If moving type, swap slave with master for effects
+    if (target1->getType().compare("moving") == 0) {
+      if (((MovingObj*)target1)->isSlave()) {
+        target1 = ((MovingObj*)target1)->getMaster();
+      }
+    }
+    if (target2->getType().compare("moving") == 0) {
+      if (((MovingObj*)target2)->isSlave()) {
+        target2 = ((MovingObj*)target2)->getMaster();
+      }
+    }
     //cout << "CHOSE z DIFF " << diffZ << endl;
-    if (!c1Locked) { c1->changeZ(-diffZ*c1Bounce/2); }
-    if (!c2Locked) { c2->changeZ( diffZ*c2Bounce/2); }
-  c1->setCollision(true);
-  c2->setCollision(true);
-  if (!c1->isPlayer() || !c2->isPlayer()) {
-    c1->applyCollisionMomentumZ();
-    c2->applyCollisionMomentumZ();
-  }
-//    balanceMomentum(c1,c2,2);
-  } else if (diffX != 0) {// && ((diffX > 0 && !c1e[0] && !c2e[1]) || (diffX < 0 && !c2e[0] && !c1e[1]))) {
+    if (!c1Locked) { target1->changeZ(-diffZ*c1Bounce/2); }
+    if (!c2Locked) { target2->changeZ( diffZ*c2Bounce/2); }
+    target1->setCollision(true);
+    target2->setCollision(true);
+    if (!target1->isPlayer() || !target2->isPlayer()) {
+      target1->applyCollisionMomentumZ();
+      target2->applyCollisionMomentumZ();
+    }
+    //balanceMomentum(c1,c2,2);
+  // Is X the direction of least resistance?
+  } else if (diffX != 0) {
+    CubeObj* target1 = c1;
+    CubeObj* target2 = c2;
+    
+    // If moving type, swap slave with master for effects
+    if (target1->getType().compare("moving") == 0) {
+      if (((MovingObj*)target1)->isSlave()) {
+        target1 = ((MovingObj*)target1)->getMaster();
+      }
+    }
+    if (target2->getType().compare("moving") == 0) {
+      if (((MovingObj*)target2)->isSlave()) {
+        target2 = ((MovingObj*)target2)->getMaster();
+      }
+    }
     //cout << "CHOSE x DIFF " << diffX << endl;
-    if (!c1Locked) { c1->changeX(-diffX*c1Bounce/2); }
-    if (!c2Locked) { c2->changeX( diffX*c2Bounce/2); }
-  c1->setCollision(true);
-  c2->setCollision(true);
-  if (!c1->isPlayer() || !c2->isPlayer()) {
-    c1->applyCollisionMomentumX();
-    c2->applyCollisionMomentumX();
-  }
-  // balanceMomentum(c1,c2,0);
+    if (!c1Locked) { target1->changeX(-diffX*c1Bounce/2); }
+    if (!c2Locked) { target2->changeX( diffX*c2Bounce/2); }
+    target1->setCollision(true);
+    target2->setCollision(true);
+    if (!target1->isPlayer() || !target2->isPlayer()) {
+      target1->applyCollisionMomentumX();
+      target2->applyCollisionMomentumX();
+    }
+    //balanceMomentum(c1,c2,0);
   }
 }
 
@@ -192,6 +180,12 @@ void Collision::bouncePrecisely(CubeObj* c1, CubeObj* c2) {
   if (diffZ > 0) { diffZ -= c1Width/2 + c2Width/2; }
   else { diffZ += c1Width/2 + c2Width/2; }
   
+  if (c1->getType().compare("moving") == 0 && ((MovingObj*)c1)->isSlave()) {
+    c1 = ((MovingObj*)c1)->getMaster();
+  }
+  if (c2->getType().compare("moving") == 0 && ((MovingObj*)c2)->isSlave()) {
+    c2 = ((MovingObj*)c2)->getMaster();
+  }
   c1->changeX(-1);
   c1->changeY(-1);
   c1->changeZ(-1);
@@ -249,6 +243,13 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
         }
         
         // Whatever special effects happen, call them post-bounce
+        
+        if (c1->getType().compare("moving") == 0 && ((MovingObj*)c1)->isSlave()) {
+          c1 = ((MovingObj*)c1)->getMaster();
+        }
+        if (c2->getType().compare("moving") == 0 && ((MovingObj*)c2)->isSlave()) {
+          c2 = ((MovingObj*)c2)->getMaster();
+        }
         c1->collisionEffect(c2);
         c2->collisionEffect(c1);
       }

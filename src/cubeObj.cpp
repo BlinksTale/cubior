@@ -520,6 +520,11 @@ bool CubeObj::isPlayer() {
   return playerStatus;
 }
 
+// isLandable returns whether can be landed on or not
+bool CubeObj::isLandable() {
+  return landableStatus || playerStatus;
+}
+
 // isCamera returns whether just a normal block or a camera
 bool CubeObj::isCamera() {
   return cameraStatus;

@@ -22,18 +22,37 @@ MovingObj::MovingObj() {
   buildupX = 0;
   buildupY = 0;
   buildupZ = 0;
+  landableStatus = true;
   slaveStatus = false;
   masterStatus = false;
 }
 
 void MovingObj::tick() {
   
-  if (!getGameplayFirstRunning() && getGameplayRunning()) {
-    moveForwards(1);
+  if (!slaveStatus) {
+    if (!getGameplayFirstRunning() && getGameplayRunning()) {
+      moveForwards(1);
+    }
+  
+    super::tick();
+  } else {
+    changeX(master->getX() - lastMasterX);
+    changeY(master->getY() - lastMasterY);
+    changeZ(master->getZ() - lastMasterZ);
+    
+    lastMasterX = master->getX();
+    lastMasterY = master->getY();
+    lastMasterZ = master->getZ();
   }
-  
-  super::tick();
-  
+}
+
+void MovingObj::collisionEffect(CubeObj* c) {
+  if (c->isPlayer()) {
+    // New approach: don't flip, just undo last motion and keep trying
+    //flipDirection();
+    moveForwards(-1);
+  }
+  super::collisionEffect(c);
 }
 
 void MovingObj::moveForwards(int distance) {
@@ -113,15 +132,6 @@ void MovingObj::flipDirection() {
 
   timer = 0;
 
-}
-
-void MovingObj::collisionEffect(CubeObj* c) {
-  if (c->isPlayer()) {
-    // New approach: don't flip, just undo last motion and keep trying
-    //flipDirection();
-    moveForwards(-1);
-  }
-  super::collisionEffect(c);
 }
 
 void MovingObj::postNeighborInit() {
@@ -207,6 +217,9 @@ void MovingObj::setSlave(bool b) {
 void MovingObj::setMaster(CubeObj* incoming) {
   if (incoming != NULL && incoming->getType().compare("moving") == 0) {
     master = incoming;
+    lastMasterX = master->getX();
+    lastMasterY = master->getY();
+    lastMasterZ = master->getZ();
   }
 }
 
