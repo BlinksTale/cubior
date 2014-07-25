@@ -67,6 +67,20 @@ void Collision::bounce(CubeObj* c1, CubeObj* c2) {
 }
 
 void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int diffZ) {
+  // If moving type, swap slave with master for effects
+  // we do this earlier now (before we did it after checking locked/grounded/etc)
+  // since the old way allowed for odd changes to Y moving obj positions
+  if (c1->getType().compare("moving") == 0) {
+    if (((MovingObj*)c1)->isSlave()) {
+      c1 = ((MovingObj*)c1)->getMaster();
+    }
+  }
+  if (c2->getType().compare("moving") == 0) {
+    if (((MovingObj*)c2)->isSlave()) {
+      c2 = ((MovingObj*)c2)->getMaster();
+    }
+  }
+  
   // getLock used so that locked objects don't bounce
   // and if other object is locked, you bounce double
   bool c1Locked = (c1->getLock()||c1->getPermalock());
@@ -92,8 +106,8 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
   // Is Y the direction of least resistance?
   if (diffY != 0 && (( ((abs(diffY) < abs(diffX)) || diffX == 0) && ((abs(diffY) < abs(diffZ)) || diffZ == 0)))) {
     //cout << "CHOSE y DIFF " << diffY << endl;
-    if (!c1Locked) { c1->changeY(-diffY*c1Land/2); }
-    if (!c2Locked) { c2->changeY( diffY*c2Land/2); }
+    if (!c1Locked && !c1->getLockY()) { c1->changeY(-diffY*c1Land/2); }
+    if (!c2Locked && !c2->getLockY()) { c2->changeY( diffY*c2Land/2); }
     // balanceMomentum(c1,c2,1);
     // then in case either one lands...
     if (diffY < 0) {
@@ -101,65 +115,37 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
       if (c2->isLandable()) {
         c1->landOn(c2);
       }
-      if (!c1Locked) { c1->changeY(1); } // extra 1 of movement since landing caused sticking before
+      if (!c1Locked && !c1->getLockY()) { c1->changeY(1); } // extra 1 of movement since landing caused sticking before
     }
     if (diffY > 0) {
       c2->land();
-      if (!c2Locked) { c2->changeY(1); }
+      if (!c2Locked && !c2->getLockY()) { c2->changeY(1); }
       if (c1->isLandable()) {
         c2->landOn(c1);
       }
     }
   // Is Z the direction of least resistance?
   } else if (diffZ != 0 && ((abs(diffZ) < abs(diffX) || diffX == 0))) {
-    CubeObj* target1 = c1;
-    CubeObj* target2 = c2;
-    
-    // If moving type, swap slave with master for effects
-    if (target1->getType().compare("moving") == 0) {
-      if (((MovingObj*)target1)->isSlave()) {
-        target1 = ((MovingObj*)target1)->getMaster();
-      }
-    }
-    if (target2->getType().compare("moving") == 0) {
-      if (((MovingObj*)target2)->isSlave()) {
-        target2 = ((MovingObj*)target2)->getMaster();
-      }
-    }
     //cout << "CHOSE z DIFF " << diffZ << endl;
-    if (!c1Locked) { target1->changeZ(-diffZ*c1Bounce/2); }
-    if (!c2Locked) { target2->changeZ( diffZ*c2Bounce/2); }
-    target1->setCollision(true);
-    target2->setCollision(true);
-    if (!target1->isPlayer() || !target2->isPlayer()) {
-      target1->applyCollisionMomentumZ();
-      target2->applyCollisionMomentumZ();
+    if (!c1Locked && !c1->getLockZ()) { c1->changeZ(-diffZ*c1Bounce/2); }
+    if (!c2Locked && !c2->getLockZ()) { c2->changeZ( diffZ*c2Bounce/2); }
+    c1->setCollision(true);
+    c2->setCollision(true);
+    if (!c1->isPlayer() || !c2->isPlayer()) {
+      c1->applyCollisionMomentumZ();
+      c2->applyCollisionMomentumZ();
     }
     //balanceMomentum(c1,c2,2);
   // Is X the direction of least resistance?
   } else if (diffX != 0) {
-    CubeObj* target1 = c1;
-    CubeObj* target2 = c2;
-    
-    // If moving type, swap slave with master for effects
-    if (target1->getType().compare("moving") == 0) {
-      if (((MovingObj*)target1)->isSlave()) {
-        target1 = ((MovingObj*)target1)->getMaster();
-      }
-    }
-    if (target2->getType().compare("moving") == 0) {
-      if (((MovingObj*)target2)->isSlave()) {
-        target2 = ((MovingObj*)target2)->getMaster();
-      }
-    }
     //cout << "CHOSE x DIFF " << diffX << endl;
-    if (!c1Locked) { target1->changeX(-diffX*c1Bounce/2); }
-    if (!c2Locked) { target2->changeX( diffX*c2Bounce/2); }
-    target1->setCollision(true);
-    target2->setCollision(true);
-    if (!target1->isPlayer() || !target2->isPlayer()) {
-      target1->applyCollisionMomentumX();
-      target2->applyCollisionMomentumX();
+    if (!c1Locked && !c1->getLockX()) { c1->changeX(-diffX*c1Bounce/2); }
+    if (!c2Locked && !c2->getLockX()) { c2->changeX( diffX*c2Bounce/2); }
+    c1->setCollision(true);
+    c2->setCollision(true);
+    if (!c1->isPlayer() || !c2->isPlayer()) {
+      c1->applyCollisionMomentumX();
+      c2->applyCollisionMomentumX();
     }
     //balanceMomentum(c1,c2,0);
   }

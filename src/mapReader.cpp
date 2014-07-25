@@ -156,7 +156,7 @@ Map* MapReader::readMap(const string& s) {
               newCube->tick();
               newCube->setPermalock(true);
               map->addCube(newCube,w,h,d);
-            } else if (mapColorString.c_str()[0] == 'S') {
+            } else if (mapColorString.c_str()[0] == 'B') { // B for Bounce since S is South Moving
                 CubeObj* newCube = new SpringObj();
                 //newCube->setMaterial(mapColor);
                 newCube->tick();
@@ -168,12 +168,31 @@ Map* MapReader::readMap(const string& s) {
                 newCube->tick();
                 newCube->setPermalock(true);
                 map->addCube(newCube,w,h,d);
-            } else if (mapColorString.c_str()[0] == 'M') {
-                CubeObj* newCube = new MovingObj();
-                newCube->tick();
-                // moving objects are not permalocked, their position updates
-//                newCube->setPermalock(true);
-                map->addCube(newCube,w,h,d);
+            // moving objects are not permalocked, their position updates
+            } else if (mapColorString.c_str()[0] == 'N') {
+              CubeObj* newCube = new MovingObj(MovingObj::North);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'S') {
+              CubeObj* newCube = new MovingObj(MovingObj::South);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'E') {
+              CubeObj* newCube = new MovingObj(MovingObj::East);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'W') {
+              CubeObj* newCube = new MovingObj(MovingObj::West);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'U') {
+              CubeObj* newCube = new MovingObj(MovingObj::Up);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
+            } else if (mapColorString.c_str()[0] == 'D') {
+              CubeObj* newCube = new MovingObj(MovingObj::Down);
+              newCube->tick();
+              map->addCube(newCube,w,h,d);
             }
             w++;
           }

@@ -31,7 +31,8 @@ class CubeObj {
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
     bool hasMaterial, playerStatus, landableStatus, cameraStatus, newJump, loseMomentumOnLock;
-    bool locked, lockable, permalocked, jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
+    bool locked, lockable, permalocked, lockedX, lockedY, lockedZ,
+        jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction, falling, minFalling;
     float maxJump, jumpSpeed, jumpSpeedRatio, gravity;
     int material, justLandedInt, lastMoved;
@@ -91,6 +92,9 @@ class CubeObj {
 
     void setLock(bool);
     bool getLock();
+    bool getLockX();
+    bool getLockY();
+    bool getLockZ();
     void setPermalock(bool);
     bool getPermalock();
     bool getGrounded();

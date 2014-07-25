@@ -593,6 +593,9 @@ void CubeObj::setLock(bool n) {
   if ((lockable && n) || !n) { locked = n; }
 }
 bool CubeObj::getLock() { return locked; }
+bool CubeObj::getLockX() { return lockedX; }
+bool CubeObj::getLockY() { return lockedY; }
+bool CubeObj::getLockZ() { return lockedZ; }
 
 // Permalock ensures complete lack of movement
 void CubeObj::setPermalock(bool n) { permalocked = n; }

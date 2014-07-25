@@ -14,7 +14,7 @@
 
 class MovingObj : public ItemObj {
 public:
-  enum Direction { North, South, East, West, Up, Down };
+  static enum Direction { North, South, East, West, Up, Down };
   
 private:
   typedef ItemObj super;
@@ -33,7 +33,7 @@ private:
   void collisionEffect(CubeObj*);
 
 public:
-  MovingObj();
+  MovingObj(Direction);
   void postNeighborInit();
   void spreadMaster();
   void checkSlaveStatus();

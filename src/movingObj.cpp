@@ -10,19 +10,30 @@
 #include "cubiorObj.h"
 #include "gameplay.h"
 
-MovingObj::MovingObj() {
+MovingObj::MovingObj(Direction newDirection) {
   super::init();
   itemType = "moving";
   firstCollision = false;
   nonstickSurface = false; // stick vs nonstick for player moving with blocks
   permalocked = false;
-  locked = true;
+//  locked = true;
+  if (newDirection != West && newDirection != East) {
+    lockedX = true;
+  }
+  if (newDirection != Up && newDirection != Down) {
+    lockedY = true;
+  }
+  if (newDirection != North && newDirection != South) {
+    lockedZ = true;
+  }
   timer = 0;
-  movingDirection = West;
+  movingDirection = newDirection;
   buildupX = 0;
   buildupY = 0;
   buildupZ = 0;
-  landableStatus = true;
+  // landable status isn't working yet!
+  // if you land on a landable, then quit, it throws an exception out of confusion from the landedOnCount
+//  landableStatus = true;
   slaveStatus = false;
   masterStatus = false;
 }
@@ -34,7 +45,8 @@ void MovingObj::tick() {
       moveForwards(1);
     }
   
-    super::tick();
+    // Commented out the super tick since it was giving us gravity
+//    super::tick();
   } else {
     changeX(master->getX() - lastMasterX);
     changeY(master->getY() - lastMasterY);
@@ -50,7 +62,7 @@ void MovingObj::collisionEffect(CubeObj* c) {
   if (c->isPlayer()) {
     // New approach: don't flip, just undo last motion and keep trying
     //flipDirection();
-    moveForwards(-1);
+//    moveForwards(-1);
   }
   super::collisionEffect(c);
 }
@@ -66,9 +78,9 @@ void MovingObj::moveForwards(int distance) {
   int lastX = this->getX();
   int lastY = this->getY();
   int lastZ = this->getZ();
-  int movementX = distance*(movingDirection == West)  - distance*(movingDirection == East);
+  int movementX = distance*(movingDirection == East)  - distance*(movingDirection == West);
   int movementY = distance*(movingDirection == Up)    - distance*(movingDirection == Down);
-  int movementZ = distance*(movingDirection == North) - distance*(movingDirection == South);
+  int movementZ = distance*(movingDirection == South) - distance*(movingDirection == North);
   
   if (buildupX != 0 && buildupX/movementX < 0) {
     buildupX += movementX;
@@ -154,7 +166,7 @@ void MovingObj::checkSlaveStatus() {
       
       // Then process its slave/master status
       MovingObj* neighbor = (MovingObj*)this->visibleNeighborObjects[i];
-      if (neighbor->getType().compare("moving") == 0) {
+      if (neighbor->getType().compare("moving") == 0 && neighbor->getMovingDirection() == movingDirection) {
         movingNeighborCount++;
         if (neighbor->isSlave()) {
           // both moving and a slave? We must be a slave too then!
@@ -185,7 +197,7 @@ void MovingObj::spreadMaster() {
     if (this->neighbors[i]) {
       if (this->visibleNeighborObjects[i]->getType().compare("moving") == 0) {
         MovingObj* neighbor = (MovingObj*)(this->visibleNeighborObjects[i]);
-        if (!neighbor->isSlave() && !neighbor->isMaster()) {
+        if (!neighbor->isSlave() && !neighbor->isMaster() && neighbor->getMovingDirection() == movingDirection) {
           neighbor->setMaster(this->getMaster());
           neighbor->setSlave(true);
           neighbor->spreadMaster();

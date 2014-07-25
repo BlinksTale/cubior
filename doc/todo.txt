@@ -1,3 +1,25 @@
+7/24/14
+
+Quiting a round while landed on a moving obj causes a bad access exception
+must wipe out landed on reference when quitting?
+
+locked is not working, or something
+we just disabled moveForwards(-1) on collision with player and locked = true at start
+this was because the player could not accurately land/push back otherwise
+although landedOn still isn't working
+
+cool! LandedOn still not working, but movement in all basic directions is good :) and the collisions work pretty well too!
+Switch movingObj movement to momentum based? That would be good.
+
+Just add shadows for tonight!
+oh it was just the alpha from seeing slave/masters that was hiding shadows. Hah!
+
+Hm, problem with pushing against a moving block which is moving towards you
+it then makes you stick to that side of it, and you can't get out by moving away from it
+hopefully this will be fixed when we switch to momentum based systems?
+
+===
+
 7/23/14
 
 when slave collides, process, then send effects to master, then send effects to all slaves
