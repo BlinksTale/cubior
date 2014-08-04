@@ -10,6 +10,9 @@
 #include "cubiorObj.h"
 #include "gameplay.h"
 
+bool usingBuildup = true;
+bool usingMomentum = false;
+
 MovingObj::MovingObj(Direction newDirection) {
   super::init();
   itemType = "moving";
@@ -31,9 +34,9 @@ MovingObj::MovingObj(Direction newDirection) {
   buildupX = 0;
   buildupY = 0;
   buildupZ = 0;
-  // landable status isn't working yet!
-  // if you land on a landable, then quit, it throws an exception out of confusion from the landedOnCount
-//  landableStatus = true;
+
+  canBeLandedOn = true;
+
   slaveStatus = false;
   masterStatus = false;
 }
@@ -46,11 +49,18 @@ void MovingObj::tick() {
     }
   
     // Commented out the super tick since it was giving us gravity
-//    super::tick();
+    // switched to if usingMomentum only
+    if (usingMomentum) {
+      super::tick();
+    }
   } else {
     changeX(master->getX() - lastMasterX);
     changeY(master->getY() - lastMasterY);
     changeZ(master->getZ() - lastMasterZ);
+    
+    momentumX = master->getMomentumX();
+    momentumY = master->getMomentumY();
+    momentumZ = master->getMomentumZ();
     
     lastMasterX = master->getX();
     lastMasterY = master->getY();
@@ -83,30 +93,50 @@ void MovingObj::moveForwards(int distance) {
   int movementZ = distance*(movingDirection == South) - distance*(movingDirection == North);
   
   if (buildupX != 0 && buildupX/movementX < 0) {
-    buildupX += movementX;
+    if (usingBuildup) {
+      buildupX += movementX;
+    }
   } else {
-    this->changeX(movementX);
+    if (usingMomentum) {
+      this->setMomentumX(movementX);
+    } else {
+      this->changeX(movementX);
+    }
   }
   if (buildupY != 0 && buildupY/movementY < 0) {
-    buildupY += movementY;
+    if (usingBuildup) {
+      buildupY += movementY;
+    }
   } else {
-    this->changeY(movementY);
+    if (usingMomentum) {
+      this->setMomentumY(movementY);
+    } else {
+      this->changeY(movementY);
+    }
   }
   if (buildupZ != 0 && buildupZ/movementZ < 0) {
-    buildupZ += movementZ;
+    if (usingBuildup) {
+      buildupZ += movementZ;
+    }
   } else {
-    this->changeZ(movementZ);
+    if (usingMomentum) {
+      this->setMomentumZ(movementZ);
+    } else {
+      this->changeZ(movementZ);
+    }
   }
   
   // Haven't moved! Increase buildup in appropriate direction
-  if (lastX == this->getX()) {
-    buildupX += movementX;
-  }
-  if (lastY == this->getY()) {
-    buildupY += movementY;
-  }
-  if (lastZ == this->getZ()) {
-    buildupZ += movementZ;
+  if (usingBuildup) {
+    if (lastX == this->getX()) {
+      buildupX += movementX;
+    }
+    if (lastY == this->getY()) {
+      buildupY += movementY;
+    }
+    if (lastZ == this->getZ()) {
+      buildupZ += movementZ;
+    }
   }
   
   

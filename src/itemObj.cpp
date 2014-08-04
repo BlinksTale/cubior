@@ -20,6 +20,8 @@ void ItemObj::init() {
     itemType = "undefinedItem";
   
     timeSinceCollisionMax = 0.15f;
+  
+    playerStatus = false;
 }
 
 void ItemObj::tick() {

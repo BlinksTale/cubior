@@ -201,7 +201,7 @@ void Collision::balanceMomentum(CubeObj* c1, CubeObj* c2, int deg) {
 }
 
 void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
-  if (c1 != NULL && c2 != NULL) {
+  if (c1 != NULL && c2 != NULL && c1 != c2) {
     // Now make sure it's not a cam checking against invisible things
     if ((!c1->isCamera() || !c2->isInvisible()) && (!c2->isCamera() || !c1->isInvisible())) {
       //if (!(c2->isInvisible()) && !(c1->isInvisible())) {
@@ -219,11 +219,13 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
           // Then bounce the objects off each other
           bounce(c1,c2);
           // And if one above the other, land on that other
-          if (c1->getLandedOnCount() > 0) {
-            c1->updateLandedOnPos();
-          }
-          if (c2->getLandedOnCount() > 0) {
-            c2->updateLandedOnPos();
+          if (c1->isPlayer() && c2->isPlayer()) {
+            if (c1->getLandedOnCount() > 0) {
+              c1->updateLandedOnPos();
+            }
+            if (c2->getLandedOnCount() > 0) {
+              c2->updateLandedOnPos();
+            }
           }
           //balanceMomentum(c1,c2);
         }

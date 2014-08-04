@@ -1,3 +1,24 @@
+8/3/14
+
+it should be not calling updateLandedOnPos in collision.cpp if neither object is a player
+yet somehow it is still calling it?
+maybe there's another collision happening?
+
+um… it was checking for collision with itself?
+Never do that. Never. Coo, fixed!
+
+I don't think we want to get everything from super::tick in movingObj.
+It seems to get glitchy with that.
+
+so no super::tick and change instead of momentum runs smoothly.
+but ultimately we want super tick and momentum instead.
+
+bad stuff! Using the change system, we can accidentally push each other through the invisible edge walls if we use a moving block as a tool.
+
+todo: get momentum and super::tick working! (mostly super::tick for movingObj)
+
+===
+
 7/24/14
 
 Quiting a round while landed on a moving obj causes a bad access exception

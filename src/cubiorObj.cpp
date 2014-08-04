@@ -16,6 +16,9 @@ CubiorObj::CubiorObj() {
   playerStatus = true;
   online = false;
   
+  canLandOn = true;
+  canBeLandedOn = true;
+  
 }
 
 void CubiorObj::setHappiness(float n) {

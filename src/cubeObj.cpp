@@ -53,6 +53,10 @@ CubeObj::CubeObj() {
   toldToMove = false;
   lastToldToMove = false;
   
+  // Default landing statuses
+  canBeLandedOn = false;
+  canLandOn = false;
+  
   // Pos vars
   x =    0;
   y = -200;
@@ -119,33 +123,21 @@ string CubeObj::getType() {
 
 void CubeObj::tick() {
     
-  //cout << "One cube loop" << endl;
-  //if (playerStatus) { cout << "Start of player cube loop momentumZ " << momentumZ << endl; }
-  //cout << "Bgn Strength:  " << strength << " and Direction: " << direction << endl;
-  //cout << "TICK CALLED";
-  //if (toldToMove) { cout << " and TOLD TO MOVE" << endl; }
-  //cout << endl;
-  // don't move if frozen
-  //cout << "OneB_01 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-  //if (isPlayer()) { cout << "Start MomentumX " << momentumX << " and MomentumZ " << momentumZ << endl; }
   if (collision || justHitPlayer) {
       setCollision(false);
       justHitPlayer = false;
   }
   if (!locked && !permalocked) {
-    //if (playerStatus) { cout << "pre locked etc momentumZ " << momentumZ << endl; }
-  
-    //cout << "OneB_02 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;
 
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
     if (landedOn != NULL) {
-      x = landedOn->getX()+landedOnX;
-      //y = landedOn->getY()+landedOnY;
-      z = landedOn->getZ()+landedOnZ;
+      int newX = landedOn->getX()+landedOnX;
+      int newZ = landedOn->getZ()+landedOnZ;
+      cout << "Updated my x/z from " << x << ", " << z << " to " << newX << ", " << newZ << endl;
+      x = newX;
+      z = newZ;
     }
-    //cout << "OneB_03 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-    //if (playerStatus) { cout << "pre max speed momentumZ " << momentumZ << endl; }
   
     // cap on toldToMove
     /*if (toldToMove) {
@@ -167,11 +159,11 @@ void CubeObj::tick() {
 
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
-    if (momentumX < -maxSpeed) { momentumX = -maxSpeed; }
-    if (momentumY > maxFall) { momentumY = maxFall; }
-    if (momentumY < -maxFall) { momentumY = -maxFall; }
+    if (momentumX <-maxSpeed) { momentumX =-maxSpeed; }
+    if (momentumY > maxFall)  { momentumY = maxFall;  }
+    if (momentumY <-maxFall)  { momentumY =-maxFall;  }
     if (momentumZ > maxSpeed) { momentumZ = maxSpeed; }
-    if (momentumZ < -maxSpeed) { momentumZ = -maxSpeed; }
+    if (momentumZ <-maxSpeed) { momentumZ =-maxSpeed; }
     //if (momentumX != 0) { cout << "X " << momentumX << endl; }
     // Then move by that momentum
     if (abs(momentumX) > 0.00001) {
@@ -357,7 +349,7 @@ void CubeObj::setDirection(float f) {
 float CubeObj::getToldDirection() {
   float result = toldDirection;
   // May as well keep the impact of the dir of those you stand on, no harm right?
-  if (getLandedOnCount()>0) {
+  if (this->getLandedOnCount()>0) {
     result = landedOn->getToldDirection() + landedOnToldDirectionDiff;
   }
   return result;
@@ -394,10 +386,12 @@ void CubeObj::setLandedOn(int landedOnNum) {
   if (landedOnNum >= 0 && landedOnNum < cubiorCount) {
     landOn(getPlayer(landedOnNum));
     landedOnOnline = true;
-  } else if (landedOnOnline) {
-    landedOnOnline = false;
+  } else {
+    if (landedOnOnline) {
+      landedOnOnline = false;
+    }
     resetLandedOn();
-  } 
+  }
 }
 
 void CubeObj::calculateDiff() {
@@ -456,7 +450,7 @@ void CubeObj::land() {
 
 // to also land on another player
 void CubeObj::landOn(CubeObj* c) {
-  if (!landedOnOnline && landedOn != c && c->getLandedOnCount() < cubiorCount) {
+  if (canLandOn && c->getCanBeLandedOn() && !landedOnOnline && landedOn != c && c->getLandedOnCount() < cubiorCount + 1) { // +1 for a non cubior landedon base
     landedOn = c;
     landedOnCount = c->getLandedOnCount() + 1;
     landedOnDirectionDiff = direction - landedOn->getDirection();
@@ -468,16 +462,19 @@ void CubeObj::landOn(CubeObj* c) {
 // Update relation between you and moving thing you landed on
 bool CubeObj::updateLandedOnPos() {
   bool result = false;
-  if (landedOn != NULL) {
+  if (landedOn != NULL && landedOnCount > 0) {
     if (landedOnX != x-landedOn->getX()) {
+      cout << "Landed on x diff of " << (x - landedOn->getX() - landedOnX) << endl;
       landedOnX = x-landedOn->getX();
       result = true;
     }
     if (landedOnY != y-landedOn->getY()) {
+
       landedOnY = y-landedOn->getY();
       result = true;
     }
     if (landedOnZ != z-landedOn->getZ()) {
+      cout << "Landed on z diff of " << (z - landedOn->getZ() - landedOnZ) << endl;
       landedOnZ = z-landedOn->getZ();
       result = true;
     }
@@ -503,6 +500,10 @@ void CubeObj::setLandedOnPosAverage(int newX, int newY, int newZ) {
 }
 
 int CubeObj::getLandedOnCount() {
+  if (landedOn == NULL)
+  {
+    landedOnCount = 0;
+  }
   return landedOnCount;
 }
 
@@ -522,8 +523,9 @@ bool CubeObj::isPlayer() {
 
 // isLandable returns whether can be landed on or not
 bool CubeObj::isLandable() {
-  return landableStatus || playerStatus;
+  return getCanBeLandedOn();
 }
+bool CubeObj::getCanBeLandedOn() { return canBeLandedOn; }
 
 // isCamera returns whether just a normal block or a camera
 bool CubeObj::isCamera() {

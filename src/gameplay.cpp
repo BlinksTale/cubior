@@ -216,13 +216,14 @@ void resetCubior(int i) {
     cubior[i].setPos(i*200-300,1000, currentMapDepth*tileSize/2-tileSize*(1+padding));
     
     cubior[i].resetToldToMove();
+    cubior[i].resetLandedOn();
     cubior[i].setMomentumX(0);
     cubior[i].setMomentumY(0);
     cubior[i].setMomentumZ(0);
     cubior[i].moveX(0);
     cubior[i].moveY(3);
     cubior[i].moveZ(-3);
-    
+  
     // After Cubior is reset, THEN move camera
     // Put camera in drop down spot
     camera[i].resetPos();
@@ -411,7 +412,7 @@ void gameplayStart(string levelToLoad, string addressToJoin) {
         
         //setupNetworking(addressToJoin);
     }
-    
+
     if (gameplayRunning) {
         // First wipe the current map
         wipeCurrentMap(permanentMap);

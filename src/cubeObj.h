@@ -30,7 +30,7 @@ class CubeObj {
     float toldToMoveXDist, toldToMoveYDist, toldToMoveZDist; // for immediate directions/instructions
     int x, y, z, diffX, diffY, diffZ, oldX, oldY, oldZ,
         landedOnX, landedOnY, landedOnZ, landedOnCount;
-    bool hasMaterial, playerStatus, landableStatus, cameraStatus, newJump, loseMomentumOnLock;
+    bool hasMaterial, playerStatus, cameraStatus, newJump, loseMomentumOnLock;
     bool locked, lockable, permalocked, lockedX, lockedY, lockedZ,
         jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction, falling, minFalling;
@@ -38,6 +38,7 @@ class CubeObj {
     int material, justLandedInt, lastMoved;
     bool jumping, lastJumping, collision, lastCollision, justLandedBool;
     bool lastDirectionConflict, lastDirectionFlip;
+    bool canLandOn, canBeLandedOn;
     CubeObj* landedOn;
     bool landedOnOnline;
     //CameraObj* camera; // for camera cubes to ID their cameras
@@ -83,6 +84,7 @@ class CubeObj {
     void setCameraStatus(bool);
     bool isSolid();
     void setSolid(bool);
+    bool getCanBeLandedOn();
     //void setCamera(CameraObj*);
     //CameraObj* getCamera();
 
