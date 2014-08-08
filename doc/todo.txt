@@ -1,3 +1,33 @@
+8/7/14
+
+don't have moving blocks "throw" you with their momentum when you jump off
+nor any moving surface imo! If you jump, it's all you.
+If you are let go of… then you pick up that speed
+eg. a free fall off a moving surface dropping out from under you
+
+darnit cubior you're weighing down the vertical moving blocks
+
+
+===
+
+8/5/14
+
+troubles with collision and slaves or something
+maybe instead try updatingPosition for all slaves upon any collision for a master?
+
+concern right now: most likely, we get all this jump-back because one collision with three across translates into three jump backs for master
+test by reducing to one width
+
+===
+
+8/4/14
+
+todo:
+set movingObj::usingMomentum to true
+investigate super::tick strangeness there
+
+===
+
 8/3/14
 
 it should be not calling updateLandedOnPos in collision.cpp if neither object is a player
@@ -16,6 +46,8 @@ but ultimately we want super tick and momentum instead.
 bad stuff! Using the change system, we can accidentally push each other through the invisible edge walls if we use a moving block as a tool.
 
 todo: get momentum and super::tick working! (mostly super::tick for movingObj)
+
+also do screenshots for springs and crumbling blocks for the rest of August pictures
 
 ===
 

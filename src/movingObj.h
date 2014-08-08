@@ -21,6 +21,7 @@ private:
   
   bool masterStatus, slaveStatus;
   int lastMasterX, lastMasterY, lastMasterZ;
+  int masterDeltaX, masterDeltaY, masterDeltaZ;
   
   CubeObj* master;
   
@@ -42,6 +43,7 @@ public:
   bool isMaster();
   void setMaster(bool);
   void setMaster(CubeObj*);
+  void updatePosition();
   CubeObj* getMaster();
   Direction getMovingDirection();
 };

@@ -11,7 +11,8 @@
 #include "gameplay.h"
 
 bool usingBuildup = true;
-bool usingMomentum = false;
+bool usingMomentum = true;
+bool flipOnCollision = false; // if false, then use timers to control when we flip
 
 MovingObj::MovingObj(Direction newDirection) {
   super::init();
@@ -19,7 +20,7 @@ MovingObj::MovingObj(Direction newDirection) {
   firstCollision = false;
   nonstickSurface = false; // stick vs nonstick for player moving with blocks
   permalocked = false;
-//  locked = true;
+
   if (newDirection != West && newDirection != East) {
     lockedX = true;
   }
@@ -54,37 +55,34 @@ void MovingObj::tick() {
       super::tick();
     }
   } else {
-    changeX(master->getX() - lastMasterX);
-    changeY(master->getY() - lastMasterY);
-    changeZ(master->getZ() - lastMasterZ);
-    
-    momentumX = master->getMomentumX();
-    momentumY = master->getMomentumY();
-    momentumZ = master->getMomentumZ();
-    
-    lastMasterX = master->getX();
-    lastMasterY = master->getY();
-    lastMasterZ = master->getZ();
+    updatePosition();
+  }
+  
+}
+
+void MovingObj::updatePosition() {
+  if (slaveStatus) {
+    setX(master->getX() + masterDeltaX);
+    setY(master->getY() + masterDeltaY);
+    setZ(master->getZ() + masterDeltaZ);
   }
 }
 
 void MovingObj::collisionEffect(CubeObj* c) {
-  if (c->isPlayer()) {
-    // New approach: don't flip, just undo last motion and keep trying
-    //flipDirection();
-//    moveForwards(-1);
+  if (!c->isPlayer() && flipOnCollision) {
+    flipDirection();
+    // And in order to not flip forever, start moving away from wall
+    moveForwards(1);
   }
   super::collisionEffect(c);
 }
 
 void MovingObj::moveForwards(int distance) {
-  // Move isn't working right now but Change is.
-  //  this->moveX(1000.0f);
-  // fixme: ChangeY will push you through the floor. D:
-  // fixme: once outside some range of initial spawn, collision stops working
-  // but it starts working again when you re-enter the initial zone
-  // so it must have to do with how far we check for collision with each cube
-  // (make sure moving objects update this value)
+  // Transitioning from change to momentum right now, please excuse our mess
+  if (usingMomentum) {
+    distance *= 100;
+  }
+  
   int lastX = this->getX();
   int lastY = this->getY();
   int lastZ = this->getZ();
@@ -139,14 +137,16 @@ void MovingObj::moveForwards(int distance) {
     }
   }
   
+  if (!flipOnCollision) {
   
-  timer += distance;
-  
-  int timeSpan = 500;
-  if (timer>timeSpan) {
-    flipDirection();
+    timer += distance;
+   
+    int timeSpan = 500 * (usingMomentum ? 20 : 1);
+    if (timer>timeSpan) {
+      flipDirection();
+      timer -= timeSpan;
+    }
   }
-
 }
 
 void MovingObj::flipDirection() {
@@ -171,9 +171,6 @@ void MovingObj::flipDirection() {
       movingDirection = Up;
       break;
   }
-
-  timer = 0;
-
 }
 
 void MovingObj::postNeighborInit() {
@@ -189,10 +186,8 @@ void MovingObj::checkSlaveStatus() {
   int neighborCount = 0;
   int movingNeighborCount = 0;
   while (i<6 && slaveStatus == false) {
-//    cout << "Any neighbors for " << i << "? " << this->neighbors[i] << endl;
     if (this->neighbors[i]) {
       neighborCount++;
-//      cout << "Yes with type " << this->visibleNeighborObjects[i]->getType() << endl;
       
       // Then process its slave/master status
       MovingObj* neighbor = (MovingObj*)this->visibleNeighborObjects[i];
@@ -232,7 +227,7 @@ void MovingObj::spreadMaster() {
           neighbor->setSlave(true);
           neighbor->spreadMaster();
           // Alternative to the above three lines:
-          //neighbor->checkSlaveStatus();
+          // neighbor->checkSlaveStatus();
           // but commented out for now since those may work faster
         }
       }
@@ -259,6 +254,9 @@ void MovingObj::setSlave(bool b) {
 void MovingObj::setMaster(CubeObj* incoming) {
   if (incoming != NULL && incoming->getType().compare("moving") == 0) {
     master = incoming;
+    masterDeltaX = x - master->getX();
+    masterDeltaY = y - master->getY();
+    masterDeltaZ = z - master->getZ();
     lastMasterX = master->getX();
     lastMasterY = master->getY();
     lastMasterZ = master->getZ();

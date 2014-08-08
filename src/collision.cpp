@@ -110,16 +110,16 @@ void Collision::bounceByDiff(CubeObj* c1, CubeObj* c2, int diffX, int diffY, int
     if (!c2Locked && !c2->getLockY()) { c2->changeY( diffY*c2Land/2); }
     // balanceMomentum(c1,c2,1);
     // then in case either one lands...
-    if (diffY < 0) {
+    if (diffY < 0 && !c1Locked && !c1->getLockY()) {
       c1->land();
       if (c2->isLandable()) {
         c1->landOn(c2);
       }
-      if (!c1Locked && !c1->getLockY()) { c1->changeY(1); } // extra 1 of movement since landing caused sticking before
+      c1->changeY(1); // extra 1 of movement since landing caused sticking before
     }
-    if (diffY > 0) {
+    if (diffY > 0 && !c2Locked && !c2->getLockY()) {
       c2->land();
-      if (!c2Locked && !c2->getLockY()) { c2->changeY(1); }
+      c2->changeY(1);
       if (c1->isLandable()) {
         c2->landOn(c1);
       }
@@ -204,7 +204,28 @@ void Collision::checkAndBounce(CubeObj* c1, CubeObj* c2) {
   if (c1 != NULL && c2 != NULL && c1 != c2) {
     // Now make sure it's not a cam checking against invisible things
     if ((!c1->isCamera() || !c2->isInvisible()) && (!c2->isCamera() || !c1->isInvisible())) {
-      //if (!(c2->isInvisible()) && !(c1->isInvisible())) {
+      // Before we compare positions, if either is a movingObj, update its position
+      bool c1MovingType = c1->getType().compare("moving") == 0;
+      bool c2MovingType = c2->getType().compare("moving") == 0;
+      // All special cases for two moving objects colliding
+//      if (c1MovingType && c2MovingType) {
+//        // return early if one is master to the other
+//        MovingObj* m1 = (MovingObj*)c1;
+//        MovingObj* m2 = (MovingObj*)c2;
+//        if ((m1->isSlave() && m2->isMaster() && m1->getMaster() == m2) ||
+//            (m2->isSlave() && m1->isMaster() && m2->getMaster() == m1)) {
+//          return;
+//        }
+//          
+//      }
+      // Special cases for slave moving objects
+      if (c1MovingType && ((MovingObj*)c1)->isSlave()) {
+        ((MovingObj*)c1)->updatePosition();
+      }
+      if (c2MovingType && ((MovingObj*)c2)->isSlave()) {
+        ((MovingObj*)c2)->updatePosition();
+      }
+      
       if (between(c1,c2)) {
         // No player commands if the camera hits something
         if (c1->isCamera() && !(c2->isInvisible())) {
