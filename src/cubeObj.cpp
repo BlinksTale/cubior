@@ -56,6 +56,7 @@ CubeObj::CubeObj() {
   // Default landing statuses
   canBeLandedOn = false;
   canLandOn = false;
+  transferLandedMomentum = true;
   
   // Pos vars
   x =    0;
@@ -134,7 +135,6 @@ void CubeObj::tick() {
     if (landedOn != NULL) {
       int newX = landedOn->getX()+landedOnX;
       int newZ = landedOn->getZ()+landedOnZ;
-      cout << "Updated my x/z from " << x << ", " << z << " to " << newX << ", " << newZ << endl;
       x = newX;
       z = newZ;
     }
@@ -413,11 +413,13 @@ void CubeObj::fall() {
   grounded = false;
   //cout << "fall lG is " << lastGrounded << " and g is " << grounded << endl;
   if (getNotGrounded() && landedOn != NULL) {
-    momentumX += landedOn->getMomentumX(); // maybe *fpsRate()?
-    //momentumY += landedOn->getMomentumY();
-    momentumZ += landedOn->getMomentumZ(); // maybe *fpsRate()?
-    direction = landedOn->getDirection() + landedOnDirectionDiff;
-    toldDirection = landedOn->getToldDirection() + landedOnToldDirectionDiff;
+    if (landedOn->getTransferLandedMomentum()) {
+      momentumX += landedOn->getMomentumX(); // maybe *fpsRate()?
+      //momentumY += landedOn->getMomentumY();
+      momentumZ += landedOn->getMomentumZ(); // maybe *fpsRate()?
+      direction = landedOn->getDirection() + landedOnDirectionDiff;
+      toldDirection = landedOn->getToldDirection() + landedOnToldDirectionDiff;
+    }
     if (!landedOnOnline) {
         resetLandedOn();
     }
@@ -464,7 +466,6 @@ bool CubeObj::updateLandedOnPos() {
   bool result = false;
   if (landedOn != NULL && landedOnCount > 0) {
     if (landedOnX != x-landedOn->getX()) {
-      cout << "Landed on x diff of " << (x - landedOn->getX() - landedOnX) << endl;
       landedOnX = x-landedOn->getX();
       result = true;
     }
@@ -474,7 +475,6 @@ bool CubeObj::updateLandedOnPos() {
       result = true;
     }
     if (landedOnZ != z-landedOn->getZ()) {
-      cout << "Landed on z diff of " << (z - landedOn->getZ() - landedOnZ) << endl;
       landedOnZ = z-landedOn->getZ();
       result = true;
     }
@@ -849,6 +849,7 @@ vector<float> CubeObj::getMomentum() {
 
     return newMomentum;
 }
+bool CubeObj::getTransferLandedMomentum() { return transferLandedMomentum; }
 int CubeObj::getMaxJump() { return maxJump; }
 // How fast we are travelling on the ground
 int CubeObj::getMomentumGround() {

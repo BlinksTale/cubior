@@ -20,6 +20,7 @@ MovingObj::MovingObj(Direction newDirection) {
   firstCollision = false;
   nonstickSurface = false; // stick vs nonstick for player moving with blocks
   permalocked = false;
+  transferLandedMomentum = false;
 
   if (newDirection != West && newDirection != East) {
     lockedX = true;

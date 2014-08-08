@@ -41,12 +41,12 @@ void MovingShape::draw(){
   
   updatePos();
   
-  if (((MovingObj*)selfObj)->isMaster()) {
-    alph = 0.75f;
-  }
-  if (((MovingObj*)selfObj)->isSlave()) {
-    alph = 0.25f;
-  }
+//  if (((MovingObj*)selfObj)->isMaster()) {
+//    alph = 0.75f;
+//  }
+//  if (((MovingObj*)selfObj)->isSlave()) {
+//    alph = 0.25f;
+//  }
   // make sure emotions are on the same page
   updateVisuals();
 

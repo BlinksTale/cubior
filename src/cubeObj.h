@@ -38,7 +38,7 @@ class CubeObj {
     int material, justLandedInt, lastMoved;
     bool jumping, lastJumping, collision, lastCollision, justLandedBool;
     bool lastDirectionConflict, lastDirectionFlip;
-    bool canLandOn, canBeLandedOn;
+    bool canLandOn, canBeLandedOn, transferLandedMomentum;
     CubeObj* landedOn;
     bool landedOnOnline;
     //CameraObj* camera; // for camera cubes to ID their cameras
@@ -67,6 +67,7 @@ class CubeObj {
     int getLandedOnX();
     int getLandedOnY();
     int getLandedOnZ();
+    bool getTransferLandedMomentum();
     void setLandedOnX(int);
     void setLandedOnY(int);
     void setLandedOnZ(int);
