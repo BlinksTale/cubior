@@ -38,7 +38,7 @@ MovingObj::MovingObj(Direction newDirection) {
   buildupZ = 0;
 
   canBeLandedOn = true;
-
+  gravity = 0;
   slaveStatus = false;
   masterStatus = false;
 }
@@ -71,7 +71,7 @@ void MovingObj::updatePosition() {
 
 void MovingObj::collisionEffect(CubeObj* c) {
   if (!c->isPlayer() && flipOnCollision) {
-    flipDirection();
+//    flipDirection();
     // And in order to not flip forever, start moving away from wall
     moveForwards(1);
   }
@@ -81,7 +81,7 @@ void MovingObj::collisionEffect(CubeObj* c) {
 void MovingObj::moveForwards(int distance) {
   // Transitioning from change to momentum right now, please excuse our mess
   if (usingMomentum) {
-    distance *= 100;
+    distance *= 50;
   }
   
   int lastX = this->getX();

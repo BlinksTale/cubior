@@ -1,12 +1,33 @@
+8/13/14
+
+problems:
+when on a moving platform and player pushed against a wall, player is pushed through it
+
+fixed problems:
+moving objects snag on ground - fixed by setting gravity = 0
+moving objects snag on bouncing against each other - nvm, it's just moving on a timer
+
+===
+
 8/7/14
 
-don't have moving blocks "throw" you with their momentum when you jump off
+todo:
+find out why some platforms aren't moving in the right limits/ranges (eg. vertical)
+still a problem with getting sucked up against the wall of a moving block on the side it moves towards or away from
+also: can't go through areas where they might nudge against the edges of another block
+so change tolerance on this somehow?
+
+---
+
+don't have moving blocks "throw" you with their momentum when you jump off - fixed
 nor any moving surface imo! If you jump, it's all you.
 If you are let go of… then you pick up that speed
 eg. a free fall off a moving surface dropping out from under you
 
 darnit cubior you're weighing down the vertical moving blocks
 
+don't allow cubior to influence vertical?
+but must be able to stop it still.
 
 ===
 
