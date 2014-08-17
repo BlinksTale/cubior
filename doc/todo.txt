@@ -1,3 +1,26 @@
+8/17/14
+
+if landedOn != null && collidedWithNotLandedOn // so hit something you're not landed on
+then do NOT update our position based on landedOn's position
+but instead update our landedOn delta
+
+I… that fixed it?
+That was fast. And only like, ten lines of code. Wow. Cool.
+
+we just set collidedWithNotLandedOn to true if any collision when you're landed on something and you're not landed on the thing you just hit
+and then we reset that after updating our delta instead of moving to follow it in tick
+
+===
+
+8/16/14
+
+disabling our landedOn upon an X or Z collision bounce is NOT fixing the passing-through-walls problem
+we want player to not be pushed through wall by the thing it's landed on
+
+so figure out what is pulling it through the wall. It must be landedOn somehow, right? Wouldn't happen without it, but… it's something inbetween, or only a part of it
+
+===
+
 8/13/14
 
 problems:

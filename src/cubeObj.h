@@ -21,7 +21,7 @@ class CubeObj {
     
     string itemType;
     
-    bool fpsRateEnabled, duplicateNeighbor;
+    bool fpsRateEnabled, duplicateNeighbor, collidedWithNotLandedOn;
     bool neighbors[6],visibleNeighbors[6],edges[6],toldToMove,lastToldToMove;
     CubeObj* visibleNeighborObjects[6];
     bool justHitPlayer = false;
@@ -191,6 +191,7 @@ class CubeObj {
     void setToldDirection(float);
     void setToldDirectionAverage(float);
     int getCamDirection(); // translated to camera numbers
+    bool hasLandedOn(CubeObj*);
     int getLandedOn();
     void setLandedOn(int);
     void setInvisible(bool);
@@ -200,6 +201,7 @@ class CubeObj {
     float myFpsRate();
     bool getLastToldToMove();
     int getMaxSpeed();
+    void setCollidedWithNotLandedOn(bool);
 };
 
 #endif 

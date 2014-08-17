@@ -123,7 +123,7 @@ string CubeObj::getType() {
 }
 
 void CubeObj::tick() {
-    
+  
   if (collision || justHitPlayer) {
       setCollision(false);
       justHitPlayer = false;
@@ -133,10 +133,19 @@ void CubeObj::tick() {
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
     if (landedOn != NULL) {
-      int newX = landedOn->getX()+landedOnX;
-      int newZ = landedOn->getZ()+landedOnZ;
-      x = newX;
-      z = newZ;
+      if (collidedWithNotLandedOn) {
+        // Hit something else!
+        // update our landedOn delta instead of moving to the old one
+        updateLandedOnPos();
+        collidedWithNotLandedOn = false;
+      } else {
+        // otherwise, only colliding with our landedOn
+        // so update our position based on landedOn's
+        int newX = landedOn->getX()+landedOnX;
+        int newZ = landedOn->getZ()+landedOnZ;
+        x = newX;
+        z = newZ;
+      }
     }
   
     // cap on toldToMove
@@ -322,7 +331,6 @@ void CubeObj::tick() {
   } else if (timeSinceCollision > timeSinceCollisionMax) {
     timeSinceCollision = timeSinceCollisionMax;
   }
-  
 }
 
 float CubeObj::getStrength() {
@@ -372,6 +380,11 @@ int CubeObj::getCamDirection() {
   int intResult = (int)((result * 360)/(2*M_PI));
 
   return intResult;
+}
+
+bool CubeObj::hasLandedOn(CubeObj* comparison)
+{
+  return landedOn != NULL && landedOn == comparison;
 }
 
 int CubeObj::getLandedOn() {
@@ -989,3 +1002,4 @@ void CubeObj::setInvisible(bool b) { invisible = b; }
 
 bool CubeObj::isInvisible() { return invisible; }
 bool CubeObj::isItem() { return item; }
+void CubeObj::setCollidedWithNotLandedOn(bool b) { collidedWithNotLandedOn = b; }
