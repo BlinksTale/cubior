@@ -35,7 +35,7 @@ class CubeObj {
         jumpable, grounded, lastGrounded, doubleLastGrounded, neighborsSet, visibleNeighborsSet;
     int maxSpeed, friction, falling, minFalling;
     float maxJump, jumpSpeed, jumpSpeedRatio, gravity;
-    int material, justLandedInt, lastMoved;
+    int material, justLandedInt, lastMoved, appliedCollisionMomentumX, appliedCollisionMomentumZ;
     bool jumping, lastJumping, collision, lastCollision, justLandedBool;
     bool lastDirectionConflict, lastDirectionFlip;
     bool canLandOn, canBeLandedOn, transferLandedMomentum;

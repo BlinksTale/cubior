@@ -21,24 +21,24 @@ CubeObj::CubeObj() {
   
   // FPS Rate in use?
   fpsRateEnabled = true;
-
+  
   // by default, not a duplicate neighbor
   // (so you will by default be visible)
   duplicateNeighbor = false;
-
+  
   // Friction for all techniques
   newFriction = 2.5;//2.35;
   friction =  2 ;
   direction = 0.0;
   toldDirection = 0.0;
   strength = 0.0;
-
+  
   // And movement limits & ratios
   maxSpeed = 25 ;
   movementSpeed = 0.4;//0.3;
   minFalling = 10;
   falling = 0;
-
+  
   // material default
   material = 0;
   
@@ -68,7 +68,7 @@ CubeObj::CubeObj() {
   diffX = 0;
   diffY = 0;
   diffZ = 0;
-
+  
   // Movement vars
   movementDivision = 10;
   momentumX = 0 ;
@@ -89,13 +89,13 @@ CubeObj::CubeObj() {
   maxJump = 25 ;
   jumpSpeed = 1;
   jumpSpeedRatio = 5 ;
-
+  
   // Locking vars
   locked = false;
   lockable = true;
   permalocked = false;
   loseMomentumOnLock = false;
-
+  
   // Collision vars
   collision = false;
   justHitPlayer = false;
@@ -106,10 +106,10 @@ CubeObj::CubeObj() {
   // World vars
   gravity = getGravity();
   neighborsSet = false;
-    
+  
   // Shape (nothing special by default, but always better to provide that data)
   itemType = "notAnItem";
-
+  
   // All cubes are solid by default, so other solids can't pass through them
   solid = true;
 }
@@ -119,17 +119,22 @@ void CubeObj::postNeighborInit() {
 }
 
 string CubeObj::getType() {
-    return itemType;
+  return itemType;
 }
 
 void CubeObj::tick() {
-  
+  if (appliedCollisionMomentumX > 0) {
+    appliedCollisionMomentumX = 0;
+  }
+  if (appliedCollisionMomentumZ > 0) {
+    appliedCollisionMomentumZ = 0;
+  }
   if (collision || justHitPlayer) {
-      setCollision(false);
-      justHitPlayer = false;
+    setCollision(false);
+    justHitPlayer = false;
   }
   if (!locked && !permalocked) {
-
+    
     // If on another player, move relative to where you were on them first
     // (since they may have moved, and brought you with them)
     if (landedOn != NULL) {
@@ -147,25 +152,25 @@ void CubeObj::tick() {
         z = newZ;
       }
     }
-  
+    
     // cap on toldToMove
     /*if (toldToMove) {
-      float str = sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist);
-      float dir = 0;
-      if (toldToMoveXDist != 0.0) {
-        dir = tan(toldToMoveZDist/toldToMoveXDist);
-      } else {
-        dir = M_PI/2+toldToMoveZDist/abs(toldToMoveZDist)*M_PI/2;
-      }
-      if (toldToMoveXDist < 0.00000000) { dir += M_PI; }
-      cout << "str is " << str << endl;
-      if (str > 0.8) { str = 0.8; }
-      cout << "and is " << str << endl;
-      toldToMoveXDist = str*cos(dir);
-      toldToMoveZDist = str*sin(dir);
-      cout << "Old for toldis " << (sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist)) << endl;
-    }*/
-
+     float str = sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist);
+     float dir = 0;
+     if (toldToMoveXDist != 0.0) {
+     dir = tan(toldToMoveZDist/toldToMoveXDist);
+     } else {
+     dir = M_PI/2+toldToMoveZDist/abs(toldToMoveZDist)*M_PI/2;
+     }
+     if (toldToMoveXDist < 0.00000000) { dir += M_PI; }
+     cout << "str is " << str << endl;
+     if (str > 0.8) { str = 0.8; }
+     cout << "and is " << str << endl;
+     toldToMoveXDist = str*cos(dir);
+     toldToMoveZDist = str*sin(dir);
+     cout << "Old for toldis " << (sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist)) << endl;
+     }*/
+    
     // cap momentum on ground
     if (momentumX > maxSpeed) { momentumX = maxSpeed; }
     if (momentumX <-maxSpeed) { momentumX =-maxSpeed; }
@@ -178,10 +183,10 @@ void CubeObj::tick() {
     if (abs(momentumX) > 0.00001) {
       if (momentumX > 0.00000) {
         // lesser of two positives
-        x += min( 1*(float)maxMovement,(float)momentumX*myFpsRate()); 
+        x += min( 1*(float)maxMovement,(float)momentumX*myFpsRate());
       } else {
         // greater of two negatives
-        x += max(-1*(float)maxMovement,(float)momentumX*myFpsRate()); 
+        x += max(-1*(float)maxMovement,(float)momentumX*myFpsRate());
       }
     } else {
       // temp fix due to odd snap when this is done *before* sending keypresses
@@ -208,7 +213,7 @@ void CubeObj::tick() {
     } else {
       momentumZ = 0.0000000000;
     }
-
+    
     if (toldToMove) {
       float toldDir = atan(toldToMoveXDist*1.0/toldToMoveZDist);
       if (toldToMoveZDist < 0.00000000) { toldDir += M_PI; }
@@ -239,7 +244,7 @@ void CubeObj::tick() {
         toldToMoveZ = false;
       }
     }
-
+    
     // apply friction if on the ground (universal regardless of toldToMove)
     if (toldToMove || grounded && (abs(momentumX) > 0.00001 || abs(momentumZ) > 0.00001)) {
       // change x/z into dir and str, then apply friction omnidirectionally/in proportion
@@ -274,50 +279,50 @@ void CubeObj::tick() {
       // And then universal friction, for kicks
       // (helps the feel a lot actually, need a more official form of this)
       str -= newFriction*myFpsRate()/16.0;
-
+      
       // Don't have negative strength after all that friction!
       if (str < 0.0) { str = 0.0; }
-
+      
       // Now update direction... maybe, if str was strong enough
       //if (str >= newFriction) {
-        direction = dir;
+      direction = dir;
       //}
       // and always update strength
       if (strength != str) {
         strength = str;
-      } 
+      }
       // then lastly, transfer back to momentumX and Z
       momentumX = sin(direction)*strength;
       momentumZ = cos(direction)*strength;
     }
-      
+    
     // Finally, update if toldToMove or not
   	if (toldToMove) {
       // And if toldToMove, also move that dist
       lastToldToMove = true;
       toldToMove = false; // only here because it was true, must make it false for next time!
-
+      
       //cout << "Hyp for toldis " << (sqrt(toldToMoveXDist*toldToMoveXDist+toldToMoveZDist*toldToMoveZDist)) << endl;
       //cout << "Hyp for x/z is " << (sqrt(momentumX*momentumX+momentumZ*momentumZ)) << " vs " << strength << endl;
 	  } else {
       // Not told to move? Then, we have not done so recently.
       lastToldToMove = false;
-    } 
-
+    }
+    
     calculateDiff();
     
-  // Can lose all momentum on locking if bool is set
+    // Can lose all momentum on locking if bool is set
   } else if (isMoving() && loseMomentumOnLock) { freeze(); }
   //if (playerStatus) { cout << "Post main momentumZ " << momentumZ << endl; }
   
-  //cout << "OneB_06 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-
+  //cout << "OneB_06 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;
+  
   // Momentum loss & gravity apply if free or locked-and-loseMomentum-on-Lock
   if ((!locked || loseMomentumOnLock) && !permalocked) { fall(); }
   //if (playerStatus) { cout << "Post fall momentumZ " << momentumZ << endl; }
   
-  //cout << "OneB_07 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;  
-
+  //cout << "OneB_07 player at "<<x<<", "<<y << ", "<<z<<"\t with momentum "<<momentumX<<", "<<momentumY<<", "<<momentumZ<<endl;
+  
   // And at the end, update your relation to the landedOn
   if (updateLandedOnPos()) {
     // Any changes? Also update your directional diff
@@ -363,10 +368,10 @@ float CubeObj::getToldDirection() {
   return result;
 }
 void CubeObj::setToldDirection(float f) {
-    toldDirection = f;
+  toldDirection = f;
 }
 void CubeObj::setToldDirectionAverage(float f) {
-    toldDirection = (f + toldDirection)/2.0;
+  toldDirection = (f + toldDirection)/2.0;
 }
 
 // Return direction by camera's angle system, and in degrees
@@ -375,10 +380,10 @@ int CubeObj::getCamDirection() {
   float result = getDirection(); // in radians and offset by PI still
   // Rotate to Camera's angle system (not sure why different, FIXME someday?)
   result = result + M_PI;
-
+  
   // Convert to degrees
   int intResult = (int)((result * 360)/(2*M_PI));
-
+  
   return intResult;
 }
 
@@ -408,14 +413,14 @@ void CubeObj::setLandedOn(int landedOnNum) {
 }
 
 void CubeObj::calculateDiff() {
-    // And set diff vals last
-    if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }
-    if (abs(1.0*y-oldY) > 2) { diffY = y - oldY; }
-    if (abs(1.0*z-oldZ) > 2) { diffZ = z - oldZ; }
-    // Then update old vals
-    oldX = x;
-    oldY = y;
-    oldZ = z;
+  // And set diff vals last
+  if (abs(1.0*x-oldX) > 2) { diffX = x - oldX; }
+  if (abs(1.0*y-oldY) > 2) { diffY = y - oldY; }
+  if (abs(1.0*z-oldZ) > 2) { diffZ = z - oldZ; }
+  // Then update old vals
+  oldX = x;
+  oldY = y;
+  oldZ = z;
 }
 // Apply gravity!
 void CubeObj::fall() {
@@ -434,7 +439,7 @@ void CubeObj::fall() {
       toldDirection = landedOn->getToldDirection() + landedOnToldDirectionDiff;
     }
     if (!landedOnOnline) {
-        resetLandedOn();
+      resetLandedOn();
     }
   } // not on a player anymore!
 }
@@ -483,7 +488,7 @@ bool CubeObj::updateLandedOnPos() {
       result = true;
     }
     if (landedOnY != y-landedOn->getY()) {
-
+      
       landedOnY = y-landedOn->getY();
       result = true;
     }
@@ -502,14 +507,14 @@ void CubeObj::setLandedOnX(int newVal) { landedOnX = newVal; }
 void CubeObj::setLandedOnY(int newVal) { landedOnY = newVal; }
 void CubeObj::setLandedOnZ(int newVal) { landedOnZ = newVal; }
 void CubeObj::setLandedOnPos(int newX, int newY, int newZ) {
-    landedOnX = (newX);
-    landedOnY = (newY);
-    landedOnZ = (newZ);
+  landedOnX = (newX);
+  landedOnY = (newY);
+  landedOnZ = (newZ);
 }
 void CubeObj::setLandedOnPosAverage(int newX, int newY, int newZ) {
-    landedOnX = (newX + landedOnX)/2;
-    landedOnY = (newY + landedOnY)/2;
-    landedOnZ = (newZ + landedOnZ)/2;
+  landedOnX = (newX + landedOnX)/2;
+  landedOnY = (newY + landedOnY)/2;
+  landedOnZ = (newZ + landedOnZ)/2;
 }
 
 int CubeObj::getLandedOnCount() {
@@ -522,12 +527,12 @@ int CubeObj::getLandedOnCount() {
 
 // isMoving is any movement bool
 bool CubeObj::isMoving() {
- return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
+  return (momentumX != 0 || momentumZ != 0 || momentumY != 0);
 }
 
 // isMoving is any movement bool
 bool CubeObj::isMovingQuickly() {
- return !(momentumX < 10 && momentumZ < 10 && momentumX > -10 && momentumZ > -10);
+  return !(momentumX < 10 && momentumZ < 10 && momentumX > -10 && momentumZ > -10);
 }
 // isPlayer returns whether just a normal block or a player
 bool CubeObj::isPlayer() {
@@ -551,20 +556,20 @@ void CubeObj::setCameraStatus(bool b) {
 
 // isSolid returns whether collideable or not in tangible world
 bool CubeObj::isSolid() {
-    return solid;
+  return solid;
 }
 
 void CubeObj::setSolid(bool b) {
-    solid = b;
+  solid = b;
 }
 
 /*void CubeObj::setCamera(CameraObj* c) {
-  camera = c;
-}
-
-CameraObj* CubeObj::getCamera() {
-  return camera;
-}*/
+ camera = c;
+ }
+ 
+ CameraObj* CubeObj::getCamera() {
+ return camera;
+ }*/
 
 // Jump is possible if you have hit the ground since last jump
 void CubeObj::jump(bool n) {
@@ -594,13 +599,13 @@ void CubeObj::jump(bool n) {
 
 // Collision Effect defaults to nothing happening
 void CubeObj::collisionEffect(CubeObj* c) {
-    if (c->isPlayer()) {
-      // distToCube returns zero if no collisions. Odd, but use for now. Fixme later
-      if (this->distToCube(c) != 0.0f) {
-        justHitPlayer = true;
-        posAverageBias = 1.0f;
-      }
+  if (c->isPlayer()) {
+    // distToCube returns zero if no collisions. Odd, but use for now. Fixme later
+    if (this->distToCube(c) != 0.0f) {
+      justHitPlayer = true;
+      posAverageBias = 1.0f;
     }
+  }
 }
 
 // Lock to stop midair
@@ -732,13 +737,13 @@ void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
   int o = y - tY;
   int p = z - tZ;
   //cout << "at (" << n << ", " << o << ", " << p << ")" << endl;
-
+  
   // Find ultimate hyp and ratio
   float hypXZ  = sqrt((double)(n*n + p*p));
   float hypXYZ = sqrt((double)(hypXZ*hypXZ + o*o));
   double ratio = delta*(-1.0)/hypXYZ*myFpsRate();
   //cout << "Finding hypXZ as " << hypXZ << " and hypXYZ as " << hypXYZ << " and ratio as " << ratio << endl;
-
+  
   //cout << "hypXYZ is " << hypXYZ << " where delta is " << delta << endl;
   // sometimes NaN
   if (!(ratio != ratio)) {
@@ -747,7 +752,7 @@ void CubeObj::changePosTowards(int tX, int tY, int tZ, double delta) {
       changeX(n*ratio);
       changeY(o*ratio);
       changeZ(p*ratio);
-    // If too close, just land on it
+      // If too close, just land on it
     } else {
       changeX(-n);
       changeY(-o);
@@ -762,15 +767,15 @@ void CubeObj::setMomentumX(float n) { momentumX = n * movementSpeed / movementDi
 void CubeObj::setMomentumY(float n) { momentumY = n * movementSpeed / movementDivision; }
 void CubeObj::setMomentumZ(float n) { momentumZ = n * movementSpeed / movementDivision; }
 
-void CubeObj::setMomentum(vector<float> m) { 
+void CubeObj::setMomentum(vector<float> m) {
   momentumX = (m.at(0) * movementSpeed / movementDivision);
   momentumY = (m.at(1) * movementSpeed / movementDivision);
   momentumZ = (m.at(2) * movementSpeed / movementDivision);
 }
 void CubeObj::setMomentumAverage(vector<float> m) {
-    momentumX = (m.at(0) * movementSpeed / movementDivision + momentumX)/2.0;
-    momentumY = (m.at(1) * movementSpeed / movementDivision + momentumY)/2.0;
-    momentumZ = (m.at(2) * movementSpeed / movementDivision + momentumZ)/2.0;
+  momentumX = (m.at(0) * movementSpeed / movementDivision + momentumX)/2.0;
+  momentumY = (m.at(1) * movementSpeed / movementDivision + momentumY)/2.0;
+  momentumZ = (m.at(2) * movementSpeed / movementDivision + momentumZ)/2.0;
 }
 
 // Just wipe out any old toldToMove commands
@@ -831,7 +836,7 @@ void CubeObj::movePos(float n, float o, float p) {
   toldToMoveXDist = n;
   toldToMoveYDist = o;
   toldToMoveZDist = p;
-
+  
   //momentumX += n * movementSpeed*myFpsRate() / movementDivision;
   //momentumY += o * movementSpeed*myFpsRate() / movementDivision;
   //momentumZ += p * movementSpeed*myFpsRate() / movementDivision;
@@ -853,14 +858,14 @@ int CubeObj::getMomentumX() { return momentumX * movementDivision; }
 int CubeObj::getMomentumY() { return momentumY * movementDivision; }
 int CubeObj::getMomentumZ() { return momentumZ * movementDivision; }
 vector<float> CubeObj::getMomentum() {
-    float momentumArray[] = {
-        momentumX * movementDivision,
-        momentumY * movementDivision,
-        momentumZ * movementDivision
-    };
-    std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
-
-    return newMomentum;
+  float momentumArray[] = {
+    momentumX * movementDivision,
+    momentumY * movementDivision,
+    momentumZ * movementDivision
+  };
+  std::vector<float> newMomentum (momentumArray, momentumArray + sizeof(momentumArray) / sizeof(float) );
+  
+  return newMomentum;
 }
 bool CubeObj::getTransferLandedMomentum() { return transferLandedMomentum; }
 int CubeObj::getMaxJump() { return maxJump; }
@@ -911,17 +916,17 @@ bool CubeObj::isColumn() {
 }
 // If neighbors on both sides for two dimensions
 bool CubeObj::isWall() {
-  return neighborsSet
-       &&((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
-       ||((neighbors[0]&&neighbors[1])&&(neighbors[4]&&neighbors[5]))
-       ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5]));
+  return neighborsSet &&
+  (((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+   ||((neighbors[0]&&neighbors[1])&&(neighbors[4]&&neighbors[5]))
+   ||((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5])));
 }
 
 // If neighbors on both sides for two dimensions, one must be vertical (2 & 3)
 bool CubeObj::isVertWall() {
   return neighborsSet
-       &&(((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
-       || ((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5])));
+  &&(((neighbors[0]&&neighbors[1])&&(neighbors[2]&&neighbors[3]))
+     || ((neighbors[2]&&neighbors[3])&&(neighbors[4]&&neighbors[5])));
 }
 
 // For being up against an edge of the map - used mostly in collision detection
@@ -935,8 +940,18 @@ void CubeObj::setEdges(bool x1, bool x2, bool y1, bool y2, bool z1, bool z2) {
 }
 bool* CubeObj::getEdges() { return edges; }
 void CubeObj::setCollision(bool b) { collision = b; }
-void CubeObj::applyCollisionMomentumX() { momentumX *= 0.95; }
-void CubeObj::applyCollisionMomentumZ() { momentumZ *= 0.95; }
+void CubeObj::applyCollisionMomentumX() {
+  if (appliedCollisionMomentumX < 9) {
+    momentumX *= 0.95;
+    appliedCollisionMomentumX++;
+  }
+}
+void CubeObj::applyCollisionMomentumZ() {
+  if (appliedCollisionMomentumZ < 9) {
+    momentumZ *= 0.95;
+    appliedCollisionMomentumZ++;
+  }
+}
 bool CubeObj::getCollision() { return collision; }
 
 // Checks if diff between dir and toldDir by >=90 deg (but radians, so PI/2)
@@ -969,12 +984,12 @@ int CubeObj::getAlternatingSpotSize() {
 }
 bool CubeObj::getAlternatingSpot() { // return if in a checker or not
   bool alternatingSpot =( // calculate if given a dark checker spot or not
-      (x<0)^((int(abs(x+1))%(altSize*2)<altSize))
-    ) ^ (
-      (y<0)^((int(abs(y+1))%(altSize*2)<altSize))
-    )^ (
-      (z<0)^((int(abs(z+1))%(altSize*2)<altSize))
-    );
+                         (x<0)^((int(abs(x+1))%(altSize*2)<altSize))
+                         ) ^ (
+                              (y<0)^((int(abs(y+1))%(altSize*2)<altSize))
+                              )^ (
+                                  (z<0)^((int(abs(z+1))%(altSize*2)<altSize))
+                                  );
   return alternatingSpot;
 }
 // check if you have been set as a duplicate, eliminated by extended polygons
