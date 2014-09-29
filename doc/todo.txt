@@ -1,4 +1,177 @@
+9/20/14
+
+oh, just limit it to only allow one reduce per direction per tick
+
+===
+
+9/18/14
+
+if we're so set on the idea that it's multiple momentum restrictions,
+why not just double check that you're not getting the same directional momentum restriction from the same object?
+
+have each master check each dimension for each player each turn
+or rather
+if any recorded collisions, reset on tick
+then on a collision with slave or master, check if allowed for that player at that angle
+
+tried to implement a reverse system where instead of updating position from slave based on master, master tells all slaves to update pos
+so commented out original updatePosition and made a new one and now none of it works (yay)
+
+---
+
+seems to only apply when pulling away from the cube's moving direction
+so if moving S, then hitting the N side then turning around and pulling N gets you stuck
+
+something with setX/Y/Z?
+
+it's literally only a slave block thing, and only when stacked vertically
+
+new problem: if we have an L shape moving block, standing on the base of the L and pressing against a wall will give infinite push
+
+also proved that issue only arrises for collision with 2 tall at once,
+not greater 2 tall structure (I's, not L's)
+
+===
+
+9/15/14
+
+just got put on full time for Disney, so that's cool. :)
+also distracting from Cubior! Also Birthday. Also White House Game Jam. Also lots of big ampitheater shows this past weekend and paperwork last week and and and…
+
+so!
+
+slave blocks will lock you against them if you try to pull away from them on their axis of movement
+oh cool
+so it's just vertically stacked blocks
+meaning you've got a collision with the block above you…?
+so if you collide with a block on your level and there is a block one level above, you get stuck. Probably due to some falling/gravity collision issue…?
+
+next: check collision vertically and compare how it happens for special objects to normal walls (which don't have this issue)
+
+same collisions have no problem in a non-moving axis
+disabling applyCollisionMomentum also stops problem
+
+we definitely get to a momentum of 8 that would move us away from the blocks
+but instead we stay stuck. Where usually diffZ becomes 2 from the many 1's and -1's,
+instead it stays in the 1's and -1's, then never gets past 8 (while usually it increases)
+
+
+===
+
+8/23/14
+
+really: why does it happen with slave blocks, but not master blocks? What if there are no slave blocks or something? Try experimenting with that next?
+okay… so all master and no problems.
+even if not updating position in collision.cpp! Still sticking.
+
+disabling buildup didn't help
+disabling movingObj's super::collisionEffect didn't help
+disabling updatePosition didn't help
+disabling super::tick didn't help
+
+---
+
+if it is ApplyCollisionMomentum being applied a million times, maybe track if collision already applied once and then don't apply it again that tick if you have?
+
+we're actually getting a lot of momentum reduced calls even on smaller moving block groups
+or individual blocks?
+yeah either way it's a ton of reduced momentums
+
+permalocked items get one or two collisions per tick
+moving nonpermalocked gets closer to ten
+the two in one or two is that one is ground!
+so why does permalocked get one collision per tick while nonpermalocked gets ten?
+and player on player prints nothing? No reduce force?
+hm, player on player also gives the dozen or so collisions
+fix that?
+
+maybe just store a collidedWithThisTick
+and save there every object we hit in this tick if we're a player
+and if we already collided with that object, don't store it again or apply friction again
+(but we can still be moved by it, just no more friction or w/e)
+using "alreadyCollidedWith"
+
+but if it's applyCollisionMomentum, why isn't it used for Y?
+no it must be something else
+
+maybe it's two problems: one is movement for Y (jumping not an issue when not moving)
+and the other is applyCollisionMomentum for X and Z
+
+yeah, they do appear to be separate problems
+
+===
+
+8/21/14
+
+ApplyCollisionMomentum is the source! The solution is within our grasp!
+
+---
+
+if movingObj updatePos is commented out and bounceByDiff slave code is too, no error!
+but also no real functionality.
+
+I blame ChangeX/Y/Z and SetX/Y/Z since both are rarely used, but definitely used here
+so why does change/set cause freezing up?
+is it ApplyCollisionMomentum?
+it is 100% applyCollisionMomentum! Must be *.95f-ing it to obliteration!
+
+wait, why does it count a collision when we're moving away?
+
+so it could be order of operations, maybe don't count our motions until after collisions
+or it could just be something in collision.cpp leaving an overlap or something?
+maybe we're getting a bajillion calls to ApplyCollisionMomentum
+either way, look in collision.cpp and the ApplyCollisionMomentum calls for the solution
+
+---
+
+fix the "can't move away from moving blocks" issue
+which is entirely due to the changePos system
+
+updating momentum did not help
+
+even when a moving block is made of both a master and slaves, the master does not have this affect, but the slaves do
+so it must be something slave cubes are doing differently?
+
+odd: I can't move away even when it's stuck to a wall?
+oi! Even if it's not moving at all! I can be stuck to that side!
+The side opposite of the direction it should be moving in.
+
+Gone when super::init is disabled…? no, nvm.
+even with whole init disabled, still sticks (but item type and not permalocked left in)
+
+just being a slave object is enough to hold back Cubior. So what is that doing exactly?
+something in collision.cpp?
+bounceByDiff is the source, slave code here, when commented out, fixes it
+
+ohh, updatePosition is also responsible.
+actually update position is ONLY responsible - it gets called from multiple places
+wait, no, update position and something else?
+
+well updatePosition in movingObj and bounceByDiff slave stuff seemed like it would work
+but it doesn't!
+oh whoops that's since it wasn't commented out >_<
+yes okay it works but likely only because nothing matters anymore! It all moves by your touch
+but! We have the issue a little more isolated
+
+===
+
 8/17/14
+
+next issue:
+can't move away from a block moving towards you
+eg. can't jump on a block moving up, but can when it moves down. Can't go left from the left edge of a block moving left, etc.
+
+why do I think this might be?
+something with collision and the momentum, maybe the moving block steals your momentum
+or repositions you due to a collision
+hm
+Might be not applicable for individual blocks
+only slave blocks with their change calls are doing it maybe?
+wow 100% right, it's only slave blocks
+so maybe change "change" to something else
+or do a momentum thing with change?
+
+---
 
 if landedOn != null && collidedWithNotLandedOn // so hit something you're not landed on
 then do NOT update our position based on landedOn's position
